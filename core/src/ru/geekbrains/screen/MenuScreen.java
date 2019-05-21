@@ -19,7 +19,7 @@ public class MenuScreen extends BaseScreen {
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer = new ShapeRenderer();
     private GameObject obj;
-    private Instant tick;
+    Texture bhackground;
     private BitmapFont font;
 
     private Normals normals = new Normals();
@@ -31,26 +31,41 @@ public class MenuScreen extends BaseScreen {
     public void show() {
         super.show();
 
-        batch = new SpriteBatch();
-        shapeRenderer = new ShapeRenderer();
-        font = new BitmapFont();
-        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        font.getData().setScale(5f);
-        font.setColor(Color.RED);
-        tick = Instant.now();
-        obj = new GameObject("badlogic.jpg");
-        obj.pos = new Vector2(obj.radius + 100, obj.radius + 100);
+
+        try {
+            batch = new SpriteBatch();
+            shapeRenderer = new ShapeRenderer();
+            font = new BitmapFont();
+            font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            font.getData().setScale(5f);
+            font.setColor(Color.RED);
+            bhackground = new Texture("starsky3.jpg");
+            obj = new GameObject("unnamed555.png");
+            obj.pos = new Vector2(obj.radius + 100, obj.radius + 100);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
 
+        int w = Gdx.graphics.getWidth();
+        int h = Gdx.graphics.getHeight();
+
+        // simulator step
         step(delta);
 
 
-        Gdx.gl.glClearColor(0.4f, 0.3f, 0.9f, 1f);
+        Gdx.gl.glClearColor(1f, 1f, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        batch.begin();
+        batch.draw(bhackground, 0, 0, w, h);
+        batch.end();
+
 
         // target
         shapeRenderer.setColor(Color.WHITE);
@@ -58,8 +73,11 @@ public class MenuScreen extends BaseScreen {
         shapeRenderer.circle(target.x, target.y, 32);
         shapeRenderer.end();
 
+
         batch.begin();
         obj.draw(batch);
+
+
 
         if(obj.fuel <=0) {
             font.draw(batch, "Out of fuel",
@@ -69,6 +87,7 @@ public class MenuScreen extends BaseScreen {
 
 
         batch.end();
+
     }
 
     @Override
