@@ -11,7 +11,7 @@ import ru.geekbrains.sprite.Sprite;
 public class Kerbonaut {
 
     public static final float MAX_FUEL = 300f;       // maximum fuel tank capacity
-    public static final float MAX_THRUSTER = 0.5f; // maxinum thruster engine force
+    public static final float MAX_THRUSTER = 0.3f; // maxinum thruster engine force
 
     public Vector2 pos = new Vector2();             // position
     public Vector2 vel = new Vector2();             // velocity
