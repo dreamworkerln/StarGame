@@ -185,39 +185,46 @@ public class MenuScreen extends BaseScreen {
 
         Vector2 n;
 
+        // Подстраиваем левую и правую стенки игрового мира(world) под соотношенире сторон устройства
+        float leftBound = worldBounds.getLeft() * aspect;
+        float rightBound = worldBounds.getRight() * aspect;
+
+        float upBound = worldBounds.getTop();
+        float downBound = worldBounds.getBottom();
+
         // reflected_vel=vel−2(vel⋅n)n, where n - unit normal vector
-        if (kerb.pos.x - kerb.radius < worldBounds.getLeft()) {
+        if (kerb.pos.x - kerb.radius < leftBound) {
 
             n = borderNormals.left;
             kerb.vel.x = kerb.vel.x - 2 *n.x * kerb.vel.dot(n);
             kerb.vel.y = kerb.vel.y - 2 *n.y * kerb.vel.dot(n);
             // move away from edge to avoid barrier penetration
-            kerb.pos.x = 2 * worldBounds.getLeft() + 2*kerb.radius - kerb.pos.x;
+            kerb.pos.x = 2 * leftBound + 2*kerb.radius - kerb.pos.x;
         }
 
-        if (kerb.pos.x + kerb.radius > worldBounds.getRight()) {
+        if (kerb.pos.x + kerb.radius > rightBound) {
 
             n = borderNormals.right;
             kerb.vel.x = kerb.vel.x - 2 *n.x * kerb.vel.dot(n);
             kerb.vel.y = kerb.vel.y - 2 *n.y * kerb.vel.dot(n);
-            kerb.pos.x = 2 * worldBounds.getRight() - 2*kerb.radius - kerb.pos.x;
+            kerb.pos.x = 2 * rightBound - 2*kerb.radius - kerb.pos.x;
         }
 
-        if (kerb.pos.y - kerb.radius < worldBounds.getBottom()) {
+        if (kerb.pos.y - kerb.radius < downBound) {
 
             n = borderNormals.down;
             kerb.vel.x = kerb.vel.x - 2 *n.x * kerb.vel.dot(n);
             kerb.vel.y = kerb.vel.y - 2 *n.y * kerb.vel.dot(n);
-            kerb.pos.y = 2 * worldBounds.getBottom() + 2*kerb.radius - kerb.pos.y;
+            kerb.pos.y = 2 * downBound + 2*kerb.radius - kerb.pos.y;
 
         }
 
-        if (kerb.pos.y + kerb.radius > worldBounds.getTop()) {
+        if (kerb.pos.y + kerb.radius > upBound) {
 
             n = borderNormals.up;
             kerb.vel.x = kerb.vel.x - 2 *n.x * kerb.vel.dot(n);
             kerb.vel.y = kerb.vel.y - 2 *n.y * kerb.vel.dot(n);
-            kerb.pos.y = 2 * worldBounds.getTop() - 2 *kerb.radius - kerb.pos.y;
+            kerb.pos.y = 2 * upBound - 2 *kerb.radius - kerb.pos.y;
         }
     }
 

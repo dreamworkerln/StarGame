@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -16,31 +15,34 @@ import ru.geekbrains.math.Rect;
 public abstract class BaseScreen implements Screen, InputProcessor {
 
     protected SpriteBatch batch;
-    protected ShapeRenderer shapeRenderer;
+    //protected ShapeRenderer shapeRenderer;
 
 
     private Vector3 touch;
     protected Vector2 target;
 
-    protected Rect screenBounds;
-    protected Rect worldBounds;
-    protected Rect glBounds;
+    protected Rect touchBounds;  // координаты экрана телефона, в том виде, как он их выплевывает onTouch
+    protected Rect worldBounds;  // мировые координаты
+    protected Rect clipBounds;   // clip space + screen space (костыли)
+    protected float aspect;
 
-    private Matrix4 worldToGl;
+    private Matrix4 worldToClip;
     private Matrix3 screenToWorld;
+
+
 
     @Override
     public void show() {
         System.out.println("show");
         Gdx.input.setInputProcessor(this);
         this.batch = new SpriteBatch();
-        this.shapeRenderer = new ShapeRenderer();
         this.touch = new Vector3();
         this.target = new Vector2();
-        this.screenBounds = new Rect();
+        this.touchBounds = new Rect();
         this.worldBounds = new Rect();
-        this.glBounds = new Rect(0, 0, 1f, 1f);
-        this.worldToGl = new Matrix4();
+        //this.clipBounds = new Rect(0, 0, 1f, 1f);
+        this.clipBounds = new Rect();
+        this.worldToClip = new Matrix4();
         this.screenToWorld = new Matrix3();
     }
 
@@ -53,6 +55,8 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     public void resize(int width, int height) {
         System.out.println("resize width = " + width + " height = " + height);
 
+        aspect = width / (float) height;
+
         // setup transition to another coordinate system using affine transformation
 
         // https://open.gl/transformations
@@ -63,26 +67,33 @@ public abstract class BaseScreen implements Screen, InputProcessor {
         // Prepare transition from Screen to World
 
         // set translation vector between old and new coordinate system (in old coordinates)
-        screenBounds.setPos( new Vector2(width / 2f, height / 2f));
+        touchBounds.setPos( new Vector2(width / 2f, height / 2f));
 
         // so we will apply translation first, then scaling
         // - y to apply inversion transformation over X axe
-        screenBounds.setSize(width, -height);
+        touchBounds.setSize(width  / aspect, -height);
 
-        float aspect = width / (float) height;
+
 
         // setup World
         worldBounds.setHeight(1f);
-        worldBounds.setWidth(1f * aspect);
+        worldBounds.setWidth(1f);
 
-        // Get Transition matrix from world to Gl coordinate system
-        MatrixUtils.calcTransitionMatrix(worldToGl, worldBounds, glBounds);
+        //https://learnopengl.com/Getting-started/Coordinate-Systems
+
+        // OpenGL ((-1,-1), (1,1)) clip space
+        clipBounds.setHeight(2f);
+        clipBounds.setWidth(2f / aspect); // костыль на aspect ratio
+        // (видимо, где-то там в блевотеке lib_gdx aspect уже учитывается, в районе вызова glViewport)
+
+        // Get Transition matrix from world to ClipSpace coordinate system
+        MatrixUtils.calcTransitionMatrix(worldToClip, worldBounds, clipBounds);
         // apply to batcher
-        batch.setProjectionMatrix(worldToGl);
-        shapeRenderer.setProjectionMatrix(worldToGl);
+        batch.setProjectionMatrix(worldToClip);
+        //shapeRenderer.setProjectionMatrix(worldToClip);
 
         // Get Transition matrix from Screen to World coordinate system
-        MatrixUtils.calcTransitionMatrix(screenToWorld, screenBounds, worldBounds);
+        MatrixUtils.calcTransitionMatrix(screenToWorld, touchBounds, worldBounds);
         resize(worldBounds);
     }
 
