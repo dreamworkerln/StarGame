@@ -68,9 +68,27 @@ public class MenuScreen extends BaseScreen {
         Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+
         // batching
         batch.begin();
         background.draw(batch);
+        batch.end();
+
+        Gdx.gl.glLineWidth(2);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.BLUE);
+        shapeRenderer.line(new Vector2(-1f, 0f), new Vector2(1, 0f));
+        shapeRenderer.line(new Vector2(0f, -1f), new Vector2(0, 1f));
+        shapeRenderer.end();
+        Gdx.gl.glLineWidth(1);
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.circle(0.1f, 0.1f, 0.5f);
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.end();
+
+
+        batch.begin();
         reticle.draw(batch);
 
         for (Kerbonaut kerb : kerbonauts) {
