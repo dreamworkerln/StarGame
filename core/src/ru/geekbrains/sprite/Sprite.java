@@ -38,6 +38,8 @@ public class Sprite extends Rect {
     }
 
     public void draw(SpriteBatch batch) {
+
+        batch.begin();
         batch.draw(
                 textureList[frame],
                 getLeft(), getBottom(),
@@ -46,6 +48,7 @@ public class Sprite extends Rect {
                 scale, scale,
                 angle
         );
+        batch.end();
     }
 
 

@@ -10,14 +10,18 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import ru.geekbrains.entities.Renderer;
 import ru.geekbrains.math.MatrixUtils;
 import ru.geekbrains.math.Rect;
 
 public abstract class BaseScreen implements Screen, InputProcessor {
 
-    protected SpriteBatch batch;
 
-    ShapeRenderer shapeRenderer = new ShapeRenderer();
+    protected Renderer renderer;
+
+    //protected SpriteBatch batch;
+
+    //ShapeRenderer shapeRenderer = new ShapeRenderer();
     //protected ShapeRenderer shapeRenderer;
 
 
@@ -38,7 +42,10 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     public void show() {
         System.out.println("show");
         Gdx.input.setInputProcessor(this);
-        this.batch = new SpriteBatch();
+
+        this.renderer = new Renderer(new SpriteBatch(), new ShapeRenderer());
+        renderer.shape.setAutoShapeType(true);
+
         this.touch = new Vector3();
         this.target = new Vector2();
         this.touchBounds = new Rect();
@@ -67,35 +74,31 @@ public abstract class BaseScreen implements Screen, InputProcessor {
         // https://compgraphics.info/2D/affine_transform.php
         // (use tor-browser if can't access this pages)
 
-        // Prepare transition from Screen to World
-
-        // set translation vector between old and new coordinate system (in old coordinates)
-        touchBounds.setPos( new Vector2(width / 2f, height / 2f));
-
-        // so we will apply translation first, then scaling
-        // - y to apply inversion transformation over X axe
-        touchBounds.setSize(width  / aspect, -height);
-
-
-
         // setup World
-        worldBounds.setHeight(1f);
-        worldBounds.setWidth(1f);
+        worldBounds.setHeight(1000f);
+        worldBounds.setWidth(1000f);
 
         //https://learnopengl.com/Getting-started/Coordinate-Systems
 
-        // OpenGL ((-1,-1), (1,1)) clip space
+        // OpenGL ((-1,-1), ( 1, 1)) clip space
         clipBounds.setHeight(2f);
         clipBounds.setWidth(2f / aspect); // костыль на aspect ratio
         // (видимо, где-то там в блевотеке lib_gdx aspect уже учитывается, в районе вызова glViewport)
 
         // Get Transition matrix from world to ClipSpace coordinate system
         MatrixUtils.calcTransitionMatrix(worldToClip, worldBounds, clipBounds);
-        // apply to batcher
-        batch.setProjectionMatrix(worldToClip);
-        //shapeRenderer.setProjectionMatrix(worldToClip);
 
-        shapeRenderer.setProjectionMatrix(worldToClip);
+        // apply to batcher and shapeRenderer
+        renderer.batch.setProjectionMatrix(worldToClip);
+        renderer.shape.setProjectionMatrix(worldToClip);
+
+        // Prepare transition from Screen to World
+        // set translation vector between old and new coordinate system (in old coordinates)
+        touchBounds.setPos( new Vector2(width / 2f, height / 2f));
+
+        // so we will apply translation first, then scaling
+        // - y to apply inversion transformation over X axe
+        touchBounds.setSize(width  / aspect, -height);
 
         // Get Transition matrix from Screen to World coordinate system
         MatrixUtils.calcTransitionMatrix(screenToWorld, touchBounds, worldBounds);
@@ -125,7 +128,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     @Override
     public void dispose() {
         System.out.println("dispose");
-        batch.dispose();
+        renderer.dispose();
     }
 
 

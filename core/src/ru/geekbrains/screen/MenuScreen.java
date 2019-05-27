@@ -16,6 +16,7 @@ import ru.geekbrains.entities.Kerbonaut;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;
+import ru.geekbrains.storage.Game;
 
 public class MenuScreen extends BaseScreen {
 
@@ -32,15 +33,15 @@ public class MenuScreen extends BaseScreen {
     public void show() {
         super.show();
         background = new Background(new TextureRegion(new Texture("background.jpg")));
-        background.setHeightAndResize(1.2f);
+        background.setHeightAndResize(1200f);
 
 
         reticle = new Reticle(new TextureRegion(new Texture("reticle.png")));
-        reticle.setHeightAndResize(0.05f);
+        reticle.setHeightAndResize(50f);
 
         Kerbonaut jebediah = new Kerbonaut(new TextureRegion(new Texture("jebediah2.png")));
-        jebediah.pos = new Vector2(+0.1f, +0.2f);
-        jebediah.setHeightAndResize(0.07f);
+        jebediah.pos = new Vector2(+100f, +200f);
+        jebediah.setHeightAndResize(70f);
         jebediah.target = target;         //add target
         kerbonauts.add(jebediah);
 
@@ -48,8 +49,8 @@ public class MenuScreen extends BaseScreen {
         //jebediah.vel = new Vector2(-0.2f,-0.2f);
 
         Kerbonaut valentina = new Kerbonaut(new TextureRegion(new Texture("valentina.png")));
-        valentina.pos = new Vector2(-0.1f, -0.2f);
-        valentina.setHeightAndResize(0.07f);
+        valentina.pos = new Vector2(-100f, -200f);
+        valentina.setHeightAndResize(70f);
         valentina.target = jebediah.pos;  //add target
         kerbonauts.add(valentina);
     }
@@ -69,32 +70,26 @@ public class MenuScreen extends BaseScreen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
-        // batching
-        batch.begin();
-        background.draw(batch);
-        batch.end();
+        // background
+        background.draw(renderer.batch);
 
-        Gdx.gl.glLineWidth(2);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.BLUE);
-        shapeRenderer.line(new Vector2(-1f, 0f), new Vector2(1, 0f));
-        shapeRenderer.line(new Vector2(0f, -1f), new Vector2(0, 1f));
-        shapeRenderer.end();
-        Gdx.gl.glLineWidth(1);
+        // coordinate axis
+        renderer.shape.begin();
+        //Gdx.gl.glLineWidth(2);
+        renderer.shape.set(ShapeRenderer.ShapeType.Line);
+        renderer.shape.setColor(Color.BLUE);
+        renderer.shape.line(new Vector2(-1000f, 0f), new Vector2(1000, 0f));
+        renderer.shape.line(new Vector2(0f, -1000f), new Vector2(0, 1000f));
+        //Gdx.gl.glLineWidth(1);
+        renderer.shape.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.circle(0.1f, 0.1f, 0.5f);
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.end();
+        // reticle
+        reticle.draw(renderer.batch);
 
-
-        batch.begin();
-        reticle.draw(batch);
-
+        // kerbonauts
         for (Kerbonaut kerb : kerbonauts) {
-            kerb.draw(batch);
+            kerb.draw(renderer);
         }
-        batch.end();
     }
 
 
@@ -144,59 +139,23 @@ public class MenuScreen extends BaseScreen {
 
         // kerbonauts
 
-//        // check kerbonaut collision
-//        collide();
-
-
         for (Kerbonaut kerb : kerbonauts) {
-
 
             // check wall bouncing
             borderBounce(kerb);
 
-
             // -----------------------------------------------------------------------------------
-
-            // apply medium resistance - proportionally speed
-            kerb.mediumRes.set(kerb.vel);
-
-            // medium resistance ~ vel -
-            //obj.mediumRes.scl(-0.001f * (obj.vel.len() + 1000));
-
-            //scale
-            kerb.mediumRes.scl(-0.1f);
-
-            // -----------------------------------------------------------------------------------
-
-            // Kerbonaut jetpack thruster force
-
-            kerb.vecTarget.set(kerb.target).sub(kerb.pos);
-            kerb.thruster.set(kerb.vecTarget);
-
-            if (kerb.vecTarget.len() > kerb.radius / 4f) {
-                kerb.thruster.setLength(Kerbonaut.MAX_THRUSTER);
-            }
-            else {
-                kerb.thruster.setLength(0);
-            }
-
-            // calc result force
-            kerb.force.setZero(); //zeroing
-            kerb.force.add(kerb.mediumRes); // media resistance
-            if (kerb.fuel > 0) {
-                kerb.force.add(kerb.thruster); // thruster
-            }
-
-            kerb.applyForce(); // calc resulting acceleration
-
             // update velocity, position
+            kerb.force.setZero();
             kerb.update(dt);
         }
+
+        Game.INSTANCE.updateTick();
 
     }
 
 
-    private void borderBounce(Kerbonaut kerb) {
+    protected void borderBounce(Kerbonaut kerb) {
 
         // wall bouncing ----------------------------------------
         //https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
@@ -246,6 +205,8 @@ public class MenuScreen extends BaseScreen {
         }
     }
 
+}
+
 
 //    private void collide() {
 //
@@ -261,5 +222,3 @@ public class MenuScreen extends BaseScreen {
 //        }
 //
 //    }
-
-}
