@@ -79,7 +79,7 @@ public class MenuScreen extends BaseScreen {
 
 
 
-        for (int i= 0; i < 300; i++) {
+        for (int i= 0; i < 10; i++) {
 
             DrivenObject enemyShip = new DrivenObject(new TextureRegion(new Texture("ship_enemy.png")), 50);
             enemyShip.pos = new Vector2(MathUtils.random(-700, 700), MathUtils.random(-700, 700));
