@@ -68,6 +68,7 @@ public class MenuScreen extends BaseScreen {
         player.pos = new Vector2(+700f, +700f);
         player.target = null;         //add target
         player.guidance = Guidance.MANUAL;
+        player.name = "player";
         gameObjects.add(player);
 
 
@@ -78,12 +79,13 @@ public class MenuScreen extends BaseScreen {
 
 
 
-        for (int i= 0; i < 1; i++) {
+        for (int i= 0; i < 3; i++) {
 
             DrivenObject enemyShip = new DrivenObject(new TextureRegion(new Texture("ship_enemy.png")), 50);
             enemyShip.pos = new Vector2(MathUtils.random(-700, 700), MathUtils.random(-700, 700));
             enemyShip.target = player.pos;  //add target
             enemyShip.maxRotationSpeed *= 4;
+            enemyShip.name = "enemyship_" + i;
             gameObjects.add(enemyShip);
         }
     }
@@ -123,9 +125,9 @@ public class MenuScreen extends BaseScreen {
         // player trajectory sim
 
         renderer.shape.begin();
+        Gdx.gl.glLineWidth(1);
         renderer.shape.set(ShapeRenderer.ShapeType.Line);
         renderer.shape.setColor(Color.YELLOW);
-        Gdx.gl.glLineWidth(2);
 
         for (int i = 0; i< trajectorySimulated.size() -2; i++) {
             renderer.shape.line(trajectorySimulated.get(i), trajectorySimulated.get(i+1));
@@ -187,27 +189,32 @@ public class MenuScreen extends BaseScreen {
             // check wall bouncing
             borderBounce(obj);
 
-            // checkk falling to planet
+            // check falling to planet
             checkPlanetCollide(obj);
 
-            // -----------------------------------------------------------------------------------
             // update velocity, position
             obj.update(dt);
+
+            // -------------------------------------------------------------------------------------
+
+            // add obj to objectsToDelete
+            if (obj.readyToDispose) {
+                objectsToDelete.add(obj);
+            }
         }
 
         // simulate player trajectory to future steps
         simulatePlayerTrajectory();
-
 
         // remove dead objects
         for (GameObject o : objectsToDelete) {
             gameObjects.remove(o);
             o.dispose();
         }
+        objectsToDelete.clear();
 
-
+        // increment game clock
         Game.INSTANCE.updateTick();
-
     }
 
 
@@ -301,10 +308,11 @@ public class MenuScreen extends BaseScreen {
         tmp1.sub(obj.pos);
 
         if (tmp1.len() <= planet.getRadius() + obj.getRadius()) {
-
-            objectsToDelete.add(obj);
+            obj.explode();
         }
     }
+
+
 
 
     private void simulatePlayerTrajectory() {
@@ -331,13 +339,11 @@ public class MenuScreen extends BaseScreen {
             if (tmp1.len() <= planet.getRadius() + trajectorySim.getRadius()) {
                 break;
             }
-
-
-            //checkPlanetCollide(trajectorySim);
-
+            
             // update velocity, position
             trajectorySim.update(dt);
 
+            // add new point to simulated trajectory
             trajectorySimulated.add(trajectorySim.pos.cpy());
         }
 

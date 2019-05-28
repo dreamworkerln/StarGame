@@ -18,17 +18,21 @@ public class GameObject {
     protected Vector2 tailVec = new Vector2();         // vector of tail
     protected Vector2 tailPos = new Vector2();         // tail position
 
-    //protected Vector2 thrusterForce = new Vector2();   // thrusterForce
-
-
-    
     protected Vector2 tmpForce = new Vector2();     // tmp force
     public Vector2 force = new Vector2();           // resulting force (sum of all forces)
     protected float radius;                            // object radius (== halfHeight)
     public float mass = 1;                          // mass
     public float momentInertia = 1;                 // moment of inertia
 
+    public boolean exploded = false;                  // object exploded
+    public boolean readyToDispose = false;            // object ready to dispose
+
     protected Sprite sprite;                          // displaying sprite
+
+    protected Explosion explosion;                    // explosion animation
+
+    long deathCounter = -1;
+
 
     protected Vector2 tmp1 = new Vector2();           // buffer
     protected Vector2 tmp2 = new Vector2();           // buffer
@@ -87,14 +91,38 @@ public class GameObject {
         tmp1.set(vel); // v*t
         tmp2.set(acc); // (a*t^2)/2
 
-        // update position
-        pos.add(tmp1.scl(dt)).add(tmp2.scl(dt * dt / 2f));
+
+
+        if (!exploded) {
+            // update position
+            pos.add(tmp1.scl(dt)).add(tmp2.scl(dt * dt / 2f));
+        }
+        // stay on place if exploded
+
+
+
 
         // =========================================================================================
 
         // update sprite position and angle
         sprite.setPos(pos);
         sprite.setAngle(dir.angle());
+
+        // -----------------------------------------------------------------------------------------
+
+        // countdown to removal from world
+        if (deathCounter >= 0) {
+            deathCounter--;
+
+            if (deathCounter == 0) {
+                readyToDispose = true;
+            }
+
+        }
+        // --------------------------------
+
+        if (exploded)
+            explosion.update(dt);
     }
 
 
@@ -108,6 +136,7 @@ public class GameObject {
 
 
     public void applyForce() {
+
         acc = force.scl(1/mass);
     }
 
@@ -127,7 +156,13 @@ public class GameObject {
 
     public void draw(Renderer renderer) {
 
-        sprite.draw(renderer.batch);
+        if (!exploded) {
+            sprite.draw(renderer.batch);
+        }
+        else {
+            explosion.draw(renderer.shape);
+        }
+
     }
 
 //    public void setHeightAndResize(float height) {
@@ -141,4 +176,17 @@ public class GameObject {
     }
 
 
+    public void explode() {
+
+        if (exploded)
+            return;
+
+        exploded = true;
+
+        // stop object
+        vel.setZero();
+
+        explosion = new Explosion(pos, radius * 3);
+        deathCounter = 300;
+    }
 }

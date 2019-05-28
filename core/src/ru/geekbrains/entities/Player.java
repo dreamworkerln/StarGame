@@ -14,6 +14,9 @@ public class Player extends DrivenObject {
     @Override
     protected void guide() {
 
+        if (exploded)
+            return;
+
         if (KeyDown.A) {
             dir.rotateRad(maxRotationSpeed);
         }

@@ -65,7 +65,7 @@ public class SmokeTrail implements Disposable {
 
 
     public SmokeTrail(float radius) {
-        this.radius = radius / 5f;
+        this.radius = radius;
     }
 
     public void update(float dt) {
@@ -113,9 +113,8 @@ public class SmokeTrail implements Disposable {
             shape.circle(el.pos.x, el.pos.y, 2 *radius +
                     radius * 2 * el.throttlePercent *(1-((el.expired - tick)/(float)SmokeTrail.TTL)));
         }
-        //Gdx.gl.glLineWidth(50);
-        shape.end();
         Gdx.gl.glLineWidth(1);
+        shape.end();
     }
 
 

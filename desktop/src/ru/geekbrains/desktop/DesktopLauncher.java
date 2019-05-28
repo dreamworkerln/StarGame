@@ -13,7 +13,7 @@ public class DesktopLauncher {
 		config.height = 2000;
 		config.width = (int) (config.height / aspect);
 		//config.resizable = true;
-        config.fullscreen = true;
+        //config.fullscreen = true;
 
 		new LwjglApplication(new StarGame(), config);
 	}

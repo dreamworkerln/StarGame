@@ -10,6 +10,8 @@ import ru.geekbrains.storage.Game;
  */
 public class DrivenObject extends GameObject {
 
+    public String name;
+
     public float maxFuel = 100000f;         // maximum fuel tank capacity
     public float maxThrottle = 50f;        // maximum thruster engine force
     public float maxRotationSpeed = 0.05f; // maximum rotation speed
@@ -28,7 +30,7 @@ public class DrivenObject extends GameObject {
     
     public DrivenObject(TextureRegion textureRegion, float height) {
         super(textureRegion, height);
-        smokeTrail = new SmokeTrail(radius);
+        smokeTrail = new SmokeTrail(radius / 5f);
     }
 
 
@@ -68,11 +70,12 @@ public class DrivenObject extends GameObject {
         tailPos.set(pos).add(tailVec);
 
         // add smoke trail particle
-        if (fuel > 0 && tmpForce.len() > 0) {
-            smokeTrail.add(tailPos, dir, vel, throttle/ maxThrottle);
+        if (throttle > 0) {
+            smokeTrail.add(tailPos, dir, vel, throttle / maxThrottle);
         }
 
         smokeTrail.update(dt);
+
 
         // -----------------------------------------------------------------------------------------
 
@@ -93,7 +96,7 @@ public class DrivenObject extends GameObject {
 
     protected void guide() {
 
-        if (target != null) {
+        if (target != null && !exploded) {
 
             // direction -----------------------
 
@@ -147,8 +150,18 @@ public class DrivenObject extends GameObject {
     }
 
     @Override
-    public void dispose() {
+    public void explode() {
 
+        if (exploded)
+            return;
+        throttle = 0;
+
+        super.explode();
+    }
+    
+
+    @Override
+    public void dispose() {
         smokeTrail.dispose();
     }
 }
