@@ -8,11 +8,22 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.MathUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
+import ru.geekbrains.entities.DrivenObject;
+import ru.geekbrains.entities.GameObject;
+import ru.geekbrains.entities.Guidance;
 import ru.geekbrains.entities.Kerbonaut;
+import ru.geekbrains.entities.Planet;
+import ru.geekbrains.entities.Player;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;
@@ -22,39 +33,61 @@ public class MenuScreen extends BaseScreen {
 
     private Background background;
     private Reticle reticle;
-    private List<Kerbonaut> kerbonauts = new ArrayList<>();
-
+    private Planet planet;
+    private Set<GameObject> gameObjects = new HashSet<>();
+    private List<GameObject> objectsToDelete = new ArrayList<>();
     private MenuScreen.borderNormals borderNormals = new borderNormals();
 
+    private Player player;
+    private GameObject trajectorySim;
+    private ArrayList<Vector2> trajectorySimulated  = new ArrayList<>();
 
-    Vector2 buf0 = new Vector2();
+
+    private Vector2 tmp0 = new Vector2();
+    private Vector2 tmp1 = new Vector2();
+    private Vector2 tmp2 = new Vector2();
+
+
+
 
     @Override
     public void show() {
         super.show();
-        background = new Background(new TextureRegion(new Texture("background.jpg")));
-        background.setHeightAndResize(1200f);
+        background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
+        background.setHeightAndResize(2000f);
 
+        planet = new Planet(new TextureRegion(new Texture("dune.png")),100f);
+        planet.pos = new Vector2(0, 0);
 
+        target.set(500f,500f);
         reticle = new Reticle(new TextureRegion(new Texture("reticle.png")));
-        reticle.setHeightAndResize(50f);
-
-        Kerbonaut jebediah = new Kerbonaut(new TextureRegion(new Texture("jebediah2.png")));
-        jebediah.pos = new Vector2(+100f, +200f);
-        jebediah.setHeightAndResize(70f);
-        jebediah.target = target;         //add target
-        kerbonauts.add(jebediah);
+        reticle.setHeightAndResize(30f);
 
 
-        //jebediah.vel = new Vector2(-0.2f,-0.2f);
+        player = new Player(new TextureRegion(new Texture("ship_player.png")), 50);
+        player.pos = new Vector2(+700f, +700f);
+        player.target = null;         //add target
+        player.guidance = Guidance.MANUAL;
+        gameObjects.add(player);
 
-        Kerbonaut valentina = new Kerbonaut(new TextureRegion(new Texture("valentina.png")));
-        valentina.pos = new Vector2(-100f, -200f);
-        valentina.setHeightAndResize(70f);
-        valentina.target = jebediah.pos;  //add target
-        kerbonauts.add(valentina);
+
+        // trajectory sim
+        trajectorySim = new GameObject(new TextureRegion(new Texture("ship_player.png")), 50);
+
+
+
+
+
+        for (int i= 0; i < 1; i++) {
+
+            DrivenObject enemyShip = new DrivenObject(new TextureRegion(new Texture("ship_enemy.png")), 50);
+            enemyShip.pos = new Vector2(MathUtils.random(-700, 700), MathUtils.random(-700, 700));
+            enemyShip.target = player.pos;  //add target
+            enemyShip.maxRotationSpeed *= 4;
+            gameObjects.add(enemyShip);
+        }
     }
-    
+
 
     @Override
     public void render(float delta) {
@@ -64,14 +97,17 @@ public class MenuScreen extends BaseScreen {
 
         // rendering
         super.render(delta);
-        
+
         // clear screen
         Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
         // background
+
         background.draw(renderer.batch);
+        planet.draw(renderer);
+
 
         // coordinate axis
         renderer.shape.begin();
@@ -83,29 +119,30 @@ public class MenuScreen extends BaseScreen {
         //Gdx.gl.glLineWidth(1);
         renderer.shape.end();
 
+
+        // player trajectory sim
+
+        renderer.shape.begin();
+        renderer.shape.set(ShapeRenderer.ShapeType.Line);
+        renderer.shape.setColor(Color.YELLOW);
+        Gdx.gl.glLineWidth(2);
+
+        for (int i = 0; i< trajectorySimulated.size() -2; i++) {
+            renderer.shape.line(trajectorySimulated.get(i), trajectorySimulated.get(i+1));
+        }
+        renderer.shape.end();
+
         // reticle
         reticle.draw(renderer.batch);
 
-        // kerbonauts
-        for (Kerbonaut kerb : kerbonauts) {
-            kerb.draw(renderer);
+        // gameObjects
+        for (GameObject obj : gameObjects) {
+            obj.draw(renderer);
         }
     }
 
 
-    
 
-    @Override
-    public void dispose() {
-
-        background.dispose();
-
-        for (Kerbonaut kerb : kerbonauts) {
-            kerb.dispose();
-        }
-        
-        super.dispose();
-    }
 
     @Override
     public void resize(Rect worldBounds) {
@@ -137,25 +174,77 @@ public class MenuScreen extends BaseScreen {
         // reticle
         reticle.setPos(target);
 
-        // kerbonauts
+        // gameObjects
 
-        for (Kerbonaut kerb : kerbonauts) {
+        for (GameObject obj : gameObjects) {
+
+            // zeroing force , applied to object
+            obj.force.setZero();
+
+            // calculate gravitation force from planet
+            applyPlanetGravForce(obj);
 
             // check wall bouncing
-            borderBounce(kerb);
+            borderBounce(obj);
+
+            // checkk falling to planet
+            checkPlanetCollide(obj);
 
             // -----------------------------------------------------------------------------------
             // update velocity, position
-            kerb.force.setZero();
-            kerb.update(dt);
+            obj.update(dt);
         }
+
+        // simulate player trajectory to future steps
+        simulatePlayerTrajectory();
+
+
+        // remove dead objects
+        for (GameObject o : objectsToDelete) {
+            gameObjects.remove(o);
+            o.dispose();
+        }
+
 
         Game.INSTANCE.updateTick();
 
     }
 
 
-    protected void borderBounce(Kerbonaut kerb) {
+    @Override
+    public void dispose() {
+
+        background.dispose();
+
+        for (GameObject kerb : gameObjects) {
+            kerb.dispose();
+        }
+
+        super.dispose();
+    }
+
+    private void applyPlanetGravForce(GameObject obj) {
+
+        if (obj == planet)
+            return;
+
+        // Newton's law of universal gravitation
+        // F = G * m1*m2/r^2;
+
+        tmp1.set(planet.pos);
+        tmp1.sub(obj.pos);
+        float G = 2f;
+        float divider = tmp1.len2();
+        // avoid division by zero 
+        if (divider < 0.001)
+            divider = 0.001f;
+
+        tmp0 = tmp1.setLength(G*planet.mass * obj.mass/divider);
+        obj.force.add(tmp0);
+    }
+
+
+    protected void borderBounce(GameObject kerb) {
 
         // wall bouncing ----------------------------------------
         //https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
@@ -170,55 +259,92 @@ public class MenuScreen extends BaseScreen {
         float downBound = worldBounds.getBottom();
 
         // reflected_vel=vel−2(vel⋅n)n, where n - unit normal vector
-        if (kerb.pos.x - kerb.radius < leftBound) {
+        if (kerb.pos.x - kerb.getRadius() < leftBound) {
 
             n = borderNormals.left;
             kerb.vel.x = kerb.vel.x - 2 *n.x * kerb.vel.dot(n);
             kerb.vel.y = kerb.vel.y - 2 *n.y * kerb.vel.dot(n);
             // move away from edge to avoid barrier penetration
-            kerb.pos.x = 2 * leftBound + 2*kerb.radius - kerb.pos.x;
+            kerb.pos.x = 2 * leftBound + 2*kerb.getRadius() - kerb.pos.x;
         }
 
-        if (kerb.pos.x + kerb.radius > rightBound) {
+        if (kerb.pos.x + kerb.getRadius() > rightBound) {
 
             n = borderNormals.right;
             kerb.vel.x = kerb.vel.x - 2 *n.x * kerb.vel.dot(n);
             kerb.vel.y = kerb.vel.y - 2 *n.y * kerb.vel.dot(n);
-            kerb.pos.x = 2 * rightBound - 2*kerb.radius - kerb.pos.x;
+            kerb.pos.x = 2 * rightBound - 2*kerb.getRadius() - kerb.pos.x;
         }
 
-        if (kerb.pos.y - kerb.radius < downBound) {
+        if (kerb.pos.y - kerb.getRadius() < downBound) {
 
             n = borderNormals.down;
             kerb.vel.x = kerb.vel.x - 2 *n.x * kerb.vel.dot(n);
             kerb.vel.y = kerb.vel.y - 2 *n.y * kerb.vel.dot(n);
-            kerb.pos.y = 2 * downBound + 2*kerb.radius - kerb.pos.y;
+            kerb.pos.y = 2 * downBound + 2*kerb.getRadius() - kerb.pos.y;
 
         }
 
-        if (kerb.pos.y + kerb.radius > upBound) {
+        if (kerb.pos.y + kerb.getRadius() > upBound) {
 
             n = borderNormals.up;
             kerb.vel.x = kerb.vel.x - 2 *n.x * kerb.vel.dot(n);
             kerb.vel.y = kerb.vel.y - 2 *n.y * kerb.vel.dot(n);
-            kerb.pos.y = 2 * upBound - 2 *kerb.radius - kerb.pos.y;
+            kerb.pos.y = 2 * upBound - 2 *kerb.getRadius() - kerb.pos.y;
         }
+    }
+
+
+    private void checkPlanetCollide(GameObject obj) {
+
+        tmp1.set(planet.pos);
+        tmp1.sub(obj.pos);
+
+        if (tmp1.len() <= planet.getRadius() + obj.getRadius()) {
+
+            objectsToDelete.add(obj);
+        }
+    }
+
+
+    private void simulatePlayerTrajectory() {
+
+
+        trajectorySimulated.clear();
+        trajectorySim.pos = player.pos.cpy();
+        trajectorySim.vel = player.vel.cpy();
+
+        float dt = 1/60f;
+
+
+        for (int i = 0; i < 1500; i++) {
+
+            // zeroing force , applied to object
+            trajectorySim.force.setZero();
+
+            // calculate gravitation force from planet
+            applyPlanetGravForce(trajectorySim);
+
+            // check falling to planet
+            tmp1.set(planet.pos);
+            tmp1.sub(trajectorySim.pos);
+            if (tmp1.len() <= planet.getRadius() + trajectorySim.getRadius()) {
+                break;
+            }
+
+
+            //checkPlanetCollide(trajectorySim);
+
+            // update velocity, position
+            trajectorySim.update(dt);
+
+            trajectorySimulated.add(trajectorySim.pos.cpy());
+        }
+
     }
 
 }
 
 
-//    private void collide() {
-//
-//        Kerbonaut kerb0 = kerbonauts.get(0);
-//        Kerbonaut kerb1 = kerbonauts.get(1);
-//
-//        buf0.set(kerb0.pos).sub(kerb1.pos);
-//
-//        if (buf0.len() < kerb0.radius + kerb1.radius) {
-//
-//
-//
-//        }
-//
-//    }
+
+

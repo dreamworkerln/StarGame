@@ -95,6 +95,9 @@ public class Sprite extends Rect {
         this.scale = scale;
     }
 
+    /**
+     * Linear filter
+     */
     public void setFilter() {
         textureList[frame].getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }

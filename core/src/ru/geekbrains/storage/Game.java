@@ -22,4 +22,8 @@ public enum Game {
         tick++;
     }
 
+    public boolean isDEBUG() {
+        return true;
+    }
+
 }

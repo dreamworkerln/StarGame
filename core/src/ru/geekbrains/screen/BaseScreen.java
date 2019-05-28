@@ -26,6 +26,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
 
     private Vector3 touch;
+    private int oldScreenX, oldScreenY;
     protected Vector2 target;
 
     protected Rect touchBounds;  // координаты экрана телефона, в том виде, как он их выплевывает onTouch
@@ -54,6 +55,9 @@ public abstract class BaseScreen implements Screen, InputProcessor {
         this.clipBounds = new Rect();
         this.worldToClip = new Matrix4();
         this.screenToWorld = new Matrix3();
+
+        oldScreenX = -1;
+        oldScreenY = -1;
     }
 
     @Override
@@ -135,12 +139,67 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
         System.out.println("keyDown keycode = " + keycode);
+
+        switch (keycode) {
+
+            case 51:
+                KeyDown.W = true;
+                break;
+
+            case 32:
+                KeyDown.D = true;
+                break;
+
+            case 47:
+                KeyDown.S = true;
+                break;
+
+            case 29:
+                KeyDown.A = true;
+                break;
+
+            case 62:
+                KeyDown.SPACE = true;
+                break;
+
+            case 131:
+                System.exit(0);
+                break;
+        }
+
+
         return false;
     }
 
     @Override
     public boolean keyUp(int keycode) {
         System.out.println("keyUp keycode = " + keycode);
+
+        switch (keycode) {
+
+            case 51:
+                KeyDown.W = false;
+                break;
+
+            case 32:
+                KeyDown.D = false;
+                break;
+
+            case 47:
+                KeyDown.S = false;
+                break;
+
+            case 29:
+                KeyDown.A = false;
+                break;
+
+            case 62:
+                KeyDown.SPACE = false;
+                break;
+        }
+
+
+
         return false;
     }
 
@@ -194,6 +253,16 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
+
+        if (screenX != oldScreenX ||
+            screenY != oldScreenY) {
+
+            touch.set(screenX, screenY, 1).mul(screenToWorld);
+            target.set(touch.x, touch.y);
+
+            oldScreenX = screenX;
+            oldScreenY = screenY;
+        }
         return false;
     }
 
