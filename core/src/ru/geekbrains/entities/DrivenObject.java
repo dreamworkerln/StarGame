@@ -161,6 +161,7 @@ public class DrivenObject extends GameObject {
 
         smokeTrail.draw(renderer.shape);
 
+
         super.draw(renderer);
 
         // engine burst

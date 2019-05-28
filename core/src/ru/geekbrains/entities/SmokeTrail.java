@@ -108,7 +108,7 @@ public class SmokeTrail implements Disposable {
 
 
         for(TraceElement el : list) {
-            shape.setColor(0.9f, 0.9f, 0.9f, 1f*((el.expired - tick)/(float)SmokeTrail.TTL));
+            shape.setColor(0.5f, 0.5f, 0.5f, 1f*((el.expired - tick)/(float)SmokeTrail.TTL));
 
             shape.circle(el.pos.x, el.pos.y, 2 *radius +
                     radius * 2 * el.throttlePercent *(1-((el.expired - tick)/(float)SmokeTrail.TTL)));

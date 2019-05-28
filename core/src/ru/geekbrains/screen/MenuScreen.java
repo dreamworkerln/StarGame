@@ -79,9 +79,11 @@ public class MenuScreen extends BaseScreen {
 
 
 
-        for (int i= 0; i < 10; i++) {
+        for (int i= 0; i < 1000; i++) {
 
-            DrivenObject enemyShip = new DrivenObject(new TextureRegion(new Texture("ship_enemy.png")), 50);
+            Texture enemyShipTexture = new Texture("ship_enemy.png");
+
+            DrivenObject enemyShip = new DrivenObject(new TextureRegion(enemyShipTexture), 50);
             enemyShip.pos = new Vector2(MathUtils.random(-700, 700), MathUtils.random(-700, 700));
             enemyShip.target = player.pos;  //add target
             enemyShip.maxRotationSpeed *= 4;
