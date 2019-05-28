@@ -67,7 +67,7 @@ public class Explosion implements Disposable {
         shape.begin();
         shape.set(ShapeRenderer.ShapeType.Filled);
 
-        shape.setColor(1f, 0.8f, 0.2f, 1);
+        shape.setColor(1f, 1f, 0.2f, 1);
         shape.circle(pos.x, pos.y, radius);
 
         Gdx.gl.glLineWidth(1);

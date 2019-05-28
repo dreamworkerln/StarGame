@@ -1,6 +1,9 @@
 package ru.geekbrains.entities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.storage.Game;
@@ -24,6 +27,9 @@ public class DrivenObject extends GameObject {
     protected float throttle = 0;                   // current throttle
 
     public float fuel = maxFuel;                   // current fuel level
+
+    protected Vector2 enginePos = new Vector2();         // tail position
+    protected Vector2 trailPos = new Vector2();         // tail position
 
 
     private SmokeTrail smokeTrail;
@@ -69,9 +75,17 @@ public class DrivenObject extends GameObject {
         // tail position
         tailPos.set(pos).add(tailVec);
 
+
+        // engine burst pos
+        tmp1.set(tailVec).scl(1.3f);
+        enginePos.set(pos).add(tmp1);
+
+        tmp1.set(tailVec).scl(1.7f);
+        trailPos.set(pos).add(tmp1);
+
         // add smoke trail particle
         if (throttle > 0) {
-            smokeTrail.add(tailPos, dir, vel, throttle / maxThrottle);
+            smokeTrail.add(trailPos, dir, vel, throttle / maxThrottle);
         }
 
         smokeTrail.update(dt);
@@ -146,7 +160,23 @@ public class DrivenObject extends GameObject {
     public void draw(Renderer renderer) {
 
         smokeTrail.draw(renderer.shape);
+
         super.draw(renderer);
+
+        // engine burst
+        if(!exploded) {
+            Gdx.gl.glLineWidth(1);
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+            renderer.shape.begin();
+            renderer.shape.set(ShapeRenderer.ShapeType.Filled);
+
+            renderer.shape.setColor(1f, 0.8f, 0.2f, 1);
+            renderer.shape.circle(enginePos.x, enginePos.y, radius * 0.3f * (throttle/maxThrottle));
+
+            Gdx.gl.glLineWidth(1);
+            renderer.shape.end();
+        }
     }
 
     @Override
