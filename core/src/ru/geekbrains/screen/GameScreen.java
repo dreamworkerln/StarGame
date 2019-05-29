@@ -38,7 +38,7 @@ public class GameScreen extends BaseScreen {
     private static Vector2 tmp0s = new Vector2();
     private static Vector2 tmp1s = new Vector2();
 
-    private static GameScreen INSTANCE;
+    private static GameScreen INSTANCE = null;
 
 
     private Vector2 tmp0 = new Vector2();
@@ -76,7 +76,9 @@ public class GameScreen extends BaseScreen {
     public void show() {
         super.show();
 
-        GameScreen.INSTANCE = this;
+        if (GameScreen.INSTANCE == null) {
+            GameScreen.INSTANCE = this;
+        }
 
 //        quadTree = new QuadTree<>(- worldBounds.getHalfWidth(),- worldBounds.getHalfHeight(),
 //                worldBounds.getHalfWidth(),worldBounds.getHalfHeight());
@@ -100,19 +102,12 @@ public class GameScreen extends BaseScreen {
         playerShip.target = null;         //add target
         playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
-        playerShip.gun.fireRate = 0.05f;
+        playerShip.gun.fireRate = 0.025f;
         gameObjects.add(playerShip);
         hittableObjects.add(playerShip);
 
         trajectorySim = new TrajectorySimulator(playerShip, planet);
 
-
-        for (int i= 0; i < 0; i++) {
-
-
-
-
-        }
 
         // sorting hittableObjects
         hittableObjects.sort((o1, o2) -> -Float.compare(o1.getRadius(), o2.getRadius()));
@@ -123,7 +118,7 @@ public class GameScreen extends BaseScreen {
 
 
         // experimental
-        if (Game.INSTANCE.getTick() % 500 == 0) {
+        if (Game.INSTANCE.getTick() % 300 == 0) {
             spawnEnemyShip();
         }
 
@@ -141,11 +136,11 @@ public class GameScreen extends BaseScreen {
             gameObjects.addFirst(obj);
 
             if (obj instanceof DrivenObject) {
-                INSTANCE.hittableObjects.add(obj);
+                hittableObjects.add(obj);
             }
         }
         spawningObjects.clear();
-        INSTANCE.hittableObjects.sort((o1, o2) -> -Float.compare(o1.getRadius(), o2.getRadius()));
+        hittableObjects.sort((o1, o2) -> -Float.compare(o1.getRadius(), o2.getRadius()));
 
 
         // -----------------------------------------------------------------------------------------
@@ -156,8 +151,9 @@ public class GameScreen extends BaseScreen {
         hittableObjects.clear();
 
         hittableObjects.add(planet);
+        hittableObjects.add(playerShip);
         quadTree.set(planet.pos.x, planet.pos.y, planet);
-        
+
         // fill quadTree with gameObjects
         for (GameObject obj : gameObjects) {
 
@@ -168,6 +164,40 @@ public class GameScreen extends BaseScreen {
                 hittableObjects.add(obj);
             }
         }
+
+
+
+        // experimental ---------------------------------------------------------------
+        for (GameObject obj : gameObjects) {
+            if (obj instanceof EnemyShip) {
+
+                EnemyShip ship = (EnemyShip) obj;
+
+                if (ship.target == null) {
+
+                    int cnt = 0;
+                    do {
+
+                        GameObject tmp;
+
+                        int rnd = MathUtils.random(0, hittableObjects.size() - 1);
+                        tmp = hittableObjects.get(rnd);
+
+
+                        if (tmp != planet && tmp != ship) {
+                            ship.target = tmp;
+                        }
+
+
+                        if (cnt++ >= 10)
+                            break;
+                    }
+                    while (ship.target == null);
+
+                }
+            }
+        }
+        // experimental ---------------------------------------------------------------
 
         // -----------------------------------------------------------------------------------------
         // reticle
@@ -415,7 +445,7 @@ public class GameScreen extends BaseScreen {
                 tmp1.sub(tgt.pos); // vector from target to projectile
 
                 if (prj != tgt &&
-                    tmp1.len() <= tgt.getRadius() + points[i].getValue().getRadius()) {
+                        tmp1.len() <= tgt.getRadius() + points[i].getValue().getRadius()) {
 
                     if (tgt == planet) {
                         // stop projectile - fallen on planet
@@ -457,24 +487,27 @@ public class GameScreen extends BaseScreen {
 
     private void spawnEnemyShip() {
 
-        if (playerShip.readyToDispose)
-            return;
+        if (playerShip.readyToDispose) {
+            tmp0.set(0, 0);
+        }
+        else {
+            tmp0.set(playerShip.pos);
+        }
 
-        
+
         do {
-
             tmp1.set(MathUtils.random(-700, 700), MathUtils.random(-700, 700));
-            tmp2.set(tmp1).sub(playerShip.pos);
-        } 
-        while (tmp2.len() < 900);
+            tmp2.set(tmp1).sub(tmp0);
+        }
+        while (tmp2.len() < 700);
 
 
 
 
         EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50);
         enemyShip.pos = tmp1.cpy();
-        enemyShip.target = playerShip;  //add target
-        enemyShip.gun.fireRate = 0.025f;
+        //enemyShip.target = playerShip;  //add target
+        enemyShip.gun.fireRate = 0.020f;
         //enemyShip.maxRotationSpeed *= 1.5f;
         enemyShip.name = "enemyship";
 

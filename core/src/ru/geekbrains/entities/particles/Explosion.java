@@ -13,6 +13,7 @@ public class Explosion extends ParticleObject {
 
     private float maxRadius;
     private long start;
+    long frame;
 
     private boolean readyToDisposeSelf = false;
 
@@ -41,7 +42,7 @@ public class Explosion extends ParticleObject {
 
         super.update(dt);
 
-        long frame = Game.INSTANCE.getTick() - start;
+        frame = Game.INSTANCE.getTick() - start;
 
         if(frame >= 0 && frame < 5) {
             radius =  maxRadius * 0.1f;
@@ -83,13 +84,23 @@ public class Explosion extends ParticleObject {
             smokeTrail.draw(renderer);
         }
 
+        shape.begin();
         Gdx.gl.glLineWidth(1);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        shape.begin();
         shape.set(ShapeRenderer.ShapeType.Filled);
 
-        shape.setColor(1f, 1f, 0.2f, 1);
+
+        if (frame < 10) {
+            shape.setColor(1f, 1f, 0.2f, 1);
+        }
+        else if (frame < 15) {
+            shape.setColor(1f, 1f, 0.2f, 1);
+        }
+        else {
+            shape.setColor(1f, 1f, 0.2f, 1 - (frame - 15) / 15f);
+        }
+
         shape.circle(pos.x, pos.y, radius);
 
         Gdx.gl.glLineWidth(1);
