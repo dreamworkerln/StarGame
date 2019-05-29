@@ -163,6 +163,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
                 break;
 
             case 131:
+                dispose();
                 System.exit(0);
                 break;
         }

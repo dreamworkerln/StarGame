@@ -4,18 +4,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import ru.geekbrains.screen.KeyDown;
 
-public class Player extends DrivenObject {
+public class PlayerShip extends DrivenObject {
 
-    public Player(TextureRegion textureRegion, float height) {
+    public PlayerShip(TextureRegion textureRegion, float height) {
         super(textureRegion, height);
     }
 
 
     @Override
     protected void guide() {
-
-        if (exploded)
-            return;
 
         if (KeyDown.A) {
             dir.rotateRad(maxRotationSpeed);
@@ -47,12 +44,5 @@ public class Player extends DrivenObject {
             throttle = 0;
             KeyDown.SPACE_TRIGGER_ON = false;
         }
-
-
-
-
-
     }
-
-
 }

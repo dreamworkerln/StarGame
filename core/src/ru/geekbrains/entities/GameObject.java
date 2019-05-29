@@ -2,48 +2,74 @@ package ru.geekbrains.entities;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Disposable;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import ru.geekbrains.sprite.Sprite;
 import ru.geekbrains.storage.Game;
 
-public class GameObject {
 
+/**
+ * Movable game object with inertia
+ */
+public abstract class GameObject implements Disposable {
 
+    protected Set<RendererType> rendererType = new HashSet<>();
+
+    protected Sprite sprite = null;                 // displaying sprite (if have one)
 
     public Vector2 dir = new Vector2();             // direction
     public Vector2 pos = new Vector2();             // position
     public Vector2 vel = new Vector2();             // velocity
     public Vector2 acc = new Vector2();             // acceleration
     //trash
-    protected Vector2 tailVec = new Vector2();         // vector of tail
-    protected Vector2 tailPos = new Vector2();         // tail position
+    protected Vector2 tailVec = new Vector2();      // vector of tail
+    protected Vector2 tailPos = new Vector2();      // tail position
 
     protected Vector2 tmpForce = new Vector2();     // tmp force
-    public Vector2 force = new Vector2();           // resulting force (sum of all forces)
-    protected float radius;                            // object radius (== halfHeight)
-    public float mass = 1;                          // mass
-    public float momentInertia = 1;                 // moment of inertia
+    protected Vector2 force = new Vector2();          // resulting force (sum of all forces)
+    protected float radius;                         // object radius (== halfHeight)
+    protected float mass = 1;                          // mass
+    //public float momentInertia = 1;               // moment of inertia
 
-    public boolean exploded = false;                  // object exploded
+
     public boolean readyToDispose = false;            // object ready to dispose
-
-    protected Sprite sprite;                          // displaying sprite
-
-    protected Explosion explosion;                    // explosion animation
-
-    long deathCounter = -1;
-
 
     protected Vector2 tmp1 = new Vector2();           // buffer
     protected Vector2 tmp2 = new Vector2();           // buffer
 
+
+    /**
+     * Constructor without sprite - using ShapeRenderer to draw particles
+     * @param radius
+     */
+    public GameObject(float radius) {
+
+        this.radius = radius;
+        dir.set(1, 0);
+
+        rendererType.add(RendererType.SHAPE);
+    }
+
+
+    /**
+     * Constructor with sprite
+     * @param textureRegion texture
+     * @param height resize texture to specified height
+     */
     public GameObject(TextureRegion textureRegion, float height) {
+
+        radius = height / 2f;
 
         sprite = new Sprite(textureRegion);
         sprite.setFilter();
         sprite.setHeightAndResize(height);
-        radius = sprite.getHalfHeight();
+        //radius = sprite.getHalfHeight();
         dir.set(1, 0);
+
+        rendererType.add(RendererType.TEXTURE);
     }
 
 
@@ -53,10 +79,6 @@ public class GameObject {
      * @param dt time elapsed from previous emulation step
      */
     public void update(float dt) {
-
-        //DEBUG delta
-        dt = Game.INSTANCE.isDEBUG() ? 1/60f : dt;
-
 
         // apply medium resistance (atmosphere) - proportionally speed -----------------------------
         tmpForce.set(vel);
@@ -71,8 +93,10 @@ public class GameObject {
         // -----------------------------------------------------------------------------------------
 
         // calc resulting acceleration
-        applyForce();
+        acc = force.scl(1/mass);
 
+
+        // calc velocity and position
         // =========================================================================================
 
         // a - current acceleration,
@@ -91,38 +115,35 @@ public class GameObject {
         tmp1.set(vel); // v*t
         tmp2.set(acc); // (a*t^2)/2
 
+        // update position
+        pos.add(tmp1.scl(dt)).add(tmp2.scl(dt * dt / 2f));
 
-
-        if (!exploded) {
-            // update position
-            pos.add(tmp1.scl(dt)).add(tmp2.scl(dt * dt / 2f));
-        }
-        // stay on place if exploded
-
-
-
-
-        // =========================================================================================
-
-        // update sprite position and angle
-        sprite.setPos(pos);
-        sprite.setAngle(dir.angle());
+        // clearing force to be ready for next iteration
+        force.setZero();
 
         // -----------------------------------------------------------------------------------------
 
-        // countdown to removal from world
-        if (deathCounter >= 0) {
-            deathCounter--;
 
-            if (deathCounter == 0) {
-                readyToDispose = true;
-            }
+        // update sprite position and angle
+        if (rendererType.contains(RendererType.TEXTURE)) {
 
+            sprite.setPos(pos);
+            sprite.setAngle(dir.angle());
         }
-        // --------------------------------
-
-        if (exploded)
-            explosion.update(dt);
+//
+//        // countdown to removal from world
+//        if (deathCounter >= 0) {
+//            deathCounter--;
+//
+//            if (deathCounter == 0) {
+//                readyToDispose = true;
+//            }
+//
+//        }
+//        // --------------------------------
+//
+//        if (exploded)
+//            explosion.update(dt);
     }
 
 
@@ -131,15 +152,37 @@ public class GameObject {
     // ---------------------------------------------------------------------------------------------
 
 
+    /**
+     * Apply force to object
+     */
+    public void applyForce(Vector2 f) {
 
-
-
-
-    public void applyForce() {
-
-        acc = force.scl(1/mass);
+        force.add(f);
     }
 
+//    public void clearForce() {
+//
+//        force.setZero();
+//    }
+
+
+    // ---------------------------------------------------------------------------------------------
+
+    public void draw(Renderer renderer) {
+
+        if (rendererType.contains(RendererType.TEXTURE)) {
+            sprite.draw(renderer.batch);
+        }
+    }
+
+    @Override
+    public void dispose() {
+
+        if (rendererType.contains(RendererType.TEXTURE)) {
+            sprite.dispose();
+        }
+
+    }
 
     // ---------------------------------------------------------------------------------------------
 
@@ -151,42 +194,28 @@ public class GameObject {
         this.radius = radius;
     }
 
-
-    // ---------------------------------------------------------------------------------------------
-
-    public void draw(Renderer renderer) {
-
-        if (!exploded) {
-            sprite.draw(renderer.batch);
-        }
-        else {
-            explosion.draw(renderer.shape);
-        }
-
+    public float getMass() {
+        return mass;
     }
 
-//    public void setHeightAndResize(float height) {
-//        sprite.setHeightAndResize(height);
-//        radius = sprite.getHalfHeight();
+    public void setMass(float mass) {
+        this.mass = mass;
+    }
+
+    //    public void explode() {
+//
+//        if (exploded)
+//            return;
+//
+//        exploded = true;
+//
+//        // stop object
+//        vel.setZero();
+//
+//        explosion = new Explosion(pos, radius * 3);
+//        deathCounter = 300;
 //    }
 
 
-    public void dispose() {
-        sprite.dispose();
-    }
 
-
-    public void explode() {
-
-        if (exploded)
-            return;
-
-        exploded = true;
-
-        // stop object
-        vel.setZero();
-
-        explosion = new Explosion(pos, radius * 3);
-        deathCounter = 300;
-    }
 }

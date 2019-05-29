@@ -4,23 +4,22 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Disposable;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import ru.geekbrains.storage.Game;
 
-public class SmokeTrail implements Disposable {
+public class SmokeTrail extends ParticleObject {
 
     public static long TTL = 60; // time to live (in ticks)
     public static long speed = 300; // time to live (in ticks)
 
-    public float radius;
+    public SmokeTrail(float radius) {
+        super(radius);
+    }
 
-    class TraceElement implements Disposable{
-
-
+    class TraceElement {
 
         public Vector2 pos;
         public Vector2 vel;
@@ -53,9 +52,6 @@ public class SmokeTrail implements Disposable {
             pos.add(tmp.scl(dt));
         }
 
-        @Override
-        public void dispose() {
-        }
     }
 
 
@@ -64,9 +60,9 @@ public class SmokeTrail implements Disposable {
     private LinkedList<TraceElement> list = new LinkedList<>();
 
 
-    public SmokeTrail(float radius) {
-        this.radius = radius;
-    }
+//    public SmokeTrail(float radius) {
+//        super(radius);
+//    }
 
     public void update(float dt) {
 
@@ -83,8 +79,15 @@ public class SmokeTrail implements Disposable {
         for(TraceElement el : list) {
             el.update(dt);
         }
+
+
+        // allow to dispose owner of SmokeTrail if owner is destroyed
+        // Чтобы дым весь рассеялся перед тем как убирать со сцены
+        readyToDispose = list.size() == 0;
     }
-    
+
+
+
 
     public void add(Vector2 pos, Vector2 dir, Vector2 vel, float throttlePercent) {
 
@@ -93,8 +96,10 @@ public class SmokeTrail implements Disposable {
 
 
 
+    public void draw(Renderer renderer) {
 
-    public void draw(ShapeRenderer shape) {
+        ShapeRenderer shape = renderer.shape;
+
 
         Gdx.gl.glLineWidth(radius);
         Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -118,15 +123,15 @@ public class SmokeTrail implements Disposable {
     }
 
 
+
+
     @Override
     public void dispose() {
 
-        for(TraceElement el : list) {
-            el.dispose();
-        }
+//        for(TraceElement el : list) {
+//            el.dispose();
+//        }
         list.clear();
     }
-
-
 
 }
