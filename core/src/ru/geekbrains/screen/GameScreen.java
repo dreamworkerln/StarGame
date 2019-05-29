@@ -70,8 +70,6 @@ public class GameScreen extends BaseScreen {
 
     private QuadTree<GameObject> quadTree;
 
-    private TrajectorySimulator trajectorySim;
-
     @Override
     public void show() {
         super.show();
@@ -103,11 +101,10 @@ public class GameScreen extends BaseScreen {
         playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
         playerShip.gun.fireRate = 0.025f;
+        playerShip.trajectorySim = new TrajectorySimulator(playerShip,planet);
+
         gameObjects.add(playerShip);
         hittableObjects.add(playerShip);
-
-        trajectorySim = new TrajectorySimulator(playerShip, planet);
-
 
         // sorting hittableObjects
         hittableObjects.sort((o1, o2) -> -Float.compare(o1.getRadius(), o2.getRadius()));
@@ -277,12 +274,6 @@ public class GameScreen extends BaseScreen {
 //        }
 //        objectsToDelete.clear();
 
-        // -----------------------------------------------------------------------------------------
-        // simulate playerShip trajectory for future steps
-        trajectorySim.update(dt);
-
-        // -----------------------------------------------------------------------------------------
-
         // increment game tick
         Game.INSTANCE.updateTick();
     }
@@ -322,9 +313,6 @@ public class GameScreen extends BaseScreen {
         renderer.shape.line(new Vector2(0f, -1000f), new Vector2(0, 1000f));
         Gdx.gl.glLineWidth(1);
         renderer.shape.end();
-
-        // trajectory sim
-        trajectorySim.draw(renderer);
 
         // reticle
         reticle.draw(renderer.batch);
@@ -496,10 +484,10 @@ public class GameScreen extends BaseScreen {
 
 
         do {
-            tmp1.set(MathUtils.random(-700, 700), MathUtils.random(-700, 700));
+            tmp1.set(MathUtils.random(-800, 800), MathUtils.random(-800, 800));
             tmp2.set(tmp1).sub(tmp0);
         }
-        while (tmp2.len() < 700);
+        while (tmp2.len() < 800);
 
 
 

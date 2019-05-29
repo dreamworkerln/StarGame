@@ -5,10 +5,14 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
 import ru.geekbrains.screen.KeyDown;
 import ru.geekbrains.screen.Renderer;
 
 public class PlayerShip extends Ship {
+
+
+    public TrajectorySimulator trajectorySim;
 
     public PlayerShip(TextureRegion textureRegion, float height) {
 
@@ -62,13 +66,23 @@ public class PlayerShip extends Ship {
 
     }
 
+
+    @Override
+    public void update(float dt) {
+        super.update(dt);
+
+        // simulate playerShip trajectory for future steps
+        trajectorySim.update(dt);
+    }
+
     @Override
     public void draw(Renderer renderer) {
 
+        // trajectory sim
+        trajectorySim.draw(renderer);
 
-        ShapeRenderer shape =renderer.shape;
-
-
+        // ship line of fire  
+        ShapeRenderer shape = renderer.shape;
         shape.begin();
         Gdx.gl.glLineWidth(1);
         Gdx.gl.glEnable(GL20.GL_BLEND);
