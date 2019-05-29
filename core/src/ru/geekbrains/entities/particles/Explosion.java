@@ -1,29 +1,34 @@
-package ru.geekbrains.entities;
+package ru.geekbrains.entities.particles;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
 
+import ru.geekbrains.entities.objects.DrivenObject;
+import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.storage.Game;
 
 public class Explosion extends ParticleObject {
 
-    private Vector2 pos;
     private float maxRadius;
-    private float radius;
     private long start;
 
     private boolean readyToDisposeSelf = false;
 
     private SmokeTrail smokeTrail = null;
 
-    public Explosion (Vector2 pos, float radius) {
+    public Explosion (GameObject source) {
 
-        super(radius);
-        this.pos = pos.cpy();
+        super(source.getRadius() * 2);
+        
+        this.mass = source.getMass();
+        this.pos = source.pos.cpy();
+        this.vel = source.vel.cpy();
         this.start = Game.INSTANCE.getTick();
-        this.maxRadius = radius;
+        this.maxRadius = this.radius;
+        this.addSmokeTrail(((DrivenObject)source).getSmokeTrail());
+
     }
 
     public void addSmokeTrail(SmokeTrail smokeTrail) {
@@ -34,7 +39,9 @@ public class Explosion extends ParticleObject {
 
     public void update(float dt) {
 
-        long frame = (int)(Game.INSTANCE.getTick() - start);
+        super.update(dt);
+
+        long frame = Game.INSTANCE.getTick() - start;
 
         if(frame >= 0 && frame < 5) {
             radius =  maxRadius * 0.1f;
@@ -87,9 +94,6 @@ public class Explosion extends ParticleObject {
 
         Gdx.gl.glLineWidth(1);
         shape.end();
-
-
-
     }
 
     @Override

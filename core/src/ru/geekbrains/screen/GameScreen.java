@@ -9,33 +9,44 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.MathUtils;
+import com.github.varunpant.quadtree.Point;
+import com.github.varunpant.quadtree.QuadTree;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Set;
 
-import ru.geekbrains.entities.DrivenObject;
-import ru.geekbrains.entities.Explosion;
-import ru.geekbrains.entities.GameObject;
-import ru.geekbrains.entities.Guidance;
-import ru.geekbrains.entities.Planet;
-import ru.geekbrains.entities.PlayerShip;
-import ru.geekbrains.entities.TrajectorySimulator;
+import ru.geekbrains.entities.objects.DrivenObject;
+import ru.geekbrains.entities.objects.EnemyShip;
+import ru.geekbrains.entities.objects.Shell;
+import ru.geekbrains.entities.particles.Explosion;
+import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.auxiliary.Guidance;
+import ru.geekbrains.entities.objects.Planet;
+import ru.geekbrains.entities.objects.PlayerShip;
+import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;
 import ru.geekbrains.storage.Game;
+
 
 public class GameScreen extends BaseScreen {
 
     private static Vector2 tmp0s = new Vector2();
     private static Vector2 tmp1s = new Vector2();
 
+    private static GameScreen INSTANCE;
+
+
     private Vector2 tmp0 = new Vector2();
     private Vector2 tmp1 = new Vector2();
     private Vector2 tmp2 = new Vector2();
+
+    private PlayerShip playerShip;
+    private Texture enemyShipTexture = new Texture("ship_enemy.png");
 
 
 
@@ -43,61 +54,207 @@ public class GameScreen extends BaseScreen {
     private Reticle reticle;
     private Planet planet;
 
-    private Set<GameObject> gameObjects = new HashSet<>();
+    private Set<GameObject> spawningObjects = new HashSet<>(); // objects to spawn
+
+    private LinkedList<GameObject> gameObjects = new LinkedList<>();
     private Set<GameObject> particleObjects = new HashSet<>();
 
+    // Список объектов, по которым можно попадать снарядами
+    // Используется в quadTree в качестве целей, отсортирован по убыванию радиуса
+    private ArrayList<GameObject> hittableObjects = new ArrayList<>();
+
+    //private Map<Float,GameObject> hittableObjects = new TreeMap<>((f1, f2) -> -Float.compare(f1, f2));
+
     //private List<GameObject> objectsToDelete = new ArrayList<>();
-    private GameScreen.borderNormals borderNormals = new borderNormals();
+    private BorderNormals borderNormals = new BorderNormals();
 
-    private PlayerShip playerShip;
-
-
+    private QuadTree<GameObject> quadTree;
 
     private TrajectorySimulator trajectorySim;
-
-
-
-
-
-
-
-
 
     @Override
     public void show() {
         super.show();
+
+        GameScreen.INSTANCE = this;
+
+//        quadTree = new QuadTree<>(- worldBounds.getHalfWidth(),- worldBounds.getHalfHeight(),
+//                worldBounds.getHalfWidth(),worldBounds.getHalfHeight());
+
+        quadTree = new QuadTree<>(-2000,-2000,2000,2000);
+
         background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
         background.setHeightAndResize(2000f);
 
         planet = new Planet(new TextureRegion(new Texture("dune.png")),100f);
         planet.pos = new Vector2(0, 0);
+        hittableObjects.add(planet);
 
         target.set(500f,500f);
         reticle = new Reticle(new TextureRegion(new Texture("reticle.png")));
         reticle.setHeightAndResize(30f);
 
-
         playerShip = new PlayerShip(new TextureRegion(new Texture("ship_player.png")), 50);
-        playerShip.pos = new Vector2(+700f, +700f);
+        playerShip.pos = new Vector2(+300f, +300f);
+        playerShip.vel = new Vector2(70f, 20f);
         playerShip.target = null;         //add target
         playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
+        playerShip.gun.fireRate = 0.05f;
         gameObjects.add(playerShip);
+        hittableObjects.add(playerShip);
 
         trajectorySim = new TrajectorySimulator(playerShip, planet);
 
 
-        for (int i= 0; i < 10; i++) {
+        for (int i= 0; i < 0; i++) {
 
-            Texture enemyShipTexture = new Texture("ship_enemy.png");
 
-            DrivenObject enemyShip = new DrivenObject(new TextureRegion(enemyShipTexture), 50);
-            enemyShip.pos = new Vector2(MathUtils.random(-700, 700), MathUtils.random(-700, 700));
-            enemyShip.target = playerShip;  //add target
-            enemyShip.maxRotationSpeed *= 4;
-            enemyShip.name = "enemyship_" + i;
-            gameObjects.add(enemyShip);
+
+
         }
+
+        // sorting hittableObjects
+        hittableObjects.sort((o1, o2) -> -Float.compare(o1.getRadius(), o2.getRadius()));
+    }
+
+
+    private void update(float dt) {
+
+
+        // experimental
+        if (Game.INSTANCE.getTick() % 500 == 0) {
+            spawnEnemyShip();
+        }
+
+
+
+
+        // -----------------------------------------------------------------------------------------
+        // spawn new objects
+        // -----------------------------------------------------------------------------------------
+
+        for (GameObject obj: spawningObjects) {
+
+            //  addFirst, if addLast then shells will kill self gunner ship
+            //  when ship have great acceleration
+            gameObjects.addFirst(obj);
+
+            if (obj instanceof DrivenObject) {
+                INSTANCE.hittableObjects.add(obj);
+            }
+        }
+        spawningObjects.clear();
+        INSTANCE.hittableObjects.sort((o1, o2) -> -Float.compare(o1.getRadius(), o2.getRadius()));
+
+
+        // -----------------------------------------------------------------------------------------
+        // quadTree
+        // -----------------------------------------------------------------------------------------
+
+        quadTree.clear();
+        hittableObjects.clear();
+
+        hittableObjects.add(planet);
+        quadTree.set(planet.pos.x, planet.pos.y, planet);
+        
+        // fill quadTree with gameObjects
+        for (GameObject obj : gameObjects) {
+
+            quadTree.set(obj.pos.x, obj.pos.y, obj);
+
+            //  add to hittableObjects only if it is ship or missile
+            if (obj instanceof DrivenObject) {
+                hittableObjects.add(obj);
+            }
+        }
+
+        // -----------------------------------------------------------------------------------------
+        // reticle
+        // -----------------------------------------------------------------------------------------
+
+        reticle.setPos(target);
+
+        // -----------------------------------------------------------------------------------------
+        // gameObjects
+        // -----------------------------------------------------------------------------------------
+        Iterator<GameObject> it = gameObjects.iterator();
+
+        GameObject obj;
+
+        while (it.hasNext()) {
+
+            obj = it.next();
+
+            // calculate gravitation force from planet
+            applyPlanetGravForce(obj, planet);
+
+            // update velocity, position, self-guiding, prepare animation, etc
+            obj.update(dt);
+
+            // check wall bouncing
+            borderBounce(obj);
+
+            // check collision
+            collisionDetection();
+
+            // -------------------------------------------------------------------------------------
+
+            // add obj to objectsToDelete
+            if (obj.readyToDispose) {
+
+                // removing from gameObjects
+                it.remove();
+
+                // check for create explosion
+                if (obj instanceof DrivenObject) {
+
+                    Explosion expl = new Explosion(obj);
+                    particleObjects.add(expl);
+                }
+                obj.dispose();
+            }
+        }
+
+        // -----------------------------------------------------------------------------------------
+        // particleObjects
+        // -----------------------------------------------------------------------------------------
+        it = particleObjects.iterator();
+        while (it.hasNext()) {
+
+            obj = it.next();
+
+            // update velocity, position
+            obj.update(dt);
+
+            // add obj to objectsToDelete
+            if (obj.readyToDispose) {
+                // removing from particleObjects
+                it.remove();
+                obj.dispose();
+            }
+        }
+
+        // -----------------------------------------------------------------------------------------
+
+        // -----------------------------------------------------------------------------------------
+
+
+//        // remove dead objects
+//        for (GameObject o : objectsToDelete) {
+//            gameObjects.remove(o);
+//            o.dispose();
+//        }
+//        objectsToDelete.clear();
+
+        // -----------------------------------------------------------------------------------------
+        // simulate playerShip trajectory for future steps
+        trajectorySim.update(dt);
+
+        // -----------------------------------------------------------------------------------------
+
+        // increment game tick
+        Game.INSTANCE.updateTick();
     }
 
 
@@ -142,7 +299,6 @@ public class GameScreen extends BaseScreen {
         // reticle
         reticle.draw(renderer.batch);
 
-
         // particleObjects
         for (GameObject obj : particleObjects) {
             obj.draw(renderer);
@@ -174,7 +330,7 @@ public class GameScreen extends BaseScreen {
 
 
 
-    class borderNormals {
+    class BorderNormals {
 
         Vector2 left = new Vector2(1, 0);
         Vector2 right = new Vector2(-1, 0);
@@ -182,105 +338,15 @@ public class GameScreen extends BaseScreen {
         Vector2 down = new Vector2(0, 1);
     }
 
-
-
-
-    private void update(float dt) {
-
-        // reticle
-        reticle.setPos(target);
-
-
-        // -----------------------------------------------------------------------------------------
-        // gameObjects
-        // -----------------------------------------------------------------------------------------
-        Iterator<GameObject> it = gameObjects.iterator();
-
-        GameObject obj;
-
-        while (it.hasNext()) {
-
-            obj = it.next();
-
-            // calculate gravitation force from planet
-            applyPlanetGravForce(obj, planet);
-
-            // check wall bouncing
-            borderBounce(obj);
-
-            // check falling to planet
-            checkPlanetCollide(obj);
-
-            // update velocity, position
-            obj.update(dt);
-
-            // -------------------------------------------------------------------------------------
-
-            // add obj to objectsToDelete
-            if (obj.readyToDispose) {
-
-                // removing from gameObjects
-                it.remove();
-
-                // check for create explosion
-                if (obj instanceof DrivenObject) {
-
-                    Explosion expl = new Explosion(obj.pos, obj.getRadius()*3);
-                    expl.addSmokeTrail(((DrivenObject)obj).getSmokeTrail());
-                    particleObjects.add(expl);
-                }
-                obj.dispose();
-            }
-        }
-
-        // -----------------------------------------------------------------------------------------
-        // particleObjects
-        // -----------------------------------------------------------------------------------------
-        it = particleObjects.iterator();
-        while (it.hasNext()) {
-
-            obj = it.next();
-
-            // update velocity, position
-            obj.update(dt);
-
-            // add obj to objectsToDelete
-            if (obj.readyToDispose) {
-                // removing from particleObjects
-                it.remove();
-                obj.dispose();
-            }
-        }
-
-        // -----------------------------------------------------------------------------------------
-
-        // -----------------------------------------------------------------------------------------
-
-        
-//        // remove dead objects
-//        for (GameObject o : objectsToDelete) {
-//            gameObjects.remove(o);
-//            o.dispose();
-//        }
-//        objectsToDelete.clear();
-
-        // -----------------------------------------------------------------------------------------
-        // simulate playerShip trajectory for future steps
-        trajectorySim.update(dt);
-
-        // -----------------------------------------------------------------------------------------
-
-        // increment game tick
-        Game.INSTANCE.updateTick();
-    }
-
-
+    /**
+     * Apply gravity force from planet to obj
+     * @param obj GameObject
+     * @param planet Planet
+     */
     public static void applyPlanetGravForce(GameObject obj, Planet planet) {
 
         if (obj == planet)
             return;
-
-
 
         // Newton's law of universal gravitation
         // F = G * m1*m2/r^2;
@@ -296,6 +362,125 @@ public class GameScreen extends BaseScreen {
         tmp0s = tmp1s.setLength(G*planet.getMass() * obj.getMass()/divider);
         obj.applyForce(tmp0s);
     }
+
+
+
+
+
+    private void checkPlanetCollide(GameObject obj) {
+
+        tmp1.set(planet.pos);
+        tmp1.sub(obj.pos);
+
+        if (tmp1.len() <= planet.getRadius() + obj.getRadius()) {
+
+            // stop object
+            obj.vel.setZero();
+
+            obj.readyToDispose = true;
+        }
+    }
+
+    private void collisionDetection() {
+
+        // objects with greater radius goes first
+        for(GameObject tgt : hittableObjects) {
+
+            if (tgt.readyToDispose)
+                continue;
+
+
+            // tgt - target
+
+            double x1,x2,y1,y2;
+
+            x1 = tgt.pos.x - 2*tgt.getRadius();
+            x2 = tgt.pos.x + 2*tgt.getRadius();
+            y1 = tgt.pos.y - 2*tgt.getRadius();
+            y2 = tgt.pos.y + 2*tgt.getRadius();
+
+
+            Point<GameObject>[] points = quadTree.searchIntersect(x1, y1, x2, y2);
+            //Arrays.sort(points);
+
+
+            for(int i = 0; i < points.length; i++) {
+
+                GameObject prj = points[i].getValue(); // projectile
+
+                if (prj.readyToDispose)
+                    continue;
+
+                tmp1.set(prj.pos);
+                tmp1.sub(tgt.pos); // vector from target to projectile
+
+                if (prj != tgt &&
+                    tmp1.len() <= tgt.getRadius() + points[i].getValue().getRadius()) {
+
+                    if (tgt == planet) {
+                        // stop projectile - fallen on planet
+                        prj.vel.setZero();
+                        // destroy projectile
+                        prj.readyToDispose = true;
+                    }
+                    else {
+
+                        // destroy both
+                        tgt.readyToDispose = true;
+                        prj.readyToDispose = true;
+                    }
+
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+    @Override
+    public void dispose() {
+
+        background.dispose();
+        planet.dispose();
+        reticle.dispose();
+
+        for (GameObject obj : gameObjects) {
+            obj.dispose();
+        }
+
+        super.dispose();
+    }
+
+
+    private void spawnEnemyShip() {
+
+        if (playerShip.readyToDispose)
+            return;
+
+        
+        do {
+
+            tmp1.set(MathUtils.random(-700, 700), MathUtils.random(-700, 700));
+            tmp2.set(tmp1).sub(playerShip.pos);
+        } 
+        while (tmp2.len() < 900);
+
+
+
+
+        EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50);
+        enemyShip.pos = tmp1.cpy();
+        enemyShip.target = playerShip;  //add target
+        enemyShip.gun.fireRate = 0.025f;
+        //enemyShip.maxRotationSpeed *= 1.5f;
+        enemyShip.name = "enemyship";
+
+        addObject(enemyShip);
+    }
+
 
 
     private void borderBounce(GameObject obj) {
@@ -315,6 +500,11 @@ public class GameScreen extends BaseScreen {
         // reflected_vel=vel−2(vel⋅n)n, where n - unit normal vector
         if (obj.pos.x - obj.getRadius() < leftBound) {
 
+            if (obj instanceof Shell) {
+                obj.readyToDispose = true;
+                return;
+            }
+
             n = borderNormals.left;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
@@ -324,6 +514,11 @@ public class GameScreen extends BaseScreen {
 
         if (obj.pos.x + obj.getRadius() > rightBound) {
 
+            if (obj instanceof Shell) {
+                obj.readyToDispose = true;
+                return;
+            }
+
             n = borderNormals.right;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
@@ -331,6 +526,11 @@ public class GameScreen extends BaseScreen {
         }
 
         if (obj.pos.y - obj.getRadius() < downBound) {
+
+            if (obj instanceof Shell) {
+                obj.readyToDispose = true;
+                return;
+            }
 
             n = borderNormals.down;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
@@ -341,6 +541,11 @@ public class GameScreen extends BaseScreen {
 
         if (obj.pos.y + obj.getRadius() > upBound) {
 
+            if (obj instanceof Shell) {
+                obj.readyToDispose = true;
+                return;
+            }
+
             n = borderNormals.up;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
@@ -349,33 +554,26 @@ public class GameScreen extends BaseScreen {
     }
 
 
-    private void checkPlanetCollide(GameObject obj) {
 
-        tmp1.set(planet.pos);
-        tmp1.sub(obj.pos);
 
-        if (tmp1.len() <= planet.getRadius() + obj.getRadius()) {
 
-            // stop object
-            obj.vel.setZero();
 
-            obj.readyToDispose = true;
-        }
+
+
+
+
+
+    // ---------------------------------------------------------------------------------------------
+
+
+    public static void addObject(GameObject obj) {
+
+        INSTANCE.spawningObjects.add(obj);
     }
 
-    @Override
-    public void dispose() {
 
-        background.dispose();
-        planet.dispose();
-        reticle.dispose();
 
-        for (GameObject obj : gameObjects) {
-            obj.dispose();
-        }
 
-        super.dispose();
-    }
 
 }
 

@@ -1,4 +1,4 @@
-package ru.geekbrains.entities;
+package ru.geekbrains.entities.objects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -6,12 +6,15 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
+import ru.geekbrains.entities.auxiliary.Guidance;
+import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.entities.particles.SmokeTrail;
+
 /**
  * Object with thruster and gyrodine
  */
-public class DrivenObject extends GameObject {
+public abstract class DrivenObject extends GameObject {
 
-    public String name;
 
     public float maxFuel = 100000f;         // maximum fuel tank capacity
     public float maxThrottle = 50f;        // maximum thruster engine force
@@ -30,11 +33,11 @@ public class DrivenObject extends GameObject {
     protected Vector2 smokeTrailPos = new Vector2();         // tail position
 
 
-    private SmokeTrail smokeTrail;
+    private ru.geekbrains.entities.particles.SmokeTrail smokeTrail;
     
     public DrivenObject(TextureRegion textureRegion, float height) {
         super(textureRegion, height);
-        smokeTrail = new SmokeTrail(radius / 5f);
+        smokeTrail = new ru.geekbrains.entities.particles.SmokeTrail(radius / 5f);
     }
 
 

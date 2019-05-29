@@ -1,4 +1,6 @@
-package ru.geekbrains.entities;
+package ru.geekbrains.entities.objects;
+
+import ru.geekbrains.screen.Renderer;
 
 public class DummyObject extends GameObject {
 

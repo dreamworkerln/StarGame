@@ -1,7 +1,7 @@
-package ru.geekbrains.entities;
+package ru.geekbrains.entities.particles;
 
 
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import ru.geekbrains.entities.objects.GameObject;
 
 /**
  * Object without world interaction

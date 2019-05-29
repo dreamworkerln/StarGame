@@ -1,4 +1,4 @@
-package ru.geekbrains.entities;
+package ru.geekbrains.entities.particles;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.storage.Game;
 
 public class SmokeTrail extends ParticleObject {

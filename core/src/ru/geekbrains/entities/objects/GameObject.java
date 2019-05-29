@@ -1,4 +1,4 @@
-package ru.geekbrains.entities;
+package ru.geekbrains.entities.objects;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -7,8 +7,9 @@ import com.badlogic.gdx.utils.Disposable;
 import java.util.HashSet;
 import java.util.Set;
 
+import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 import ru.geekbrains.sprite.Sprite;
-import ru.geekbrains.storage.Game;
 
 
 /**
@@ -17,6 +18,8 @@ import ru.geekbrains.storage.Game;
 public abstract class GameObject implements Disposable {
 
     protected Set<RendererType> rendererType = new HashSet<>();
+
+    public String name = "";
 
     protected Sprite sprite = null;                 // displaying sprite (if have one)
 
@@ -37,6 +40,7 @@ public abstract class GameObject implements Disposable {
 
     public boolean readyToDispose = false;            // object ready to dispose
 
+    protected Vector2 tmp0 = new Vector2();           // buffer
     protected Vector2 tmp1 = new Vector2();           // buffer
     protected Vector2 tmp2 = new Vector2();           // buffer
 

@@ -1,4 +1,4 @@
-package ru.geekbrains.entities;
+package ru.geekbrains.screen;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;

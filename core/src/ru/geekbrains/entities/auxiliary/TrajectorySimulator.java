@@ -1,21 +1,26 @@
-package ru.geekbrains.entities;
+package ru.geekbrains.entities.auxiliary;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 
+import ru.geekbrains.entities.objects.DummyObject;
+import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.Planet;
 import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.screen.Renderer;
 
 public class TrajectorySimulator {
 
-    protected GameObject target;
+    protected ru.geekbrains.entities.objects.GameObject target;
 
-    protected Planet planet;
+    protected ru.geekbrains.entities.objects.Planet planet;
 
-    public DummyObject tracer;
+    public ru.geekbrains.entities.objects.DummyObject tracer;
 
     private ArrayList<Vector2> trajectory = new ArrayList<>();
 
@@ -69,17 +74,22 @@ public class TrajectorySimulator {
 
     public void draw(Renderer renderer) {
 
-        renderer.shape.begin();
+        ShapeRenderer shape =renderer.shape;
+
+
+        shape.begin();
         Gdx.gl.glLineWidth(1);
-        renderer.shape.set(ShapeRenderer.ShapeType.Line);
-        renderer.shape.setColor(Color.YELLOW);
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        shape.set(ShapeRenderer.ShapeType.Line);
+        shape.setColor(1f,1f,0f,0.4f);
 
         for(int i = 0; i< trajectory.size()-2;i++){
             renderer.shape.line(trajectory.get(i), trajectory.get(i + 1));
         }
 
         Gdx.gl.glLineWidth(1);
-        renderer.shape.end();
+        shape.end();
     }
 
 }

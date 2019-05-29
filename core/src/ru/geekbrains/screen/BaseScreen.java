@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
-import ru.geekbrains.entities.Renderer;
 import ru.geekbrains.math.MatrixUtils;
 import ru.geekbrains.math.Rect;
 
@@ -27,7 +26,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     private Vector3 touch;
     private int oldScreenX, oldScreenY;
-    protected Vector2 target;
+    protected Vector2 target;    // положение курсора в игровим мире
 
     protected Rect touchBounds;  // координаты экрана телефона, в том виде, как он их выплевывает onTouch
     protected Rect worldBounds;  // мировые координаты
@@ -198,9 +197,6 @@ public abstract class BaseScreen implements Screen, InputProcessor {
                 KeyDown.SPACE = false;
                 break;
         }
-
-
-
         return false;
     }
 
@@ -212,7 +208,22 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        System.out.println("touchDown screenX = " + screenX + " screenY = " + screenY);
+
+
+        switch (button) {
+
+            case 0:
+                KeyDown.MOUSE0 = true;
+                break;
+
+            case 1:
+                KeyDown.MOUSE1 = true;
+                break;
+        }
+
+
+        System.out.println("touchDown screenX = " + screenX + " screenY = " + screenY +
+                " button = " + button);
         touch.set(screenX, screenY, 1).mul(screenToWorld);
         target.set(touch.x, touch.y);
         touchDown(touch, pointer);
@@ -226,7 +237,21 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        System.out.println("touchUp screenX = " + screenX + " screenY = " + screenY);
+
+        switch (button) {
+
+            case 0:
+                KeyDown.MOUSE0 = false;
+                break;
+
+            case 1:
+                KeyDown.MOUSE1 = false;
+                break;
+        }
+
+
+        System.out.println("touchUp screenX = " + screenX + " screenY = " + screenY +
+                " button = " + button);
         touch.set(screenX, screenY, 1).mul(screenToWorld);
         target.set(touch.x, touch.y);
         touchUp(touch, pointer);
@@ -240,7 +265,8 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        System.out.println("touchDragged screenX = " + screenX + " screenY = " + screenY);
+        System.out.println("touchDragged screenX = " + screenX + " screenY = " + screenY +
+                " pointer = " + pointer);
         touch.set(screenX, screenY, 1).mul(screenToWorld);
         target.set(touch.x, touch.y);
         touchDragged(touch, pointer);

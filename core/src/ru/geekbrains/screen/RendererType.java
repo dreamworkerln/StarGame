@@ -1,4 +1,4 @@
-package ru.geekbrains.entities;
+package ru.geekbrains.screen;
 
 public enum RendererType {
     TEXTURE,
