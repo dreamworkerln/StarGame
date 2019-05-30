@@ -122,11 +122,11 @@ public class GameScreen extends BaseScreen {
 
         playerShip = new PlayerShip(new TextureRegion(new Texture("ship_player.png")), 50);
         playerShip.pos = new Vector2(+400f, +400f);
-        playerShip.vel = new Vector2(70f, 20f);
+        playerShip.vel = new Vector2(10f, -50f);
         playerShip.target = null;         //add target
         playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
-        playerShip.gun.fireRate = 0.025f;
+        //playerShip.gun.fireRate = 0.025f;
         playerShip.trajectorySim = new TrajectorySimulator(playerShip);
         gameObjects.add(playerShip);
 
@@ -354,6 +354,8 @@ public class GameScreen extends BaseScreen {
         tmp1s.set(planet.pos);
         tmp1s.sub(obj.pos);
         float G = 2f;
+
+        //float G = 0f;
         float divider = tmp1s.len2();
         // avoid division by zero 
         if (divider < 0.0001)
@@ -483,7 +485,7 @@ public class GameScreen extends BaseScreen {
         enemyShip.pos = tmp1.cpy();
         //enemyShip.target = playerShip;  //add target
         //enemyShip.gun.fireRate = 0.020f;
-        enemyShip.gun.fireRate = 0.01f;
+        //enemyShip.gun.fireRate = 0.01f;
         enemyShip.maxRotationSpeed *= 2f;
         enemyShip.name = "enemyship";
 

@@ -14,8 +14,8 @@ import ru.geekbrains.storage.Game;
 
 public class Gun extends ParticleObject {
 
-    //protected float fireRate = 0.007f;
-    public float fireRate = 0.01f;
+    protected float fireRate = 0.01f;
+    //public float fireRate = 0.01f;
 
     protected float blastRadius;
     protected float maxBlastRadius;

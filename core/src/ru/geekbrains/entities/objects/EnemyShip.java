@@ -178,15 +178,26 @@ public class EnemyShip extends Ship {
         //rt - rs -> r
         //vt - vs -> v
 
-
         //a = target.acc
+
+
+        // костыли
+        tmp0.set(target.pos);
+        tmp1.set(target.vel);
+        tmp1.scl(2.5f);
+        tmp0.sub(tmp1);
+
+
 
         ax = target.acc.x;
         ay = target.acc.y;
 
         // r =  rt - rs
-        rx = target.pos.x - object.pos.x;
-        ry = target.pos.y - object.pos.y;
+        //rx = target.pos.x - object.pos.x;
+        //ry = target.pos.y - object.pos.y;
+
+        rx = tmp0.x - object.pos.x;
+        ry = tmp0.y - object.pos.y;
 
         // v =  vt - vs
         vx = target.vel.x - object.vel.x;
