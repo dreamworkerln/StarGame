@@ -23,7 +23,6 @@ public abstract class DrivenObject extends GameObject {
     public Guidance guidance = Guidance.AUTO;
 
     public GameObject target;                       // цель
-    public Vector2 vecTarget = new Vector2();       // вектор к цели
 
     protected float throttle = 0;                   // current throttle
 
@@ -64,7 +63,6 @@ public abstract class DrivenObject extends GameObject {
         // apply throttle
         force.add(tmp1.set(dir).nor().scl(throttle));
 
-
         // tail vector
         tailVec.set(dir);
         tailVec.scl(-radius);
@@ -102,45 +100,6 @@ public abstract class DrivenObject extends GameObject {
 
 
     protected void guide() {
-
-        // if target is dead exit
-        if (target == null ||  target.readyToDispose) {
-
-            throttle = 0;
-            target = null;
-            return;
-        }
-
-            // direction -----------------------
-
-            // vector from pos to target
-            vecTarget.set(target.pos).sub(pos);
-
-            // rotation dynamics -----------------------------------------------------------------------
-
-            // angle between direction and vecTarget
-            float targetAngle = dir.angleRad(vecTarget);
-
-            float doAngle = Math.min(Math.abs(targetAngle), maxRotationSpeed);
-
-            if (targetAngle < 0)
-                doAngle = -doAngle;
-            dir.rotateRad(doAngle);
-
-            // thruster --------------------
-
-            // GameObject thruster force
-
-
-            // turn thruster on only if distance to target greater than kerb.radius
-            // and rocket fuel is available
-            if (vecTarget.len() >= radius) {
-                throttle = maxThrottle;
-            }
-            else {
-                throttle = 0;
-            }
-
     }
 
     // ---------------------------------------------------------------------------------------------

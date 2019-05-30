@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.storage.Game;
 
@@ -26,7 +27,7 @@ public class Explosion extends ParticleObject {
         this.mass = source.getMass();
         this.pos = source.pos.cpy();
         this.vel = source.vel.cpy();
-        this.start = Game.INSTANCE.getTick();
+        this.start = GameScreen.INSTANCE.getTick();
         this.maxRadius = this.radius;
         this.addSmokeTrail(((DrivenObject)source).getSmokeTrail());
 
@@ -42,7 +43,7 @@ public class Explosion extends ParticleObject {
 
         super.update(dt);
 
-        frame = Game.INSTANCE.getTick() - start;
+        frame = GameScreen.INSTANCE.getTick() - start;
 
         if(frame >= 0 && frame < 5) {
             radius =  maxRadius * 0.1f;

@@ -25,11 +25,6 @@ public abstract class Ship extends DrivenObject {
     }
 
     @Override
-    protected void guide() {
-        super.guide();
-    }
-
-    @Override
     public void draw(Renderer renderer) {
         super.draw(renderer);
 

@@ -10,6 +10,7 @@ import java.util.List;
  * The implementation currently requires pre-determined bounds for data as it
  * can not rebalance itself to that degree.
  */
+@SuppressWarnings("unchecked")
 public class QuadTree<T> {
 
 

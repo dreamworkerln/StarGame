@@ -28,10 +28,10 @@ public class TrajectorySimulator {
     private Vector2 tmp0 = new Vector2();
 
 
-    public TrajectorySimulator(GameObject target, Planet planet) {
+    public TrajectorySimulator(GameObject target) {
 
         this.target = target;
-        this.planet = planet;
+        this.planet = GameScreen.INSTANCE.planet;
 
         tracer = new DummyObject(target.getRadius());
     }

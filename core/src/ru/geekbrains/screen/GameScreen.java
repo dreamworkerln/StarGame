@@ -38,7 +38,32 @@ public class GameScreen extends BaseScreen {
     private static Vector2 tmp0s = new Vector2();
     private static Vector2 tmp1s = new Vector2();
 
-    private static GameScreen INSTANCE = null;
+    public static GameScreen INSTANCE = null;
+
+    private long tick = 0;
+
+    /**
+     * Get current value
+     */
+    public long getTick() {
+
+        return tick;
+    }
+
+    /**
+     * Progress updateTick
+     */
+    public void updateTick() {
+
+        tick++;
+    }
+
+    public boolean isDEBUG() {
+        return true;
+    }
+
+
+    // ---------------------------
 
 
     private Vector2 tmp0 = new Vector2();
@@ -52,7 +77,7 @@ public class GameScreen extends BaseScreen {
 
     private Background background;
     private Reticle reticle;
-    private Planet planet;
+    public  Planet planet;
 
     private Set<GameObject> spawningObjects = new HashSet<>(); // objects to spawn
 
@@ -101,7 +126,7 @@ public class GameScreen extends BaseScreen {
         playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
         playerShip.gun.fireRate = 0.025f;
-        playerShip.trajectorySim = new TrajectorySimulator(playerShip,planet);
+        playerShip.trajectorySim = new TrajectorySimulator(playerShip);
 
         gameObjects.add(playerShip);
         hittableObjects.add(playerShip);
@@ -115,7 +140,7 @@ public class GameScreen extends BaseScreen {
 
 
         // experimental
-        if (Game.INSTANCE.getTick() % 300 == 0) {
+        if (getTick() % 300 == 0) {
             spawnEnemyShip();
         }
 
@@ -275,7 +300,7 @@ public class GameScreen extends BaseScreen {
 //        objectsToDelete.clear();
 
         // increment game tick
-        Game.INSTANCE.updateTick();
+        updateTick();
     }
 
 
@@ -283,7 +308,7 @@ public class GameScreen extends BaseScreen {
     public void render(float delta) {
 
         //DEBUG delta
-        float dt = Game.INSTANCE.isDEBUG() ? 1/60f : delta;
+        float dt = this.isDEBUG() ? 1/60f : delta;
 
         // perform simulation step
         update(dt);
@@ -573,14 +598,6 @@ public class GameScreen extends BaseScreen {
             obj.pos.y = 2 * upBound - 2 *obj.getRadius() - obj.pos.y;
         }
     }
-
-
-
-
-
-
-
-
 
 
 

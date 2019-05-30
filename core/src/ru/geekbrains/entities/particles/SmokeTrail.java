@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.storage.Game;
 
@@ -34,7 +35,6 @@ public class SmokeTrail extends ParticleObject {
          * @param pos thruster pos
          * @param dir negated thruster direction
          * @param vel ship velocity
-         * @param radius ship radius
          */
         public TraceElement(Vector2 pos, Vector2 dir, Vector2 vel, float throttlePercent) {
 
@@ -42,7 +42,7 @@ public class SmokeTrail extends ParticleObject {
 
             this.throttlePercent = throttlePercent;
             this.pos = pos;
-            this.expired = Game.INSTANCE.getTick() + (long)(TTL*throttlePercent);
+            this.expired = GameScreen.INSTANCE.getTick() + (long)(TTL*throttlePercent);
             this.vel = dir.nor().scl(-speed);
         }
 
@@ -67,7 +67,7 @@ public class SmokeTrail extends ParticleObject {
 
     public void update(float dt) {
 
-        long tick = Game.INSTANCE.getTick();
+        long tick = GameScreen.INSTANCE.getTick();
 
         Iterator<TraceElement> it = list.iterator();
         if (it.hasNext()) {
@@ -109,7 +109,7 @@ public class SmokeTrail extends ParticleObject {
         shape.begin();
         shape.set(ShapeRenderer.ShapeType.Line);
 
-        long tick = Game.INSTANCE.getTick();
+        long tick = GameScreen.INSTANCE.getTick();
 
 
 

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.storage.Game;
 
@@ -18,14 +19,14 @@ public class Shell extends GameObject {
         super(radius);
 
         mass = 0.02f;
-        start = Game.INSTANCE.getTick();
+        start = GameScreen.INSTANCE.getTick();
     }
 
     @Override
     public void update(float dt) {
         super.update(dt);
 
-        long frame = Game.INSTANCE.getTick() - start;
+        long frame = GameScreen.INSTANCE.getTick() - start;
 
         if (frame >= TTL) {
             readyToDispose = true;

@@ -54,7 +54,7 @@ public class Gun extends ParticleObject {
     @Override
     public void update(float dt) {
 
-        long tick = Game.INSTANCE.getTick();
+        long tick = GameScreen.INSTANCE.getTick();
 
         // Nozzle-mounted gun
         pos = owner.pos;
@@ -64,14 +64,14 @@ public class Gun extends ParticleObject {
 
         if (firing && lastFired < tick - 1/fireRate) {
 
-            lastFired = Game.INSTANCE.getTick();
+            lastFired = GameScreen.INSTANCE.getTick();
 
             fire();
         }
 
 
         // animation
-        long frame = Game.INSTANCE.getTick() - lastFired;
+        long frame = GameScreen.INSTANCE.getTick() - lastFired;
 
         if (frame >= 0 && frame < 2) {
             blastRadius = maxBlastRadius * 0.1f;
