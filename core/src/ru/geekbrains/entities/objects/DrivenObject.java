@@ -46,6 +46,12 @@ public abstract class DrivenObject extends GameObject {
      */
     public void update(float dt) {
 
+        // auto removing destroyed targets
+        if (target == null ||  target.readyToDispose) {
+            target = null;
+        }
+
+
         // guiding - controlling direction and thrust value
         guide();
 
@@ -99,8 +105,7 @@ public abstract class DrivenObject extends GameObject {
     }
 
 
-    protected void guide() {
-    }
+    protected abstract void guide();
 
     // ---------------------------------------------------------------------------------------------
 

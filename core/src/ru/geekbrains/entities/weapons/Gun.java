@@ -126,4 +126,10 @@ public class Gun extends ParticleObject {
         Gdx.gl.glLineWidth(1);
         shape.end();
     }
+
+    public boolean canFire() {
+
+        return lastFired < GameScreen.INSTANCE.getTick() - 1/fireRate;
+
+    }
 }

@@ -69,6 +69,7 @@ public class GameScreen extends BaseScreen {
     private Vector2 tmp0 = new Vector2();
     private Vector2 tmp1 = new Vector2();
     private Vector2 tmp2 = new Vector2();
+    private Vector2 tmp3 = new Vector2();
 
     private PlayerShip playerShip;
     private Texture enemyShipTexture = new Texture("ship_enemy.png");
@@ -113,39 +114,32 @@ public class GameScreen extends BaseScreen {
 
         planet = new Planet(new TextureRegion(new Texture("dune.png")),100f);
         planet.pos = new Vector2(0, 0);
-        hittableObjects.add(planet);
+
 
         target.set(500f,500f);
         reticle = new Reticle(new TextureRegion(new Texture("reticle.png")));
         reticle.setHeightAndResize(30f);
 
         playerShip = new PlayerShip(new TextureRegion(new Texture("ship_player.png")), 50);
-        playerShip.pos = new Vector2(+300f, +300f);
+        playerShip.pos = new Vector2(+400f, +400f);
         playerShip.vel = new Vector2(70f, 20f);
         playerShip.target = null;         //add target
         playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
         playerShip.gun.fireRate = 0.025f;
         playerShip.trajectorySim = new TrajectorySimulator(playerShip);
-
         gameObjects.add(playerShip);
-        hittableObjects.add(playerShip);
 
-        // sorting hittableObjects
-        hittableObjects.sort((o1, o2) -> -Float.compare(o1.getRadius(), o2.getRadius()));
     }
 
 
     private void update(float dt) {
 
 
-        // experimental
-        if (getTick() % 300 == 0) {
+        // experimental - spawnEnemyShip
+        if (getTick() % 700 == 0) {
             spawnEnemyShip();
         }
-
-
-
 
         // -----------------------------------------------------------------------------------------
         // spawn new objects
@@ -172,11 +166,14 @@ public class GameScreen extends BaseScreen {
         quadTree.clear();
         hittableObjects.clear();
 
-        hittableObjects.add(planet);
-        hittableObjects.add(playerShip);
         quadTree.set(planet.pos.x, planet.pos.y, planet);
 
         // fill quadTree with gameObjects
+        // fill hittableObjects too
+
+        // manually add planet because it's not in gameObjects
+        hittableObjects.add(planet);
+
         for (GameObject obj : gameObjects) {
 
             quadTree.set(obj.pos.x, obj.pos.y, obj);
@@ -187,42 +184,15 @@ public class GameScreen extends BaseScreen {
             }
         }
 
+        // -----------------------------------------------------------------------------------------
+        // update targets for enemy ships
+        // -----------------------------------------------------------------------------------------
 
+        retargetEnemyShips();
 
-        // experimental ---------------------------------------------------------------
-        for (GameObject obj : gameObjects) {
-            if (obj instanceof EnemyShip) {
-
-                EnemyShip ship = (EnemyShip) obj;
-
-                if (ship.target == null) {
-
-                    int cnt = 0;
-                    do {
-
-                        GameObject tmp;
-
-                        int rnd = MathUtils.random(0, hittableObjects.size() - 1);
-                        tmp = hittableObjects.get(rnd);
-
-
-                        if (tmp != planet && tmp != ship) {
-                            ship.target = tmp;
-                        }
-
-
-                        if (cnt++ >= 10)
-                            break;
-                    }
-                    while (ship.target == null);
-
-                }
-            }
-        }
-        // experimental ---------------------------------------------------------------
 
         // -----------------------------------------------------------------------------------------
-        // reticle
+        // player reticle
         // -----------------------------------------------------------------------------------------
 
         reticle.setPos(target);
@@ -289,16 +259,6 @@ public class GameScreen extends BaseScreen {
 
         // -----------------------------------------------------------------------------------------
 
-        // -----------------------------------------------------------------------------------------
-
-
-//        // remove dead objects
-//        for (GameObject o : objectsToDelete) {
-//            gameObjects.remove(o);
-//            o.dispose();
-//        }
-//        objectsToDelete.clear();
-
         // increment game tick
         updateTick();
     }
@@ -351,9 +311,6 @@ public class GameScreen extends BaseScreen {
         for (GameObject obj : gameObjects) {
             obj.draw(renderer);
         }
-
-
-
     }
 
 
@@ -473,6 +430,10 @@ public class GameScreen extends BaseScreen {
                         prj.readyToDispose = true;
                     }
 
+                    // CHEATING
+                    //if (tgt instanceof PlayerShip) tgt.readyToDispose = false;
+                    //if (prj instanceof PlayerShip) prj.readyToDispose = false;
+
                 }
             }
         }
@@ -511,8 +472,9 @@ public class GameScreen extends BaseScreen {
         do {
             tmp1.set(MathUtils.random(-800, 800), MathUtils.random(-800, 800));
             tmp2.set(tmp1).sub(tmp0);
+            tmp3.set(tmp1).sub(planet.pos);
         }
-        while (tmp2.len() < 800);
+        while (tmp2.len() < 800 || tmp3.len() < 800);
 
 
 
@@ -520,12 +482,53 @@ public class GameScreen extends BaseScreen {
         EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50);
         enemyShip.pos = tmp1.cpy();
         //enemyShip.target = playerShip;  //add target
-        enemyShip.gun.fireRate = 0.020f;
-        //enemyShip.maxRotationSpeed *= 1.5f;
+        //enemyShip.gun.fireRate = 0.020f;
+        enemyShip.gun.fireRate = 0.01f;
+        enemyShip.maxRotationSpeed *= 2f;
         enemyShip.name = "enemyship";
 
         addObject(enemyShip);
     }
+
+
+    /**
+     * Will add new target to EnmyShips if they didn't have one
+     */
+    private void retargetEnemyShips() {
+
+
+        for (GameObject obj : gameObjects) {
+            if (obj instanceof EnemyShip) {
+
+                EnemyShip ship = (EnemyShip) obj;
+
+                if (ship.target == null) {
+
+                    int cnt = 0;
+                    do {
+
+                        GameObject tmp;
+
+                        int rnd = MathUtils.random(0, hittableObjects.size() - 1);
+                        tmp = hittableObjects.get(rnd);
+
+
+                        if (tmp != planet && tmp != ship) {
+                            ship.target = tmp;
+                        }
+
+
+                        if (cnt++ >= 10)
+                            break;
+                    }
+                    while (ship.target == null);
+
+                }
+            }
+        }
+
+    }
+
 
 
 
@@ -554,7 +557,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.left;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            // move away from edge to avoid barrier penetration
+            obj.vel.scl(0.5f);
             obj.pos.x = 2 * leftBound + 2*obj.getRadius() - obj.pos.x;
         }
 
@@ -568,6 +571,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.right;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
+            obj.vel.scl(0.5f);
             obj.pos.x = 2 * rightBound - 2*obj.getRadius() - obj.pos.x;
         }
 
@@ -581,6 +585,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.down;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
+            obj.vel.scl(0.5f);
             obj.pos.y = 2 * downBound + 2*obj.getRadius() - obj.pos.y;
 
         }
@@ -595,6 +600,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.up;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
+            obj.vel.scl(0.5f);
             obj.pos.y = 2 * upBound - 2 *obj.getRadius() - obj.pos.y;
         }
     }

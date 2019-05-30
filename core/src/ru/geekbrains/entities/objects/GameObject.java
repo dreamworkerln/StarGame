@@ -134,20 +134,6 @@ public abstract class GameObject implements Disposable {
             sprite.setPos(pos);
             sprite.setAngle(dir.angle());
         }
-//
-//        // countdown to removal from world
-//        if (deathCounter >= 0) {
-//            deathCounter--;
-//
-//            if (deathCounter == 0) {
-//                readyToDispose = true;
-//            }
-//
-//        }
-//        // --------------------------------
-//
-//        if (exploded)
-//            explosion.update(dt);
     }
 
 

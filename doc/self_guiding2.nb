@@ -1,0 +1,415 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     16652,        405]
+NotebookOptionsPosition[     15926,        375]
+NotebookOutlinePosition[     16267,        390]
+CellTagsIndexPosition[     16224,        387]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"vec", " ", "=", " ", 
+   RowBox[{
+    RowBox[{"2", " ", 
+     RowBox[{"{", 
+      RowBox[{"rx", ",", "ry"}], "}"}]}], "+", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"ax", ",", "ay"}], "}"}], " ", 
+     SuperscriptBox["t", "2"]}], "+", 
+    RowBox[{"2", 
+     RowBox[{"{", 
+      RowBox[{"vx", ",", "vy"}], "}"}], "t"}]}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.768223736161574*^9, 3.768223740210662*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"vec2", " ", "=", " ", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"vec", ".", "vec"}], " ", "-", " ", 
+    RowBox[{
+     SuperscriptBox["ACC", "2"], " ", 
+     SuperscriptBox["t", "4"]}]}], "//", "FullSimplify"}]}]], "Input",
+ CellChangeTimes->{{3.768223863753448*^9, 3.768223875251069*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"-", 
+    SuperscriptBox["ACC", "2"]}], " ", 
+   SuperscriptBox["t", "4"]}], "+", 
+  SuperscriptBox[
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"2", " ", "rx"}], "+", 
+     RowBox[{"t", " ", 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"ax", " ", "t"}], "+", 
+        RowBox[{"2", " ", "vx"}]}], ")"}]}]}], ")"}], "2"], "+", 
+  SuperscriptBox[
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"2", " ", "ry"}], "+", 
+     RowBox[{"t", " ", 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"ay", " ", "t"}], "+", 
+        RowBox[{"2", " ", "vy"}]}], ")"}]}]}], ")"}], "2"]}]], "Output",
+ CellChangeTimes->{{3.768223868139179*^9, 3.76822387590589*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Collect", "[", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"vec", ".", "vec"}], " ", "-", " ", 
+    RowBox[{
+     SuperscriptBox["ACC", "2"], " ", 
+     SuperscriptBox["t", "4"]}]}], ",", "t"}], "]"}]], "Input",
+ CellChangeTimes->{{3.768223741909336*^9, 3.768223745794075*^9}, {
+   3.768223785106493*^9, 3.768223838946918*^9}, {3.768223878987129*^9, 
+   3.768223880003448*^9}, 3.768223919081767*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"4", " ", 
+   SuperscriptBox["rx", "2"]}], "+", 
+  RowBox[{"4", " ", 
+   SuperscriptBox["ry", "2"]}], "+", 
+  RowBox[{
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"-", 
+      SuperscriptBox["ACC", "2"]}], "+", 
+     SuperscriptBox["ax", "2"], "+", 
+     SuperscriptBox["ay", "2"]}], ")"}], " ", 
+   SuperscriptBox["t", "4"]}], "+", 
+  RowBox[{
+   SuperscriptBox["t", "3"], " ", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"4", " ", "ax", " ", "vx"}], "+", 
+     RowBox[{"4", " ", "ay", " ", "vy"}]}], ")"}]}], "+", 
+  RowBox[{"t", " ", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"8", " ", "rx", " ", "vx"}], "+", 
+     RowBox[{"8", " ", "ry", " ", "vy"}]}], ")"}]}], "+", 
+  RowBox[{
+   SuperscriptBox["t", "2"], " ", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"4", " ", "ax", " ", "rx"}], "+", 
+     RowBox[{"4", " ", "ay", " ", "ry"}], "+", 
+     RowBox[{"4", " ", 
+      SuperscriptBox["vx", "2"]}], "+", 
+     RowBox[{"4", " ", 
+      SuperscriptBox["vy", "2"]}]}], ")"}]}]}]], "Output",
+ CellChangeTimes->{{3.768223742614984*^9, 3.768223790288851*^9}, {
+   3.76822382405926*^9, 3.768223839447899*^9}, 3.768223880283058*^9, 
+   3.768223919558639*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"sol", " ", "=", " ", 
+   RowBox[{"Solve", " ", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{
+       RowBox[{"4", " ", 
+        SuperscriptBox["rx", "2"]}], "+", 
+       RowBox[{"4", " ", 
+        SuperscriptBox["ry", "2"]}], "+", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", 
+           SuperscriptBox["ACC", "2"]}], "+", 
+          SuperscriptBox["ax", "2"], "+", 
+          SuperscriptBox["ay", "2"]}], ")"}], " ", 
+        SuperscriptBox["t", "4"]}], "+", 
+       RowBox[{
+        SuperscriptBox["t", "3"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"4", " ", "ax", " ", "vx"}], "+", 
+          RowBox[{"4", " ", "ay", " ", "vy"}]}], ")"}]}], "+", 
+       RowBox[{"t", " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"8", " ", "rx", " ", "vx"}], "+", 
+          RowBox[{"8", " ", "ry", " ", "vy"}]}], ")"}]}], "+", 
+       RowBox[{
+        SuperscriptBox["t", "2"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"4", " ", "ax", " ", "rx"}], "+", 
+          RowBox[{"4", " ", "ay", " ", "ry"}], "+", 
+          RowBox[{"4", " ", 
+           SuperscriptBox["vx", "2"]}], "+", 
+          RowBox[{"4", " ", 
+           SuperscriptBox["vy", "2"]}]}], ")"}]}]}], "\[Equal]", "0"}], ",", 
+     " ", "t"}], "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.7682239592036133`*^9, 3.768223992318081*^9}, {
+  3.76822411949209*^9, 3.768224173047126*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"t", "/.", 
+   RowBox[{"sol", "[", 
+    RowBox[{"[", 
+     RowBox[{"4", ",", "1"}], "]"}], "]"}]}], "//", "CForm"}]], "Input",
+ CellChangeTimes->{{3.7682241525139008`*^9, 3.768224238332568*^9}, {
+  3.768224282566619*^9, 3.768224428953433*^9}, {3.768225079266082*^9, 
+  3.768225080145564*^9}, {3.768225110572362*^9, 3.768225132996407*^9}}],
+
+Cell["\<\
+(ax*vx + ay*vy)/(Power(ACC,2) - Power(ax,2) - Power(ay,2)) + \
+Sqrt((4*Power(ax*vx + ay*vy,2))/Power(Power(ACC,2) - Power(ax,2) - \
+Power(ay,2),2) + 
+      (4*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)))/(Power(ACC,2) - \
+Power(ax,2) - Power(ay,2)) + (4*(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2)))/(3.*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))) + 
+      (Power(2,0.3333333333333333)*(48*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2)) - 96*(ax*vx + ay*vy)*(rx*vx + ry*vy) \
++ 
+           16*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),2)))/
+       (3.*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + ay*vy,2) + \
+1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + ry*vy,2) - 
+           1152*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*(Power(rx,2) + \
+Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)) - 
+           1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Power(vx,2) \
++ Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),3) + 
+           Sqrt(-4*Power(48*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2)) - 96*(ax*vx + ay*vy)*(rx*vx + ry*vy) \
++ 16*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),2),3) + 
+             Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + ay*vy,2) + \
+1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + ry*vy,2) - 
+               1152*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*(Power(rx,2) \
++ Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)) - 
+               1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + \
+Power(vx,2) + Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2),3),2)),0.3333333333333333)) + 
+      Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + ay*vy,2) + \
+1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + ry*vy,2) - 
+         1152*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*(Power(rx,2) + \
+Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)) - 
+         1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),3) + 
+         Sqrt(-4*Power(48*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2)) - 96*(ax*vx + ay*vy)*(rx*vx + ry*vy) \
++ 16*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),2),3) + 
+           Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + ay*vy,2) + \
+1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + ry*vy,2) - 
+             1152*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*(Power(rx,2) + \
+Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)) - 
+             1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + \
+Power(vx,2) + Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2),3),2)),0.3333333333333333)/
+       (3.*Power(2,0.3333333333333333)*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))))/2. + 
+   Sqrt((8*Power(ax*vx + ay*vy,2))/Power(Power(ACC,2) - Power(ax,2) - \
+Power(ay,2),2) + (4*(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2)))/(Power(ACC,2) - Power(ax,2) - Power(ay,2)) - 
+      (4*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)))/(3.*(-Power(ACC,2) + \
+Power(ax,2) + Power(ay,2))) - 
+      (Power(2,0.3333333333333333)*(48*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2)) - 96*(ax*vx + ay*vy)*(rx*vx + ry*vy) \
++ 
+           16*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),2)))/
+       (3.*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + ay*vy,2) + \
+1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + ry*vy,2) - 
+           1152*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*(Power(rx,2) + \
+Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)) - 
+           1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Power(vx,2) \
++ Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),3) + 
+           Sqrt(-4*Power(48*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2)) - 96*(ax*vx + ay*vy)*(rx*vx + ry*vy) \
++ 16*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),2),3) + 
+             Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + ay*vy,2) + \
+1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + ry*vy,2) - 
+               1152*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*(Power(rx,2) \
++ Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)) - 
+               1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + \
+Power(vx,2) + Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2),3),2)),0.3333333333333333)) - 
+      Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + ay*vy,2) + \
+1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + ry*vy,2) - 
+         1152*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*(Power(rx,2) + \
+Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)) - 
+         1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),3) + 
+         Sqrt(-4*Power(48*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2)) - 96*(ax*vx + ay*vy)*(rx*vx + ry*vy) \
++ 16*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),2),3) + 
+           Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + ay*vy,2) + \
+1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + ry*vy,2) - 
+             1152*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*(Power(rx,2) + \
+Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)) - 
+             1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + \
+Power(vx,2) + Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2),3),2)),0.3333333333333333)/
+       (3.*Power(2,0.3333333333333333)*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))) + 
+      ((64*Power(ax*vx + ay*vy,3))/Power(Power(ACC,2) - Power(ax,2) - \
+Power(ay,2),3) + (64*(rx*vx + ry*vy))/(Power(ACC,2) - Power(ax,2) - \
+Power(ay,2)) + 
+         (64*(ax*vx + ay*vy)*(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2)))/Power(Power(ACC,2) - Power(ax,2) - Power(ay,2),2))/
+       (4.*Sqrt((4*Power(ax*vx + ay*vy,2))/Power(Power(ACC,2) - Power(ax,2) - \
+Power(ay,2),2) + (4*(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2)))/(Power(ACC,2) - Power(ax,2) - Power(ay,2)) + 
+           (4*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)))/(3.*(-Power(ACC,2) \
++ Power(ax,2) + Power(ay,2))) + 
+           (Power(2,0.3333333333333333)*(48*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2)) - 96*(ax*vx + ay*vy)*(rx*vx + ry*vy) \
++ 
+                16*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),2)))/
+            (3.*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + ay*vy,2) + \
+1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + ry*vy,2) - 
+                1152*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*(Power(rx,2) \
++ Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)) - 
+                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + \
+Power(vx,2) + Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2),3) + 
+                Sqrt(-4*Power(48*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2)) - 96*(ax*vx + ay*vy)*(rx*vx + ry*vy) \
++ 16*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),2),
+                    3) + Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + \
+ay*vy,2) + 1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + \
+ry*vy,2) - 
+                    1152*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2)) - 
+                    1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + \
+Power(vx,2) + Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2),3),2)),0.3333333333333333)) + 
+           Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + ay*vy,2) + \
+1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + ry*vy,2) - 
+              1152*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*(Power(rx,2) + \
+Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + Power(vy,2)) - 
+              1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + \
+Power(vx,2) + Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2),3) + 
+              Sqrt(-4*Power(48*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2)) - 96*(ax*vx + ay*vy)*(rx*vx + ry*vy) \
++ 16*Power(ax*rx + ay*ry + Power(vx,2) + Power(vy,2),2),
+                  3) + Power(1728*(Power(rx,2) + Power(ry,2))*Power(ax*vx + \
+ay*vy,2) + 1728*(-Power(ACC,2) + Power(ax,2) + Power(ay,2))*Power(rx*vx + \
+ry*vy,2) - 
+                  1152*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))*(Power(rx,2) + Power(ry,2))*(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2)) - 
+                  1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + \
+Power(vx,2) + Power(vy,2)) + 128*Power(ax*rx + ay*ry + Power(vx,2) + \
+Power(vy,2),3),2)),0.3333333333333333)/
+            (3.*Power(2,0.3333333333333333)*(-Power(ACC,2) + Power(ax,2) + \
+Power(ay,2))))))/2.\
+\>", "Output",
+ CellChangeTimes->{{3.768224407436057*^9, 3.7682244296046133`*^9}, 
+   3.768225046409891*^9, 3.768225080757462*^9, {3.7682251117276573`*^9, 
+   3.768225133502528*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  FractionBox[
+   RowBox[{
+    RowBox[{"2", " ", 
+     RowBox[{"{", 
+      RowBox[{"rx", ",", "ry"}], "}"}]}], "+", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"ax", ",", "ay"}], "}"}], " ", 
+     SuperscriptBox["t", "2"]}], "+", 
+    RowBox[{"2", 
+     RowBox[{"{", 
+      RowBox[{"vx", ",", "vy"}], "}"}], "t"}]}], 
+   SuperscriptBox["t", "2"]], "//", "FullSimplify"}]], "Input",
+ CellChangeTimes->{{3.768225892940917*^9, 3.768225917531481*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"ax", "+", 
+    FractionBox[
+     RowBox[{"2", " ", 
+      RowBox[{"(", 
+       RowBox[{"rx", "+", 
+        RowBox[{"t", " ", "vx"}]}], ")"}]}], 
+     SuperscriptBox["t", "2"]]}], ",", 
+   RowBox[{"ay", "+", 
+    FractionBox[
+     RowBox[{"2", " ", 
+      RowBox[{"(", 
+       RowBox[{"ry", "+", 
+        RowBox[{"t", " ", "vy"}]}], ")"}]}], 
+     SuperscriptBox["t", "2"]]}]}], "}"}]], "Output",
+ CellChangeTimes->{{3.7682258931733313`*^9, 3.7682259183870792`*^9}}]
+}, Open  ]]
+},
+WindowSize->{1278, 990},
+WindowMargins->{{Automatic, -149}, {-49, Automatic}},
+FrontEndVersion->"10.0 for Linux x86 (64-bit) (December 4, 2014)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 446, 14, 34, "Input"],
+Cell[CellGroupData[{
+Cell[1029, 38, 307, 8, 34, "Input"],
+Cell[1339, 48, 702, 24, 34, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2078, 77, 415, 10, 37, "Input"],
+Cell[2496, 89, 1189, 37, 37, "Output"]
+}, Open  ]],
+Cell[3700, 129, 1470, 42, 37, "Input"],
+Cell[CellGroupData[{
+Cell[5195, 175, 372, 8, 32, "Input"],
+Cell[5570, 185, 9309, 148, 1090, "Output"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[14916, 338, 474, 15, 54, "Input"],
+Cell[15393, 355, 517, 17, 50, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+

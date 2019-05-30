@@ -1,5 +1,6 @@
 package ru.geekbrains.entities.auxiliary.guidance;
 
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.entities.objects.GameObject;
@@ -16,7 +17,13 @@ public class GuideSystem {
     }
 
 
-    public void guide(Vector2 target, byte mode) {
+    /**
+     *
+     * @param target Вектор цели
+     * @param result Вектор - куда целится
+     * @param mode (0 - тупо на цель, 1 - с упреждением)
+     */
+    public void guide(Vector2 target, Vector2 result, byte mode) {
 
 
 
