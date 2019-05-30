@@ -6,9 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.Arrays;
 
-import ru.geekbrains.entities.auxiliary.guidance.GuideSystem;
 import ru.geekbrains.screen.GameScreen;
-import ru.geekbrains.storage.Game;
 
 public class EnemyShip extends Ship {
 
@@ -25,6 +23,11 @@ public class EnemyShip extends Ship {
         //guideSystem = new GuideSystem(this);
 
         gun.fireRate = 0.01f;
+        //gun.maxGunHeat = 170;
+        //gun.gunHeatingDelta = 65;
+        //gun.coolingGunDelta = 2f;
+
+
     }
 
 

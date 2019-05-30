@@ -10,12 +10,14 @@ import ru.geekbrains.entities.objects.Shell;
 import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
-import ru.geekbrains.storage.Game;
 
 public class Gun extends ParticleObject {
 
     public float fireRate = 0.2f;
-    public int gunHeat = 0;
+    public float gunHeat = 0;
+    public float gunHeatingDelta = 60;
+    public float coolingGunDelta = 2;
+    public int maxGunHeat = 200;
 
     protected long lastFired;
     //public long lastFiredBurst;
@@ -59,7 +61,7 @@ public class Gun extends ParticleObject {
     public void update(float dt) {
 
         if (gunHeat > 0) {
-            gunHeat -= 2;
+            gunHeat -= coolingGunDelta;
         }
 
         long tick = GameScreen.INSTANCE.getTick();
@@ -77,10 +79,10 @@ public class Gun extends ParticleObject {
         }
 
         // trigger for gun overheating
-        if (gunHeat > 170) {
+        if (gunHeat > maxGunHeat) {
             overHeated = true;
         }
-        if (overHeated && gunHeat < 50) {
+        if (overHeated && gunHeat < maxGunHeat * 0.3) {
             overHeated = false;
         }
 
@@ -107,7 +109,7 @@ public class Gun extends ParticleObject {
 
     protected void fire() {
 
-        gunHeat+=60;
+        gunHeat+= gunHeatingDelta;
 
         Shell shell = new Shell(3);
 
