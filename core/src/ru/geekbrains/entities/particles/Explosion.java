@@ -4,11 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import java.util.List;
+
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
-import ru.geekbrains.storage.Game;
 
 public class Explosion extends ParticleObject {
 
@@ -18,26 +19,22 @@ public class Explosion extends ParticleObject {
 
     private boolean readyToDisposeSelf = false;
 
-    private SmokeTrail smokeTrail = null;
+    private List<SmokeTrail> smokeTrailList = null;
 
     public Explosion (GameObject source) {
 
         super(source.getRadius() * 2);
-        
+
         this.mass = source.getMass();
         this.pos = source.pos.cpy();
         this.vel = source.vel.cpy();
         this.start = GameScreen.INSTANCE.getTick();
         this.maxRadius = this.radius;
-        this.addSmokeTrail(((DrivenObject)source).getSmokeTrail());
 
+        if (source instanceof DrivenObject) {
+            this.smokeTrailList = ((DrivenObject)source).getSmokeTrailList();
+        }
     }
-
-    public void addSmokeTrail(SmokeTrail smokeTrail) {
-
-        this.smokeTrail = smokeTrail;
-    }
-
 
     public void update(float dt) {
 
@@ -64,10 +61,14 @@ public class Explosion extends ParticleObject {
 
         // ---------------------------------------------------------
 
-        if (smokeTrail != null) {
+        if (smokeTrailList != null) {
 
-            smokeTrail.update(dt);
-            readyToDispose = readyToDisposeSelf && smokeTrail.readyToDispose;
+            for (SmokeTrail st : smokeTrailList) {
+                st.update(dt);
+
+                readyToDispose = readyToDisposeSelf && st.readyToDispose;
+            }
+
         }
         else {
             readyToDispose = readyToDisposeSelf;
@@ -81,8 +82,10 @@ public class Explosion extends ParticleObject {
 
 
         // render smokeTrail if have one
-        if (smokeTrail != null) {
-            smokeTrail.draw(renderer);
+        if (smokeTrailList != null) {
+            for (SmokeTrail st : smokeTrailList) {
+                st.draw(renderer);
+            }
         }
 
         shape.begin();
@@ -110,6 +113,11 @@ public class Explosion extends ParticleObject {
 
     @Override
     public void dispose() {
-        smokeTrail.dispose();
+
+        if (smokeTrailList != null) {
+            for (SmokeTrail st : smokeTrailList) {
+                st.dispose();
+            }
+        }
     }
 }

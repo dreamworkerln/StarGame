@@ -1,10 +1,14 @@
 package ru.geekbrains.entities.objects;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ru.geekbrains.entities.auxiliary.Guidance;
 import ru.geekbrains.screen.Renderer;
@@ -24,19 +28,34 @@ public abstract class DrivenObject extends GameObject {
 
     public GameObject target;                       // цель
 
+    public float health;                       // текущий запас прочности корпуса(health)
+    public int maxHealth = 3;               // максимальный запас прочности корпуса(health)
+
     protected float throttle = 0;                   // current throttle
 
     public float fuel = maxFuel;                   // current fuel level
 
     protected Vector2 enginePos = new Vector2();         // tail position
-    protected Vector2 smokeTrailPos = new Vector2();         // tail position
+    protected Vector2 engineTrailPos = new Vector2();    // tail position
+
+    public List<SmokeTrail> smokeTrailList = new ArrayList<>();
 
 
-    private ru.geekbrains.entities.particles.SmokeTrail smokeTrail;
+    private SmokeTrail engineTrail;                      // trail from thruster burst
+    private SmokeTrail damageBurnTrail;                  // trail from burning on damage
     
     public DrivenObject(TextureRegion textureRegion, float height) {
         super(textureRegion, height);
-        smokeTrail = new ru.geekbrains.entities.particles.SmokeTrail(radius / 5f);
+
+        health = maxHealth;
+
+        engineTrail = new SmokeTrail(radius / 5f, new Color(0.5f,0.5f,0.5f,1));
+        smokeTrailList.add(engineTrail);
+
+        damageBurnTrail = new SmokeTrail(radius / 5f, new Color(0.3f,0.2f,0.2f,1));
+        damageBurnTrail.speed = 0;
+        damageBurnTrail.TTL = 100;
+        smokeTrailList.add(damageBurnTrail);
     }
 
 
@@ -83,14 +102,19 @@ public abstract class DrivenObject extends GameObject {
 
         // smoke trace pos
         tmp1.set(tailVec).scl(1.7f);
-        smokeTrailPos.set(pos).add(tmp1);
+        engineTrailPos.set(pos).add(tmp1);
 
         // add smoke trail particle
         if (throttle > 0) {
-            smokeTrail.add(smokeTrailPos, dir, vel, throttle / maxThrottle);
+            engineTrail.add(engineTrailPos, dir, vel, throttle / maxThrottle);
         }
 
-        smokeTrail.update(dt);
+
+        if (health < maxHealth) {
+            damageBurnTrail.add(pos, dir, vel, (maxHealth - health) / maxHealth);
+        }
+
+        //damageBurnTrail.add(pos, dir, vel, 1);
 
 
         // -----------------------------------------------------------------------------------------
@@ -100,6 +124,21 @@ public abstract class DrivenObject extends GameObject {
         // ~~~~~~~~~~~~~~
 
         // -----------------------------------------------------------------------------------------
+
+        for (SmokeTrail st : smokeTrailList) {
+            st.update(dt);
+        }
+
+
+        // exploding if no health
+        if (health <0 ) {
+            readyToDispose = true;
+        }
+
+        // auto-repair
+        if (health < maxHealth) {
+            health += 0.001;
+        }
 
 
     }
@@ -114,19 +153,24 @@ public abstract class DrivenObject extends GameObject {
     @Override
     public void setRadius(float radius) {
         this.radius = radius;
-        smokeTrail.radius = radius;
 
+        for (SmokeTrail st : smokeTrailList) {
+
+            st.radius = radius;
+
+        }
     }
 
-    public SmokeTrail getSmokeTrail() {
-        return smokeTrail;
+    public List<SmokeTrail> getSmokeTrailList() {
+        return smokeTrailList;
     }
 
     @Override
     public void draw(Renderer renderer) {
 
         // render smoke before ship
-        smokeTrail.draw(renderer);
+        engineTrail.draw(renderer);
+
 
         // render ship
         super.draw(renderer);
@@ -144,21 +188,21 @@ public abstract class DrivenObject extends GameObject {
         Gdx.gl.glLineWidth(1);
         renderer.shape.end();
 
+
+        // render damage burn after ship
+        damageBurnTrail.draw(renderer);
+
     }
 
-//    @Override
-//    public void explode() {
-//
-//        if (exploded)
-//            return;
-//        throttle = 0;
-//
-//        super.explode();
-//    }
-    
 
     @Override
     public void dispose() {
+
+        // do not dispose engineTrail and damageBurnTrail
+        // they will be owned by explosion
+
+        engineTrail = null;
+        damageBurnTrail = null;
 
         pos = null;
         vel = null;
@@ -166,7 +210,6 @@ public abstract class DrivenObject extends GameObject {
         mass = 0;
 
 
-        // do not dispose smokeTrail -
-        // it will be owned by explosion
+
     }
 }

@@ -14,9 +14,15 @@ public class PlayerShip extends Ship {
 
     public TrajectorySimulator trajectorySim;
 
+    public TrajectorySimulator gunSim;
+
     public PlayerShip(TextureRegion textureRegion, float height) {
 
         super(textureRegion, height);
+
+        trajectorySim = new TrajectorySimulator(this, this);
+
+        gunSim = new TrajectorySimulator(this, new Shell(3));
 
     }
 
@@ -73,6 +79,8 @@ public class PlayerShip extends Ship {
 
         // simulate playerShip trajectory for future steps
         trajectorySim.update(dt);
+
+        gunSim.update(dt);
     }
 
     @Override
@@ -81,22 +89,24 @@ public class PlayerShip extends Ship {
         // trajectory sim
         trajectorySim.draw(renderer);
 
-        // ship line of fire  
-        ShapeRenderer shape = renderer.shape;
-        shape.begin();
-        Gdx.gl.glLineWidth(1);
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        shape.set(ShapeRenderer.ShapeType.Line);
-        shape.setColor(0f,0.76f,0.9f,0.5f);
+        gunSim.draw(renderer);
 
-        tmp0.set(dir).setLength(500).add(pos);
-
-        //shape.circle(tmp0.x, tmp0.y, 10);
-        renderer.shape.line(pos,tmp0);
-
-        Gdx.gl.glLineWidth(1);
-        shape.end();
+//        // ship line of fire
+//        ShapeRenderer shape = renderer.shape;
+//        shape.begin();
+//        Gdx.gl.glLineWidth(1);
+//        Gdx.gl.glEnable(GL20.GL_BLEND);
+//        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+//        shape.set(ShapeRenderer.ShapeType.Line);
+//        shape.setColor(0f,0.76f,0.9f,0.5f);
+//
+//        tmp0.set(dir).setLength(500).add(pos);
+//
+//        //shape.circle(tmp0.x, tmp0.y, 10);
+//        renderer.shape.line(pos,tmp0);
+//
+//        Gdx.gl.glLineWidth(1);
+//        shape.end();
 
 
 

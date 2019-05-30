@@ -23,6 +23,8 @@ public class EnemyShip extends Ship {
         super(textureRegion, height);
 
         //guideSystem = new GuideSystem(this);
+
+        gun.fireRate = 0.01f;
     }
 
 
@@ -106,7 +108,7 @@ public class EnemyShip extends Ship {
         if (target != null && guideVector.isZero()) {
 
 
-            if (tmp0.set(target.pos).sub(pos).len() > 300) {
+            if (tmp0.set(target.pos).sub(pos).len() > 100) {
 
                 // гидродоминируем самонаведением
                 selfGuiding(this, target, guideVector);

@@ -1,6 +1,7 @@
 package ru.geekbrains.entities.particles;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -14,11 +15,17 @@ import ru.geekbrains.storage.Game;
 
 public class SmokeTrail extends ParticleObject {
 
-    public static long TTL = 60; // time to live (in ticks)
-    public static long speed = 300; // time to live (in ticks)
+    public long TTL = 60; // time to live (in ticks)
+    public long speed = 300; // trail speed
 
-    public SmokeTrail(float radius) {
+    public Color color;
+    public Color bufColor;
+
+    public SmokeTrail(float radius, Color color) {
         super(radius);
+
+        this.color = color;
+        bufColor = new Color();
     }
 
     class TraceElement {
@@ -61,18 +68,16 @@ public class SmokeTrail extends ParticleObject {
     private LinkedList<TraceElement> list = new LinkedList<>();
 
 
-//    public SmokeTrail(float radius) {
-//        super(radius);
-//    }
-
     public void update(float dt) {
 
         long tick = GameScreen.INSTANCE.getTick();
 
         Iterator<TraceElement> it = list.iterator();
         if (it.hasNext()) {
-            if (tick > it.next().expired) {
-                list.removeFirst();
+
+            TraceElement el = it.next();
+            if (tick >= el.expired) {
+                it.remove();
             }
         }
 
@@ -114,10 +119,21 @@ public class SmokeTrail extends ParticleObject {
 
 
         for(TraceElement el : list) {
-            shape.setColor(0.5f, 0.5f, 0.5f, 1f*((el.expired - tick)/(float)SmokeTrail.TTL));
+
+            bufColor.set(color);
+
+            bufColor.a = 1f*((el.expired - tick)/(float)TTL);
+
+            if (bufColor.a < 0) {
+                bufColor.a = 0;
+            }
+
+
+            shape.setColor(bufColor);
+            //shape.setColor(0.5f, 0.5f, 0.5f, 1f*((el.expired - tick)/(float)SmokeTrail.TTL));
 
             shape.circle(el.pos.x, el.pos.y, 2 *radius +
-                    radius * 2 * el.throttlePercent *(1-((el.expired - tick)/(float)SmokeTrail.TTL)));
+                    radius * 2 * el.throttlePercent *(1-((el.expired - tick)/(float)TTL)));
         }
         Gdx.gl.glLineWidth(1);
         shape.end();

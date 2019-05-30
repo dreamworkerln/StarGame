@@ -21,6 +21,7 @@ import java.util.Set;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.EnemyShip;
 import ru.geekbrains.entities.objects.Shell;
+import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.entities.particles.Explosion;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.auxiliary.Guidance;
@@ -30,7 +31,6 @@ import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;
-import ru.geekbrains.storage.Game;
 
 
 public class GameScreen extends BaseScreen {
@@ -127,7 +127,6 @@ public class GameScreen extends BaseScreen {
         playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
         //playerShip.gun.fireRate = 0.025f;
-        playerShip.trajectorySim = new TrajectorySimulator(playerShip);
         gameObjects.add(playerShip);
 
     }
@@ -137,7 +136,7 @@ public class GameScreen extends BaseScreen {
 
 
         // experimental - spawnEnemyShip
-        if (getTick() % 700 == 0) {
+        if (getTick() % 1000 == 0) {
             spawnEnemyShip();
         }
 
@@ -228,12 +227,19 @@ public class GameScreen extends BaseScreen {
                 // removing from gameObjects
                 it.remove();
 
-                // check for create explosion
-                if (obj instanceof DrivenObject) {
+                // Experimentald
 
-                    Explosion expl = new Explosion(obj);
-                    particleObjects.add(expl);
-                }
+//                // check to explode object
+//                if (obj instanceof DrivenObject) {
+//
+//                    Explosion expl = new Explosion(obj);
+//                    particleObjects.add(expl);
+//                }
+                Explosion expl = new Explosion(obj);
+                particleObjects.add(expl);
+
+
+
                 obj.dispose();
             }
         }
@@ -289,15 +295,15 @@ public class GameScreen extends BaseScreen {
         planet.draw(renderer);
 
 
-        // coordinate axis
-        renderer.shape.begin();
-        Gdx.gl.glLineWidth(1);
-        renderer.shape.set(ShapeRenderer.ShapeType.Line);
-        renderer.shape.setColor(Color.BLUE);
-        renderer.shape.line(new Vector2(-1000f, 0f), new Vector2(1000, 0f));
-        renderer.shape.line(new Vector2(0f, -1000f), new Vector2(0, 1000f));
-        Gdx.gl.glLineWidth(1);
-        renderer.shape.end();
+//        // coordinate axis
+//        renderer.shape.begin();
+//        Gdx.gl.glLineWidth(1);
+//        renderer.shape.set(ShapeRenderer.ShapeType.Line);
+//        renderer.shape.setColor(Color.BLUE);
+//        renderer.shape.line(new Vector2(-1000f, 0f), new Vector2(1000, 0f));
+//        renderer.shape.line(new Vector2(0f, -1000f), new Vector2(0, 1000f));
+//        Gdx.gl.glLineWidth(1);
+//        renderer.shape.end();
 
         // reticle
         reticle.draw(renderer.batch);
@@ -425,12 +431,30 @@ public class GameScreen extends BaseScreen {
                         // destroy projectile
                         prj.readyToDispose = true;
                     }
+                    // damaging DrivenObject by shell
+                    else if (tgt instanceof DrivenObject &&
+                            prj instanceof Shell) {
+
+                        DrivenObject drObj = ((DrivenObject)tgt);
+                        drObj.health --;
+
+                        prj.vel.setZero();
+                        prj.readyToDispose = true;
+                    }
                     else {
 
                         // destroy both
                         tgt.readyToDispose = true;
                         prj.readyToDispose = true;
                     }
+
+
+
+                    // if
+                    //
+                    // health
+
+
 
                     // CHEATING
                     //if (tgt instanceof PlayerShip) tgt.readyToDispose = false;
@@ -551,7 +575,7 @@ public class GameScreen extends BaseScreen {
         // reflected_vel=vel−2(vel⋅n)n, where n - unit normal vector
         if (obj.pos.x - obj.getRadius() < leftBound) {
 
-            if (obj instanceof Shell) {
+            if (!(obj instanceof Ship)) {
                 obj.readyToDispose = true;
                 return;
             }
@@ -565,7 +589,7 @@ public class GameScreen extends BaseScreen {
 
         if (obj.pos.x + obj.getRadius() > rightBound) {
 
-            if (obj instanceof Shell) {
+            if (!(obj instanceof Ship)) {
                 obj.readyToDispose = true;
                 return;
             }
@@ -579,7 +603,7 @@ public class GameScreen extends BaseScreen {
 
         if (obj.pos.y - obj.getRadius() < downBound) {
 
-            if (obj instanceof Shell) {
+            if (!(obj instanceof Ship)) {
                 obj.readyToDispose = true;
                 return;
             }
@@ -594,7 +618,7 @@ public class GameScreen extends BaseScreen {
 
         if (obj.pos.y + obj.getRadius() > upBound) {
 
-            if (obj instanceof Shell) {
+            if (!(obj instanceof Ship)) {
                 obj.readyToDispose = true;
                 return;
             }

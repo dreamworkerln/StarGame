@@ -14,13 +14,15 @@ import ru.geekbrains.storage.Game;
 
 public class Gun extends ParticleObject {
 
-    protected float fireRate = 0.01f;
-    //public float fireRate = 0.01f;
+    public float fireRate = 0.2f;
+    public int gunHeat = 0;
+
+    protected long lastFired;
+    //public long lastFiredBurst;
 
     protected float blastRadius;
     protected float maxBlastRadius;
 
-    protected long lastFired;
 
     protected Vector2 nozzlePos;
 
@@ -28,6 +30,7 @@ public class Gun extends ParticleObject {
 
 
     protected boolean firing = false;
+    protected boolean overHeated = false;
 
 
     public Gun(GameObject owner) {
@@ -37,6 +40,7 @@ public class Gun extends ParticleObject {
         this.dir.set(owner.dir);
 
         lastFired = -1000;
+        //lastFiredBurst = -1000;
         maxBlastRadius = this.radius;
         nozzlePos = new Vector2();
     }
@@ -54,6 +58,10 @@ public class Gun extends ParticleObject {
     @Override
     public void update(float dt) {
 
+        if (gunHeat > 0) {
+            gunHeat -= 2;
+        }
+
         long tick = GameScreen.INSTANCE.getTick();
 
         // Nozzle-mounted gun
@@ -62,12 +70,20 @@ public class Gun extends ParticleObject {
         nozzlePos.set(dir).setLength(owner.getRadius() + 15).add(pos);
 
 
-        if (firing && lastFired < tick - 1/fireRate) {
+        if (firing && !overHeated && lastFired < tick - 1/fireRate) {
 
             lastFired = GameScreen.INSTANCE.getTick();
-
             fire();
         }
+
+        // trigger for gun overheating
+        if (gunHeat > 170) {
+            overHeated = true;
+        }
+        if (overHeated && gunHeat < 50) {
+            overHeated = false;
+        }
+
 
 
         // animation
@@ -90,6 +106,8 @@ public class Gun extends ParticleObject {
 
 
     protected void fire() {
+
+        gunHeat+=60;
 
         Shell shell = new Shell(3);
 
@@ -127,9 +145,4 @@ public class Gun extends ParticleObject {
         shape.end();
     }
 
-    public boolean canFire() {
-
-        return lastFired < GameScreen.INSTANCE.getTick() - 1/fireRate;
-
-    }
 }
