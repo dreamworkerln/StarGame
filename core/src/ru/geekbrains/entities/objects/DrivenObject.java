@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.geekbrains.entities.auxiliary.Guidance;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.entities.particles.SmokeTrail;
 
@@ -24,9 +23,11 @@ public abstract class DrivenObject extends GameObject {
     public float maxThrottle = 50f;        // maximum thruster engine force
     public float maxRotationSpeed = 0.05f; // maximum rotation speed
 
-    public Guidance guidance = Guidance.AUTO;
+    //public Guidance guidance = Guidance.AUTO;
 
     public GameObject target;                       // цель
+
+    protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
 
     public float health;                       // текущий запас прочности корпуса(health)
     public int maxHealth = 3;               // максимальный запас прочности корпуса(health)
@@ -44,15 +45,17 @@ public abstract class DrivenObject extends GameObject {
     private SmokeTrail engineTrail;                      // trail from thruster burst
     private SmokeTrail damageBurnTrail;                  // trail from burning on damage
     
-    public DrivenObject(TextureRegion textureRegion, float height) {
-        super(textureRegion, height);
+    public DrivenObject(TextureRegion textureRegion, float height, GameObject owner) {
+        super(textureRegion, height, owner);
+
+        this.type.add(ObjectType.DRIVEN_OBJECT);
 
         health = maxHealth;
 
-        engineTrail = new SmokeTrail(radius / 5f, new Color(0.5f,0.5f,0.5f,1));
+        engineTrail = new SmokeTrail(radius * 0.4f, new Color(0.5f,0.5f,0.5f,1), owner);
         smokeTrailList.add(engineTrail);
 
-        damageBurnTrail = new SmokeTrail(radius / 5f, new Color(0.3f,0.2f,0.2f,1));
+        damageBurnTrail = new SmokeTrail(radius * 0.4f, new Color(0.3f,0.2f,0.2f,1), owner);
         damageBurnTrail.speed = 0;
         damageBurnTrail.TTL = 100;
         smokeTrailList.add(damageBurnTrail);
@@ -113,6 +116,8 @@ public abstract class DrivenObject extends GameObject {
         if (health < maxHealth) {
             damageBurnTrail.add(pos, dir, vel, (maxHealth - health) / maxHealth);
         }
+
+        //damageBurnTrail.add(pos, dir, vel, 1);
 
         //damageBurnTrail.add(pos, dir, vel, 1);
 

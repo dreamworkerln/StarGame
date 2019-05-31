@@ -5,17 +5,19 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Disposable;
 
 import java.util.ArrayList;
 
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.Planet;
-import ru.geekbrains.entities.objects.Shell;
+import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 
-public class TrajectorySimulator {
+public class TrajectorySimulator implements Disposable {
 
     protected GameObject target;
 
@@ -23,7 +25,7 @@ public class TrajectorySimulator {
 
     public DummyObject tracer;
 
-    public GameObject type;
+    public GameObject model;
 
     protected Color color;
 
@@ -39,13 +41,13 @@ public class TrajectorySimulator {
     public int mode = 0;
 
 
-    public TrajectorySimulator(GameObject target, GameObject type) {
+    public TrajectorySimulator(GameObject owner, GameObject simType) {
 
-        this.target = target;
-        this.type = type;
+        this.target = owner;
+        this.model = simType;
         this.planet = GameScreen.INSTANCE.planet;
 
-        this.tracer = new DummyObject(target.getRadius());
+        this.tracer = new DummyObject(owner);
 
         color = new Color(1f,1f,0f,0.4f);
 
@@ -63,15 +65,16 @@ public class TrajectorySimulator {
 
         trajectory.clear();
 
-        tracer.setMass(type.getMass());
+        tracer.setMass(model.getMass());
+        tracer.setRadius(model.getRadius());
         tracer.dir.set(target.dir);
         tracer.pos.set(target.pos);
         tracer.vel.set(target.vel);
 
 
-        if (type instanceof Shell) {
+        if (model.type.contains(ObjectType.SHELL)) {
 
-            tmp0.set(tracer.dir).setLength(300); // dummy shell speed
+            tmp0.set(tracer.dir).setLength(((Ship)target).gun.power); // dummy shell speed
             tracer.applyForce(tmp0);             // dummy force applied to shell
 
             color.set(0f,0.76f,0.9f,0.5f);
@@ -90,7 +93,7 @@ public class TrajectorySimulator {
             tmp0.set(planet.pos);
             tmp0.sub(tracer.pos);
             if (tmp0.len() <= planet.getRadius() + tracer.getRadius()) {
-                break;
+               break;
             }
 
             // update velocity, position
@@ -107,7 +110,6 @@ public class TrajectorySimulator {
 
         ShapeRenderer shape =renderer.shape;
 
-
         shape.begin();
         Gdx.gl.glLineWidth(1);
         Gdx.gl.glEnable(GL20.GL_BLEND);
@@ -123,4 +125,9 @@ public class TrajectorySimulator {
         shape.end();
     }
 
+
+    @Override
+    public void dispose() {
+
+    }
 }

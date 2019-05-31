@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.storage.Game;
@@ -21,8 +22,8 @@ public class SmokeTrail extends ParticleObject {
     public Color color;
     public Color bufColor;
 
-    public SmokeTrail(float radius, Color color) {
-        super(radius);
+    public SmokeTrail(float height, Color color, GameObject owner) {
+        super(height, owner);
 
         this.color = color;
         bufColor = new Color();
@@ -133,7 +134,7 @@ public class SmokeTrail extends ParticleObject {
             //shape.setColor(0.5f, 0.5f, 0.5f, 1f*((el.expired - tick)/(float)SmokeTrail.TTL));
 
             shape.circle(el.pos.x, el.pos.y, 2 *radius +
-                    radius * 2 * el.throttlePercent *(1-((el.expired - tick)/(float)TTL)));
+                         radius * 2 * el.throttlePercent *(1-((el.expired - tick)/(float)TTL)));
         }
         Gdx.gl.glLineWidth(1);
         shape.end();

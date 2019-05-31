@@ -5,13 +5,20 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
+import ru.geekbrains.entities.objects.Bullet;
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.objects.Projectile;
 import ru.geekbrains.entities.objects.Shell;
 import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 
 public class Gun extends ParticleObject {
+
+    public float calibre = 6;
+    public float power = 230;     // force length, applied to shell
+    public float projectileMass = -1;
 
     public float fireRate = 0.2f;
     public float gunHeat = 0;
@@ -28,17 +35,15 @@ public class Gun extends ParticleObject {
 
     protected Vector2 nozzlePos;
 
-    protected GameObject owner;
-
-
     protected boolean firing = false;
     protected boolean overHeated = false;
 
 
-    public Gun(GameObject owner) {
-        super(owner.getRadius() * 0.3f);
 
-        this.owner = owner;
+
+    public Gun(float height, GameObject owner) {
+        super(height, owner);
+
         this.dir.set(owner.dir);
 
         lastFired = -1000;
@@ -46,6 +51,11 @@ public class Gun extends ParticleObject {
         maxBlastRadius = this.radius;
         nozzlePos = new Vector2();
     }
+
+
+
+
+
 
     public void startFire() {
 
@@ -57,18 +67,22 @@ public class Gun extends ParticleObject {
         firing = false;
     }
 
+
+    protected void rotateGun() {
+
+        // Nozzle-mounted gun
+        dir.set(owner.dir);
+
+    }
+
     @Override
     public void update(float dt) {
 
-        if (gunHeat > 0) {
-            gunHeat -= coolingGunDelta;
-        }
-
         long tick = GameScreen.INSTANCE.getTick();
 
-        // Nozzle-mounted gun
+        rotateGun();
+
         pos = owner.pos;
-        dir.set(owner.dir);
         nozzlePos.set(dir).setLength(owner.getRadius() + 15).add(pos);
 
 
@@ -77,6 +91,13 @@ public class Gun extends ParticleObject {
             lastFired = GameScreen.INSTANCE.getTick();
             fire();
         }
+
+        // gun heating
+
+        if (gunHeat > 0) {
+            gunHeat -= coolingGunDelta;
+        }
+
 
         // trigger for gun overheating
         if (gunHeat > maxGunHeat) {
@@ -91,19 +112,30 @@ public class Gun extends ParticleObject {
         // animation
         long frame = GameScreen.INSTANCE.getTick() - lastFired;
 
-        if (frame >= 0 && frame < 2) {
-            blastRadius = maxBlastRadius * 0.1f;
-        } else if (frame >= 2 && frame < 5) {
-            blastRadius = maxBlastRadius * 0.5f;
-        } else if (frame >= 5 && frame < 7) {
-            blastRadius = maxBlastRadius * 1f;
-        } else if (frame >= 7 && frame < 10) {
-            blastRadius = maxBlastRadius - maxBlastRadius * ((frame - 10) / 10f);
-        } else {
-            blastRadius = 0;
-        }
+        blastRadius = maxBlastRadius - maxBlastRadius * ((frame - 5) / 5f);
+
+
+
+//        if (frame >= 0 && frame < 2) {
+//            blastRadius = maxBlastRadius * 0.1f;
+//        } else if (frame >= 2 && frame < 5) {
+//            blastRadius = maxBlastRadius * 0.5f;
+//        } else if (frame >= 5 && frame < 7) {
+//            blastRadius = maxBlastRadius * 1f;
+//        } else if (frame >= 7 && frame < 10) {
+//            blastRadius = maxBlastRadius - maxBlastRadius * ((frame - 10) / 10f);
+//        } else {
+//            blastRadius = 0;
+//        }
 
     }
+
+
+
+    protected Projectile createProjectile() {
+        return new Shell(calibre, owner);
+    }
+
 
 
 
@@ -111,22 +143,28 @@ public class Gun extends ParticleObject {
 
         gunHeat+= gunHeatingDelta;
 
-        Shell shell = new Shell(3);
 
-        shell.pos.set(nozzlePos);
-        shell.vel.set(owner.vel.cpy());
-        tmp0.set(dir).setLength(300); // shell speed
+        Projectile proj = createProjectile();
 
-        shell.applyForce(tmp0);         // force applied to shell
+        if (projectileMass > 0) {
+            proj.setMass(projectileMass);
+        }
+
+
+
+        proj.pos.set(nozzlePos);
+        proj.vel.set(owner.vel.cpy());
+        proj.dir.set(dir);
+        tmp0.set(dir).setLength(power); // force to bullet
+
+        proj.applyForce(tmp0);         // force applied to bullet
         owner.applyForce(tmp0.scl(-1)); // recoil applied to ship
 
-        //shell.vel.set(owner.vel).add(tmp0);
+        //bullet.vel.set(owner.vel).add(tmp0);
 
-        GameScreen.addObject(shell);
+        GameScreen.addObject(proj);
 
      }
-
-
 
 
     @Override

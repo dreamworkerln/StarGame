@@ -11,7 +11,6 @@ import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 import ru.geekbrains.sprite.Sprite;
 
-
 /**
  * Movable game object with inertia
  */
@@ -20,6 +19,10 @@ public abstract class GameObject implements Disposable {
     protected Set<RendererType> rendererType = new HashSet<>();
 
     public String name = "";
+
+    public GameObject owner;
+
+    public Set<ObjectType> type = new HashSet<>();
 
     protected Sprite sprite = null;                 // displaying sprite (if have one)
 
@@ -45,17 +48,6 @@ public abstract class GameObject implements Disposable {
     protected Vector2 tmp2 = new Vector2();           // buffer
 
 
-    /**
-     * Constructor without sprite - using ShapeRenderer to draw particles
-     * @param radius
-     */
-    public GameObject(float radius) {
-
-        this.radius = radius;
-        dir.set(1, 0);
-
-        rendererType.add(RendererType.SHAPE);
-    }
 
 
     /**
@@ -63,13 +55,16 @@ public abstract class GameObject implements Disposable {
      * @param textureRegion texture
      * @param height resize texture to specified height
      */
-    public GameObject(TextureRegion textureRegion, float height) {
+    public GameObject(TextureRegion textureRegion, float height, GameObject owner) {
 
-        radius = height / 2f;
+        this.type.add(ObjectType.OBJECT);
+
+        this.radius = height / 2f;
+        this.owner = owner;
 
         sprite = new Sprite(textureRegion);
         sprite.setFilter();
-        sprite.setHeightAndResize(height);
+        sprite.setHeightAndResize(2*radius);
         //radius = sprite.getHalfHeight();
         dir.set(1, 0);
 
@@ -77,12 +72,43 @@ public abstract class GameObject implements Disposable {
     }
 
 
+    /**
+     * Constructor without sprite - using ShapeRenderer to draw particles
+     * @param radius
+     */
+    public GameObject(float height, GameObject owner) {
+
+        this.type.add(ObjectType.OBJECT);
+        this.owner = owner;
+        this.radius = height / 2f;
+        dir.set(1, 0);
+
+        rendererType.add(RendererType.SHAPE);
+    }
+
+    public GameObject(GameObject owner) {
+
+        this.owner = owner;
+        this.radius =  owner.radius;
+        dir.set(1, 0);
+
+        rendererType.add(RendererType.SHAPE);
+
+    }
+
 
     /**
      * Perform simulation step
      * @param dt time elapsed from previous emulation step
      */
     public void update(float dt) {
+
+        // auto removing destroyed targets
+        if (owner == null ||  owner.readyToDispose) {
+            owner = null;
+        }
+
+
 
         // apply medium resistance (atmosphere) - proportionally speed -----------------------------
         tmpForce.set(vel);

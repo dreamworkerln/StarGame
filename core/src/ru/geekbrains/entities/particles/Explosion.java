@@ -8,6 +8,7 @@ import java.util.List;
 
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 
@@ -21,18 +22,19 @@ public class Explosion extends ParticleObject {
 
     private List<SmokeTrail> smokeTrailList = null;
 
-    public Explosion (GameObject source) {
+    public Explosion (GameObject owner) {
 
-        super(source.getRadius() * 2);
+        super(owner.getRadius() * 4, owner);
 
-        this.mass = source.getMass();
-        this.pos = source.pos.cpy();
-        this.vel = source.vel.cpy();
+        this.mass = owner.getMass();
+        this.pos = owner.pos.cpy();
+        this.vel = owner.vel.cpy();
         this.start = GameScreen.INSTANCE.getTick();
         this.maxRadius = this.radius;
 
-        if (source instanceof DrivenObject) {
-            this.smokeTrailList = ((DrivenObject)source).getSmokeTrailList();
+        // move SmokeTrail fom owner to this
+        if (owner.type.contains(ObjectType.DRIVEN_OBJECT)) {
+            this.smokeTrailList = ((DrivenObject)owner).getSmokeTrailList();
         }
     }
 

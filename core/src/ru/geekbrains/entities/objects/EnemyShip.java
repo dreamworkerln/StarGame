@@ -10,15 +10,22 @@ import ru.geekbrains.screen.GameScreen;
 
 public class EnemyShip extends Ship {
 
+    static Vector2 tmp0 = new Vector2();
+    static Vector2 tmp1 = new Vector2();
+
+
+
+
     //GuideSystem guideSystem;
 
     //private boolean avoidPlanetModeOn = false;
 
-    private Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
     //Vector2 avoidVector = new Vector2(); // вектор
 
-    public EnemyShip(TextureRegion textureRegion, float height) {
-        super(textureRegion, height);
+    public EnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
+        super(textureRegion, height, owner);
+
+        type.add(ObjectType.ENEMY_SHIP);
 
         //guideSystem = new GuideSystem(this);
 
@@ -76,6 +83,7 @@ public class EnemyShip extends Ship {
             if (minConvergence < 2 *planet.radius &&
                     impactTime < 6 &&
                     distToPlanet  < 400f + planet.radius) {
+                    //distToPlanet  < 40f + planet.radius) {
 
                 // необходимо совершить маневр уклонения
 
@@ -111,7 +119,7 @@ public class EnemyShip extends Ship {
         if (target != null && guideVector.isZero()) {
 
 
-            if (tmp0.set(target.pos).sub(pos).len() > 100) {
+            if (tmp0.set(target.pos).sub(pos).len() > 150) {
 
                 // гидродоминируем самонаведением
                 selfGuiding(this, target, guideVector);
@@ -119,6 +127,7 @@ public class EnemyShip extends Ship {
 
             // Самонаведение не сгидродоминировало
             if (guideVector.isZero()) {
+
                 guideVector.set(target.pos).sub(pos).nor();
             }
 
@@ -130,8 +139,7 @@ public class EnemyShip extends Ship {
             // Gun control
 
             if (target != null &&
-                    Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed
-                    /*gun.canFire()*/) {
+                    Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
 
                 gun.startFire();
             }
@@ -161,14 +169,20 @@ public class EnemyShip extends Ship {
     }
 
 
-    protected void selfGuiding(DrivenObject object,
+    public static void selfGuiding(DrivenObject object,
                                GameObject target,
                                Vector2 result) {
 
         // Система наведения пушек и ракет(самонаведение)
         // https://gamedev.stackexchange.com/questions/149327/projectile-aim-prediction-with-acceleration
 
-        double ACC = object.maxThrottle / mass;  // Максимальное возможное ускорение объекта
+
+        if (target== null || target.readyToDispose)
+            return;
+
+
+
+        double ACC = object.maxThrottle / object.mass;  // Максимальное возможное ускорение объекта
 
         double[] root = new double[4];
 
@@ -184,14 +198,6 @@ public class EnemyShip extends Ship {
         //vt - vs -> v
 
         //a = target.acc
-
-
-        // костыли
-        tmp0.set(target.pos);
-        tmp1.set(target.vel);
-        tmp1.scl(2.5f);
-        tmp0.sub(tmp1);
-
 
 
         ax = target.acc.x;
@@ -217,6 +223,8 @@ public class EnemyShip extends Ship {
 
 
         // Гидра доминатус !!!!
+
+        // (это формулая для самонаведения ракет с рассчетом ACC, для наведения пушек надо пересчитать)
 
         root[0] = (ax*vx + ay*vy)/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) - Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) +
                 (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
@@ -475,8 +483,8 @@ public class EnemyShip extends Ship {
             if (Double.isNaN(t) || Double.isInfinite(t) || t < 0)
                 continue;
 
-            double as_x = ax + (2 * (rx + t *vx))/t*t;
-            double as_y = ay + (2 * (ry + t*vy))/t*t;
+            double as_x = ax + (2 * (rx + t *vx))/t*t; // тут ошибка в знаменателе должно быть /(t*t)
+            double as_y = ay + (2 * (ry + t*vy))/t*t;  // но для наведения пушек и  так хорошо работает
 
             result.set((float)as_x, (float)as_y).nor();
 

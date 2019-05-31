@@ -8,8 +8,12 @@ import ru.geekbrains.entities.objects.GameObject;
  */
 public abstract class ParticleObject extends GameObject {
 
-    public ParticleObject(float radius) {
-        super(radius);
+    public ParticleObject(float height, GameObject owner) {
+        super(height, owner);
+    }
+
+    public ParticleObject(GameObject owner) {
+        super(owner);
     }
 }
 

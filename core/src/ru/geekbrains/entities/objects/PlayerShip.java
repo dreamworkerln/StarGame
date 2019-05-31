@@ -1,11 +1,11 @@
 package ru.geekbrains.entities.objects;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
+import ru.geekbrains.entities.equipment.ForceShield;
+import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.screen.KeyDown;
 import ru.geekbrains.screen.Renderer;
 
@@ -13,17 +13,23 @@ public class PlayerShip extends Ship {
 
 
     public TrajectorySimulator trajectorySim;
-
     public TrajectorySimulator gunSim;
 
-    public PlayerShip(TextureRegion textureRegion, float height) {
+    public Minigun minigun;
 
-        super(textureRegion, height);
+    public ForceShield shield;
+
+    public PlayerShip(TextureRegion textureRegion, float height, GameObject owner) {
+        super(textureRegion, height, owner);
+
+        this.type.add(ObjectType.PLAYER_SHIP);
 
         trajectorySim = new TrajectorySimulator(this, this);
+        gunSim = new TrajectorySimulator(this, new Shell(gun.calibre, owner));
 
-        gunSim = new TrajectorySimulator(this, new Shell(3));
+        shield = new ForceShield(this, new Color(0.1f , 0.5f, 1f, 1f));
 
+        minigun = new Minigun(4, this);
     }
 
 
@@ -81,6 +87,10 @@ public class PlayerShip extends Ship {
         trajectorySim.update(dt);
 
         gunSim.update(dt);
+
+        shield.update(dt);
+
+        minigun.update(dt);
     }
 
     @Override
@@ -90,6 +100,10 @@ public class PlayerShip extends Ship {
         trajectorySim.draw(renderer);
 
         gunSim.draw(renderer);
+
+        shield.draw(renderer);
+
+        minigun.draw(renderer);
 
 //        // ship line of fire
 //        ShapeRenderer shape = renderer.shape;
@@ -111,5 +125,16 @@ public class PlayerShip extends Ship {
 
 
         super.draw(renderer);
+    }
+
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        trajectorySim.dispose();
+        gunSim.dispose();
+
+        shield.readyToDispose = true;
+        shield.dispose();
     }
 }

@@ -466,7 +466,7 @@ public class QuadTree<T> {
      */
     private void setPointForNode(Node<T> node, Point<T> point) {
         if (node.getNodeType() == NodeType.POINTER) {
-            throw new QuadTreeException("Can not set point for node of type POINTER");
+            throw new QuadTreeException("Can not set point for node of model POINTER");
         }
         node.setNodeType(NodeType.LEAF);
         node.setPoint(point);

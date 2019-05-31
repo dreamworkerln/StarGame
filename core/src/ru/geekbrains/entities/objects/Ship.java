@@ -10,10 +10,12 @@ public abstract class Ship extends DrivenObject {
     public Gun gun;
 
 
-    public Ship(TextureRegion textureRegion, float height) {
-        super(textureRegion, height);
+    public Ship(TextureRegion textureRegion, float height, GameObject owner) {
+        super(textureRegion, height, owner);
 
-        gun = new Gun(this);
+        this.type.add(ObjectType.SHIP);
+
+        gun = new Gun(radius * 0.3f, this);
     }
 
     @Override
