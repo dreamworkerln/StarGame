@@ -22,9 +22,20 @@ public class Explosion extends ParticleObject {
 
     private List<SmokeTrail> smokeTrailList = null;
 
+
+    public static float calculateNewRadius(GameObject owner) {
+
+        float newRadius = owner.getRadius() * 4;
+        if (owner.type.contains(ObjectType.MISSILE)) {
+            newRadius *= 10;
+        }
+
+        return newRadius;
+    }
+
     public Explosion (GameObject owner) {
 
-        super(owner.getRadius() * 4, owner);
+        super(Explosion.calculateNewRadius(owner), owner);
 
         this.mass = owner.getMass();
         this.pos = owner.pos.cpy();

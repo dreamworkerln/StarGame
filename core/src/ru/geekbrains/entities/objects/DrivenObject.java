@@ -30,7 +30,7 @@ public abstract class DrivenObject extends GameObject {
     protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
 
     public float health;                       // текущий запас прочности корпуса(health)
-    public int maxHealth = 3;               // максимальный запас прочности корпуса(health)
+    public float maxHealth = 3;               // максимальный запас прочности корпуса(health)
 
     protected float throttle = 0;                   // current throttle
 
@@ -42,8 +42,8 @@ public abstract class DrivenObject extends GameObject {
     public List<SmokeTrail> smokeTrailList = new ArrayList<>();
 
 
-    private SmokeTrail engineTrail;                      // trail from thruster burst
-    private SmokeTrail damageBurnTrail;                  // trail from burning on damage
+    public SmokeTrail engineTrail;                      // trail from thruster burst
+    public SmokeTrail damageBurnTrail;                  // trail from burning on damage
     
     public DrivenObject(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
@@ -52,10 +52,10 @@ public abstract class DrivenObject extends GameObject {
 
         health = maxHealth;
 
-        engineTrail = new SmokeTrail(radius * 0.4f, new Color(0.5f,0.5f,0.5f,1), owner);
+        engineTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.5f,0.5f,0.5f,1), owner);
         smokeTrailList.add(engineTrail);
 
-        damageBurnTrail = new SmokeTrail(radius * 0.4f, new Color(0.3f,0.2f,0.2f,1), owner);
+        damageBurnTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.3f,0.2f,0.2f,1), owner);
         damageBurnTrail.speed = 0;
         damageBurnTrail.TTL = 100;
         smokeTrailList.add(damageBurnTrail);
@@ -67,6 +67,11 @@ public abstract class DrivenObject extends GameObject {
      * @param dt time elapsed from previous emulation step
      */
     public void update(float dt) {
+
+
+        // ~~~~~~~~~~~~~~
+        super.update(dt);
+        // ~~~~~~~~~~~~~~
 
         // auto removing destroyed targets
         if (target == null ||  target.readyToDispose) {
@@ -93,7 +98,7 @@ public abstract class DrivenObject extends GameObject {
 
         // tail vector
         tailVec.set(dir);
-        tailVec.scl(-radius);
+        tailVec.scl(-radius * aspectRatio);
 
         // tail position
         tailPos.set(pos).add(tailVec);
@@ -122,28 +127,22 @@ public abstract class DrivenObject extends GameObject {
         //damageBurnTrail.add(pos, dir, vel, 1);
 
 
-        // -----------------------------------------------------------------------------------------
+        // exploding if no health
+        if (health < 0 ) {
+            readyToDispose = true;
+        }
 
-        // ~~~~~~~~~~~~~~
-        super.update(dt);
-        // ~~~~~~~~~~~~~~
+        // auto-repair for ships
+        if (health < maxHealth &&
+            type.contains(ObjectType.SHIP)) {
+            health += 0.001;
+        }
 
-        // -----------------------------------------------------------------------------------------
 
         for (SmokeTrail st : smokeTrailList) {
             st.update(dt);
         }
 
-
-        // exploding if no health
-        if (health <0 ) {
-            readyToDispose = true;
-        }
-
-        // auto-repair
-        if (health < maxHealth) {
-            health += 0.001;
-        }
 
 
     }
@@ -188,7 +187,8 @@ public abstract class DrivenObject extends GameObject {
         renderer.shape.set(ShapeRenderer.ShapeType.Filled);
 
         renderer.shape.setColor(1f, 0.8f, 0.2f, 1);
-        renderer.shape.circle(enginePos.x, enginePos.y, radius * 0.3f * (throttle/maxThrottle));
+        renderer.shape.circle(enginePos.x, enginePos.y,
+                radius * aspectRatio * 0.3f * (throttle/maxThrottle));
 
         Gdx.gl.glLineWidth(1);
         renderer.shape.end();

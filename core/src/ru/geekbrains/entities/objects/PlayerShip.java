@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
 import ru.geekbrains.entities.equipment.ForceShield;
 import ru.geekbrains.entities.weapons.Minigun;
+import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.KeyDown;
 import ru.geekbrains.screen.Renderer;
 
@@ -16,8 +17,8 @@ public class PlayerShip extends Ship {
     public TrajectorySimulator gunSim;
 
     public Minigun minigun;
-
     public ForceShield shield;
+    public MissileLauncher launcher;
 
     public PlayerShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
@@ -30,6 +31,8 @@ public class PlayerShip extends Ship {
         shield = new ForceShield(this, new Color(0.1f , 0.5f, 1f, 1f));
 
         minigun = new Minigun(4, this);
+
+        launcher = new MissileLauncher(10, this);
     }
 
 
@@ -79,6 +82,20 @@ public class PlayerShip extends Ship {
             gun.stopFire();
         }
 
+
+        // missile fire------------------------------
+        if (KeyDown.MOUSE1) {
+            launcher.startFire();
+        }
+        else {
+            launcher.stopFire();
+        }
+
+        launcher.startFire();
+
+
+
+
     }
 
 
@@ -94,6 +111,8 @@ public class PlayerShip extends Ship {
         shield.update(dt);
 
         minigun.update(dt);
+
+        launcher.update(dt);
     }
 
     @Override
@@ -107,6 +126,8 @@ public class PlayerShip extends Ship {
         shield.draw(renderer);
 
         minigun.draw(renderer);
+
+        launcher.draw(renderer);
 
 //        // ship line of fire
 //        ShapeRenderer shape = renderer.shape;

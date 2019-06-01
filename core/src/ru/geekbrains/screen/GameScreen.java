@@ -11,6 +11,7 @@ import com.github.varunpant.quadtree.Point;
 import com.github.varunpant.quadtree.QuadTree;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -132,7 +133,7 @@ public class GameScreen extends BaseScreen {
 
 
         // experimental - spawnEnemyShip
-        if (getTick() % 500 == 0) {
+        if (getTick() % 100 == 0) {
             spawnEnemyShip();
         }
 
@@ -358,7 +359,7 @@ public class GameScreen extends BaseScreen {
         if (divider < 0.0001)
             divider = 0.0001f;
 
-        tmp0s = tmp1s.setLength(G*planet.getMass() * obj.getMass()/divider);
+        tmp0s.set(tmp1s.setLength(G*planet.getMass() * obj.getMass()/divider));
         obj.applyForce(tmp0s);
     }
 
@@ -405,7 +406,7 @@ public class GameScreen extends BaseScreen {
                     PlayerShip plsp = (PlayerShip) tgt;
 
                     if (tmp1.len() <= plsp.shield.getRadius() + prj.getRadius() &&
-                        plsp.shield.power >= plsp.shield.maxPower) {
+                            plsp.shield.power >= plsp.shield.maxPower) {
 
                         plsp.shield.power--;
 
@@ -520,7 +521,7 @@ public class GameScreen extends BaseScreen {
 
         EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50, null);
         enemyShip.pos = tmp1.cpy();
-        enemyShip.target = playerShip;  //add target
+        //enemyShip.target = playerShip;  //add target
         //enemyShip.gun.fireRate = 0.020f;
         //enemyShip.gun.fireRate = 0.01f;
         enemyShip.maxRotationSpeed *= 2f;
@@ -594,7 +595,8 @@ public class GameScreen extends BaseScreen {
 
         // reflected_vel=vel−2(vel⋅n)n, where n - unit normal vector
         if (obj.pos.x - obj.getRadius() < leftBound &&
-                !(obj.type.contains(ObjectType.PROJECTILE))) {
+                !(obj.type.contains(ObjectType.PROJECTILE) ||
+                        obj.type.contains(ObjectType.MISSILE))) {
 
             n = borderNormals.left;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
@@ -611,7 +613,8 @@ public class GameScreen extends BaseScreen {
         }
 
         if (obj.pos.x + obj.getRadius() > rightBound &&
-                !(obj.type.contains(ObjectType.PROJECTILE))) {
+                !(obj.type.contains(ObjectType.PROJECTILE) ||
+                        obj.type.contains(ObjectType.MISSILE))) {
 
             n = borderNormals.right;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
@@ -628,7 +631,8 @@ public class GameScreen extends BaseScreen {
         }
 
         if (obj.pos.y - obj.getRadius() < downBound &&
-                !(obj.type.contains(ObjectType.PROJECTILE))) {
+                !(obj.type.contains(ObjectType.PROJECTILE) ||
+                        obj.type.contains(ObjectType.MISSILE))) {
 
             n = borderNormals.down;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
@@ -646,7 +650,8 @@ public class GameScreen extends BaseScreen {
         }
 
         if (obj.pos.y + obj.getRadius() > upBound &&
-                !(obj.type.contains(ObjectType.PROJECTILE))) {
+                !(obj.type.contains(ObjectType.PROJECTILE) ||
+                        obj.type.contains(ObjectType.MISSILE))) {
 
             n = borderNormals.up;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
@@ -671,6 +676,8 @@ public class GameScreen extends BaseScreen {
 
     public static List<GameObject> getCloseObjects(GameObject target, float radius) {
 
+        List<GameObject> result = new ArrayList<>();
+
 
         double x1,x2,y1,y2;
 
@@ -683,12 +690,24 @@ public class GameScreen extends BaseScreen {
         Point<GameObject>[] points = INSTANCE.quadTree.searchIntersect(x1, y1, x2, y2);
         //Arrays.sort(points);
 
-        List<GameObject> result = new ArrayList<>();
+        //remove invalid
 
         for (Point<GameObject> p : points) {
-            result.add(p.getValue());
+
+            if (!p.getValue().readyToDispose){
+                result.add(p.getValue());
+            }
         }
 
+
+        result.sort((p1, p2) -> {
+
+            tmp0s.set(p1.pos).sub(target.pos);
+            tmp1s.set(p2.pos).sub(target.pos);
+
+            return Float.compare(tmp0s.len(), tmp1s.len());
+
+        });
 
 
         return result;

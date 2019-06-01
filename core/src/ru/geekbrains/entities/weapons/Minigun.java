@@ -22,7 +22,7 @@ public class Minigun extends Gun {
     public GameObject target;                       // цель
     protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
 
-    public float maxRotationSpeed = 0.07f; // maximum rotation speed
+    public float maxRotationSpeed = 0.1f; // maximum rotation speed
 
     public float maxRange = 450f;
 
@@ -36,6 +36,7 @@ public class Minigun extends Gun {
         gunHeatingDelta = 10;
         coolingGunDelta = 2;
         maxGunHeat = 200;
+        //maxGunHeat = 200000000;
         power = 40;
 
     }
@@ -54,9 +55,11 @@ public class Minigun extends Gun {
 
         List<GameObject> targets;
 
-        if (target == null){
 
-            targets =  GameScreen.getCloseObjects(owner, maxRange);
+
+        if (target == null) {
+
+            targets = GameScreen.getCloseObjects(owner, maxRange);
 
             if (targets.size() > 1) { // на радаре есть кто-то кроме меня самого
 
@@ -67,7 +70,8 @@ public class Minigun extends Gun {
                     if (o != owner &&
                             o.owner != owner &&
                             !o.readyToDispose &&
-                            o.type.contains(ObjectType.ENEMY_SHIP)) {
+                            (o.type.contains(ObjectType.SHIP) ||
+                                    o.type.contains(ObjectType.MISSILE))) {
 
                         target = o;
                         break;
@@ -75,6 +79,7 @@ public class Minigun extends Gun {
                 }
             }
         }
+
 
 
         // target out of range - reset
@@ -92,13 +97,16 @@ public class Minigun extends Gun {
         // --------------------------------------------------
         //aiming target
 
+
+
+
         guideVector.setZero();
 
 
-        EnemyShip.selfGuiding((DrivenObject)owner, target,guideVector);
+        //EnemyShip.selfGuiding((DrivenObject)owner, target ,guideVector);
 
+        // selfGuiding not works - need recalculate for turrets
         if(target != null) {
-
             guideVector.set(target.pos).sub(pos).nor();
         }
 
@@ -121,6 +129,7 @@ public class Minigun extends Gun {
     @Override
     protected void rotateGun() {
 
+        // ToDo: перенести в GameObject.update()
         // rotation dynamics --------------------------------
         // Aiming
         if (!guideVector.isZero()) {

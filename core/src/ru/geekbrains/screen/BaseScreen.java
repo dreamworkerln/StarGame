@@ -26,7 +26,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     private Vector3 touch;
     private int oldScreenX, oldScreenY;
-    protected Vector2 target;    // положение курсора в игровим мире
+    public Vector2 target;    // положение курсора в игровим мире
 
     protected Rect touchBounds;  // координаты экрана телефона, в том виде, как он их выплевывает onTouch
     protected Rect worldBounds;  // мировые координаты

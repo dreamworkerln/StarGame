@@ -33,6 +33,7 @@ public abstract class GameObject implements Disposable {
     //trash
     protected Vector2 tailVec = new Vector2();      // vector of tail
     protected Vector2 tailPos = new Vector2();      // tail position
+    protected float aspectRatio = 1;
 
     protected Vector2 tmpForce = new Vector2();     // tmp force
     protected Vector2 force = new Vector2();          // resulting force (sum of all forces)

@@ -119,10 +119,10 @@ public class EnemyShip extends Ship {
         if (target != null && guideVector.isZero()) {
 
 
-            if (tmp0.set(target.pos).sub(pos).len() > 400) {
+            if (tmp0.set(target.pos).sub(pos).len() > 150) {
 
-                // гидродоминируем самонаведением
-                selfGuiding(this, target, guideVector);
+                // гидродоминируем с самонаведением от ракет
+                selfGuiding();
             }
 
             // Самонаведение не сгидродоминировало
@@ -151,6 +151,7 @@ public class EnemyShip extends Ship {
         // -----------------------------------------------------------------------------------------
 
 
+        // ToDo: перенести в GameObject.update()
         // rotation dynamics --------------------------------
         // Aiming
         if (!guideVector.isZero()) {
@@ -169,20 +170,23 @@ public class EnemyShip extends Ship {
     }
 
 
-    public static void selfGuiding(DrivenObject object,
-                               GameObject target,
-                               Vector2 result) {
+    public void selfGuiding() {
 
         // Система наведения пушек и ракет(самонаведение)
         // https://gamedev.stackexchange.com/questions/149327/projectile-aim-prediction-with-acceleration
 
+        //ToDo : посчитать наведение для пушек, убрать эту формулу
 
         if (target== null || target.readyToDispose)
             return;
 
+        //DrivenObject object,
+        //GameObject target,
+        //Vector2 result
 
 
-        double ACC = object.maxThrottle / object.mass;  // Максимальное возможное ускорение объекта
+
+        double ACC = maxThrottle / mass;  // Максимальное возможное ускорение объекта
 
         double[] root = new double[4];
 
@@ -199,6 +203,13 @@ public class EnemyShip extends Ship {
 
         //a = target.acc
 
+        // костыли
+        tmp0.set(target.pos);
+        tmp1.set(target.vel);
+        tmp1.scl(2.5f);
+        tmp0.sub(tmp1);
+
+
 
         ax = target.acc.x;
         ay = target.acc.y;
@@ -207,16 +218,16 @@ public class EnemyShip extends Ship {
         //rx = target.pos.x - object.pos.x;
         //ry = target.pos.y - object.pos.y;
 
-        rx = tmp0.x - object.pos.x;
-        ry = tmp0.y - object.pos.y;
+        rx = tmp0.x - pos.x;
+        ry = tmp0.y - pos.y;
 
         // v =  vt - vs
-        vx = target.vel.x - object.vel.x;
-        vy = target.vel.y - object.vel.y;
+        vx = target.vel.x - vel.x;
+        vy = target.vel.y - vel.y;
 
         // apply inverted object acceleration to target
-        ax -= object.acc.x;
-        ay -= object.acc.y;
+        ax -= acc.x;
+        ay -= acc.y;
 
         double ddgzt = 96 * (ax * vx + ay * vy) * (rx * vx + ry * vy);
         double zpzpzp = 64 * (rx * vx + ry * vy);
@@ -486,26 +497,10 @@ public class EnemyShip extends Ship {
             double as_x = ax + (2 * (rx + t *vx))/t*t; // тут ошибка в знаменателе должно быть /(t*t)
             double as_y = ay + (2 * (ry + t*vy))/t*t;  // но для наведения пушек и  так хорошо работает
 
-            result.set((float)as_x, (float)as_y).nor();
+            guideVector.set((float)as_x, (float)as_y).nor();
 
             break;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        //System.out.println(root1 + "\n" + root2 + "\n" +root3 + "\n" +root4);
 
     }
 

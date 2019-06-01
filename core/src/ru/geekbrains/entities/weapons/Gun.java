@@ -40,8 +40,13 @@ public class Gun extends ParticleObject {
 
 
 
+    //ToDo: make abstract gun than fire abstract Projectile
+    // then inherit Gun and minigun from it
 
     public Gun(float height, GameObject owner) {
+
+
+
         super(height, owner);
 
         this.dir.set(owner.dir);
@@ -80,11 +85,10 @@ public class Gun extends ParticleObject {
 
         long tick = GameScreen.INSTANCE.getTick();
 
-        rotateGun();
-
         pos = owner.pos;
         nozzlePos.set(dir).setLength(owner.getRadius() + 15).add(pos);
 
+        rotateGun();
 
         if (firing && !overHeated && lastFired < tick - 1/fireRate) {
 
@@ -165,6 +169,7 @@ public class Gun extends ParticleObject {
         System.out.println("vel: " + proj.vel);
         System.out.println("force: " + tmp0);
 
+        // DEBUG UNCOMMENT
         // recoil applied to ship
         owner.applyForce(tmp0.scl(-1));
 
