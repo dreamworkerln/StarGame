@@ -38,9 +38,12 @@ public class PlayerShip extends Ship {
 
         if (KeyDown.A) {
             dir.rotateRad(maxRotationSpeed);
+            minigun.dir.rotateRad(maxRotationSpeed);
+
         }
         if (KeyDown.D) {
             dir.rotateRad(-maxRotationSpeed);
+            minigun.dir.rotateRad(-maxRotationSpeed);
         }
 
         if (KeyDown.W) {

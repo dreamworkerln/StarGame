@@ -118,7 +118,7 @@ public class GameScreen extends BaseScreen {
 
         playerShip = new PlayerShip(new TextureRegion(new Texture("ship_player.png")), 50, null);
         playerShip.pos = new Vector2(+400f, +400f);
-        playerShip.vel = new Vector2(10f, -50f);
+        playerShip.vel = new Vector2(0f, -50f);
         playerShip.target = null;         //add target
         //playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
@@ -132,7 +132,7 @@ public class GameScreen extends BaseScreen {
 
 
         // experimental - spawnEnemyShip
-        if (getTick() % 400 == 0) {
+        if (getTick() % 500 == 0) {
             spawnEnemyShip();
         }
 
@@ -363,23 +363,6 @@ public class GameScreen extends BaseScreen {
     }
 
 
-
-
-
-    private void checkPlanetCollide(GameObject obj) {
-
-        tmp1.set(planet.pos);
-        tmp1.sub(obj.pos);
-
-        if (tmp1.len() <= planet.getRadius() + obj.getRadius()) {
-
-            // stop object
-            obj.vel.setZero();
-
-            obj.readyToDispose = true;
-        }
-    }
-
     private void collisionDetection(float dt) {
 
         // objects with greater radius goes first
@@ -526,18 +509,18 @@ public class GameScreen extends BaseScreen {
 
 
         do {
-            tmp1.set(MathUtils.random(-800, 800), MathUtils.random(-800, 800));
+            tmp1.set(MathUtils.random(-500, 500), MathUtils.random(-500, 500));
             tmp2.set(tmp1).sub(tmp0);
             tmp3.set(tmp1).sub(planet.pos);
         }
-        while (tmp2.len() < 800 || tmp3.len() < 800);
+        while (tmp2.len() < 600 || tmp3.len() < 600);
 
 
 
 
         EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50, null);
         enemyShip.pos = tmp1.cpy();
-        //enemyShip.target = playerShip;  //add target
+        enemyShip.target = playerShip;  //add target
         //enemyShip.gun.fireRate = 0.020f;
         //enemyShip.gun.fireRate = 0.01f;
         enemyShip.maxRotationSpeed *= 2f;
@@ -711,6 +694,13 @@ public class GameScreen extends BaseScreen {
         return result;
     }
 
+
+
+
+    public static Renderer getRenderer() {
+
+        return INSTANCE.renderer;
+    }
 
 
 

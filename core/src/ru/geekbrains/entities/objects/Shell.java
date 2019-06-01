@@ -8,6 +8,7 @@ public class Shell extends Projectile {
 
         type.add(ObjectType.SHELL);
         mass = 0.016f;
+        //mass = 1;
     }
 
 

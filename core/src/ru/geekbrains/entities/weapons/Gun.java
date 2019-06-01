@@ -33,7 +33,7 @@ public class Gun extends ParticleObject {
     protected float maxBlastRadius;
 
 
-    protected Vector2 nozzlePos;
+    public Vector2 nozzlePos;
 
     protected boolean firing = false;
     protected boolean overHeated = false;
@@ -153,14 +153,44 @@ public class Gun extends ParticleObject {
 
 
         proj.pos.set(nozzlePos);
-        proj.vel.set(owner.vel.cpy());
+        proj.vel.set(owner.vel);
         proj.dir.set(dir);
-        tmp0.set(dir).setLength(power); // force to bullet
+        tmp0.set(dir).setLength(power); // force
+        proj.applyForce(tmp0);         // apply force applied to bullet
 
-        proj.applyForce(tmp0);         // force applied to bullet
-        owner.applyForce(tmp0.scl(-1)); // recoil applied to ship
+        System.out.println("power: " + power);
+        System.out.println("mass: "    + proj.getMass());
+        System.out.println("dir: " + proj.dir);
+        System.out.println("pos: " + proj.pos);
+        System.out.println("vel: " + proj.vel);
+        System.out.println("force: " + tmp0);
 
-        //bullet.vel.set(owner.vel).add(tmp0);
+        // recoil applied to ship
+        owner.applyForce(tmp0.scl(-1));
+
+
+
+
+
+//        // ship line of fire
+//        ShapeRenderer shape = renderer.shape;
+//        shape.begin();
+//        Gdx.gl.glLineWidth(1);
+//        Gdx.gl.glEnable(GL20.GL_BLEND);
+//        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+//        shape.set(ShapeRenderer.ShapeType.Line);
+//        shape.setColor(0f,0.76f,0.9f,0.5f);
+//
+//        tmp0.set(dir).setLength(500).add(pos);
+//
+//        //shape.circle(tmp0.x, tmp0.y, 10);
+//        renderer.shape.line(pos,tmp0);
+//
+//        Gdx.gl.glLineWidth(1);
+//        shape.end();
+
+
+
 
         GameScreen.addObject(proj);
 

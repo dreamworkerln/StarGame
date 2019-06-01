@@ -19,7 +19,7 @@ import ru.geekbrains.entities.particles.SmokeTrail;
 public abstract class DrivenObject extends GameObject {
 
 
-    public float maxFuel = 100000f;         // maximum fuel tank capacity
+    public float maxFuel = 100000f;        // maximum fuel tank capacity
     public float maxThrottle = 50f;        // maximum thruster engine force
     public float maxRotationSpeed = 0.05f; // maximum rotation speed
 

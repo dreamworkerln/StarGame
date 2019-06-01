@@ -119,7 +119,7 @@ public class EnemyShip extends Ship {
         if (target != null && guideVector.isZero()) {
 
 
-            if (tmp0.set(target.pos).sub(pos).len() > 150) {
+            if (tmp0.set(target.pos).sub(pos).len() > 400) {
 
                 // гидродоминируем самонаведением
                 selfGuiding(this, target, guideVector);

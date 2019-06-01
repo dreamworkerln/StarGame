@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Disposable;
 
 import java.util.ArrayList;
 
+import ru.geekbrains.StarGame;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -41,7 +42,7 @@ public class TrajectorySimulator implements Disposable {
     public int mode = 0;
 
 
-    public TrajectorySimulator(GameObject owner, GameObject simType) {
+    public TrajectorySimulator(Ship owner, GameObject simType) {
 
         this.target = owner;
         this.model = simType;
@@ -64,7 +65,6 @@ public class TrajectorySimulator implements Disposable {
 
 
         trajectory.clear();
-
         tracer.setMass(model.getMass());
         tracer.setRadius(model.getRadius());
         tracer.dir.set(target.dir);
@@ -74,7 +74,10 @@ public class TrajectorySimulator implements Disposable {
 
         if (model.type.contains(ObjectType.SHELL)) {
 
-            tmp0.set(tracer.dir).setLength(((Ship)target).gun.power); // dummy shell speed
+            tracer.pos.set(((Ship)target).gun.nozzlePos);
+            tracer.dir.set(((Ship)target).gun.dir);
+
+            tmp0.set(target.dir).setLength(((Ship)target).gun.power); // dummy shell speed
             tracer.applyForce(tmp0);             // dummy force applied to shell
 
             color.set(0f,0.76f,0.9f,0.5f);
@@ -83,20 +86,19 @@ public class TrajectorySimulator implements Disposable {
         }
 
 
-
         for (int i = 0; i <  iterationCount; i++) {
+
 
             // calculate gravitation force from planet
             GameScreen.applyPlanetGravForce(tracer, planet);
 
             // check collision to planet
-            tmp0.set(planet.pos);
-            tmp0.sub(tracer.pos);
+            tmp0.set(planet.pos).sub(tracer.pos);
             if (tmp0.len() <= planet.getRadius() + tracer.getRadius()) {
                break;
             }
 
-            // update velocity, position
+            // update aceleration, velocity, position
             tracer.update(dt);
 
             // add new point to simulated trajectory
@@ -108,7 +110,27 @@ public class TrajectorySimulator implements Disposable {
 
     public void draw(Renderer renderer) {
 
-        ShapeRenderer shape =renderer.shape;
+        ShapeRenderer shape = renderer.shape;
+
+
+
+//        //ship line of fire DEBUG
+//        shape.begin();
+//        Gdx.gl.glLineWidth(1);
+//        Gdx.gl.glEnable(GL20.GL_BLEND);
+//        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+//        shape.set(ShapeRenderer.ShapeType.Line);
+//        shape.setColor(1f,1,1,0.5f);
+//
+//        tmp0.set(((Ship)target).dir).setLength(500).add(((Ship)target).pos);
+//        shape.line(((Ship)target).pos,tmp0);
+//
+//        Gdx.gl.glLineWidth(1);
+//        shape.end();
+//
+//        // ---------------------------------------------
+
+
 
         shape.begin();
         Gdx.gl.glLineWidth(1);

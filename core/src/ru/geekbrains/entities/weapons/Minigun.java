@@ -22,9 +22,9 @@ public class Minigun extends Gun {
     public GameObject target;                       // цель
     protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
 
-    public float maxRotationSpeed = 0.05f; // maximum rotation speed
+    public float maxRotationSpeed = 0.07f; // maximum rotation speed
 
-    public float maxRange = 500f;
+    public float maxRange = 450f;
 
     public Minigun(float height, GameObject owner) {
 
@@ -65,9 +65,9 @@ public class Minigun extends Gun {
                     // берем первую попавшуюся цель (она будет ближе всего к границе радара)
                     // которая не является ни owner ни его снарядами
                     if (o != owner &&
-                        o.owner != owner &&
-                        !o.readyToDispose &&
-                        o.type.contains(ObjectType.ENEMY_SHIP)) {
+                            o.owner != owner &&
+                            !o.readyToDispose &&
+                            o.type.contains(ObjectType.ENEMY_SHIP)) {
 
                         target = o;
                         break;
@@ -78,13 +78,17 @@ public class Minigun extends Gun {
 
 
         // target out of range - reset
-        if (target != null &&
-            target.pos.len() > maxRange) {
+        if (target != null) {
 
-            target = null;
+            tmp0.set(target.pos).sub(pos);
+            if (tmp0.len() > maxRange) {
+
+                target = null;
+            }
         }
 
-        
+
+
         // --------------------------------------------------
         //aiming target
 
@@ -108,7 +112,7 @@ public class Minigun extends Gun {
         else {
             stopFire();
         }
-        
+
         super.update(dt);
     }
 
