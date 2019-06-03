@@ -81,7 +81,7 @@ public class MissileLauncher extends Gun {
                     new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, owner);
 
             tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius() * 5)
-                    .rotate(45 * sideLaunch).add(owner.pos);
+                    .rotate(60 * sideLaunch).add(owner.pos);
 
             missile.pos.set(tmp0);
             missile.vel.set(owner.vel);

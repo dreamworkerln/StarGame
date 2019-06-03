@@ -39,7 +39,7 @@ public class Minigun extends Gun {
         coolingGunDelta = 2;
         maxGunHeat = 200;
         //maxGunHeat = 200000000;
-        power = 40;
+        power = 20;
 
 
         final double relativeAccuracy = 1.0e-12;

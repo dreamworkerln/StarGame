@@ -16,7 +16,7 @@ public class Bullet extends Projectile {
         super(height, owner);
 
         type.add(ObjectType.BULLET);
-        mass = 0.002f;
+        mass = 0.001f;
     }
 
 
