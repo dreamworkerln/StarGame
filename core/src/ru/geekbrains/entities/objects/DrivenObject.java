@@ -80,7 +80,7 @@ public abstract class DrivenObject extends GameObject {
 
 
         // guiding - controlling direction and thrust value
-        guide();
+        guide(dt);
 
         // apply thruster --------------------------------------------------------------------------
 
@@ -148,7 +148,7 @@ public abstract class DrivenObject extends GameObject {
     }
 
 
-    protected abstract void guide();
+    protected abstract void guide(float dt);
 
     // ---------------------------------------------------------------------------------------------
 
@@ -160,7 +160,12 @@ public abstract class DrivenObject extends GameObject {
 
         for (SmokeTrail st : smokeTrailList) {
 
-            st.radius = radius;
+            st.radius = radius * 0.4f;
+
+           if (this.type.contains(ObjectType.MISSILE)) {
+               st.radius = 0.5f;
+           }
+
 
         }
     }

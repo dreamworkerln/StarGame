@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.Arrays;
 
+import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.GameScreen;
 
 public class EnemyShip extends Ship {
@@ -14,6 +15,7 @@ public class EnemyShip extends Ship {
     static Vector2 tmp1 = new Vector2();
 
 
+    public MissileLauncher launcher;
 
 
     //GuideSystem guideSystem;
@@ -35,11 +37,29 @@ public class EnemyShip extends Ship {
         //gun.coolingGunDelta = 2f;
 
 
+        launcher = new MissileLauncher(10, this);
+        launcher.fireRate = 0.002f;
+        launcher.sideLaunchCount = 1;
+        launcher.startFire();
+
     }
 
 
     @Override
-    protected void guide() {
+    public void update(float dt) {
+
+        super.update(dt);
+
+        launcher.update(dt);
+
+    }
+
+
+
+
+
+    @Override
+    protected void guide(float dt) {
 
         GameObject planet = GameScreen.INSTANCE.planet;
 
@@ -175,8 +195,7 @@ public class EnemyShip extends Ship {
         // Система наведения пушек и ракет(самонаведение)
         // https://gamedev.stackexchange.com/questions/149327/projectile-aim-prediction-with-acceleration
 
-        //ToDo : посчитать наведение для пушек, убрать эту формулу
-
+        //ToDo : посчитать наведение для пушек, убрать эту формулу(ниже)
         if (target== null || target.readyToDispose)
             return;
 
@@ -235,7 +254,7 @@ public class EnemyShip extends Ship {
 
         // Гидра доминатус !!!!
 
-        // (это формулая для самонаведения ракет с рассчетом ACC, для наведения пушек надо пересчитать)
+        // (Надо переписать - взять из Minigun, но хоть так вражеские корабли промахиваются, хрен с ним)
 
         root[0] = (ax*vx + ay*vy)/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) - Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) +
                 (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +

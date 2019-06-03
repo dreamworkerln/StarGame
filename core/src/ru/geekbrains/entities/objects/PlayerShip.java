@@ -37,7 +37,7 @@ public class PlayerShip extends Ship {
 
 
     @Override
-    protected void guide() {
+    protected void guide(float dt) {
 
         if (KeyDown.A) {
             dir.rotateRad(maxRotationSpeed);
@@ -91,7 +91,7 @@ public class PlayerShip extends Ship {
             launcher.stopFire();
         }
 
-        launcher.startFire();
+        //launcher.startFire();
 
 
 
@@ -154,11 +154,14 @@ public class PlayerShip extends Ship {
 
     @Override
     public void dispose() {
-        super.dispose();
         trajectorySim.dispose();
         gunSim.dispose();
 
+
+        launcher.dispose();
         shield.readyToDispose = true;
         shield.dispose();
+
+        super.dispose();
     }
 }

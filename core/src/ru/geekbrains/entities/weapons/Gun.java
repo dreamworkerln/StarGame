@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.Arrays;
+
 import ru.geekbrains.entities.objects.Bullet;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -39,6 +41,14 @@ public class Gun extends ParticleObject {
     protected boolean overHeated = false;
 
 
+    public GameObject target;                      // цель
+    protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
+
+    public float maxRotationSpeed = 0; // maximum rotation speed
+
+    public Projectile firingAmmoType;
+
+
 
     //ToDo: make abstract gun than fire abstract Projectile
     // then inherit Gun and minigun from it
@@ -55,6 +65,8 @@ public class Gun extends ParticleObject {
         //lastFiredBurst = -1000;
         maxBlastRadius = this.radius;
         nozzlePos = new Vector2();
+
+        firingAmmoType = createProjectile();
     }
 
 
@@ -86,7 +98,7 @@ public class Gun extends ParticleObject {
         long tick = GameScreen.INSTANCE.getTick();
 
         pos = owner.pos;
-        nozzlePos.set(dir).setLength(owner.getRadius() + 15).add(pos);
+        nozzlePos.set(dir).setLength(owner.getRadius() + firingAmmoType.getRadius() + 5).add(pos);
 
         rotateGun();
 
@@ -162,12 +174,12 @@ public class Gun extends ParticleObject {
         tmp0.set(dir).setLength(power); // force
         proj.applyForce(tmp0);         // apply force applied to bullet
 
-        System.out.println("power: " + power);
-        System.out.println("mass: "    + proj.getMass());
-        System.out.println("dir: " + proj.dir);
-        System.out.println("pos: " + proj.pos);
-        System.out.println("vel: " + proj.vel);
-        System.out.println("force: " + tmp0);
+        //System.out.println("power: " + power);
+        //System.out.println("mass: "    + proj.getMass());
+        //System.out.println("dir: " + proj.dir);
+        //System.out.println("pos: " + proj.pos);
+        //System.out.println("vel: " + proj.vel);
+        //System.out.println("force: " + tmp0);
 
         // DEBUG UNCOMMENT
         // recoil applied to ship

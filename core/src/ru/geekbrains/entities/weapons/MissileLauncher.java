@@ -21,6 +21,8 @@ public class MissileLauncher extends Gun {
 
     protected int sideLaunch = -1;
 
+    public int sideLaunchCount = 2;
+
     protected DummyObject dummy;
 
     GameObject target = null;
@@ -31,8 +33,8 @@ public class MissileLauncher extends Gun {
 
         dummy = new DummyObject(owner);
 
-        //fireRate = 0.004f;
-        fireRate = 0.01f;
+        fireRate = 0.004f;
+        //fireRate = 0.05f;
         gunHeatingDelta = 0;
         coolingGunDelta = 0;
         maxGunHeat = 1;
@@ -47,7 +49,7 @@ public class MissileLauncher extends Gun {
 
         dummy.pos.set(GameScreen.INSTANCE.target);
 
-        targets = GameScreen.getCloseObjects(dummy, 1000);
+        targets = GameScreen.getCloseObjects(dummy, 2000);
 
         for (GameObject o : targets) {
 
@@ -64,22 +66,22 @@ public class MissileLauncher extends Gun {
         }
 
 
-        if (target == null) {
+        if (target== null || target.readyToDispose){
+
             return;
         }
 
 
 
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < sideLaunchCount; i++) {
 
 
             Missile missile =
                     new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, owner);
 
-
             tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius() * 5)
-                    .rotate(90 * sideLaunch).add(owner.pos);
+                    .rotate(45 * sideLaunch).add(owner.pos);
 
             missile.pos.set(tmp0);
             missile.vel.set(owner.vel);
@@ -103,7 +105,8 @@ public class MissileLauncher extends Gun {
 
     @Override
     public void draw(Renderer renderer) {
-        super.draw(renderer);
+
+        //super.draw(renderer);
 
 
 
@@ -111,14 +114,23 @@ public class MissileLauncher extends Gun {
 
             ShapeRenderer shape = renderer.shape;
 
-            Gdx.gl.glLineWidth(2);
+            Gdx.gl.glLineWidth(1);
             Gdx.gl.glEnable(GL20.GL_BLEND);
             Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
             shape.begin();
             shape.set(ShapeRenderer.ShapeType.Line);
 
-            shape.setColor(0.9f, 0.9f, 0.9f, 0.6f);
-            shape.circle(target.pos.x, target.pos.y, 50);
+            shape.setColor(0.5f, 0.9f, 0.9f, 0.5f);
+            shape.circle(target.pos.x, target.pos.y, target.getRadius() * 2);
+
+            tmp0.set(target.pos).sub(target.getRadius() * 2, 0);
+            tmp1.set(tmp0).set(target.pos).add(target.getRadius()*2, 0);
+            shape.line(tmp0, tmp1);
+
+            tmp0.set(target.pos).sub(0, target.getRadius() * 2);
+            tmp1.set(tmp0).set(target.pos).add(0, target.getRadius()*2);
+            shape.line(tmp0, tmp1);
+
             shape.end();
         }
 

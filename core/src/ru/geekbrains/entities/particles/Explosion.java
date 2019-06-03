@@ -26,9 +26,9 @@ public class Explosion extends ParticleObject {
     public static float calculateNewRadius(GameObject owner) {
 
         float newRadius = owner.getRadius() * 4;
-        if (owner.type.contains(ObjectType.MISSILE)) {
-            newRadius *= 10;
-        }
+//        if (owner.type.contains(ObjectType.MISSILE)) {
+//            newRadius *= 10;
+//        }
 
         return newRadius;
     }

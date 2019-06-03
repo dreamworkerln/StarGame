@@ -26,7 +26,7 @@ public class ForceShield extends ParticleObject {
         super(owner);
 
         this.color = color;
-        this.radius = radius * 2f;
+        this.radius = radius * 1.8f;
         power = maxPower;
         bufColor = new Color();
     }

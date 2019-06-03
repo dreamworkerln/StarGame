@@ -133,7 +133,7 @@ public class GameScreen extends BaseScreen {
 
 
         // experimental - spawnEnemyShip
-        if (getTick() % 100 == 0) {
+        if (getTick() % 400 == 0) {
             spawnEnemyShip();
         }
 
