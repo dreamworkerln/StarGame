@@ -24,7 +24,7 @@ public class Minigun extends Gun {
 
 
 
-    public float maxRange = 400f;
+    public float maxRange = 300f;
 
     public Minigun(float height, GameObject owner) {
 
@@ -39,7 +39,7 @@ public class Minigun extends Gun {
         coolingGunDelta = 2;
         maxGunHeat = 200;
         //maxGunHeat = 200000000;
-        power = 20;
+        power = 30;
 
 
         final double relativeAccuracy = 1.0e-12;
