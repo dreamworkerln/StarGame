@@ -137,7 +137,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-        System.out.println("keyDown keycode = " + keycode);
+        //System.out.println("keyDown keycode = " + keycode);
 
         switch (keycode) {
 
@@ -173,7 +173,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
-        System.out.println("keyUp keycode = " + keycode);
+        //System.out.println("keyUp keycode = " + keycode);
 
         switch (keycode) {
 
@@ -202,7 +202,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean keyTyped(char character) {
-        System.out.println("keyTyped keycode = " + character);
+        //System.out.println("keyTyped keycode = " + character);
         return false;
     }
 
@@ -222,8 +222,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
         }
 
 
-        System.out.println("touchDown screenX = " + screenX + " screenY = " + screenY +
-                " button = " + button);
+        //System.out.println("touchDown screenX = " + screenX + " screenY = " + screenY +" button = " + button);
         touch.set(screenX, screenY, 1).mul(screenToWorld);
         target.set(touch.x, touch.y);
         touchDown(touch, pointer);
@@ -231,7 +230,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     }
 
     public boolean touchDown(Vector3 touch, int pointer) {
-        System.out.println("touchDown touchX = " + touch.x + " touchY = " + touch.y);
+        //System.out.println("touchDown touchX = " + touch.x + " touchY = " + touch.y);
         return false;
     }
 
@@ -250,8 +249,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
         }
 
 
-        System.out.println("touchUp screenX = " + screenX + " screenY = " + screenY +
-                " button = " + button);
+        //System.out.println("touchUp screenX = " + screenX + " screenY = " + screenY +" button = " + button);
         touch.set(screenX, screenY, 1).mul(screenToWorld);
         target.set(touch.x, touch.y);
         touchUp(touch, pointer);
@@ -259,14 +257,13 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     }
 
     public boolean touchUp(Vector3 touch, int pointer) {
-        System.out.println("touchUp touchX = " + touch.x + " touchY = " + touch.y);
+        //System.out.println("touchUp touchX = " + touch.x + " touchY = " + touch.y);
         return false;
     }
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        System.out.println("touchDragged screenX = " + screenX + " screenY = " + screenY +
-                " pointer = " + pointer);
+        //System.out.println("touchDragged screenX = " + screenX + " screenY = " + screenY +" pointer = " + pointer);
         touch.set(screenX, screenY, 1).mul(screenToWorld);
         target.set(touch.x, touch.y);
         touchDragged(touch, pointer);
@@ -274,7 +271,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     }
 
     public boolean touchDragged(Vector3 touch, int pointer) {
-        System.out.println("touchDragged touchX = " + touch.x + " touchY = " + touch.y);
+        //System.out.println("touchDragged touchX = " + touch.x + " touchY = " + touch.y);
         return false;
     }
 
@@ -295,7 +292,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean scrolled(int amount) {
-        System.out.println("scrolled amount = " + amount);
+        //System.out.println("scrolled amount = " + amount);
         return false;
     }
 }

@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.github.varunpant.quadtree.Point;
 import com.github.varunpant.quadtree.QuadTree;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -265,6 +267,8 @@ public class GameScreen extends BaseScreen {
     @Override
     public void render(float delta) {
 
+        Instant inst = Instant.now();
+
         //DEBUG delta
         float dt = this.isDEBUG() ? 1/60f : delta;
 
@@ -309,6 +313,17 @@ public class GameScreen extends BaseScreen {
         for (GameObject obj : gameObjects) {
             obj.draw(renderer);
         }
+
+
+        Duration du = Duration.between(inst, Instant.now());
+
+
+        long milli = du.toMillis();
+
+        if ( milli > (1/60d)*1000) {
+            System.out.println(milli);
+        }
+
     }
 
 

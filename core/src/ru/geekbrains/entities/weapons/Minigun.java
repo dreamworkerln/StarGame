@@ -42,8 +42,11 @@ public class Minigun extends Gun {
         power = 20;
 
 
-        final double relativeAccuracy = 1.0e-12;
-        final double absoluteAccuracy = 1.0e-8;
+        //final double relativeAccuracy = 1.0e-12;
+        //final double absoluteAccuracy = 1.0e-8;
+
+        final double relativeAccuracy = 1.0e-6;
+        final double absoluteAccuracy = 1.0e-4;
 
         gf =  new AimFunction();
         nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
@@ -280,10 +283,10 @@ public class Minigun extends Gun {
         // Цикл - попытка отделить корни
 
         //int i_tt = 0;
-        for (int i = 0; i< 1000; i++) {
+        for (int i = 0; i< 100; i++) {
             try {
 
-                double t = nonBracketing.solve(100, gf,  0, dt * i);
+                double t = nonBracketing.solve(100, gf,  0, dt * i*10);
 
                 if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {
 

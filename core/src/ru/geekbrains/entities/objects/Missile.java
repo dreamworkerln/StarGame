@@ -41,8 +41,12 @@ public class Missile extends DrivenObject {
 
 
 
-        final double relativeAccuracy = 1.0e-12;
-        final double absoluteAccuracy = 1.0e-8;
+        //final double relativeAccuracy = 1.0e-12;
+        //final double absoluteAccuracy = 1.0e-8;
+
+        // Особо точные ракеты не нужны
+        final double relativeAccuracy = 1.0e-6;
+        final double absoluteAccuracy = 1.0e-4;
 
         af =  new AimFunction();
         nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
@@ -159,10 +163,11 @@ public class Missile extends DrivenObject {
 
 
 
-        for (int i = 0; i< 1000; i++) {
+        for (int i = 0; i< 100; i++) {
             try {
 
-                double t = nonBracketing.solve(100, af,  0, dt * i);
+                // Для ракет сделаем погрешность в вычислениях побольше
+                double t = nonBracketing.solve(100, af,  0, dt * i*10);
 
                 if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {
 

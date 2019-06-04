@@ -33,6 +33,7 @@ public class PlayerShip extends Ship {
         minigun = new Minigun(4, this);
 
         launcher = new MissileLauncher(10, this);
+        //launcher.fireRate = 0.1f;
     }
 
 

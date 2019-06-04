@@ -82,7 +82,7 @@ public class MissileLauncher extends Gun {
                     .rotate(90 * sideLaunch).add(owner.pos);
 
 
-            tmp2.set(dir).scl(5).scl(sideLaunch);
+            tmp2.set(dir).scl(10).scl(sideLaunch);
 
             missile.pos.set(tmp0).add(tmp2);
             missile.vel.set(owner.vel);
