@@ -27,7 +27,6 @@ public class MissileLauncher extends Gun {
 
     GameObject target = null;
 
-
     public MissileLauncher(float height, GameObject owner) {
         super(height, owner);
 
@@ -43,7 +42,6 @@ public class MissileLauncher extends Gun {
 
     @Override
     protected void fire() {
-
 
         List<GameObject> targets;
 
@@ -80,19 +78,25 @@ public class MissileLauncher extends Gun {
             Missile missile =
                     new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, owner);
 
-            tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius() * 5)
-                    .rotate(60 * sideLaunch).add(owner.pos);
+            tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius() + 10)
+                    .rotate(90 * sideLaunch).add(owner.pos);
 
-            missile.pos.set(tmp0);
+
+            tmp2.set(dir).scl(5).scl(sideLaunch);
+
+            missile.pos.set(tmp0).add(tmp2);
             missile.vel.set(owner.vel);
             missile.dir.set(dir);
             
             missile.target = target;
 
-            tmp0.set(dir).setLength(power); // force
-            tmp0.rotate(2 * sideLaunch);
 
-            missile.applyForce(tmp0);         // apply force applied to bullet
+            // apply force applied to bullet
+            tmp0.set(dir).setLength(power); // force
+            //tmp0.rotate(60 * sideLaunch);
+            missile.applyForce(tmp0);
+            //tmp0.set(dir).setLength(power);
+
 
             GameScreen.addObject(missile);
 

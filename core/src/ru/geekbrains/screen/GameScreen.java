@@ -443,7 +443,7 @@ public class GameScreen extends BaseScreen {
                         }
 
                         if (prj.type.contains(ObjectType.BULLET)) {
-                            drObj.health -= 0.1;
+                            drObj.health -= 0.05;
                         }
 
 

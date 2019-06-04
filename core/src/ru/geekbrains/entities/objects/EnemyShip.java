@@ -38,10 +38,9 @@ public class EnemyShip extends Ship {
 
 
         launcher = new MissileLauncher(10, this);
-        launcher.fireRate = 0.002f;
+        //launcher.fireRate = 0.002f;
+        launcher.fireRate = 0.003f;
         launcher.sideLaunchCount = 1;
-        launcher.startFire();
-
     }
 
 
@@ -162,9 +161,11 @@ public class EnemyShip extends Ship {
                     Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
 
                 gun.startFire();
+                launcher.startFire();
             }
             else {
                 gun.stopFire();
+                launcher.stopFire();
             }
         }
 

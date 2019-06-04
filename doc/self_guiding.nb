@@ -3,10 +3,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[         0,          0]
-NotebookDataLength[    264811,       6597]
-NotebookOptionsPosition[    262259,       6510]
-NotebookOutlinePosition[    262705,       6527]
-CellTagsIndexPosition[    262662,       6524]
+NotebookDataLength[    250417,       6119]
+NotebookOptionsPosition[    248606,       6055]
+NotebookOutlinePosition[    249051,       6072]
+CellTagsIndexPosition[    249008,       6069]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -129,12 +129,13 @@ Cell[BoxData[
       RowBox[{"2", " ", "r"}], "+", 
       RowBox[{"a", " ", 
        SuperscriptBox["t", "2"]}], "+", 
-      RowBox[{"2", "t", " ", "v"}]}], 
+      RowBox[{"2", "v", " ", "t"}]}], 
      SuperscriptBox["t", "2"]], ")"}], "2"], "\[Equal]", " ", 
   SuperscriptBox["ACC", "2"]}]], "Input",
  CellChangeTimes->{{3.7682199273794813`*^9, 3.768219934134728*^9}, {
    3.76822000821154*^9, 3.768220010594715*^9}, {3.768220677721095*^9, 
-   3.768220685515272*^9}, 3.768221540154951*^9, 3.768221610380329*^9}],
+   3.768220685515272*^9}, 3.768221540154951*^9, 3.768221610380329*^9, {
+   3.7685622462466917`*^9, 3.7685622482871513`*^9}}],
 
 Cell[BoxData[
  RowBox[{
@@ -5847,7 +5848,7 @@ Cell[BoxData[
                   RowBox[{"1", "/", "3"}]]}]}], ")"}]}]}], ")"}]}]}], 
          ")"}]}]}]}]}], "}"}]}], "}"}]], "Output",
  CellChangeTimes->{{3.7682232939895983`*^9, 3.768223327960101*^9}}]
-}, Open  ]],
+}, Closed]],
 
 Cell[CellGroupData[{
 
@@ -6050,466 +6051,10 @@ Cell[BoxData[
 
 Cell[BoxData["\[IndentingNewLine]"], "Input",
  CellChangeTimes->{{3.768217691686234*^9, 3.76821772143149*^9}, 
-   3.7682216511178503`*^9}],
-
-Cell[BoxData[
- RowBox[{"First", " ", "Root"}]], "Input",
- CellChangeTimes->{{3.7680713889250784`*^9, 3.76807139384836*^9}}],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{
-   RowBox[{"-", 
-    RowBox[{"\[Sqrt]", 
-     RowBox[{"(", 
-      RowBox[{
-       FractionBox[
-        RowBox[{"at", " ", 
-         RowBox[{"(", 
-          RowBox[{"rs", "-", "rt"}], ")"}]}], 
-        RowBox[{
-         SuperscriptBox["at", "2"], "-", "SACC"}]], "+", 
-       FractionBox[
-        RowBox[{
-         RowBox[{"at", " ", 
-          RowBox[{"(", 
-           RowBox[{"rs", "-", "rt"}], ")"}]}], "-", 
-         SuperscriptBox[
-          RowBox[{"(", 
-           RowBox[{"vs", "-", "vt"}], ")"}], "2"]}], 
-        RowBox[{
-         SuperscriptBox["at", "2"], "-", "SACC"}]], "+", 
-       FractionBox[
-        RowBox[{"2", " ", 
-         SuperscriptBox["at", "2"], " ", 
-         SuperscriptBox[
-          RowBox[{"(", 
-           RowBox[{"vs", "-", "vt"}], ")"}], "2"]}], 
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{
-           SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]], "+", 
-       FractionBox[
-        RowBox[{"2", " ", 
-         SqrtBox[
-          SuperscriptBox[
-           RowBox[{"(", 
-            RowBox[{
-             SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]], " ", 
-         "SACC", " ", 
-         RowBox[{"(", 
-          RowBox[{
-           RowBox[{
-            SuperscriptBox["at", "2"], " ", 
-            RowBox[{"(", 
-             RowBox[{"rs", "-", "rt"}], ")"}]}], "+", 
-           RowBox[{
-            RowBox[{"(", 
-             RowBox[{
-              RowBox[{"-", "rs"}], "+", "rt"}], ")"}], " ", "SACC"}], "+", 
-           RowBox[{"at", " ", 
-            SuperscriptBox[
-             RowBox[{"(", 
-              RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]}], ")"}], " ", 
-         RowBox[{"(", 
-          RowBox[{"vs", "-", "vt"}], ")"}]}], 
-        RowBox[{
-         SuperscriptBox[
-          RowBox[{"(", 
-           RowBox[{
-            RowBox[{"-", 
-             SuperscriptBox["at", "2"]}], "+", "SACC"}], ")"}], "3"], " ", 
-         SqrtBox[
-          RowBox[{"SACC", " ", 
-           SuperscriptBox[
-            RowBox[{"(", 
-             RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]]}]]}], ")"}]}]}], "+", 
-   FractionBox[
-    RowBox[{"at", " ", 
-     RowBox[{"(", 
-      RowBox[{"vs", "-", "vt"}], ")"}]}], 
-    RowBox[{
-     SuperscriptBox["at", "2"], "-", "SACC"}]], "-", 
-   FractionBox[
-    SqrtBox[
-     RowBox[{"SACC", " ", 
-      SuperscriptBox[
-       RowBox[{"(", 
-        RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]], 
-    SqrtBox[
-     SuperscriptBox[
-      RowBox[{"(", 
-       RowBox[{
-        SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]]]}], "//", 
-  "CForm"}]], "Input",
- CellChangeTimes->{{3.7680713594143906`*^9, 3.7680713617145224`*^9}}],
-
-Cell["\<\
--Sqrt((at*(rs - rt))/(Power(at,2) - SACC) + 
-      (at*(rs - rt) - Power(vs - vt,2))/
-       (Power(at,2) - SACC) + 
-      (2*Power(at,2)*Power(vs - vt,2))/
-       Power(Power(at,2) - SACC,2) + 
-      (2*Sqrt(Power(Power(at,2) - SACC,2))*
-         SACC*(Power(at,2)*(rs - rt) + 
-           (-rs + rt)*SACC + 
-           at*Power(vs - vt,2))*(vs - vt))/
-       (Power(-Power(at,2) + SACC,3)*
-         Sqrt(SACC*Power(vs - vt,2)))) + 
-   (at*(vs - vt))/(Power(at,2) - SACC) - 
-   Sqrt(SACC*Power(vs - vt,2))/
-    Sqrt(Power(Power(at,2) - SACC,2))\
-\>", "Output",
- CellChangeTimes->{3.7680713627845836`*^9}]
-}, Open  ]],
-
-Cell[BoxData[
- RowBox[{"Second", " ", "Root"}]], "Input",
- CellChangeTimes->{{3.7680714007457547`*^9, 3.7680714022988434`*^9}}],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{
-   RowBox[{"\[Sqrt]", 
-    RowBox[{"(", 
-     RowBox[{
-      FractionBox[
-       RowBox[{"at", " ", 
-        RowBox[{"(", 
-         RowBox[{"rs", "-", "rt"}], ")"}]}], 
-       RowBox[{
-        SuperscriptBox["at", "2"], "-", "SACC"}]], "+", 
-      FractionBox[
-       RowBox[{
-        RowBox[{"at", " ", 
-         RowBox[{"(", 
-          RowBox[{"rs", "-", "rt"}], ")"}]}], "-", 
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{"vs", "-", "vt"}], ")"}], "2"]}], 
-       RowBox[{
-        SuperscriptBox["at", "2"], "-", "SACC"}]], "+", 
-      FractionBox[
-       RowBox[{"2", " ", 
-        SuperscriptBox["at", "2"], " ", 
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{"vs", "-", "vt"}], ")"}], "2"]}], 
-       SuperscriptBox[
-        RowBox[{"(", 
-         RowBox[{
-          SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]], "+", 
-      FractionBox[
-       RowBox[{"2", " ", 
-        SqrtBox[
-         SuperscriptBox[
-          RowBox[{"(", 
-           RowBox[{
-            SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]], " ", 
-        "SACC", " ", 
-        RowBox[{"(", 
-         RowBox[{
-          RowBox[{
-           SuperscriptBox["at", "2"], " ", 
-           RowBox[{"(", 
-            RowBox[{"rs", "-", "rt"}], ")"}]}], "+", 
-          RowBox[{
-           RowBox[{"(", 
-            RowBox[{
-             RowBox[{"-", "rs"}], "+", "rt"}], ")"}], " ", "SACC"}], "+", 
-          RowBox[{"at", " ", 
-           SuperscriptBox[
-            RowBox[{"(", 
-             RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]}], ")"}], " ", 
-        RowBox[{"(", 
-         RowBox[{"vs", "-", "vt"}], ")"}]}], 
-       RowBox[{
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{
-           RowBox[{"-", 
-            SuperscriptBox["at", "2"]}], "+", "SACC"}], ")"}], "3"], " ", 
-        SqrtBox[
-         RowBox[{"SACC", " ", 
-          SuperscriptBox[
-           RowBox[{"(", 
-            RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]]}]]}], ")"}]}], "+", 
-   FractionBox[
-    RowBox[{"at", " ", 
-     RowBox[{"(", 
-      RowBox[{"vs", "-", "vt"}], ")"}]}], 
-    RowBox[{
-     SuperscriptBox["at", "2"], "-", "SACC"}]], "-", 
-   FractionBox[
-    SqrtBox[
-     RowBox[{"SACC", " ", 
-      SuperscriptBox[
-       RowBox[{"(", 
-        RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]], 
-    SqrtBox[
-     SuperscriptBox[
-      RowBox[{"(", 
-       RowBox[{
-        SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]]]}], "//", 
-  "CForm"}]], "Input",
- CellChangeTimes->{{3.7680713771594057`*^9, 3.768071378719495*^9}}],
-
-Cell["\<\
-Sqrt((at*(rs - rt))/(Power(at,2) - SACC) + 
-     (at*(rs - rt) - Power(vs - vt,2))/
-      (Power(at,2) - SACC) + 
-     (2*Power(at,2)*Power(vs - vt,2))/
-      Power(Power(at,2) - SACC,2) + 
-     (2*Sqrt(Power(Power(at,2) - SACC,2))*SACC*
-        (Power(at,2)*(rs - rt) + 
-          (-rs + rt)*SACC + at*Power(vs - vt,2)
-          )*(vs - vt))/
-      (Power(-Power(at,2) + SACC,3)*
-        Sqrt(SACC*Power(vs - vt,2)))) + 
-   (at*(vs - vt))/(Power(at,2) - SACC) - 
-   Sqrt(SACC*Power(vs - vt,2))/
-    Sqrt(Power(Power(at,2) - SACC,2))\
-\>", "Output",
- CellChangeTimes->{3.768071379614546*^9}]
-}, Open  ]],
-
-Cell[BoxData[
- RowBox[{"Third", " ", "Root"}]], "Input",
- CellChangeTimes->{{3.768071421767957*^9, 3.7680714243311033`*^9}}],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{
-   RowBox[{"-", 
-    RowBox[{"\[Sqrt]", 
-     RowBox[{"(", 
-      RowBox[{
-       FractionBox[
-        RowBox[{"at", " ", 
-         RowBox[{"(", 
-          RowBox[{"rs", "-", "rt"}], ")"}]}], 
-        RowBox[{
-         SuperscriptBox["at", "2"], "-", "SACC"}]], "+", 
-       FractionBox[
-        RowBox[{
-         RowBox[{"at", " ", 
-          RowBox[{"(", 
-           RowBox[{"rs", "-", "rt"}], ")"}]}], "-", 
-         SuperscriptBox[
-          RowBox[{"(", 
-           RowBox[{"vs", "-", "vt"}], ")"}], "2"]}], 
-        RowBox[{
-         SuperscriptBox["at", "2"], "-", "SACC"}]], "+", 
-       FractionBox[
-        RowBox[{"2", " ", 
-         SuperscriptBox["at", "2"], " ", 
-         SuperscriptBox[
-          RowBox[{"(", 
-           RowBox[{"vs", "-", "vt"}], ")"}], "2"]}], 
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{
-           SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]], "-", 
-       FractionBox[
-        RowBox[{"2", " ", 
-         SqrtBox[
-          SuperscriptBox[
-           RowBox[{"(", 
-            RowBox[{
-             SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]], " ", 
-         "SACC", " ", 
-         RowBox[{"(", 
-          RowBox[{
-           RowBox[{
-            SuperscriptBox["at", "2"], " ", 
-            RowBox[{"(", 
-             RowBox[{"rs", "-", "rt"}], ")"}]}], "+", 
-           RowBox[{
-            RowBox[{"(", 
-             RowBox[{
-              RowBox[{"-", "rs"}], "+", "rt"}], ")"}], " ", "SACC"}], "+", 
-           RowBox[{"at", " ", 
-            SuperscriptBox[
-             RowBox[{"(", 
-              RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]}], ")"}], " ", 
-         RowBox[{"(", 
-          RowBox[{"vs", "-", "vt"}], ")"}]}], 
-        RowBox[{
-         SuperscriptBox[
-          RowBox[{"(", 
-           RowBox[{
-            RowBox[{"-", 
-             SuperscriptBox["at", "2"]}], "+", "SACC"}], ")"}], "3"], " ", 
-         SqrtBox[
-          RowBox[{"SACC", " ", 
-           SuperscriptBox[
-            RowBox[{"(", 
-             RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]]}]]}], ")"}]}]}], "+", 
-   FractionBox[
-    RowBox[{"at", " ", 
-     RowBox[{"(", 
-      RowBox[{"vs", "-", "vt"}], ")"}]}], 
-    RowBox[{
-     SuperscriptBox["at", "2"], "-", "SACC"}]], "+", 
-   FractionBox[
-    SqrtBox[
-     RowBox[{"SACC", " ", 
-      SuperscriptBox[
-       RowBox[{"(", 
-        RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]], 
-    SqrtBox[
-     SuperscriptBox[
-      RowBox[{"(", 
-       RowBox[{
-        SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]]]}], "//", 
-  "CForm"}]], "Input",
- CellChangeTimes->{{3.7680714523897085`*^9, 3.7680714542018127`*^9}}],
-
-Cell["\<\
--Sqrt((at*(rs - rt))/(Power(at,2) - SACC) + 
-      (at*(rs - rt) - Power(vs - vt,2))/
-       (Power(at,2) - SACC) + 
-      (2*Power(at,2)*Power(vs - vt,2))/
-       Power(Power(at,2) - SACC,2) - 
-      (2*Sqrt(Power(Power(at,2) - SACC,2))*
-         SACC*(Power(at,2)*(rs - rt) + 
-           (-rs + rt)*SACC + 
-           at*Power(vs - vt,2))*(vs - vt))/
-       (Power(-Power(at,2) + SACC,3)*
-         Sqrt(SACC*Power(vs - vt,2)))) + 
-   (at*(vs - vt))/(Power(at,2) - SACC) + 
-   Sqrt(SACC*Power(vs - vt,2))/
-    Sqrt(Power(Power(at,2) - SACC,2))\
-\>", "Output",
- CellChangeTimes->{3.76807145468684*^9}]
-}, Open  ]],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- RowBox[{"Four", " ", "Root", " "}]], "Input",
- CellChangeTimes->{{3.768071442497143*^9, 3.768071463670354*^9}}],
-
-Cell["Four*Root", "Output",
- CellChangeTimes->{3.7680714602021556`*^9}]
-}, Open  ]],
-
-Cell[CellGroupData[{
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{
-   RowBox[{"\[Sqrt]", 
-    RowBox[{"(", 
-     RowBox[{
-      FractionBox[
-       RowBox[{"at", " ", 
-        RowBox[{"(", 
-         RowBox[{"rs", "-", "rt"}], ")"}]}], 
-       RowBox[{
-        SuperscriptBox["at", "2"], "-", "SACC"}]], "+", 
-      FractionBox[
-       RowBox[{
-        RowBox[{"at", " ", 
-         RowBox[{"(", 
-          RowBox[{"rs", "-", "rt"}], ")"}]}], "-", 
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{"vs", "-", "vt"}], ")"}], "2"]}], 
-       RowBox[{
-        SuperscriptBox["at", "2"], "-", "SACC"}]], "+", 
-      FractionBox[
-       RowBox[{"2", " ", 
-        SuperscriptBox["at", "2"], " ", 
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{"vs", "-", "vt"}], ")"}], "2"]}], 
-       SuperscriptBox[
-        RowBox[{"(", 
-         RowBox[{
-          SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]], "-", 
-      FractionBox[
-       RowBox[{"2", " ", 
-        SqrtBox[
-         SuperscriptBox[
-          RowBox[{"(", 
-           RowBox[{
-            SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]], " ", 
-        "SACC", " ", 
-        RowBox[{"(", 
-         RowBox[{
-          RowBox[{
-           SuperscriptBox["at", "2"], " ", 
-           RowBox[{"(", 
-            RowBox[{"rs", "-", "rt"}], ")"}]}], "+", 
-          RowBox[{
-           RowBox[{"(", 
-            RowBox[{
-             RowBox[{"-", "rs"}], "+", "rt"}], ")"}], " ", "SACC"}], "+", 
-          RowBox[{"at", " ", 
-           SuperscriptBox[
-            RowBox[{"(", 
-             RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]}], ")"}], " ", 
-        RowBox[{"(", 
-         RowBox[{"vs", "-", "vt"}], ")"}]}], 
-       RowBox[{
-        SuperscriptBox[
-         RowBox[{"(", 
-          RowBox[{
-           RowBox[{"-", 
-            SuperscriptBox["at", "2"]}], "+", "SACC"}], ")"}], "3"], " ", 
-        SqrtBox[
-         RowBox[{"SACC", " ", 
-          SuperscriptBox[
-           RowBox[{"(", 
-            RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]]}]]}], ")"}]}], "+", 
-   FractionBox[
-    RowBox[{"at", " ", 
-     RowBox[{"(", 
-      RowBox[{"vs", "-", "vt"}], ")"}]}], 
-    RowBox[{
-     SuperscriptBox["at", "2"], "-", "SACC"}]], "+", 
-   FractionBox[
-    SqrtBox[
-     RowBox[{"SACC", " ", 
-      SuperscriptBox[
-       RowBox[{"(", 
-        RowBox[{"vs", "-", "vt"}], ")"}], "2"]}]], 
-    SqrtBox[
-     SuperscriptBox[
-      RowBox[{"(", 
-       RowBox[{
-        SuperscriptBox["at", "2"], "-", "SACC"}], ")"}], "2"]]]}], "//", 
-  "CForm"}]], "Input",
- CellChangeTimes->{3.768071465339449*^9}],
-
-Cell["\<\
-Sqrt((at*(rs - rt))/(Power(at,2) - SACC) + 
-     (at*(rs - rt) - Power(vs - vt,2))/
-      (Power(at,2) - SACC) + 
-     (2*Power(at,2)*Power(vs - vt,2))/
-      Power(Power(at,2) - SACC,2) - 
-     (2*Sqrt(Power(Power(at,2) - SACC,2))*SACC*
-        (Power(at,2)*(rs - rt) + 
-          (-rs + rt)*SACC + at*Power(vs - vt,2)
-          )*(vs - vt))/
-      (Power(-Power(at,2) + SACC,3)*
-        Sqrt(SACC*Power(vs - vt,2)))) + 
-   (at*(vs - vt))/(Power(at,2) - SACC) + 
-   Sqrt(SACC*Power(vs - vt,2))/
-    Sqrt(Power(Power(at,2) - SACC,2))\
-\>", "Output",
- CellChangeTimes->{3.768071465805476*^9}]
-}, Open  ]]
+   3.7682216511178503`*^9}]
 },
-WindowSize->{1912, 947},
-WindowMargins->{{Automatic, -9}, {Automatic, -8}},
+WindowSize->{1920, 1027},
+WindowMargins->{{Automatic, 0}, {Automatic, 0}},
 PrivateNotebookOptions->{"VersionedStylesheet"->{"Default.nb"[8.] -> False}},
 Magnification:>1.5 Inherited,
 FrontEndVersion->"10.0 for Linux x86 (64-bit) (December 4, 2014)",
@@ -6539,59 +6084,36 @@ Cell[3217, 93, 365, 8, 104, "Input"],
 Cell[3585, 103, 399, 10, 86, "Input"],
 Cell[3987, 115, 138, 3, 45, "Input"],
 Cell[CellGroupData[{
-Cell[4150, 122, 547, 14, 87, "Input"],
-Cell[4700, 138, 398, 12, 78, "Output"]
+Cell[4150, 122, 601, 15, 87, "Input"],
+Cell[4754, 139, 398, 12, 78, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[5135, 155, 536, 15, 53, InheritFromParent],
-Cell[5674, 172, 670, 21, 52, "Output"]
+Cell[5189, 156, 536, 15, 53, "Input"],
+Cell[5728, 173, 670, 21, 52, "Output"]
 }, Open  ]],
-Cell[6359, 196, 1288, 42, 52, "Input"],
+Cell[6413, 197, 1288, 42, 52, "Input"],
 Cell[CellGroupData[{
-Cell[7672, 242, 1247, 42, 52, InheritFromParent],
-Cell[8922, 286, 1004, 34, 52, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[9963, 325, 1224, 38, 52, "Input"],
-Cell[11190, 365, 230825, 5483, 7344, "Output"]
+Cell[7726, 243, 1247, 42, 52, "Input"],
+Cell[8976, 287, 1004, 34, 52, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[242052, 5853, 431, 14, 47, "Input"],
-Cell[242486, 5869, 207, 6, 52, "Output"]
+Cell[10017, 326, 1224, 38, 52, "Input"],
+Cell[11244, 366, 230825, 5483, 12358, "Output"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[242106, 5854, 431, 14, 36, "Input"],
+Cell[242540, 5870, 207, 6, 52, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[242730, 5880, 1082, 36, 52, "Input"],
-Cell[243815, 5918, 790, 25, 52, "Output"]
+Cell[242784, 5881, 1082, 36, 52, "Input"],
+Cell[243869, 5919, 790, 25, 52, "Output"]
 }, Open  ]],
-Cell[244620, 5946, 494, 14, 52, "Input"],
+Cell[244674, 5947, 494, 14, 52, "Input"],
 Cell[CellGroupData[{
-Cell[245139, 5964, 1229, 26, 53, "Input"],
-Cell[246371, 5992, 2024, 55, 75, "Output"]
+Cell[245193, 5965, 1229, 26, 53, "Input"],
+Cell[246425, 5993, 2024, 55, 75, "Output"]
 }, Open  ]],
-Cell[248410, 6050, 138, 2, 75, "Input"],
-Cell[248551, 6054, 123, 2, 45, "Input"],
-Cell[CellGroupData[{
-Cell[248699, 6060, 2674, 86, 255, "Input"],
-Cell[251376, 6148, 614, 16, 364, "Output"]
-}, Open  ]],
-Cell[252005, 6167, 127, 2, 45, "Input"],
-Cell[CellGroupData[{
-Cell[252157, 6173, 2589, 85, 255, "Input"],
-Cell[254749, 6260, 601, 16, 364, "Output"]
-}, Open  ]],
-Cell[255365, 6279, 124, 2, 45, "Input"],
-Cell[CellGroupData[{
-Cell[255514, 6285, 2674, 86, 255, "Input"],
-Cell[258191, 6373, 611, 16, 364, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[258839, 6394, 126, 2, 45, "Input"],
-Cell[258968, 6398, 71, 1, 45, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[259076, 6404, 2563, 85, 255, "Input"],
-Cell[261642, 6491, 601, 16, 364, "Output"]
-}, Open  ]]
+Cell[248464, 6051, 138, 2, 75, "Input"]
 }
 ]
 *)
