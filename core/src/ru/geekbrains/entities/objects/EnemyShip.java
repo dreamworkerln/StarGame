@@ -43,6 +43,8 @@ public class EnemyShip extends Ship {
 
         gun.fireRate = 0.01f;
 
+        //gun.fireRate = 0.1f;
+
         //gun.fireRate = 0.02f;
 
         //gun.fireRate = 0.02f;
@@ -55,7 +57,7 @@ public class EnemyShip extends Ship {
 
         launcher = new MissileLauncher(10, this);
         launcher.fireRate = 0.005f;
-        //launcher.fireRate = 0.003f;
+        //launcher.fireRate = 0.01f;
         launcher.sideLaunchCount = 1;
 
 

@@ -418,13 +418,15 @@ public class GameScreen extends BaseScreen {
 
                 GameObject prj = points[i].getValue(); // projectile
 
-                if (prj.readyToDispose)
+                if (prj.readyToDispose ||
+                    tgt == prj)
                     continue;
 
                 tmp1.set(prj.pos).sub(tgt.pos); // vector from target to projectile
 
                 if (tgt.type.contains(ObjectType.PLAYER_SHIP) &&
-                        prj.type.contains(ObjectType.SHELL) &&
+                        (prj.type.contains(ObjectType.SHELL)
+                         /*&&prj.type.contains(ObjectType.DRIVEN_OBJECT)*/) &&
                         prj.owner != tgt) {     // щит не влияет на свои снаряды
 
 
@@ -590,12 +592,15 @@ public class GameScreen extends BaseScreen {
                         tmp = hittableObjects.get(rnd);
 
 
-                        if (tmp != planet && tmp != ship) {
+                        if (!tmp.readyToDispose &&
+                             tmp != planet &&
+                             tmp != ship && // self
+                             tmp.type.contains(ObjectType.SHIP)) {
                             ship.target = tmp;
                         }
 
 
-                        if (cnt++ >= 10)
+                        if (cnt++ >= 100)
                             break;
                     }
                     while (ship.target == null);

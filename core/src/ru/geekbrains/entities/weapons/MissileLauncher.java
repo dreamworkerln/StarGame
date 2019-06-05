@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.List;
 
+import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.Missile;
@@ -45,22 +46,29 @@ public class MissileLauncher extends Gun {
 
         List<GameObject> targets;
 
-        dummy.pos.set(GameScreen.INSTANCE.target);
+        if (owner.type.contains(ObjectType.PLAYER_SHIP)) {
 
-        targets = GameScreen.getCloseObjects(dummy, 2000);
+            dummy.pos.set(GameScreen.INSTANCE.target);
 
-        for (GameObject o : targets) {
+            targets = GameScreen.getCloseObjects(dummy, 2000);
 
-            // берем первую - ближайшую цель
-            // которая не является ни owner ни его снарядами
-            if (o != owner &&
-                    o.owner != owner &&
-                    !o.readyToDispose &&
-                    (o.type.contains(ObjectType.SHIP))) {
+            for (GameObject o : targets) {
 
-                target = o;
-                break;
+                // берем первую - ближайшую цель
+                // которая не является ни owner ни его снарядами
+                if (o != owner &&
+                        o.owner != owner &&
+                        !o.readyToDispose &&
+                        (o.type.contains(ObjectType.SHIP))) {
+
+                    target = o;
+                    break;
+                }
             }
+        }
+        else {
+
+            target = ((DrivenObject)owner).target;
         }
 
 

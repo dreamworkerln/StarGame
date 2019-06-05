@@ -142,7 +142,7 @@ public class Minigun extends Gun {
                 tmp0.set(owner.pos).sub(target.pos); // vec from target to owner
                 tmp4.set(target.vel).sub(owner.vel);
 
-                if(Math.abs(tmp4.angle(tmp0)) <= 90){
+                if(Math.abs(tmp4.angle(tmp0)) <= 120){
 
                 }
                 else {
