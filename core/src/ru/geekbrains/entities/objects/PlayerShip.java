@@ -34,6 +34,8 @@ public class PlayerShip extends Ship {
 
         launcher = new MissileLauncher(10, this);
         //launcher.fireRate = 0.1f;
+
+        maxThrottle = 70f;
     }
 
 
