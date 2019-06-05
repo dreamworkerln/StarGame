@@ -17,8 +17,7 @@ Minigun is autofiring at close target.
 Green cruve - you trajectory in planet gravity force.
 Blue cruve - you shell trajectory in planet gravity force.
 
-Forceshield can hold 1 hit from shell and then slowly regenerating to full charge
-and become active again.
+Forceshield can repulse several (~4) hit from shell and then slowly regenerating to full charge.
 
 It's deathmatch so enemy ship will search for new target on spawn or if its current target is destroyed.
 
