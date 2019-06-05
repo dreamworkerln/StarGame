@@ -4,18 +4,28 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 
+import org.apache.commons.math3.analysis.solvers.BrentSolver;
+import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
+
 import java.util.Arrays;
 
+import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.GameScreen;
 
 public class EnemyShip extends Ship {
 
-    static Vector2 tmp0 = new Vector2();
-    static Vector2 tmp1 = new Vector2();
+    //static Vector2 tmp0 = new Vector2();
+    //static Vector2 tmp1 = new Vector2();
 
 
     public MissileLauncher launcher;
+
+
+    Minigun.AimFunction gf;
+    UnivariateSolver nonBracketing;
+
+
 
 
     //GuideSystem guideSystem;
@@ -32,15 +42,27 @@ public class EnemyShip extends Ship {
         //guideSystem = new GuideSystem(this);
 
         gun.fireRate = 0.01f;
+
+        //gun.fireRate = 0.02f;
+
+        //gun.fireRate = 0.02f;
+
+
         //gun.maxGunHeat = 170;
         //gun.gunHeatingDelta = 65;
         //gun.coolingGunDelta = 2f;
 
 
         launcher = new MissileLauncher(10, this);
-        //launcher.fireRate = 0.02f;
-        launcher.fireRate = 0.003f;
+        launcher.fireRate = 0.005f;
+        //launcher.fireRate = 0.003f;
         launcher.sideLaunchCount = 1;
+
+
+        final double relativeAccuracy = 1.0e-6;
+        final double absoluteAccuracy = 1.0e-4;
+        gf =  new Minigun.AimFunction();
+        nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
     }
 
 
@@ -141,7 +163,7 @@ public class EnemyShip extends Ship {
             if (tmp0.set(target.pos).sub(pos).len() > 150) {
 
                 // гидродоминируем с самонаведением от ракет
-                selfGuiding();
+                selfGuiding(dt);
             }
 
             // Самонаведение не сгидродоминировало
@@ -190,339 +212,468 @@ public class EnemyShip extends Ship {
         }
     }
 
+    public void selfGuiding(float dt) {
 
-    public void selfGuiding() {
+        // Система наведения для  minigun
 
-        // Система наведения пушек и ракет(самонаведение)
-        // https://gamedev.stackexchange.com/questions/149327/projectile-aim-prediction-with-acceleration
 
-        //ToDo : посчитать наведение для пушек, убрать эту формулу(ниже)
-        if (target== null || target.readyToDispose)
+        if (target == null || target.readyToDispose)
             return;
 
-        //DrivenObject object,
-        //GameObject target,
-        //Vector2 result
+        // F = m*a
+        // a = f / m;
+        // dv = a*t
+        // a = dv/t;
+        // f/m = dv/t
+        // dv = f/m*t - Импульс силы, деленный на массу пули
 
 
 
-        double ACC = maxThrottle / mass;  // Максимальное возможное ускорение объекта
-
-        double[] root = new double[4];
+        gf.VCC = gun.power / gun.firingAmmoType.getMass() * dt;  // Начальная скорость снаряда пушки
 
 
-        double ax, ay, vx, vy, rx, ry;
 
-        // t - target
+        //double[] root = new double[4];
+
+
         // s - object
+        // t - target
 
 
         //at      -> a
         //rt - rs -> r
         //vt - vs -> v
 
-        //a = target.acc
-
-        // костыли
-        tmp0.set(target.pos);
-        tmp1.set(target.vel);
-        tmp1.scl(2.5f);
-        tmp0.sub(tmp1);
 
 
+        //ax = 0;
+        //ay = 0;
 
-        ax = target.acc.x;
-        ay = target.acc.y;
-
+        // ORIGINAL
         // r =  rt - rs
-        //rx = target.pos.x - object.pos.x;
-        //ry = target.pos.y - object.pos.y;
+        gf.rx = target.pos.x + -  pos.x;
+        gf.ry = target.pos.y +  - pos.y;
 
-        rx = tmp0.x - pos.x;
-        ry = tmp0.y - pos.y;
+        //  relative target velocity to object
+        gf.vx = target.vel.x - vel.x;
+        gf.vy = target.vel.y - vel.y;
 
-        // v =  vt - vs
-        vx = target.vel.x - vel.x;
-        vy = target.vel.y - vel.y;
+        gf.ax = target.acc.x - acc.x;
+        gf.ay = target.acc.y - acc.y;
 
-        // apply inverted object acceleration to target
-        ax -= acc.x;
-        ay -= acc.y;
 
-        double ddgzt = 96 * (ax * vx + ay * vy) * (rx * vx + ry * vy);
-        double zpzpzp = 64 * (rx * vx + ry * vy);
+        // Testing
+
+//        rx = 56;
+//        ry = -860;
+//
+//        vx = 0;
+//        vy = 50;
+//
+//        ax = 0;
+//        ay = 0;
+//
+//        VCC = 333;
 
 
         // Гидра доминатус !!!!
 
-        // (Надо переписать - взять из Minigun, но хоть так вражеские корабли промахиваются, хрен с ним)
-
-        root[0] = (ax*vx + ay*vy)/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) - Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) +
-                (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
-                (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                        16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                        (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
-                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                        (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))/2. -
-                Math.sqrt((8*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) -
-                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
-                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) -
-                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
-                        ((64*Math.pow(ax*vx + ay*vy,3))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),3) + zpzpzp /(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
-                                (64*(ax*vx + ay*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2))/
-                                (4.*Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
-                                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
-                                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
-                                                                3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
-                                                        3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))))/2.;
 
 
+        //System.out.println("START: " + Instant.now());
 
+        //double tbd = 0;
+        // Цикл - попытка отделить корни
 
-        root[1] = (ax*vx + ay*vy)/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) - Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) +
-                (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
-                (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                        16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                        (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
-                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                        (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))/2. +
-                Math.sqrt((8*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) -
-                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
-                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) -
-                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
-                        ((64*Math.pow(ax*vx + ay*vy,3))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),3) + zpzpzp /(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
-                                (64*(ax*vx + ay*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2))/
-                                (4.*Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
-                                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
-                                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
-                                                                3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
-                                                        3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))))/2.;
+        //int i_tt = 0;
+        for (int i = 0; i< 100; i++) {
+            try {
 
+                double t = nonBracketing.solve(100, gf,  0, dt * i*10);
 
+                if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {
 
-        root[2] = (ax*vx + ay*vy)/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) +
-                (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
-                (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                        16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                        (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
-                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                        (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))/2. -
-                Math.sqrt((8*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) -
-                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
-                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) -
-                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
-                        ((64*Math.pow(ax*vx + ay*vy,3))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),3) + zpzpzp /(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
-                                (64*(ax*vx + ay*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2))/
-                                (4.*Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
-                                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
-                                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
-                                                                3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
-                                                        3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))))/2.;
+                    double vs_x = gf.rx / t + 0.5 * gf.ax * t + gf.vx;
+                    double vs_y = gf.ry / t + 0.5 * gf.ay * t + gf.vy;
 
+                    guideVector.set((float) vs_x, (float) vs_y).nor();
+                    break;
+                }
+            }catch (Exception ignore) {}
 
-
-        root[3] = (ax*vx + ay*vy)/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) +
-                (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
-                (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                        16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                        (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
-                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                        (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))/2. +
-                Math.sqrt((8*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) -
-                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
-                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) -
-                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
-                        ((64*Math.pow(ax*vx + ay*vy,3))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),3) + zpzpzp /(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
-                                (64*(ax*vx + ay*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2))/
-                                (4.*Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
-                                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
-                                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
-                                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
-                                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
-                                                                3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
-                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
-                                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
-                                                        3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
-                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
-                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
-                                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))))/2.;
-
-
-        Arrays.sort(root);
-
-        for (int i = root.length -1; i >= 0; i--) {
-
-            double t = root[i];
-
-            if (Double.isNaN(t) || Double.isInfinite(t) || t < 0)
-                continue;
-
-            double as_x = ax + (2 * (rx + t *vx))/t*t; // тут ошибка в знаменателе должно быть /(t*t)
-            double as_y = ay + (2 * (ry + t*vy))/t*t;  // но для наведения пушек и  так хорошо работает
-
-            guideVector.set((float)as_x, (float)as_y).nor();
-
-            break;
         }
 
+        //System.out.println("iterations: " +i_tt);
+        //System.out.println("END: " + Instant.now());
+
+
+
+//        Arrays.sort(root);
+//
+//        for (int i = root.length -1; i >= 0; i--) {
+//
+//            double t = root[i];
+//
+//            if (Double.isNaN(t) || Double.isInfinite(t) || t < 0)
+//                continue;
+//
+//            // {rx/t + 0.5 ax t + vx, ry/t + 0.5 ay t + vy}
+//
+//            double vs_x = rx/t + 0.5 * ax * t + vx;
+//            double vs_y = ry/t + 0.5 * ay * t + vy;
+//
+//            guideVector.set((float)vs_x, (float)vs_y).nor();
+//
+//            break;
+//        }
+
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    public void selfGuiding() {
+//
+//        // Система наведения пушек и ракет(самонаведение)
+//        // https://gamedev.stackexchange.com/questions/149327/projectile-aim-prediction-with-acceleration
+//
+//        //ToDo : посчитать наведение для пушек, убрать эту формулу(ниже)
+//        if (target== null || target.readyToDispose)
+//            return;
+//
+//        //DrivenObject object,
+//        //GameObject target,
+//        //Vector2 result
+//
+//
+//
+//        double ACC = maxThrottle / mass;  // Максимальное возможное ускорение объекта
+//
+//        double[] root = new double[4];
+//
+//
+//        double ax, ay, vx, vy, rx, ry;
+//
+//        // t - target
+//        // s - object
+//
+//
+//        //at      -> a
+//        //rt - rs -> r
+//        //vt - vs -> v
+//
+//        //a = target.acc
+//
+//        // костыли
+//        tmp0.set(target.pos);
+//        tmp1.set(target.vel);
+//        tmp1.scl(2.5f);
+//        tmp0.sub(tmp1);
+//
+//
+//
+//        ax = target.acc.x;
+//        ay = target.acc.y;
+//
+//        // r =  rt - rs
+//        //rx = target.pos.x - object.pos.x;
+//        //ry = target.pos.y - object.pos.y;
+//
+//        rx = tmp0.x - pos.x;
+//        ry = tmp0.y - pos.y;
+//
+//        // v =  vt - vs
+//        vx = target.vel.x - vel.x;
+//        vy = target.vel.y - vel.y;
+//
+//        // apply inverted object acceleration to target
+//        ax -= acc.x;
+//        ay -= acc.y;
+//
+//        double ddgzt = 96 * (ax * vx + ay * vy) * (rx * vx + ry * vy);
+//        double zpzpzp = 64 * (rx * vx + ry * vy);
+//
+//
+//        // Гидра доминатус !!!!
+//
+//        // (Надо переписать - взять из Minigun, но хоть так вражеские корабли промахиваются, хрен с ним)
+//
+//        root[0] = (ax*vx + ay*vy)/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) - Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) +
+//                (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
+//                (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                        16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                        (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
+//                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                        (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))/2. -
+//                Math.sqrt((8*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) -
+//                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
+//                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) -
+//                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
+//                        ((64*Math.pow(ax*vx + ay*vy,3))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),3) + zpzpzp /(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
+//                                (64*(ax*vx + ay*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2))/
+//                                (4.*Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
+//                                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
+//                                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
+//                                                                3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
+//                                                        3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))))/2.;
+//
+//
+//
+//
+//        root[1] = (ax*vx + ay*vy)/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) - Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) +
+//                (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
+//                (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                        16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                        (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
+//                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                        (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))/2. +
+//                Math.sqrt((8*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) -
+//                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
+//                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) -
+//                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
+//                        ((64*Math.pow(ax*vx + ay*vy,3))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),3) + zpzpzp /(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
+//                                (64*(ax*vx + ay*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2))/
+//                                (4.*Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
+//                                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
+//                                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
+//                                                                3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
+//                                                        3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))))/2.;
+//
+//
+//
+//        root[2] = (ax*vx + ay*vy)/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) +
+//                (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
+//                (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                        16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                        (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
+//                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                        (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))/2. -
+//                Math.sqrt((8*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) -
+//                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
+//                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) -
+//                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
+//                        ((64*Math.pow(ax*vx + ay*vy,3))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),3) + zpzpzp /(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
+//                                (64*(ax*vx + ay*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2))/
+//                                (4.*Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
+//                                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
+//                                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
+//                                                                3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
+//                                                        3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))))/2.;
+//
+//
+//
+//        root[3] = (ax*vx + ay*vy)/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) +
+//                (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
+//                (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                        16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                        (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
+//                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                        (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))/2. +
+//                Math.sqrt((8*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) -
+//                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) -
+//                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                                Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) -
+//                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),3) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
+//                        ((64*Math.pow(ax*vx + ay*vy,3))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),3) + zpzpzp /(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
+//                                (64*(ax*vx + ay*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2))/
+//                                (4.*Math.sqrt((4*Math.pow(ax*vx + ay*vy,2))/Math.pow(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2),2) + (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(Math.pow(ACC,2) - Math.pow(ax,2) - Math.pow(ay,2)) +
+//                                        (4*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)))/(3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))) +
+//                                        (Math.pow(2,0.3333333333333333)*(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt +
+//                                                16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2)))/
+//                                                (3.*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                                        Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
+//                                                                3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)) +
+//                                        Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3) +
+//                                                Math.sqrt(-4*Math.pow(48*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2)) - ddgzt + 16*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),2),
+//                                                        3) + Math.pow(1728*(Math.pow(rx,2) + Math.pow(ry,2))*Math.pow(ax*vx + ay*vy,2) + 1728*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(rx*vx + ry*vy,2) -
+//                                                        1152*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))*(Math.pow(rx,2) + Math.pow(ry,2))*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) -
+//                                                        1152*(ax*vx + ay*vy)*(rx*vx + ry*vy)*(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2)) + 128*Math.pow(ax*rx + ay*ry + Math.pow(vx,2) + Math.pow(vy,2),3),2)),0.3333333333333333)/
+//                                                (3.*Math.pow(2,0.3333333333333333)*(-Math.pow(ACC,2) + Math.pow(ax,2) + Math.pow(ay,2))))))/2.;
+//
+//
+//        Arrays.sort(root);
+//
+//        for (int i = root.length -1; i >= 0; i--) {
+//
+//            double t = root[i];
+//
+//            if (Double.isNaN(t) || Double.isInfinite(t) || t < 0)
+//                continue;
+//
+//            double as_x = ax + (2 * (rx + t *vx))/t*t; // тут ошибка в знаменателе должно быть /(t*t)
+//            double as_y = ay + (2 * (ry + t*vy))/t*t;  // но для наведения пушек и  так хорошо работает
+//
+//            guideVector.set((float)as_x, (float)as_y).nor();
+//
+//            break;
+//        }
+//
+//    }
 
 
 }

@@ -1,5 +1,7 @@
 package ru.geekbrains.entities.weapons;
 
+import com.badlogic.gdx.math.Intersector;
+
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.solvers.BrentSolver;
 import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
@@ -30,11 +32,13 @@ public class Minigun extends Gun {
 
         super(height, owner);
 
+        //maxRotationSpeed = 0.1f;
         maxRotationSpeed = 0.1f;
+        maxRotationSpeed = 1f;
 
         radius = 50;
-        calibre = 4;
-        fireRate = 1;
+        setCalibre(2);
+        fireRate = 1f;
         gunHeatingDelta = 2; // non-stop firing
         coolingGunDelta = 2;
         maxGunHeat = 200;
@@ -47,7 +51,6 @@ public class Minigun extends Gun {
 
         final double relativeAccuracy = 1.0e-6;
         final double absoluteAccuracy = 1.0e-4;
-
         gf =  new AimFunction();
         nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
 
@@ -70,7 +73,7 @@ public class Minigun extends Gun {
 
 
         // Если нет цели или это Ship (перенацеливание на missile)
-        if (target == null || target.type.contains(ObjectType.SHIP) ) {
+        if (/*target == null || target.type.contains(ObjectType.SHIP)*/true ) {
 
             targets = GameScreen.getCloseObjects(owner, maxRange);
 
@@ -82,8 +85,8 @@ public class Minigun extends Gun {
 
                 if (o != owner &&
                         o.owner != owner &&
-                        !o.readyToDispose &&
-                         o.type.contains(ObjectType.SHIP)){
+                        !o.readyToDispose && o.type.contains(ObjectType.SHIP)
+                ){
 
                     target = o;
                     break;
@@ -91,13 +94,16 @@ public class Minigun extends Gun {
             }
 
 
+            // переключаемся на missile/более близкую missile
             for (GameObject o : targets) {
 
                 if (o != owner &&
                         o.owner != owner &&
                         !o.readyToDispose &&
-                        o.type.contains(ObjectType.MISSILE)){
-
+                        o.type.contains(ObjectType.MISSILE)
+                        //(o.type.contains(ObjectType.MISSILE) ||
+                        //                o.pos.dst(owner.pos) < target.pos.dst(owner.pos))
+                ){
                     target = o;
                     break;
                 }
@@ -107,11 +113,56 @@ public class Minigun extends Gun {
 
 
 
-        // target out of range - reset
+
         if (target != null) {
 
+
+            // Не стрелять по целям, которые не попадут в нас.
+            tmp1.set(target.vel).scl(100);
+            tmp2.set(owner.vel).scl(100);
+            // target and ship velocities intersects in (ship radius) (scaled by 1000)
+            float scale = Intersector.intersectRayRay(target.pos, tmp1, owner.pos, tmp2);
+
+
+            //collinear
+            if (Float.isInfinite(scale)) {
+                //tmp1.set(owner.vel).sub(target.vel);
+                float angle = Math.abs(target.vel.angle(owner.vel));
+                if(angle < 90) {
+                    tmp3.set(owner.pos); // попал в цель
+                }
+            }else {
+
+                tmp3.set(tmp1).scl(scale).add(target.pos); // точа пересечения 
+
+//                // оба вектора скорости сонаправлены точки встречи
+//                if(Math.abs(target.vel.angle(tmp3)) < 90 &&
+//                   Math.abs(owner.vel.angle(tmp3)) < 90) {
+//                }
+                tmp0.set(owner.pos).sub(target.pos); // vec from target to owner
+                tmp4.set(target.vel).sub(owner.vel);
+
+                if(Math.abs(tmp4.angle(tmp0)) <= 90){
+
+                }
+                else {
+                    // не попал
+                    tmp3.set(Float.POSITIVE_INFINITY,Float.POSITIVE_INFINITY);
+                }
+
+
+
+            }
+            float len = tmp1.set(tmp3).sub(owner.pos).len();
+
+
+            // target out of range - reset
             tmp0.set(target.pos).sub(pos);
-            if (tmp0.len() > maxRange) {
+
+            if (tmp0.len() > maxRange || // вне радиуса действия minigun
+                //scale < 0 ||
+                /*len > owner.getRadius() * 100f*/
+               len > maxRange) {
 
                 target = null;
             }
@@ -176,13 +227,13 @@ public class Minigun extends Gun {
     @Override
     protected Projectile createProjectile() {
 
-        return new Bullet(calibre, owner);
+        return new Bullet(getCalibre(), owner);
     }
 
 
 
 
-    private static class AimFunction implements UnivariateFunction {
+    public static class AimFunction implements UnivariateFunction {
 
         public double rx, ry, vx, vy, ax, ay, VCC;
 
@@ -222,7 +273,7 @@ public class Minigun extends Gun {
 
 
 
-        double[] root = new double[4];
+        //double[] root = new double[4];
 
 
         // s - object
@@ -242,14 +293,6 @@ public class Minigun extends Gun {
         // r =  rt - rs
         gf.rx = target.pos.x + - owner.pos.x;
         gf.ry = target.pos.y +  - owner.pos.y;
-
-        // HACKED
-        //tmp2.set(target.vel).scl(-0.3f);//.scl(dt);
-        //tmp0.set(target.pos).add(tmp2);
-        //gf.rx = tmp0.x - owner.pos.x;
-        //gf.ry = tmp0.y - owner.pos.y;
-
-
 
         //  relative target velocity to object
         gf.vx = target.vel.x - owner.vel.x;

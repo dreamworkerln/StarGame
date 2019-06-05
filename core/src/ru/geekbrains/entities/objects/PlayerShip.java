@@ -26,7 +26,7 @@ public class PlayerShip extends Ship {
         this.type.add(ObjectType.PLAYER_SHIP);
 
         trajectorySim = new TrajectorySimulator(this, this);
-        gunSim = new TrajectorySimulator(this, new Shell(gun.calibre, owner));
+        gunSim = new TrajectorySimulator(this, new Shell(gun.getCalibre(), owner));
 
         shield = new ForceShield(this, new Color(0.1f , 0.5f, 1f, 1f));
 

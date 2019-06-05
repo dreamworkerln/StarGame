@@ -134,7 +134,7 @@ public class Missile extends DrivenObject {
 
         af.ACC = maxThrottle / mass;  // Максимальное возможное ускорение объекта
 
-        double[] root = new double[4];
+        //double[] root = new double[4];
 
 
 
@@ -158,8 +158,8 @@ public class Missile extends DrivenObject {
         af.vy = target.vel.y - vel.y;
 
         // apply inverted object acceleration to target
-        af.ax = target.acc.x - acc.x;
-        af.ay = target.acc.y - acc.y;
+        af.ax = target.acc.x /*- acc.x*/;
+        af.ay = target.acc.y /*- acc.y*/;
 
 
 

@@ -135,7 +135,7 @@ public class GameScreen extends BaseScreen {
 
 
         // experimental - spawnEnemyShip
-        if (getTick() % 400 == 0) {
+        if (getTick() % 500 == 0) {
             spawnEnemyShip();
         }
 
@@ -303,7 +303,7 @@ public class GameScreen extends BaseScreen {
 
         // reticle
         reticle.draw(renderer.batch);
-
+        
         // particleObjects
         for (GameObject obj : particleObjects) {
             obj.draw(renderer);
@@ -392,10 +392,22 @@ public class GameScreen extends BaseScreen {
 
             double x1,x2,y1,y2;
 
+
             x1 = tgt.pos.x - 2*tgt.getRadius();
             x2 = tgt.pos.x + 2*tgt.getRadius();
             y1 = tgt.pos.y - 2*tgt.getRadius();
             y2 = tgt.pos.y + 2*tgt.getRadius();
+
+
+            // HAAACK
+            if (tgt.type.contains(ObjectType.PLAYER_SHIP)) {
+
+                PlayerShip plsp = (PlayerShip) tgt;
+                x1 = tgt.pos.x - 2*plsp.shield.getRadius();
+                x2 = tgt.pos.x + 2*plsp.shield.getRadius();
+                y1 = tgt.pos.y - 2*plsp.shield.getRadius();
+                y2 = tgt.pos.y + 2*plsp.shield.getRadius();
+            }
 
 
             Point<GameObject>[] points = quadTree.searchIntersect(x1, y1, x2, y2);
@@ -409,9 +421,7 @@ public class GameScreen extends BaseScreen {
                 if (prj.readyToDispose)
                     continue;
 
-                tmp1.set(prj.pos);
-                tmp1.sub(tgt.pos); // vector from target to projectile
-
+                tmp1.set(prj.pos).sub(tgt.pos); // vector from target to projectile
 
                 if (tgt.type.contains(ObjectType.PLAYER_SHIP) &&
                         prj.type.contains(ObjectType.SHELL) &&
@@ -421,16 +431,28 @@ public class GameScreen extends BaseScreen {
                     PlayerShip plsp = (PlayerShip) tgt;
 
                     if (tmp1.len() <= plsp.shield.getRadius() + prj.getRadius() &&
-                            plsp.shield.power >= plsp.shield.maxPower) {
+                            plsp.shield.power / plsp.shield.maxPower >= 0) {
 
-                        plsp.shield.power--;
+                        plsp.shield.power -= 0.1f;
 
+                        Vector2 n = tmp3; // vector from target to projectile, normalized
+                        n.set(prj.pos).sub(tgt.pos).nor();
+
+                        // repulsing by force shield
+                        tmp0.set(n.scl(plsp.shield.forceValue * plsp.shield.getRadius()/tmp1.len2()));
+
+                        prj.applyForce(tmp0);
+                        plsp.applyForce(tmp0.scl(-1));
+                        n = null;
+
+
+
+                        // абсолютно неупругое столкновение
                         // affect impact on target ship
-                        tmp2.set(prj.vel).scl(prj.getMass() / dt);
-                        plsp.applyForce(tmp2);
+                        // tmp2.set(prj.vel).scl(prj.getMass() / dt);
+                        // plsp.applyForce(tmp2);
 
-                        prj.vel.setZero();
-                        prj.readyToDispose = true;
+
                     }
 
 

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.particles.ParticleObject;
@@ -12,21 +13,24 @@ import ru.geekbrains.screen.Renderer;
 public class ForceShield extends ParticleObject {
 
 
+
     public Color color;
     public Color bufColor;
 
     public Color chargingColor = new Color(1f, 1f, 0.5f, 1f);
 
-    public float power;
-    public float maxPower = 1;
+    public float forceValue = 200f;
 
-    public float powerIncrementDelta = 0.001f;
+    public float power;
+    public float maxPower = 30;
+
+    public float powerIncrementDelta = forceValue * 0.000005f;
 
     public ForceShield(GameObject owner, Color color) {
         super(owner);
 
         this.color = color;
-        this.radius = radius * 1.8f;
+        this.radius = radius * 2f;
         power = maxPower;
         bufColor = new Color();
     }
@@ -42,10 +46,7 @@ public class ForceShield extends ParticleObject {
         pos.set(owner.pos);
 
         if (power <  maxPower) {
-            power += powerIncrementDelta;
-        }
-        if (power <  0) {
-            power = 0;
+            power += powerIncrementDelta * maxPower;
         }
     }
 
@@ -62,13 +63,20 @@ public class ForceShield extends ParticleObject {
         shape.begin();
         shape.set(ShapeRenderer.ShapeType.Line);
 
-        if (power < maxPower) {
+
+
+//            bufColor.set(color);
+//            bufColor.a = power/maxPower*0.5f;
+
+
+
+        if (power/maxPower < 0.2) {
             bufColor.set(chargingColor);
-            bufColor.a = power * 0.7f;
+            bufColor.a = 0.4f + power/maxPower;
         }
         else {
             bufColor.set(color);
-            bufColor.a = power * 0.5f;
+            bufColor.a = 0.4f + power/maxPower * 0.2f;
         }
 
 

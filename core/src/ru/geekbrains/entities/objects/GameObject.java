@@ -47,6 +47,8 @@ public abstract class GameObject implements Disposable {
     protected Vector2 tmp0 = new Vector2();           // buffer
     protected Vector2 tmp1 = new Vector2();           // buffer
     protected Vector2 tmp2 = new Vector2();           // buffer
+    protected Vector2 tmp3 = new Vector2();           // buffer
+    protected Vector2 tmp4 = new Vector2();           // buffer
 
 
 
@@ -124,7 +126,7 @@ public abstract class GameObject implements Disposable {
         // -----------------------------------------------------------------------------------------
 
         // calc resulting acceleration
-        acc = force.scl(1/mass);
+        acc.set(force.scl(1/mass));
 
 
         // calc velocity and position

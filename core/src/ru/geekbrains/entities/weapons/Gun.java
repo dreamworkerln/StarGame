@@ -18,7 +18,7 @@ import ru.geekbrains.screen.Renderer;
 
 public class Gun extends ParticleObject {
 
-    public float calibre = 6;
+    protected float calibre = 6;
     public float power = 230;     // force length, applied to shell
     public float projectileMass = -1;
 
@@ -167,7 +167,6 @@ public class Gun extends ParticleObject {
         }
 
 
-
         proj.pos.set(nozzlePos);
         proj.vel.set(owner.vel);
         proj.dir.set(dir);
@@ -228,8 +227,22 @@ public class Gun extends ParticleObject {
         shape.setColor(1f, 1f, 0.2f, 1);
         shape.circle(nozzlePos.x, nozzlePos.y, blastRadius);
 
+
+        //shape.set(ShapeRenderer.ShapeType.Line);
+        //shape.setColor(1f, 1f, 1f, 1);
+        //shape.circle(nozzlePos.x, nozzlePos.y, 3);
+
         Gdx.gl.glLineWidth(1);
         shape.end();
     }
 
+
+    public float getCalibre() {
+        return calibre;
+    }
+
+    public void setCalibre(float calibre) {
+        this.calibre = calibre;
+        firingAmmoType = createProjectile();
+    }
 }
