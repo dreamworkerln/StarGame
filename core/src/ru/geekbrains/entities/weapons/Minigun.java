@@ -49,8 +49,8 @@ public class Minigun extends Gun {
         final double relativeAccuracy = 1.0e-12;
         final double absoluteAccuracy = 1.0e-8;
 
-        //final double relativeAccuracy = 1.0e-6;
-        //final double absoluteAccuracy = 1.0e-4;
+        //final double relativeAccuracy = 1.0e-10;
+        //final double absoluteAccuracy = 1.0e-8;
         gf =  new AimFunction();
         nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
 
@@ -342,7 +342,7 @@ public class Minigun extends Gun {
         for (int i = 0; i< 100; i++) {
             try {
 
-                double t = nonBracketing.solve(100, gf,  0, dt * i);
+                double t = nonBracketing.solve(100, gf,  0, dt * i * 2);
 
                 if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {
 
