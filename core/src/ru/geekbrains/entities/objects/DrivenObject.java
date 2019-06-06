@@ -32,7 +32,7 @@ public abstract class DrivenObject extends GameObject {
     public float health;                       // текущий запас прочности корпуса(health)
     public float maxHealth = 3;               // максимальный запас прочности корпуса(health)
 
-    protected float throttle = 0;                   // current throttle
+    public float throttle = 0;                   // current throttle
 
     public float fuel = maxFuel;                   // current fuel level
 

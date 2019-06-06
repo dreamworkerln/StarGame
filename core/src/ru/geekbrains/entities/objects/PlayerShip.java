@@ -104,6 +104,12 @@ public class PlayerShip extends Ship {
 
     @Override
     public void update(float dt) {
+
+
+
+
+
+
         super.update(dt);
 
         // simulate playerShip trajectory for future steps

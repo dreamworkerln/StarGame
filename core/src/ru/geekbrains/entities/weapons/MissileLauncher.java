@@ -44,6 +44,10 @@ public class MissileLauncher extends Gun {
     @Override
     protected void fire() {
 
+
+
+
+
         List<GameObject> targets;
 
         if (owner.type.contains(ObjectType.PLAYER_SHIP)) {
@@ -90,7 +94,7 @@ public class MissileLauncher extends Gun {
                     .rotate(90 * sideLaunch).add(owner.pos);
 
 
-            tmp2.set(dir).scl(10).scl(sideLaunch);
+            tmp2.set(dir).scl(sideLaunch).scl(15f); // Сдвиг ракет (альтернатива задержки перед запуском, чтобы одна в другую не влетела)
 
             missile.pos.set(tmp0).add(tmp2);
             missile.vel.set(owner.vel);
@@ -112,6 +116,8 @@ public class MissileLauncher extends Gun {
             // invert launch side ---------------------------------------------
             sideLaunch = -sideLaunch;
         }
+
+
 
     }
 
@@ -147,4 +153,5 @@ public class MissileLauncher extends Gun {
         }
 
     }
+
 }

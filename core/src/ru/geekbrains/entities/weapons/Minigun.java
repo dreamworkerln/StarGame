@@ -46,11 +46,11 @@ public class Minigun extends Gun {
         power = 20;
 
 
-        //final double relativeAccuracy = 1.0e-12;
-        //final double absoluteAccuracy = 1.0e-8;
+        final double relativeAccuracy = 1.0e-12;
+        final double absoluteAccuracy = 1.0e-8;
 
-        final double relativeAccuracy = 1.0e-6;
-        final double absoluteAccuracy = 1.0e-4;
+        //final double relativeAccuracy = 1.0e-6;
+        //final double absoluteAccuracy = 1.0e-4;
         gf =  new AimFunction();
         nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
 
@@ -127,11 +127,22 @@ public class Minigun extends Gun {
             //collinear
             if (Float.isInfinite(scale)) {
                 //tmp1.set(owner.vel).sub(target.vel);
-                float angle = Math.abs(target.vel.angle(owner.vel));
-                if(angle < 90) {
+
+                tmp0.set(owner.pos).sub(target.pos); // vec from target to owner
+                tmp4.set(target.vel).sub(owner.vel);
+
+
+                //float angle = Math.abs(target.vel.angle(owner.vel));
+                if(Math.abs(tmp4.angle(tmp0)) <= 120) {
                     tmp3.set(owner.pos); // попал в цель
                 }
-            }else {
+                else {
+                    // не попал
+                    tmp3.set(Float.POSITIVE_INFINITY,Float.POSITIVE_INFINITY);
+                }
+
+            }
+            else {
 
                 tmp3.set(tmp1).scl(scale).add(target.pos); // точа пересечения 
 
@@ -160,9 +171,11 @@ public class Minigun extends Gun {
             tmp0.set(target.pos).sub(pos);
 
             if (tmp0.len() > maxRange || // вне радиуса действия minigun
-                //scale < 0 ||
-                /*len > owner.getRadius() * 100f*/
-               len > maxRange) {
+
+                    // точка пересечения с центром цели лежит далеко и не ракета далеко от цели
+
+                    // Заменить всю эту хрень на пересечение луча с окружностью
+                    (len > maxRange /*&& tmp0.len() > target.getRadius()*/)) {
 
                 target = null;
             }
@@ -329,7 +342,7 @@ public class Minigun extends Gun {
         for (int i = 0; i< 100; i++) {
             try {
 
-                double t = nonBracketing.solve(100, gf,  0, dt * i*10);
+                double t = nonBracketing.solve(100, gf,  0, dt * i);
 
                 if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {
 

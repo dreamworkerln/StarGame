@@ -19,12 +19,14 @@ public class ForceShield extends ParticleObject {
 
     public Color chargingColor = new Color(1f, 1f, 0.5f, 1f);
 
-    //public float forceValue = 10f;
-    public float forceValue = 200f;
+    //public float forceValue = 100f;
+    public float forceValue = 300f;
+
     //public float forceValue = 30f;
 
     public float power;
     public float maxPower = 30;
+    //public float maxPower = 300000000;
 
     public float powerIncrementDelta = forceValue * 0.000005f;
 
@@ -74,7 +76,7 @@ public class ForceShield extends ParticleObject {
 
         if (power/maxPower < 0.2) {
             bufColor.set(chargingColor);
-            bufColor.a = 0.4f + power/maxPower;
+            bufColor.a = 0.2f + power/maxPower;
         }
         else {
             bufColor.set(color);

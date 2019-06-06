@@ -1,5 +1,7 @@
 package ru.geekbrains.entities.objects;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
@@ -50,6 +52,14 @@ public class Missile extends DrivenObject {
 
         af =  new AimFunction();
         nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
+
+
+
+        //Sound sound = Gdx.audio.newSound(Gdx.files.internal("launch01.mp3"));
+        //sound.setVolume(sound.play(),0.05f);
+
+
+
     }
 
 

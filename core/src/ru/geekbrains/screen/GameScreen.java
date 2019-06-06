@@ -1,6 +1,8 @@
 package ru.geekbrains.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -27,6 +29,7 @@ import ru.geekbrains.entities.particles.Explosion;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.Planet;
 import ru.geekbrains.entities.objects.PlayerShip;
+import ru.geekbrains.entities.particles.Message;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;
@@ -95,6 +98,13 @@ public class GameScreen extends BaseScreen {
 
     private QuadTree<GameObject> quadTree;
 
+    private boolean win = false;
+
+    private Music music;
+
+
+    private int DIFFICULTY_LEVEL;
+
     @Override
     public void show() {
         super.show();
@@ -128,16 +138,26 @@ public class GameScreen extends BaseScreen {
         //playerShip.gun.fireRate = 0.025f;
         addObject(playerShip);
 
+        Message msg = new Message(2f,null,"New objectives: survive till warp engine have been repaired.");
+        particleObjects.add(msg);
+
+
+
+        music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
+        music.play();
+
+
+        DIFFICULTY_LEVEL = 400;
     }
 
 
     private void update(float dt) {
 
-
         // experimental - spawnEnemyShip
-        if (getTick() % 500 == 0) {
+        if (getTick() % DIFFICULTY_LEVEL == 0) {
             spawnEnemyShip();
         }
+
 
         // -----------------------------------------------------------------------------------------
         // spawn new objects
@@ -229,6 +249,9 @@ public class GameScreen extends BaseScreen {
                 // removing from gameObjects
                 it.remove();
 
+
+                playExplosionSound(obj);
+
                 Explosion expl = new Explosion(obj);
                 particleObjects.add(expl);
 
@@ -261,6 +284,9 @@ public class GameScreen extends BaseScreen {
 
         // increment game tick
         updateTick();
+
+
+        checkWin();
     }
 
 
@@ -320,10 +346,10 @@ public class GameScreen extends BaseScreen {
 
         long milli = du.toMillis();
 
+        // data processing (root finding) real-time violation
         if ( milli > (1/60d)*1000) {
-            System.out.println(milli);
+            System.out.println("TIME ERR >> " + milli);
         }
-
     }
 
 
@@ -424,8 +450,9 @@ public class GameScreen extends BaseScreen {
 
                 tmp1.set(prj.pos).sub(tgt.pos); // vector from target to projectile
 
+                // FORCE SHIELD REPULSING
                 if (tgt.type.contains(ObjectType.PLAYER_SHIP) &&
-                        (prj.type.contains(ObjectType.SHELL)
+                        (prj.type.contains(ObjectType.PROJECTILE)
                          /*&&prj.type.contains(ObjectType.DRIVEN_OBJECT)*/) &&
                         prj.owner != tgt) {     // щит не влияет на свои снаряды
 
@@ -447,23 +474,16 @@ public class GameScreen extends BaseScreen {
                         plsp.applyForce(tmp0.scl(-1));
                         n = null;
 
-
-
                         // абсолютно неупругое столкновение
                         // affect impact on target ship
                         // tmp2.set(prj.vel).scl(prj.getMass() / dt);
                         // plsp.applyForce(tmp2);
-
-
                     }
-
-
                 }
 
 
 
-                if (prj != tgt && tmp1.len() <= tgt.getRadius() + prj.getRadius()) {
-
+                if (tmp1.len() <= tgt.getRadius() + prj.getRadius()) {
 
                     if (tgt == planet) {
                         // stop projectile - fallen on planet
@@ -484,7 +504,6 @@ public class GameScreen extends BaseScreen {
                         if (prj.type.contains(ObjectType.BULLET)) {
                             drObj.health -= 0.05;
                         }
-
 
                         // affect impact on target ship
                         tmp2.set(prj.vel).scl(prj.getMass() / dt);
@@ -541,19 +560,28 @@ public class GameScreen extends BaseScreen {
     private void spawnEnemyShip() {
 
         if (playerShip.readyToDispose) {
-            tmp0.set(0, 0);
+            tmp0.set(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
         }
         else {
             tmp0.set(playerShip.pos);
         }
 
-
         do {
-            tmp1.set(MathUtils.random(-500, 500), MathUtils.random(-500, 500));
+
+            float r = MathUtils.random(400, 500);
+            float fi = MathUtils.random(0.1f, 360f);
+
+            float x = (float)(r * Math.cos(fi));
+            float y = (float)(r * Math.sin(fi));
+
+
+            tmp1.set(x,y);
+
+            //tmp1.set(MathUtils.random(-500, 500), MathUtils.random(-500, 500));
             tmp2.set(tmp1).sub(tmp0);
-            tmp3.set(tmp1).sub(planet.pos);
+            // /tmp3.set(tmp1).sub(planet.pos);
         }
-        while (tmp2.len() < 600 || tmp3.len() < 600);
+        while (tmp2.len() < 600);
 
 
 
@@ -576,7 +604,7 @@ public class GameScreen extends BaseScreen {
     private void retargetEnemyShips() {
 
 
-        for (GameObject obj : gameObjects) {
+        for (GameObject obj : hittableObjects) {
             if (obj.type.contains(ObjectType.ENEMY_SHIP)) {
 
                 EnemyShip ship = (EnemyShip) obj;
@@ -637,13 +665,12 @@ public class GameScreen extends BaseScreen {
 
         // reflected_vel=vel−2(vel⋅n)n, where n - unit normal vector
         if (obj.pos.x - obj.getRadius() < leftBound &&
-                !(obj.type.contains(ObjectType.PROJECTILE) ||
-                        obj.type.contains(ObjectType.MISSILE))) {
+                obj.type.contains(ObjectType.SHIP)) {
 
             n = borderNormals.left;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.5f);
+            obj.vel.scl(0.2f);
             obj.pos.x = 2 * leftBound + 2*obj.getRadius() - obj.pos.x;
         }
 
@@ -655,13 +682,12 @@ public class GameScreen extends BaseScreen {
         }
 
         if (obj.pos.x + obj.getRadius() > rightBound &&
-                !(obj.type.contains(ObjectType.PROJECTILE) ||
-                        obj.type.contains(ObjectType.MISSILE))) {
+                obj.type.contains(ObjectType.SHIP)) {
 
             n = borderNormals.right;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.5f);
+            obj.vel.scl(0.2f);
             obj.pos.x = 2 * rightBound - 2*obj.getRadius() - obj.pos.x;
         }
 
@@ -673,13 +699,12 @@ public class GameScreen extends BaseScreen {
         }
 
         if (obj.pos.y - obj.getRadius() < downBound &&
-                !(obj.type.contains(ObjectType.PROJECTILE) ||
-                        obj.type.contains(ObjectType.MISSILE))) {
+                obj.type.contains(ObjectType.SHIP)) {
 
             n = borderNormals.down;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.5f);
+            obj.vel.scl(0.2f);
             obj.pos.y = 2 * downBound + 2*obj.getRadius() - obj.pos.y;
 
         }
@@ -692,18 +717,87 @@ public class GameScreen extends BaseScreen {
         }
 
         if (obj.pos.y + obj.getRadius() > upBound &&
-                !(obj.type.contains(ObjectType.PROJECTILE) ||
-                        obj.type.contains(ObjectType.MISSILE))) {
+                obj.type.contains(ObjectType.SHIP)) {
 
             n = borderNormals.up;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.5f);
+            obj.vel.scl(0.2f);
             obj.pos.y = 2 * upBound - 2 *obj.getRadius() - obj.pos.y;
         }
 
-        // -----------------------------------------------------------------------------------------
+
     }
+
+
+
+    // -----------------------------------------------------------------------------------------
+
+
+    private void playExplosionSound(GameObject obj) {
+
+//        if (obj.type.contains(ObjectType.SHIP)) {
+//
+//            Sound sound = Gdx.audio.newSound(Gdx.files.internal("expl01.mp3"));
+//            sound.setVolume(sound.play(),0.8f);
+//        }
+//        else if (obj.type.contains(ObjectType.MISSILE)) {
+//
+//            Sound sound = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
+//            sound.setVolume(sound.play(),0.2f);
+//        }
+
+    }
+
+
+    // -----------------------------------------------------------------------------------------
+
+    private void checkWin() {
+
+
+        // -----------------------------------------------------------------------------------------
+        // game objective completed
+        // -----------------------------------------------------------------------------------------
+        if (!playerShip.readyToDispose && !win && !music.isPlaying()) {
+
+
+
+            Message msg = new Message(2f,null,"Objectives completed. Leaving area.");
+            particleObjects.add(msg);
+            music = null;
+
+
+            gameObjects.remove(playerShip);
+            hittableObjects.remove(playerShip);
+
+            gameObjects.remove(playerShip.shield);
+            hittableObjects.remove(playerShip.shield);
+
+            particleObjects.add(playerShip);
+
+            win = true;
+        }
+        if (win) {
+            playerShip.maxThrottle = 500;
+            playerShip.throttle = playerShip.maxThrottle;
+        }
+
+        if (!playerShip.readyToDispose &&
+                playerShip.pos.len() > 2000) {
+            
+            playerShip.readyToDispose = true;
+        }
+
+        // -----------------------------------------------------------------------------------------
+
+
+
+    }
+
+
+
+
+
 
 
 
@@ -762,6 +856,9 @@ public class GameScreen extends BaseScreen {
 
         return INSTANCE.renderer;
     }
+
+
+
 
 
 
