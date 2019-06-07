@@ -143,8 +143,8 @@ public class GameScreen extends BaseScreen {
         //playerShip.gun.fireRate = 0.025f;
         addObject(playerShip);
 
-        //Message msg = new Message(2f,null,"New objectives: survive till warp engine have been repaired.");
-        //particleObjects.add(msg);
+        Message msg = new Message(2f,null,"New objectives: survive till warp engine have been repaired.");
+        particleObjects.add(msg);
 
 
 
