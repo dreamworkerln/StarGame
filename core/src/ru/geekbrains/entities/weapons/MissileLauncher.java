@@ -94,17 +94,19 @@ public class MissileLauncher extends Gun {
                     .rotate(90 * sideLaunch).add(owner.pos);
 
 
-            tmp2.set(dir).scl(sideLaunch).scl(15f); // Сдвиг ракет (альтернатива задержки перед запуском, чтобы одна в другую не влетела)
+            //tmp2.set(dir).scl(sideLaunch).scl(15f); // Сдвиг ракет (альтернатива задержки перед запуском, чтобы одна в другую не влетела)
 
-            missile.pos.set(tmp0).add(tmp2);
+            missile.pos.set(tmp0);/*.add(tmp2);*/
             missile.vel.set(owner.vel);
             missile.dir.set(dir);
             
             missile.target = target;
 
 
+            tmp1.set(dir).nor().scl(sideLaunch*100);
             // apply force applied to bullet
-            tmp0.set(dir).setLength(power); // force
+            tmp0.set(dir).setLength(power).add(tmp1); // force  // разные ускорения слева и справа
+                                                                // (альтернатива задержки перед запуском, чтобы одна в другую не влетела)
             //tmp0.rotate(60 * sideLaunch);
             missile.applyForce(tmp0);
             //tmp0.set(dir).setLength(power);

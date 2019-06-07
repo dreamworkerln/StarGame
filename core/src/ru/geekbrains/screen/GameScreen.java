@@ -147,7 +147,7 @@ public class GameScreen extends BaseScreen {
         music.play();
 
 
-        DIFFICULTY_LEVEL = 400;
+        DIFFICULTY_LEVEL = 1000;
     }
 
 
@@ -155,6 +155,8 @@ public class GameScreen extends BaseScreen {
 
         // experimental - spawnEnemyShip
         if (getTick() % DIFFICULTY_LEVEL == 0) {
+            spawnEnemyShip();
+            spawnEnemyShip();
             spawnEnemyShip();
         }
 
@@ -566,6 +568,7 @@ public class GameScreen extends BaseScreen {
             tmp0.set(playerShip.pos);
         }
 
+        int cnt = 0;
         do {
 
             float r = MathUtils.random(400, 500);
@@ -580,8 +583,11 @@ public class GameScreen extends BaseScreen {
             //tmp1.set(MathUtils.random(-500, 500), MathUtils.random(-500, 500));
             tmp2.set(tmp1).sub(tmp0);
             // /tmp3.set(tmp1).sub(planet.pos);
+
+            if (cnt++ >= 100)
+                break;
         }
-        while (tmp2.len() < 600);
+        while (tmp2.len() < 500);
 
 
 
@@ -624,7 +630,12 @@ public class GameScreen extends BaseScreen {
                              tmp != planet &&
                              tmp != ship && // self
                              tmp.type.contains(ObjectType.SHIP)) {
+
                             ship.target = tmp;
+                        }
+
+                        if (!playerShip.readyToDispose) {
+                            ship.target = playerShip;
                         }
 
 

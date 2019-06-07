@@ -39,18 +39,28 @@ public abstract class Projectile extends GameObject {
 
         ShapeRenderer shape =renderer.shape;
 
-        tmp0.set(dir).setLength(radius * 2).add(pos);
+
 
         shape.begin();
         shape.setColor(Color.WHITE);
         Gdx.gl.glLineWidth(1);
 
         if (type.contains(ObjectType.BULLET)) {
+
+            Gdx.gl.glLineWidth(2);
+
             shape.set(ShapeRenderer.ShapeType.Line);
-            shape.line(pos, tmp0);
+            if (radius > 1) {
+                tmp0.set(dir).setLength(radius * 2).add(pos);
+                shape.line(pos, tmp0);
+            }
+            else {
+                shape.point(pos.x, pos.y, 0);
+            }
 
         }
         else {
+            Gdx.gl.glLineWidth(1);
             shape.set(ShapeRenderer.ShapeType.Filled);
             shape.circle(pos.x,pos.y,radius);
         }

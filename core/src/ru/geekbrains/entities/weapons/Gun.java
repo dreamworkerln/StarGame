@@ -228,9 +228,19 @@ public class Gun extends ParticleObject {
         shape.circle(nozzlePos.x, nozzlePos.y, blastRadius);
 
 
-        //shape.set(ShapeRenderer.ShapeType.Line);
-        //shape.setColor(1f, 1f, 1f, 1);
-        //shape.circle(nozzlePos.x, nozzlePos.y, 3);
+//        shape.set(ShapeRenderer.ShapeType.Line);
+//        shape.setColor(1f, 1f, 1f, 1);
+//        shape.circle(nozzlePos.x, nozzlePos.y, 3);
+
+
+        tmp0.set(pos).add(guideVector);
+
+        shape.set(ShapeRenderer.ShapeType.Line);
+//        shape.setColor(0f, 1f, 0f, 1);
+//        shape.circle(tmp0.x, tmp0.y, 3);
+        shape.setColor(1f, 0f, 0f, 0.5f);
+        shape.line(pos, tmp0);
+
 
         Gdx.gl.glLineWidth(1);
         shape.end();
