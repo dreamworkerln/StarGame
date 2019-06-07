@@ -20,13 +20,18 @@ import ru.geekbrains.screen.Renderer;
 
 public class MissileLauncher extends Gun {
 
-    protected int sideLaunch = -1;
+    private int sideLaunch = -1;
 
     public int sideLaunchCount = 2;
 
-    protected DummyObject dummy;
+    private DummyObject dummy;
 
-    GameObject target = null;
+    public GameObject target = null;
+
+    protected int TTL = 10;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
+
+    protected long start = -1;
+
 
     public MissileLauncher(float height, GameObject owner) {
         super(height, owner);
@@ -41,12 +46,24 @@ public class MissileLauncher extends Gun {
         power = 500;
     }
 
+
+    @Override
+    public void update(float dt) {
+        super.update(dt);
+
+        if (start > 0 && GameScreen.INSTANCE.getTick() - start > TTL) {
+
+            repeatFire();
+            start = -1;
+        }
+    }
+
+
+
+
+
     @Override
     protected void fire() {
-
-
-
-
 
         List<GameObject> targets;
 
@@ -83,45 +100,53 @@ public class MissileLauncher extends Gun {
 
 
 
+        repeatFire();
 
-        for (int i = 0; i < sideLaunchCount; i++) {
-
-
-            Missile missile =
-                    new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, owner);
-
-            tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius() + 10)
-                    .rotate(90 * sideLaunch).add(owner.pos);
-
-
-            //tmp2.set(dir).scl(sideLaunch).scl(15f); // Сдвиг ракет (альтернатива задержки перед запуском, чтобы одна в другую не влетела)
-
-            missile.pos.set(tmp0);/*.add(tmp2);*/
-            missile.vel.set(owner.vel);
-            missile.dir.set(dir);
-            
-            missile.target = target;
-
-
-            tmp1.set(dir).nor().scl(sideLaunch*100);
-            // apply force applied to bullet
-            tmp0.set(dir).setLength(power).add(tmp1); // force  // разные ускорения слева и справа
-                                                                // (альтернатива задержки перед запуском, чтобы одна в другую не влетела)
-            //tmp0.rotate(60 * sideLaunch);
-            missile.applyForce(tmp0);
-            //tmp0.set(dir).setLength(power);
-
-
-            GameScreen.addObject(missile);
-
-
-            // invert launch side ---------------------------------------------
-            sideLaunch = -sideLaunch;
+        // запуск двух ракет с задержкой
+        // (чтобы одна в другую не влетела при подлете к цели)
+        if (sideLaunchCount > 1) {
+            start = GameScreen.INSTANCE.getTick();
         }
+    }
 
+
+    private void repeatFire() {
+
+
+        Missile missile =
+                new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, owner);
+
+        tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius()*2)
+                .rotate(90 * sideLaunch).add(owner.pos);
+
+
+        missile.pos.set(tmp0);
+        missile.vel.set(owner.vel);
+        missile.dir.set(dir);
+
+        missile.target = target;
+
+
+        //tmp1.set(dir).nor().scl(sideLaunch*100);
+        // apply force applied to missile
+        tmp0.set(dir).setLength(power).rotate(45*sideLaunch); // force
+        //tmp0.rotate(60 * sideLaunch);
+        missile.applyForce(tmp0);
+        //tmp0.set(dir).setLength(power);
+
+
+        GameScreen.addObject(missile);
+
+
+        // invert launch side ---------------------------------------------
+        sideLaunch = -sideLaunch;
 
 
     }
+
+
+
+
 
     @Override
     public void draw(Renderer renderer) {

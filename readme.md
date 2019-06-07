@@ -12,26 +12,34 @@ so 4 needed to be sure.
 
 Missile kill ship in one hit.
 
-Minigun is auto-firing at close target (most time bringing it down).
+Minigun is auto-firing at close target (act as close-in weapon system (point-defence))
+Most time bringing targets down but may miss on simultaneous incoming missiles from different directions).
 
 Green curve - you trajectory in planet gravity force.
 Blue curve - you shell trajectory in planet gravity force.
 
 Force shield can repulse several (~4) hit from shell. It slowly regenerating to full charge.
-
-It's deathmatch so enemy ship will search for new target on spawn or if its current target is destroyed.
-
-No sounds are disabled due to libgdx  random stattering (~20 ms) when playing sound.
+Sound effects are disabled due to libgdx  random stattering (~20 ms) when playing sound.
 
 
 
 
-Difficulty level.
+Difficulty levels
 
-I'm testing with ru.geekbrains.screen.GameScreen.DIFFICULTY_LEVEL = 400;
-So you you found too hard to you rebuild with DIFFICULTY_LEVEL = 1000;
+Choose one that fit you skill in
 
-DIFFICULTY_LEVEL == 100 seems been impossible to me.
+ru.geekbrains.screen.GameScreen.show() {
+...
+        // NOVICE
+        ENEMY_RESPAWN_TIME = 500;
+        ENEMIES_COUNT_IN_WAVE = 1;
+...
+}
+
+Code need refactoring, etc., but better if it was written in C ++ to avoid using buffer objects for Vector2,
+GC related things, so i give up on it.
+
+
 
 
 

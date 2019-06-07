@@ -56,9 +56,14 @@ public class EnemyShip extends Ship {
 
 
         launcher = new MissileLauncher(10, this);
-        //launcher.fireRate = 0.005f;
-        launcher.fireRate = 0.005f;
+
+        //launcher.fireRate = 0.02f;
         launcher.sideLaunchCount = 1;
+
+
+
+        //launcher.fireRate = 0.005f;
+
 
 
         final double relativeAccuracy = 1.0e-6;

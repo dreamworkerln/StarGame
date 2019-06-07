@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import ru.geekbrains.entities.objects.DrivenObject;
+import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.EnemyShip;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.particles.Explosion;
@@ -72,6 +73,9 @@ public class GameScreen extends BaseScreen {
     private Vector2 tmp1 = new Vector2();
     private Vector2 tmp2 = new Vector2();
     private Vector2 tmp3 = new Vector2();
+    private GameObject dummy;
+
+    private int enemyShipsToSpawn = 0;
 
     private PlayerShip playerShip;
     private Texture enemyShipTexture = new Texture("ship_enemy.png");
@@ -103,7 +107,8 @@ public class GameScreen extends BaseScreen {
     private Music music;
 
 
-    private int DIFFICULTY_LEVEL;
+    private int ENEMY_RESPAWN_TIME;
+    private int ENEMIES_COUNT_IN_WAVE;
 
     @Override
     public void show() {
@@ -138,8 +143,8 @@ public class GameScreen extends BaseScreen {
         //playerShip.gun.fireRate = 0.025f;
         addObject(playerShip);
 
-        Message msg = new Message(2f,null,"New objectives: survive till warp engine have been repaired.");
-        particleObjects.add(msg);
+        //Message msg = new Message(2f,null,"New objectives: survive till warp engine have been repaired.");
+        //particleObjects.add(msg);
 
 
 
@@ -147,17 +152,41 @@ public class GameScreen extends BaseScreen {
         music.play();
 
 
-        DIFFICULTY_LEVEL = 1000;
+        // DIFFICULTY LEVEL ------------------------------------------------------------------------
+
+
+        // SPECIALIST
+        ENEMY_RESPAWN_TIME = 1000;
+        ENEMIES_COUNT_IN_WAVE = 3;
+
+        // EXPERIENCED
+        ENEMY_RESPAWN_TIME = 700;
+        ENEMIES_COUNT_IN_WAVE = 2;
+
+        // NOVICE
+        ENEMY_RESPAWN_TIME = 500;
+        ENEMIES_COUNT_IN_WAVE = 1;
+
+        // NEVER PLAYED
+        ENEMY_RESPAWN_TIME = 1000;
+        ENEMIES_COUNT_IN_WAVE = 1;
+
+        // -----------------------------------------------------------------------------------------
     }
 
 
     private void update(float dt) {
 
-        // experimental - spawnEnemyShip
-        if (getTick() % DIFFICULTY_LEVEL == 0) {
+        // spawnEnemyShip
+        if (getTick() % ENEMY_RESPAWN_TIME == 0) {
+
+            enemyShipsToSpawn += ENEMIES_COUNT_IN_WAVE;
+        }
+
+        if (enemyShipsToSpawn> 0)  {
+
             spawnEnemyShip();
-            spawnEnemyShip();
-            spawnEnemyShip();
+            enemyShipsToSpawn--;
         }
 
 
@@ -569,6 +598,8 @@ public class GameScreen extends BaseScreen {
         }
 
         int cnt = 0;
+        int nearCount;
+
         do {
 
             float r = MathUtils.random(400, 500);
@@ -584,10 +615,14 @@ public class GameScreen extends BaseScreen {
             tmp2.set(tmp1).sub(tmp0);
             // /tmp3.set(tmp1).sub(planet.pos);
 
+            dummy = new DummyObject(10,null);
+            dummy.pos.set(tmp1);
+            nearCount = getCloseObjects(dummy, 100).size();
+
             if (cnt++ >= 100)
                 break;
         }
-        while (tmp2.len() < 500);
+        while (tmp2.len() < 500 || nearCount > 0);
 
 
 
