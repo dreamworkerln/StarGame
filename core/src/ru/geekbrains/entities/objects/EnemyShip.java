@@ -12,6 +12,7 @@ import java.util.Arrays;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.screen.Renderer;
 
 public class EnemyShip extends Ship {
 
@@ -24,6 +25,8 @@ public class EnemyShip extends Ship {
 
     Minigun.AimFunction gf;
     UnivariateSolver nonBracketing;
+
+    public Minigun minigun;
 
 
 
@@ -58,7 +61,7 @@ public class EnemyShip extends Ship {
         launcher = new MissileLauncher(10, this);
 
         //launcher.fireRate = 0.02f;
-        launcher.sideLaunchCount = 1;
+        launcher.sideLaunchCount = 2;
 
 
 
@@ -70,6 +73,11 @@ public class EnemyShip extends Ship {
         final double absoluteAccuracy = 1.0e-4;
         gf =  new Minigun.AimFunction();
         nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
+
+
+        //minigun = new Minigun(4, this);
+
+
     }
 
 
@@ -80,11 +88,17 @@ public class EnemyShip extends Ship {
 
         launcher.update(dt);
 
+        //minigun.update(dt);
+
     }
 
 
+    @Override
+    public void draw(Renderer renderer) {
+        super.draw(renderer);
 
-
+        //minigun.draw(renderer);
+    }
 
     @Override
     protected void guide(float dt) {

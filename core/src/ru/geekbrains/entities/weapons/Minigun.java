@@ -1,12 +1,12 @@
 package ru.geekbrains.entities.weapons;
 
 import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
+
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.solvers.BrentSolver;
 import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
+
 
 import java.util.List;
 
@@ -26,9 +26,8 @@ public class Minigun extends Gun {
     AimFunction gf;
     UnivariateSolver nonBracketing;
 
-
     private int step = 0;
-    private int maxStep = 100;
+    //private int maxStep = 100;
 
 
 
@@ -60,7 +59,6 @@ public class Minigun extends Gun {
         //final double absoluteAccuracy = 1.0e-8;
         gf =  new AimFunction();
         nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
-
     }
 
 
@@ -204,7 +202,7 @@ public class Minigun extends Gun {
             tmp0.set(target.pos).sub(owner.pos);
             float len = tmp0.len();
 
-            if (len > owner.getRadius() + target.getRadius() + 1000) {
+            if (len > owner.getRadius() + target.getRadius() + 10000) {
                 selfGuiding(dt);
             }
             // Иначе наводка по скорости
@@ -251,8 +249,14 @@ public class Minigun extends Gun {
 
                 //tmp1.set(target.vel).sub(owner.vel);
 
-                float tmp = tmp3.dot(target.vel);
-                tmp3.scl(tmp*dt*10);
+                tmp2.set(target.vel).sub(owner.vel);
+
+                float tmp = tmp3.dot(tmp2);
+                float ttt = (owner.getRadius())*100/tmp0.len();
+
+                tmp *= dt * ttt;
+
+                tmp3.scl(tmp);
 
                 tmp1.set(guideVector).add(tmp3);
                 tmp2.set(guideVector).sub(tmp3);
@@ -264,9 +268,9 @@ public class Minigun extends Gun {
                     step = 0;
                 }
 
-                double val = Math.cos(step*Math.PI/180.)*tmp3.len();
+                //double val = Math.cos(step*Math.PI/180.)*tmp3.len();
 
-                float xx = (float) (Math.cos(step*Math.PI/180.)*tmp3.len());
+                float xx = (float) Math.cos(step*Math.PI/180.)*tmp3.len();
                 float yy = (float) Math.sin(step*Math.PI/180.)*tmp3.len();
 
                 tmp0.set(xx, yy);
@@ -290,7 +294,7 @@ public class Minigun extends Gun {
             }
             // Если самонаведение не осилиось
             if (guideVector.isZero()) {
-                //guideVector.set(target.pos).sub(pos).nor();
+                guideVector.set(target.pos).sub(pos).nor();
             }
         }
 
@@ -397,8 +401,8 @@ public class Minigun extends Gun {
 
         // ORIGINAL
         // r =  rt - rs
-        gf.rx = target.pos.x + - owner.pos.x;
-        gf.ry = target.pos.y +  - owner.pos.y;
+        gf.rx = target.pos.x - owner.pos.x;
+        gf.ry = target.pos.y - owner.pos.y;
 
         //  relative target velocity to object
         gf.vx = target.vel.x - owner.vel.x;
@@ -435,7 +439,9 @@ public class Minigun extends Gun {
         for (int i = 0; i< 100; i++) {
             try {
 
-                double t = nonBracketing.solve(100, gf,  0, dt * i * 2);
+                double t = nonBracketing.solve(100, gf,  0, dt * i*10);
+
+                //t -= 0.2;
 
                 if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {
 

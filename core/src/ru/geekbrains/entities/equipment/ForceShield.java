@@ -20,15 +20,15 @@ public class ForceShield extends ParticleObject {
     public Color chargingColor = new Color(1f, 1f, 0.5f, 1f);
 
     //public float forceValue = 100f;
-    public float forceValue = 300f;
+    public float forceValue = 200f;
 
     //public float forceValue = 30f;
 
     public float power;
-    public float maxPower = 30;
-    //public float maxPower = 300000000;
+    public float maxPower = 2000;
+    //public float maxPower = 30000000;
 
-    public float powerIncrementDelta = forceValue * 0.000005f;
+    public float powerIncrementDelta =  maxPower * 0.0000005f;
 
     public ForceShield(GameObject owner, Color color) {
         super(owner);

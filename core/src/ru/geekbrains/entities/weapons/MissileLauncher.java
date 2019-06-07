@@ -129,9 +129,11 @@ public class MissileLauncher extends Gun {
 
         //tmp1.set(dir).nor().scl(sideLaunch*100);
         // apply force applied to missile
-        tmp0.set(dir).setLength(power).rotate(45*sideLaunch); // force
+        tmp1.set(dir).scl(power * 0.3f);
+        tmp0.set(dir).setLength(power).rotate(40*sideLaunch).add(tmp1); // force
         //tmp0.rotate(60 * sideLaunch);
         missile.applyForce(tmp0);
+
         //tmp0.set(dir).setLength(power);
 
 

@@ -25,6 +25,7 @@ import java.util.Set;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.EnemyShip;
+import ru.geekbrains.entities.objects.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.particles.Explosion;
 import ru.geekbrains.entities.objects.GameObject;
@@ -118,8 +119,6 @@ public class GameScreen extends BaseScreen {
             GameScreen.INSTANCE = this;
         }
 
-//        quadTree = new QuadTree<>(- worldBounds.getHalfWidth(),- worldBounds.getHalfHeight(),
-//                worldBounds.getHalfWidth(),worldBounds.getHalfHeight());
 
         quadTree = new QuadTree<>(-2000,-2000,2000,2000);
 
@@ -135,20 +134,38 @@ public class GameScreen extends BaseScreen {
         reticle.setHeightAndResize(30f);
 
         playerShip = new PlayerShip(new TextureRegion(new Texture("ship_player.png")), 50, null);
-        playerShip.pos = new Vector2(+400f, +400f);
-        playerShip.vel = new Vector2(0f, -50f);
+        playerShip.pos = new Vector2(400f, 400f);
+        playerShip.vel = new Vector2(0f, -100f);
         playerShip.target = null;         //add target
         //playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
         //playerShip.gun.fireRate = 0.025f;
         addObject(playerShip);
 
-        Message msg = new Message(2f,null,"New objectives: survive till warp engine have been repaired.");
-        particleObjects.add(msg);
+        //Message msg = new Message(2f,null,"New objectives: survive till warp engine have been repaired.");
+        //particleObjects.add(msg);
+
+
+
+//        Missile missile = new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, null);
+//        missile.pos.set(200,385);
+//        missile.vel.set(400,-10);
+//        missile.dir.set(-1,-1);
+//        missile.target = playerShip;
+//        addObject(missile);
+
+//
+//        Missile missile = new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, null);
+//        missile.pos.set(0,330);
+//        missile.vel.set(300,5);
+//        missile.dir.set(-1,0).nor();
+//        missile.target = playerShip;
+//        addObject(missile);
 
 
 
         music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
+        music.setVolume(1f);
         music.play();
 
 
@@ -177,6 +194,7 @@ public class GameScreen extends BaseScreen {
 
     private void update(float dt) {
 
+
         // spawnEnemyShip
         if (getTick() % ENEMY_RESPAWN_TIME == 0) {
 
@@ -184,10 +202,9 @@ public class GameScreen extends BaseScreen {
         }
 
         if (enemyShipsToSpawn> 0)  {
-
             spawnEnemyShip();
-            enemyShipsToSpawn--;
         }
+
 
 
         // -----------------------------------------------------------------------------------------
@@ -490,20 +507,23 @@ public class GameScreen extends BaseScreen {
 
                     PlayerShip plsp = (PlayerShip) tgt;
 
-                    if (tmp1.len() <= plsp.shield.getRadius() + prj.getRadius() &&
-                            plsp.shield.power / plsp.shield.maxPower >= 0) {
-
-                        plsp.shield.power -= 0.1f;
+                    if (tmp1.len() <= plsp.shield.getRadius() + prj.getRadius()) {
 
                         Vector2 n = tmp3; // vector from target to projectile, normalized
                         n.set(prj.pos).sub(tgt.pos).nor();
 
-                        // repulsing by force shield
+
                         tmp0.set(n.scl(plsp.shield.forceValue * plsp.shield.getRadius()/tmp1.len2()));
 
-                        prj.applyForce(tmp0);
-                        plsp.applyForce(tmp0.scl(-1));
-                        n = null;
+                        // repulsing by force shield
+                        if (plsp.shield.power > tmp0.len()) {
+
+                            prj.applyForce(tmp0);
+                            plsp.applyForce(tmp0.scl(-1));
+                            n = null;
+                            // depleting power shield
+                            plsp.shield.power -= tmp0.len();
+                        }
 
                         // абсолютно неупругое столкновение
                         // affect impact on target ship
@@ -599,10 +619,11 @@ public class GameScreen extends BaseScreen {
 
         int cnt = 0;
         int nearCount;
+        boolean foundPlace = true;
 
         do {
 
-            float r = MathUtils.random(400, 500);
+            float r = MathUtils.random(300, 500);
             float fi = MathUtils.random(0.1f, 360f);
 
             float x = (float)(r * Math.cos(fi));
@@ -619,23 +640,29 @@ public class GameScreen extends BaseScreen {
             dummy.pos.set(tmp1);
             nearCount = getCloseObjects(dummy, 100).size();
 
-            if (cnt++ >= 100)
+            if (cnt++ >= 10) {
+                foundPlace = false;
                 break;
+            }
         }
         while (tmp2.len() < 500 || nearCount > 0);
 
 
 
+        if (foundPlace) {
 
-        EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50, null);
-        enemyShip.pos = tmp1.cpy();
-        //enemyShip.target = playerShip;  //add target
-        //enemyShip.gun.fireRate = 0.020f;
-        //enemyShip.gun.fireRate = 0.01f;
-        enemyShip.maxRotationSpeed *= 2f;
-        enemyShip.name = "enemyship";
+            enemyShipsToSpawn--;
 
-        addObject(enemyShip);
+            EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50, null);
+            enemyShip.pos = tmp1.cpy();
+            //enemyShip.target = playerShip;  //add target
+            //enemyShip.gun.fireRate = 0.020f;
+            //enemyShip.gun.fireRate = 0.01f;
+            enemyShip.maxRotationSpeed *= 2f;
+            enemyShip.name = "enemyship";
+
+            addObject(enemyShip);
+        }
     }
 
 
