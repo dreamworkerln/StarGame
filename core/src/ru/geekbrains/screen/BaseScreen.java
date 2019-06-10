@@ -29,9 +29,9 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     public Vector2 target;    // положение курсора в игровим мире
 
     protected Rect touchBounds;  // координаты экрана телефона, в том виде, как он их выплевывает onTouch
-    protected Rect worldBounds;  // мировые координаты
+    public Rect worldBounds;  // мировые координаты
     protected Rect clipBounds;   // clip space + screen space (костыли)
-    protected float aspect;
+    public float aspect;
 
     private Matrix4 worldToClip;
     private Matrix3 screenToWorld;
@@ -81,7 +81,10 @@ public abstract class BaseScreen implements Screen, InputProcessor {
         worldBounds.setHeight(1000f);
         worldBounds.setWidth(1000f);
 
+        // Read manual from here (use tor browser for a while)
+        //
         //https://learnopengl.com/Getting-started/Coordinate-Systems
+        //
 
         // OpenGL ((-1,-1), ( 1, 1)) clip space
         clipBounds.setHeight(2f);

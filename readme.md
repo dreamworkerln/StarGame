@@ -19,12 +19,9 @@ Most time bringing targets down but may miss on simultaneous incoming missiles f
 Green curve - you trajectory in planet gravity force.
 Blue curve - you shell trajectory in planet gravity force.
 
-Force shield can repulse several (~4) hit from shell. It slowly regenerating to full charge.
+Force shield can repulse several (~5) hit from shell. It's slowly regenerating to full charge.
 
 // -------------------------------------------------------------------------------------------------
-
-Objectives: survive till warp engine have been repaired(~5 min)
-
 
 
 Difficulty levels

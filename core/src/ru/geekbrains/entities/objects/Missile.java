@@ -38,8 +38,6 @@ public class Missile extends DrivenObject {
         health = maxHealth;
 
         aspectRatio = 1;
-        //engineTrail.radius *= 2;
-        //damageBurnTrail.radius *= 2;
 
 
 
@@ -137,14 +135,13 @@ public class Missile extends DrivenObject {
 
         // Система наведения пушек и ракет(самонаведение)
         // https://gamedev.stackexchange.com/questions/149327/projectile-aim-prediction-with-acceleration
+        // Здесь вместо начальной скорости используется вектор ускорения = const
 
 
         if (target== null || target.readyToDispose)
             return;
 
         af.ACC = maxThrottle / mass;  // Максимальное возможное ускорение объекта
-
-        //double[] root = new double[4];
 
 
 

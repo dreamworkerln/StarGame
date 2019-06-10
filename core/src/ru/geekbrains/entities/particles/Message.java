@@ -1,33 +1,32 @@
 package ru.geekbrains.entities.particles;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-
-import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.base.Font;
 
 public class Message extends ParticleObject {
 
+    private static Font font;
+
+    static {
+
+        font = new Font("font/font.fnt", "font/font2.png");
+        font.setSize(20f);
+    }
+
+
+
     public long TTL = 400; // time to live (in ticks)
 
-    BitmapFont font;
     long expired;
+
     String text;
 
-    public Message(float height, GameObject owner, String text) {
-        super(height, owner);
+    public Message(String text) {
+        super(1, null);
 
         this.expired = GameScreen.INSTANCE.getTick() + TTL;
         this.text = text;
-
-        font = new BitmapFont();
-        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        font.getData().setScale(height);
-
-
     }
 
 
@@ -49,12 +48,10 @@ public class Message extends ParticleObject {
 
 
         renderer.batch.begin();
-
-        font.setColor(Color.RED);
-        font.draw(renderer.batch, text, -400, 10);
+        font.draw(renderer.batch, text,
+                GameScreen.INSTANCE.worldBounds.getLeft() * GameScreen.INSTANCE.aspect + 5,
+                GameScreen.INSTANCE.worldBounds.getTop()-5);
         renderer.batch.end();
     }
-
-
 
 }

@@ -142,10 +142,10 @@ public class GameScreen extends BaseScreen {
         //playerShip.gun.fireRate = 0.025f;
         addObject(playerShip);
 
-        //Message msg = new Message(2f,null,"New objectives: survive till warp engine have been repaired.");
-        //particleObjects.add(msg);
+        Message msg = new Message("New objectives: survive till warp engine have been repaired.");
+        particleObjects.add(msg);
 
-
+//        Тесты для CIWS minigun
 
 //        Missile missile = new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, null);
 //        missile.pos.set(200,385);
@@ -154,7 +154,7 @@ public class GameScreen extends BaseScreen {
 //        missile.target = playerShip;
 //        addObject(missile);
 
-//
+
 //        Missile missile = new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, null);
 //        missile.pos.set(0,330);
 //        missile.vel.set(300,5);
@@ -197,7 +197,6 @@ public class GameScreen extends BaseScreen {
 
         // spawnEnemyShip
         if (getTick() % ENEMY_RESPAWN_TIME == 0) {
-
             enemyShipsToSpawn += ENEMIES_COUNT_IN_WAVE;
         }
 
@@ -445,8 +444,8 @@ public class GameScreen extends BaseScreen {
         //float G = 0f;
         float divider = tmp1s.len2();
         // avoid division by zero 
-        if (divider < 0.0001)
-            divider = 0.0001f;
+        if (divider < 0.0000001)
+            divider = 0.0000001f;
 
         tmp0s.set(tmp1s.setLength(G*planet.getMass() * obj.getMass()/divider));
         obj.applyForce(tmp0s);
@@ -473,7 +472,7 @@ public class GameScreen extends BaseScreen {
             y2 = tgt.pos.y + 2*tgt.getRadius();
 
 
-            // HAAACK
+            // HAAACK for shield
             if (tgt.type.contains(ObjectType.PLAYER_SHIP)) {
 
                 PlayerShip plsp = (PlayerShip) tgt;
@@ -482,6 +481,8 @@ public class GameScreen extends BaseScreen {
                 y1 = tgt.pos.y - 2*plsp.shield.getRadius();
                 y2 = tgt.pos.y + 2*plsp.shield.getRadius();
             }
+
+
 
 
             Point<GameObject>[] points = quadTree.searchIntersect(x1, y1, x2, y2);
@@ -501,7 +502,7 @@ public class GameScreen extends BaseScreen {
                 // FORCE SHIELD REPULSING
                 if (tgt.type.contains(ObjectType.PLAYER_SHIP) &&
                         (prj.type.contains(ObjectType.PROJECTILE)
-                         /*&&prj.type.contains(ObjectType.DRIVEN_OBJECT)*/) &&
+                         /*|| prj.type.contains(ObjectType.DRIVEN_OBJECT)*/) &&
                         prj.owner != tgt) {     // щит не влияет на свои снаряды
 
 
@@ -513,16 +514,32 @@ public class GameScreen extends BaseScreen {
                         n.set(prj.pos).sub(tgt.pos).nor();
 
 
-                        tmp0.set(n.scl(plsp.shield.forceValue * plsp.shield.getRadius()/tmp1.len2()));
+                        // Силовое поле щита имеет потенциал Const/r,
+                        // Соответственно сила поля, действующая на prj равна -n*prj.mass*Const*/r^2
+                        // Как гравитационное поле, но со знаком "-"
+                        tmp0.set(n.scl(prj.getMass()*plsp.shield.forceValue * plsp.shield.getRadius()/tmp1.len2()));
+                        n = null;
 
+                        // dA = m*E.dx // dx - ?
+
+                        // dx = (x0=0) + (V0*t=0) + (a*t^2)/2
+
+                        // a = tmp0/m = E
+
+                        tmp3.set(tmp0).scl(1/prj.getMass());  // = E  напряженность поля щита
+
+                        // dA = m * (tmp3)^2 * t^2/2; // работа щита на перемещение prj за dt
+
+                        float dA =  (float)(tmp3.len2() * prj.getMass() * dt*dt*0.5);
+
+                        // Если поле может совершить эту работу (хватает запасенной энергии)
                         // repulsing by force shield
-                        if (plsp.shield.power > tmp0.len()) {
+                        if (plsp.shield.power > dA) {
 
                             prj.applyForce(tmp0);
                             plsp.applyForce(tmp0.scl(-1));
-                            n = null;
                             // depleting power shield
-                            plsp.shield.power -= tmp0.len();
+                            plsp.shield.power -= dA;
                         }
 
                         // абсолютно неупругое столкновение
@@ -571,10 +588,6 @@ public class GameScreen extends BaseScreen {
                         tgt.readyToDispose = true;
                         prj.readyToDispose = true;
                     }
-
-                    // CHEATING
-                    //if (tgt instanceof PlayerShip) tgt.readyToDispose = false;
-                    //if (prj instanceof PlayerShip) prj.readyToDispose = false;
                 }
             }
         }
@@ -631,10 +644,7 @@ public class GameScreen extends BaseScreen {
 
 
             tmp1.set(x,y);
-
-            //tmp1.set(MathUtils.random(-500, 500), MathUtils.random(-500, 500));
             tmp2.set(tmp1).sub(tmp0);
-            // /tmp3.set(tmp1).sub(planet.pos);
 
             dummy = new DummyObject(10,null);
             dummy.pos.set(tmp1);
@@ -655,9 +665,6 @@ public class GameScreen extends BaseScreen {
 
             EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50, null);
             enemyShip.pos = tmp1.cpy();
-            //enemyShip.target = playerShip;  //add target
-            //enemyShip.gun.fireRate = 0.020f;
-            //enemyShip.gun.fireRate = 0.01f;
             enemyShip.maxRotationSpeed *= 2f;
             enemyShip.name = "enemyship";
 
@@ -696,6 +703,7 @@ public class GameScreen extends BaseScreen {
                             ship.target = tmp;
                         }
 
+                        // Switch target to player ship only
                         if (!playerShip.readyToDispose) {
                             ship.target = playerShip;
                         }
@@ -835,11 +843,11 @@ public class GameScreen extends BaseScreen {
 
 
 
-            Message msg = new Message(2f,null,"Objectives completed. Leaving area.");
+            Message msg = new Message("Objectives completed. Leaving area.");
             particleObjects.add(msg);
             music = null;
 
-
+            // haaaack - make player ship invincible while warp jumping
             gameObjects.remove(playerShip);
             hittableObjects.remove(playerShip);
 
@@ -850,11 +858,14 @@ public class GameScreen extends BaseScreen {
 
             win = true;
         }
+
+        // override manual throttle level
         if (win) {
             playerShip.maxThrottle = 500;
             playerShip.throttle = playerShip.maxThrottle;
         }
 
+        // removing player ship
         if (!playerShip.readyToDispose &&
                 playerShip.pos.len() > 2000) {
             
@@ -871,9 +882,6 @@ public class GameScreen extends BaseScreen {
 
 
 
-
-
-
     // ---------------------------------------------------------------------------------------------
 
 
@@ -884,6 +892,7 @@ public class GameScreen extends BaseScreen {
 
 
     public static List<GameObject> getCloseObjects(GameObject target, float radius) {
+
 
         List<GameObject> result = new ArrayList<>();
 
@@ -896,11 +905,12 @@ public class GameScreen extends BaseScreen {
         y2 = target.pos.y + radius;
 
 
+        // https://github.com/varunpant/Quadtree
+        // Примеры как использовать - там же в tests
+
         Point<GameObject>[] points = INSTANCE.quadTree.searchIntersect(x1, y1, x2, y2);
-        //Arrays.sort(points);
 
         //remove invalid
-
         for (Point<GameObject> p : points) {
 
             if (!p.getValue().readyToDispose){
