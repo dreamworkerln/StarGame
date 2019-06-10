@@ -106,6 +106,8 @@ public class GameScreen extends BaseScreen {
     private boolean win = false;
 
     private Music music;
+    private Sound expl01;
+    private Sound expl02;
 
 
     private int ENEMY_RESPAWN_TIME;
@@ -167,6 +169,13 @@ public class GameScreen extends BaseScreen {
         music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
         music.setVolume(1f);
         music.play();
+
+
+        expl01 = Gdx.audio.newSound(Gdx.files.internal("expl01.mp3"));
+
+
+        expl02 = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
+        expl02.setVolume(expl02.play(),0.2f);
 
 
         // DIFFICULTY LEVEL ------------------------------------------------------------------------
@@ -817,16 +826,14 @@ public class GameScreen extends BaseScreen {
 
     private void playExplosionSound(GameObject obj) {
 
-//        if (obj.type.contains(ObjectType.SHIP)) {
-//
-//            Sound sound = Gdx.audio.newSound(Gdx.files.internal("expl01.mp3"));
-//            sound.setVolume(sound.play(),0.8f);
-//        }
-//        else if (obj.type.contains(ObjectType.MISSILE)) {
-//
-//            Sound sound = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
-//            sound.setVolume(sound.play(),0.2f);
-//        }
+        if (obj.type.contains(ObjectType.SHIP)) {
+
+            expl01.play(1f);
+        }
+        else if (obj.type.contains(ObjectType.MISSILE)) {
+
+            expl02.play(0.3f);
+        }
 
     }
 

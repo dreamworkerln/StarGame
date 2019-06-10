@@ -36,8 +36,6 @@ ru.geekbrains.screen.GameScreen.show() {
 ...
 }
 
-Sound effects are disabled due to libgdx  random stattering (~20 ms) when playing sound.
-
 Code need refactoring, etc., but better if it was written in C ++ to avoid using buffer objects for Vector2,
 GC related things, so i give up on it.
 
