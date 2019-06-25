@@ -185,17 +185,17 @@ public class GameScreen extends BaseScreen {
         ENEMY_RESPAWN_TIME = 1000;
         ENEMIES_COUNT_IN_WAVE = 3;
 
-        // EXPERIENCED
-        ENEMY_RESPAWN_TIME = 700;
-        ENEMIES_COUNT_IN_WAVE = 2;
-
-        // NOVICE
-        ENEMY_RESPAWN_TIME = 500;
-        ENEMIES_COUNT_IN_WAVE = 1;
-
-        // NEVER PLAYED
-        ENEMY_RESPAWN_TIME = 1000;
-        ENEMIES_COUNT_IN_WAVE = 1;
+//        // EXPERIENCED
+//        ENEMY_RESPAWN_TIME = 700;
+//        ENEMIES_COUNT_IN_WAVE = 2;
+//
+//        // NOVICE
+//        ENEMY_RESPAWN_TIME = 500;
+//        ENEMIES_COUNT_IN_WAVE = 1;
+//
+//        // NEVER PLAYED
+//        ENEMY_RESPAWN_TIME = 1000;
+//        ENEMIES_COUNT_IN_WAVE = 1;
 
         // -----------------------------------------------------------------------------------------
     }
@@ -385,7 +385,7 @@ public class GameScreen extends BaseScreen {
 
         // reticle
         reticle.draw(renderer.batch);
-        
+
         // particleObjects
         for (GameObject obj : particleObjects) {
             obj.draw(renderer);
@@ -503,7 +503,7 @@ public class GameScreen extends BaseScreen {
                 GameObject prj = points[i].getValue(); // projectile
 
                 if (prj.readyToDispose ||
-                    tgt == prj)
+                        tgt == prj)
                     continue;
 
                 tmp1.set(prj.pos).sub(tgt.pos); // vector from target to projectile
@@ -511,7 +511,7 @@ public class GameScreen extends BaseScreen {
                 // FORCE SHIELD REPULSING
                 if (tgt.type.contains(ObjectType.PLAYER_SHIP) &&
                         (prj.type.contains(ObjectType.PROJECTILE)
-                         /*|| prj.type.contains(ObjectType.DRIVEN_OBJECT)*/) &&
+                                /*|| prj.type.contains(ObjectType.DRIVEN_OBJECT)*/) &&
                         prj.owner != tgt) {     // щит не влияет на свои снаряды
 
 
@@ -705,9 +705,9 @@ public class GameScreen extends BaseScreen {
 
 
                         if (!tmp.readyToDispose &&
-                             tmp != planet &&
-                             tmp != ship && // self
-                             tmp.type.contains(ObjectType.SHIP)) {
+                                tmp != planet &&
+                                tmp != ship && // self
+                                tmp.type.contains(ObjectType.SHIP)) {
 
                             ship.target = tmp;
                         }
@@ -875,7 +875,7 @@ public class GameScreen extends BaseScreen {
         // removing player ship
         if (!playerShip.readyToDispose &&
                 playerShip.pos.len() > 2000) {
-            
+
             playerShip.readyToDispose = true;
         }
 
@@ -926,6 +926,7 @@ public class GameScreen extends BaseScreen {
         }
 
 
+        System.out.println("Before result.sort");
         result.sort((p1, p2) -> {
 
             tmp0s.set(p1.pos).sub(target.pos);
@@ -934,6 +935,9 @@ public class GameScreen extends BaseScreen {
             return Float.compare(tmp0s.len(), tmp1s.len());
 
         });
+
+        System.out.println("Sorted.");
+
 
 
         return result;
