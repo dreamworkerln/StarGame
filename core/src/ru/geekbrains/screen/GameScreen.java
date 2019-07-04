@@ -926,7 +926,7 @@ public class GameScreen extends BaseScreen {
         }
 
 
-        System.out.println("Before result.sort");
+        //System.out.println("Before result.sort");
         result.sort((p1, p2) -> {
 
             tmp0s.set(p1.pos).sub(target.pos);
@@ -936,7 +936,7 @@ public class GameScreen extends BaseScreen {
 
         });
 
-        System.out.println("Sorted.");
+        //System.out.println("Sorted.");
 
 
 

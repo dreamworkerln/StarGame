@@ -236,6 +236,7 @@ public class Gun extends ParticleObject {
         tmp0.set(pos).add(guideVector);
 
         shape.set(ShapeRenderer.ShapeType.Line);
+        // reticle
 //        shape.setColor(0f, 1f, 0f, 1);
 //        shape.circle(tmp0.x, tmp0.y, 3);
         shape.setColor(1f, 0f, 0f, 0.5f);
