@@ -185,17 +185,17 @@ public class GameScreen extends BaseScreen {
         ENEMY_RESPAWN_TIME = 1000;
         ENEMIES_COUNT_IN_WAVE = 3;
 
-//        // EXPERIENCED
-//        ENEMY_RESPAWN_TIME = 700;
-//        ENEMIES_COUNT_IN_WAVE = 2;
-//
-//        // NOVICE
-//        ENEMY_RESPAWN_TIME = 500;
-//        ENEMIES_COUNT_IN_WAVE = 1;
-//
-//        // NEVER PLAYED
-//        ENEMY_RESPAWN_TIME = 1000;
-//        ENEMIES_COUNT_IN_WAVE = 1;
+        // EXPERIENCED
+        ENEMY_RESPAWN_TIME = 700;
+        ENEMIES_COUNT_IN_WAVE = 2;
+
+        // NOVICE
+        ENEMY_RESPAWN_TIME = 500;
+        ENEMIES_COUNT_IN_WAVE = 1;
+
+        // NEVER PLAYED
+        ENEMY_RESPAWN_TIME = 1000;
+        ENEMIES_COUNT_IN_WAVE = 1;
 
         // -----------------------------------------------------------------------------------------
     }
