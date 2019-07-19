@@ -944,9 +944,9 @@ public class GameScreen extends BaseScreen {
     private void getDifficultyLevel() {
         int rank = 1;
         try {
-            FileHandle file = Gdx.files.absolute("./config.ini");
+            FileHandle file = Gdx.files.absolute("config.ini");
             String rankString = file.readString();
-            rank = Integer.parseInt(rankString);
+            rank = Integer.parseInt(rankString.trim());
         }
         catch (Exception ignore){}
 
