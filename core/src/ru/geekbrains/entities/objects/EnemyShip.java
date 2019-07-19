@@ -261,6 +261,13 @@ public class EnemyShip extends Ship {
         for (int i = 0; i< 100; i++) {
             try {
 
+                // Корней нет - функция не пересекает ось Ox
+                if (gf.value(0) > 0 && gf.value(dt * i*10) > 0 ||
+                        gf.value(0) < 0 && gf.value(dt * i*10) < 0) {
+
+                    continue;
+                }
+
                 double t = nonBracketing.solve(100, gf,  0, dt * i*10);
 
                 if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {

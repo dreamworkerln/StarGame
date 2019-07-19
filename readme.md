@@ -1,4 +1,10 @@
-A D - rotate ship 
+run
+cd StarGame/desktop/build/libs/
+java -jar desktop-1.0.jar
+
+
+
+A D - rotate ship
 W S - throttle level controls
 Space - push-to-max throttle (better use this)
 
@@ -26,17 +32,16 @@ Force shield can repulse several (~5) hit from shell. It's slowly regenerating t
 
 Difficulty levels
 
-Choose one that fit you skill in
+Set one that fit you skill in StarGame/desktop/build/libs/config.ini
 
-ru.geekbrains.screen.GameScreen.show() {
-...
-        // NOVICE
-        ENEMY_RESPAWN_TIME = 500;
-        ENEMIES_COUNT_IN_WAVE = 1;
-...
-}
+1 - NEVER PLAYED
+2 - NOVICE
+3 - EXPERIENCED
+4 - SPECIALIST
+5 - IMPERIAL NAVY LIEUTENANT
+6 - IMPERIAL NAVY LORD-CAPITAN
 
-Code need refactoring, etc., but better if it was written in C ++ to avoid using buffer objects for Vector2,
+Code need refactoring, etc., but better if it was written in C++ to avoid using buffer objects for Vector2,
 GC related things, so i give up on it.
 
 

@@ -173,6 +173,13 @@ public class Missile extends DrivenObject {
         for (int i = 0; i< 100; i++) {
             try {
 
+                // Корней нет - функция не пересекает ось Ox
+                if (af.value(0) > 0 && af.value(dt * i*10) > 0 ||
+                        af.value(0) < 0 && af.value(dt * i*10) < 0) {
+
+                    continue;
+                }
+
                 // Для ракет сделаем погрешность в вычислениях побольше
                 double t = nonBracketing.solve(100, af,  0, dt * i*10);
 

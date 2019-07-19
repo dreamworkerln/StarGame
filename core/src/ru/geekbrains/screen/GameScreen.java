@@ -3,6 +3,7 @@ package ru.geekbrains.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -179,26 +180,13 @@ public class GameScreen extends BaseScreen {
 
 
         // DIFFICULTY LEVEL ------------------------------------------------------------------------
+        getDifficultyLevel();
 
-
-        // SPECIALIST
-        ENEMY_RESPAWN_TIME = 1000;
-        ENEMIES_COUNT_IN_WAVE = 3;
-
-        // EXPERIENCED
-        ENEMY_RESPAWN_TIME = 700;
-        ENEMIES_COUNT_IN_WAVE = 2;
-
-        // NOVICE
-        ENEMY_RESPAWN_TIME = 500;
-        ENEMIES_COUNT_IN_WAVE = 1;
-
-        // NEVER PLAYED
-        ENEMY_RESPAWN_TIME = 1000;
-        ENEMIES_COUNT_IN_WAVE = 1;
 
         // -----------------------------------------------------------------------------------------
     }
+
+
 
 
     private void update(float dt) {
@@ -949,6 +937,69 @@ public class GameScreen extends BaseScreen {
     public static Renderer getRenderer() {
 
         return INSTANCE.renderer;
+    }
+
+
+
+    private void getDifficultyLevel() {
+        int rank = 1;
+        try {
+            FileHandle file = Gdx.files.absolute("./config.ini");
+            String rankString = file.readString();
+            rank = Integer.parseInt(rankString);
+        }
+        catch (Exception ignore){}
+
+        switch (rank){
+
+            default:
+            case 1:
+
+                // NEVER PLAYED
+                ENEMY_RESPAWN_TIME = 1000;
+                ENEMIES_COUNT_IN_WAVE = 1;
+
+                break;
+
+            case 2:
+
+                // NOVICE
+                ENEMY_RESPAWN_TIME = 500;
+                ENEMIES_COUNT_IN_WAVE = 1;
+
+                break;
+
+            case 3:
+
+                // EXPERIENCED
+                ENEMY_RESPAWN_TIME = 700;
+                ENEMIES_COUNT_IN_WAVE = 2;
+                break;
+
+            case 4:
+
+                // SPECIALIST
+                ENEMY_RESPAWN_TIME = 1000;
+                ENEMIES_COUNT_IN_WAVE = 3;
+                break;
+
+            case 5:
+
+                // IMPERIAL NAVY LIEUTENANT
+                ENEMY_RESPAWN_TIME = 1100;
+                ENEMIES_COUNT_IN_WAVE = 4;
+
+                break;
+
+            case 6:
+                // IMPERIAL NAVY LORD-CAPITAN
+                ENEMY_RESPAWN_TIME = 1200;
+                ENEMIES_COUNT_IN_WAVE = 5;
+
+
+                break;
+
+        }
     }
 
 
