@@ -22,10 +22,12 @@ Missile kill ship in one hit.
 Minigun is auto-firing at close target (act as close-in weapon system (point-defence))  
 Most time bringing targets down but may miss on simultaneous incoming missiles from different directions).
 
+Anti-missile system also help agains inbound missiles on long range.  
+
 Green curve - you trajectory in planet gravity force.  
 Blue curve - you shell trajectory in planet gravity force.
 
-Force shield can repulse several (~5) hit from shell. It's slowly regenerating to full charge.
+Force shield can repulse several (~5) hit by shell. It's slowly regenerating to full charge.
 
 // -------------------------------------------------------------------------------------------------
 
