@@ -51,11 +51,17 @@ public class MissileLauncher extends Gun {
     public void update(float dt) {
         super.update(dt);
 
-        if (start > 0 && GameScreen.INSTANCE.getTick() - start > TTL) {
+        // костыли
+        if (this.getClass() ==  MissileLauncher.class) {
 
-            repeatFire();
-            start = -1;
+
+            if (start > 0 && GameScreen.INSTANCE.getTick() - start > TTL) {
+
+                repeatFire();
+                start = -1;
+            }
         }
+
     }
 
 
@@ -110,7 +116,7 @@ public class MissileLauncher extends Gun {
     }
 
 
-    private void repeatFire() {
+    protected void repeatFire() {
 
 
         Missile missile =
@@ -142,8 +148,6 @@ public class MissileLauncher extends Gun {
 
         // invert launch side ---------------------------------------------
         sideLaunch = -sideLaunch;
-
-
     }
 
 
@@ -155,30 +159,33 @@ public class MissileLauncher extends Gun {
 
         //super.draw(renderer);
 
+        // костыли
+        if (this.getClass() ==  MissileLauncher.class) {
 
 
-        if (target!= null && !target.readyToDispose) {
+            if (target != null && !target.readyToDispose) {
 
-            ShapeRenderer shape = renderer.shape;
+                ShapeRenderer shape = renderer.shape;
 
-            Gdx.gl.glLineWidth(1);
-            Gdx.gl.glEnable(GL20.GL_BLEND);
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-            shape.begin();
-            shape.set(ShapeRenderer.ShapeType.Line);
+                Gdx.gl.glLineWidth(1);
+                Gdx.gl.glEnable(GL20.GL_BLEND);
+                Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+                shape.begin();
+                shape.set(ShapeRenderer.ShapeType.Line);
 
-            shape.setColor(0.5f, 0.9f, 0.9f, 0.5f);
-            shape.circle(target.pos.x, target.pos.y, target.getRadius() * 2);
+                shape.setColor(0.5f, 0.9f, 0.9f, 0.5f);
+                shape.circle(target.pos.x, target.pos.y, target.getRadius() * 2);
 
-            tmp0.set(target.pos).sub(target.getRadius() * 2, 0);
-            tmp1.set(tmp0).set(target.pos).add(target.getRadius()*2, 0);
-            shape.line(tmp0, tmp1);
+                tmp0.set(target.pos).sub(target.getRadius() * 2, 0);
+                tmp1.set(tmp0).set(target.pos).add(target.getRadius() * 2, 0);
+                shape.line(tmp0, tmp1);
 
-            tmp0.set(target.pos).sub(0, target.getRadius() * 2);
-            tmp1.set(tmp0).set(target.pos).add(0, target.getRadius()*2);
-            shape.line(tmp0, tmp1);
+                tmp0.set(target.pos).sub(0, target.getRadius() * 2);
+                tmp1.set(tmp0).set(target.pos).add(0, target.getRadius() * 2);
+                shape.line(tmp0, tmp1);
 
-            shape.end();
+                shape.end();
+            }
         }
 
     }

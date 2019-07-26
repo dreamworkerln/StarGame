@@ -558,11 +558,20 @@ public class GameScreen extends BaseScreen {
                     }
                     // damaging DrivenObject by projectile
                     else if (tgt.type.contains(ObjectType.DRIVEN_OBJECT) &&
-                            prj.type.contains(ObjectType.PROJECTILE)) {
+                            (prj.type.contains(ObjectType.PROJECTILE) || prj.type.contains(ObjectType.ANTIMISSILE))) {
 
                         DrivenObject drObj = (DrivenObject) tgt;
 
+
+                        if (tgt.type.contains(ObjectType.PLAYER_SHIP)) {
+                            System.out.println("Player hitted by: " + prj.type);
+                        }
+
                         if (prj.type.contains(ObjectType.SHELL)) {
+                            drObj.health--;
+                        }
+
+                        if (prj.type.contains(ObjectType.ANTIMISSILE)) {
                             drObj.health--;
                         }
 
@@ -580,6 +589,14 @@ public class GameScreen extends BaseScreen {
                     }
 
                     else {
+
+                        if (tgt.type.contains(ObjectType.PLAYER_SHIP)) {
+                            System.out.println("Player killed by: " + prj.type);
+                        }
+
+                        if (prj.type.contains(ObjectType.PLAYER_SHIP)) {
+                            System.out.println("Player killed by: " + tgt.type);
+                        }
 
                         // destroy both
                         tgt.readyToDispose = true;
@@ -748,7 +765,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.left;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.2f);
+            obj.vel.scl(0.4f);
             obj.pos.x = 2 * leftBound + 2*obj.getRadius() - obj.pos.x;
         }
 
@@ -765,7 +782,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.right;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.2f);
+            obj.vel.scl(0.4f);
             obj.pos.x = 2 * rightBound - 2*obj.getRadius() - obj.pos.x;
         }
 
@@ -782,7 +799,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.down;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.2f);
+            obj.vel.scl(0.4f);
             obj.pos.y = 2 * downBound + 2*obj.getRadius() - obj.pos.y;
 
         }
@@ -800,7 +817,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.up;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.2f);
+            obj.vel.scl(0.4f);
             obj.pos.y = 2 * upBound - 2 *obj.getRadius() - obj.pos.y;
         }
 
@@ -818,7 +835,8 @@ public class GameScreen extends BaseScreen {
 
             expl01.play(1f);
         }
-        else if (obj.type.contains(ObjectType.MISSILE)) {
+        else if (obj.type.contains(ObjectType.MISSILE) &&
+                !obj.type.contains(ObjectType.ANTIMISSILE)) {
 
             expl02.play(0.3f);
         }
@@ -993,7 +1011,7 @@ public class GameScreen extends BaseScreen {
 
             case 6:
                 // IMPERIAL NAVY LORD-CAPITAN
-                ENEMY_RESPAWN_TIME = 1200;
+                ENEMY_RESPAWN_TIME = 1300;
                 ENEMIES_COUNT_IN_WAVE = 5;
 
 
@@ -1001,12 +1019,6 @@ public class GameScreen extends BaseScreen {
 
         }
     }
-
-
-
-
-
-
 
 }
 

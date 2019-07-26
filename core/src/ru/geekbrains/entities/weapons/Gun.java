@@ -105,6 +105,7 @@ public class Gun extends ParticleObject {
         if (firing && !overHeated && lastFired < tick - 1/fireRate) {
 
             lastFired = GameScreen.INSTANCE.getTick();
+            gunHeat+= gunHeatingDelta;
             fire();
         }
 
@@ -156,9 +157,6 @@ public class Gun extends ParticleObject {
 
 
     protected void fire() {
-
-        gunHeat+= gunHeatingDelta;
-
 
         Projectile proj = createProjectile();
 

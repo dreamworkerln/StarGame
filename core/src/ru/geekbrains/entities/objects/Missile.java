@@ -1,20 +1,21 @@
 package ru.geekbrains.entities.objects;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.solvers.BrentSolver;
 import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 
-import java.util.Arrays;
-
 public class Missile extends DrivenObject {
 
 
     AimFunction af;
-    UnivariateSolver nonBracketing;
+    protected boolean selfdOnTargetDestroyed;
+    protected boolean selfdOnNoFuel;
+    protected boolean selfdOnMiss;
+    protected UnivariateSolver nonBracketing;
+
+    protected float minDistance = Float.MAX_VALUE;
 
 
     public Missile(TextureRegion textureRegion, float height, GameObject owner) {
@@ -36,6 +37,9 @@ public class Missile extends DrivenObject {
 
         maxHealth = 0.1f;
         health = maxHealth;
+
+        selfdOnTargetDestroyed = true;
+        selfdOnNoFuel = false;
 
         aspectRatio = 1;
 
@@ -70,10 +74,34 @@ public class Missile extends DrivenObject {
             target = null;
         }
 
+        // self-d on target destroyed
         if (target == null) {
 
-            // self-d
-            this.readyToDispose = true;
+            if (selfdOnTargetDestroyed) {
+                this.readyToDispose = true;
+            }
+        }
+
+        // self-d on no fuel
+        if (fuel <= 0) {
+
+            if (selfdOnNoFuel) {
+                this.readyToDispose = true;
+            }
+        }
+
+
+        // Self-d on miss target
+        if (target != null && selfdOnMiss) {
+            float dist = tmp0.set(target.pos).sub(pos).len();
+
+            if (dist < minDistance) {
+                minDistance = dist;
+            }
+
+            if (dist - target.getRadius() * 30 > minDistance) {
+                this.readyToDispose = true;
+            }
         }
 
 
@@ -85,7 +113,7 @@ public class Missile extends DrivenObject {
         // Самонаведение не сгидродоминировало
         if (target != null && guideVector.isZero()) {
 
-            //guideVector.set(target.pos).sub(pos).nor();
+            guideVector.set(target.pos).sub(pos).nor();
         }
 
 
