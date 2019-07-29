@@ -16,6 +16,10 @@ public abstract class Ship extends DrivenObject {
         this.type.add(ObjectType.SHIP);
 
         gun = new Gun(radius * 0.3f, this);
+
+        setMaxHealth(3f);
+        
+        damage = 4f;
     }
 
     @Override

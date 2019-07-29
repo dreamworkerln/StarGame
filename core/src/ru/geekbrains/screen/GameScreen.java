@@ -16,7 +16,6 @@ import com.github.varunpant.quadtree.QuadTree;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -26,7 +25,6 @@ import java.util.Set;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.EnemyShip;
-import ru.geekbrains.entities.objects.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.particles.Explosion;
 import ru.geekbrains.entities.objects.GameObject;
@@ -207,6 +205,7 @@ public class GameScreen extends BaseScreen {
         // spawn new objects
         // -----------------------------------------------------------------------------------------
 
+        // ToDo: check
         for (GameObject obj: spawningObjects) {
 
             //  addFirst, if addLast then shells will kill self gunner ship
@@ -214,13 +213,13 @@ public class GameScreen extends BaseScreen {
             gameObjects.addFirst(obj);
 
 
-            if (obj.type.contains(ObjectType.DRIVEN_OBJECT) ||
-                    obj.type.contains(ObjectType.FORCE_SHIELD)) {
-                hittableObjects.add(obj);
-            }
+//            if (obj.type.contains(ObjectType.DRIVEN_OBJECT) ||
+//                    obj.type.contains(ObjectType.FORCE_SHIELD)) { // haack for forceshield
+//                hittableObjects.add(obj);
+//            }
         }
         spawningObjects.clear();
-        hittableObjects.sort((o1, o2) -> -Float.compare(o1.getRadius(), o2.getRadius()));
+//        hittableObjects.sort((o1, o2) -> -Float.compare(o1.getRadius(), o2.getRadius()));
 
 
         // -----------------------------------------------------------------------------------------
@@ -248,6 +247,10 @@ public class GameScreen extends BaseScreen {
                 hittableObjects.add(obj);
             }
         }
+
+        // ToDo: check
+        // sort that bigger objects goes first
+        hittableObjects.sort((o1, o2) -> -Float.compare(o1.getRadius(), o2.getRadius()));
 
         // -----------------------------------------------------------------------------------------
         // update targets for enemy ships
@@ -488,8 +491,9 @@ public class GameScreen extends BaseScreen {
 
             for(int i = 0; i < points.length; i++) {
 
-                GameObject prj = points[i].getValue(); // projectile
+                GameObject prj = points[i].getValue(); // projectile (may be DRIVEN_OBJECT)
 
+                // уничтоженный объект не взаимодействует с другими, сам с собой тоже (в матрице по диагонали нули)
                 if (prj.readyToDispose ||
                         tgt == prj)
                     continue;
@@ -533,8 +537,12 @@ public class GameScreen extends BaseScreen {
                         // repulsing by force shield
                         if (plsp.shield.power > dA) {
 
+
+                            // отражаем снаряд
                             prj.applyForce(tmp0);
+                            // 3 закон Ньютона - отражаем корабль
                             plsp.applyForce(tmp0.scl(-1));
+
                             // depleting power shield
                             plsp.shield.power -= dA;
                         }
@@ -553,55 +561,75 @@ public class GameScreen extends BaseScreen {
                     if (tgt == planet) {
                         // stop projectile - fallen on planet
                         prj.vel.setZero();
-                        // destroy projectile
+                        // destroy projectile (or driven object)
                         prj.readyToDispose = true;
                     }
-                    // damaging DrivenObject by projectile
+                    else {
+
+                        // logging
+                        if (tgt.getClass() == PlayerShip.class) {
+                            System.out.println("Player hitted by: " + prj.getClass().getSimpleName());
+                        }
+                        if (prj.getClass() == PlayerShip.class) {
+                            System.out.println("Player hitted by: " + tgt.getClass().getSimpleName());
+                        }
+
+
+                        // повреждаем цель
+                        tgt.doDamage(prj.damage);
+                        // повреждаем снаряд
+                        prj.doDamage(tgt.damage);
+                    }
+
+
+
+//                    // damaging DrivenObject by projectile
+//                    else if (tgt.type.contains(ObjectType.DRIVEN_OBJECT) &&
+//                            (prj.type.contains(ObjectType.PROJECTILE) || prj.type.contains(ObjectType.ANTIMISSILE))) {
+//
+//                        DrivenObject drObj = (DrivenObject) tgt;
+//
+//
+//                        if (tgt.type.contains(ObjectType.PLAYER_SHIP)) {
+//                            System.out.println("Player hitted by: " + prj.getClass().getSimpleName());
+//                        }
+//
+//                        if (prj.type.contains(ObjectType.SHELL)) {
+//                            drObj.health--;
+//                        }
+//
+//                        if (prj.type.contains(ObjectType.ANTIMISSILE)) {
+//                            drObj.health--;
+//                        }
+//
+//                        if (prj.type.contains(ObjectType.BULLET)) {
+//                            drObj.health -= 0.05;
+//                        }
+//
+//                        // affect impact on target ship
+//                        tmp2.set(prj.vel).scl(prj.getMass() / dt);
+//                        drObj.applyForce(tmp2);
+//
+//                        prj.vel.setZero();
+//                        prj.readyToDispose = true;
+//
+//                    }
+/*                    // handle DRIVEN_OBJECT collision
                     else if (tgt.type.contains(ObjectType.DRIVEN_OBJECT) &&
                             (prj.type.contains(ObjectType.PROJECTILE) || prj.type.contains(ObjectType.ANTIMISSILE))) {
 
-                        DrivenObject drObj = (DrivenObject) tgt;
-
-
                         if (tgt.type.contains(ObjectType.PLAYER_SHIP)) {
-                            System.out.println("Player hitted by: " + prj.type);
-                        }
-
-                        if (prj.type.contains(ObjectType.SHELL)) {
-                            drObj.health--;
-                        }
-
-                        if (prj.type.contains(ObjectType.ANTIMISSILE)) {
-                            drObj.health--;
-                        }
-
-                        if (prj.type.contains(ObjectType.BULLET)) {
-                            drObj.health -= 0.05;
-                        }
-
-                        // affect impact on target ship
-                        tmp2.set(prj.vel).scl(prj.getMass() / dt);
-                        drObj.applyForce(tmp2);
-
-                        prj.vel.setZero();
-                        prj.readyToDispose = true;
-
-                    }
-
-                    else {
-
-                        if (tgt.type.contains(ObjectType.PLAYER_SHIP)) {
-                            System.out.println("Player killed by: " + prj.type);
+                            System.out.println("Player killed by: " + prj.getClass().getSimpleName());
                         }
 
                         if (prj.type.contains(ObjectType.PLAYER_SHIP)) {
-                            System.out.println("Player killed by: " + tgt.type);
+                            System.out.println("Player killed by: " + tgt.getClass().getSimpleName());
                         }
 
                         // destroy both
                         tgt.readyToDispose = true;
                         prj.readyToDispose = true;
-                    }
+                    }*/
                 }
             }
         }
@@ -1004,14 +1032,14 @@ public class GameScreen extends BaseScreen {
             case 5:
 
                 // IMPERIAL NAVY LIEUTENANT
-                ENEMY_RESPAWN_TIME = 1100;
+                ENEMY_RESPAWN_TIME = 1200;
                 ENEMIES_COUNT_IN_WAVE = 4;
 
                 break;
 
             case 6:
                 // IMPERIAL NAVY LORD-CAPITAN
-                ENEMY_RESPAWN_TIME = 1300;
+                ENEMY_RESPAWN_TIME = 1500;
                 ENEMIES_COUNT_IN_WAVE = 5;
 
 

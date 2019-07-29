@@ -1,10 +1,14 @@
-package ru.geekbrains.entities.objects;
+package ru.geekbrains.entities.projectile;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.solvers.BrentSolver;
 import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
+
+import ru.geekbrains.entities.objects.DrivenObject;
+import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectType;
 
 public class Missile extends DrivenObject {
 
@@ -33,10 +37,8 @@ public class Missile extends DrivenObject {
         maxThrottle = 10f;
         throttle = maxThrottle;
 
-
-
-        maxHealth = 0.1f;
-        health = maxHealth;
+        setMaxHealth(0.1f);
+        damage = 4f;
 
         selfdOnTargetDestroyed = true;
         selfdOnNoFuel = false;

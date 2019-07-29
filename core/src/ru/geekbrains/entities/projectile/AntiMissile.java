@@ -1,6 +1,9 @@
-package ru.geekbrains.entities.objects;
+package ru.geekbrains.entities.projectile;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectType;
 
 public class AntiMissile extends Missile {
 
@@ -14,8 +17,10 @@ public class AntiMissile extends Missile {
 
         maxThrottle = 5f;
         throttle = maxThrottle;
-        maxHealth = 0.04f;
-        health = maxHealth;
+
+        setMaxHealth(0.9f);
+        damage = 1f;
+
 
         selfdOnTargetDestroyed = true;
         selfdOnNoFuel = true;

@@ -50,6 +50,11 @@ public abstract class GameObject implements Disposable {
     protected Vector2 tmp3 = new Vector2();           // buffer
     protected Vector2 tmp4 = new Vector2();           // buffer
 
+    protected float health;                       // текущий запас прочности корпуса(health)
+    protected float maxHealth = 0;               // максимальный запас прочности корпуса(health)
+
+    public float damage = 0;
+
 
 
 
@@ -64,7 +69,6 @@ public abstract class GameObject implements Disposable {
 
         this.radius = height / 2f;
         this.owner = owner;
-
         sprite = new Sprite(textureRegion);
         sprite.setFilter();
         sprite.setHeightAndResize(2*radius);
@@ -109,6 +113,11 @@ public abstract class GameObject implements Disposable {
         // auto removing destroyed targets
         if (owner == null ||  owner.readyToDispose) {
             owner = null;
+        }
+
+        // exploding if no health
+        if (health < 0 ) {
+            readyToDispose = true;
         }
 
 
@@ -234,6 +243,31 @@ public abstract class GameObject implements Disposable {
 //        explosion = new Explosion(pos, radius * 3);
 //        deathCounter = 300;
 //    }
+
+
+    public float getMaxHealth() {
+        return maxHealth;
+    }
+
+
+
+    public void setMaxHealth(float maxHealth) {
+
+        this.maxHealth = maxHealth;
+        health = maxHealth;
+    }
+
+
+
+    public void doDamage(float amount) {
+
+        health -= amount;
+
+        // exploding if no health
+        if (health <= 0 ) {
+            readyToDispose = true;
+        }
+    }
 
 
 

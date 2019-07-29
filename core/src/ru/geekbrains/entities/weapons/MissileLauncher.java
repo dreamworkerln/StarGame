@@ -5,16 +5,14 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
 
 import java.util.List;
 
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
-import ru.geekbrains.entities.objects.Missile;
+import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.objects.Projectile;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 

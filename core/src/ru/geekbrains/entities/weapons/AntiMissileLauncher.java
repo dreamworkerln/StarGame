@@ -2,26 +2,21 @@ package ru.geekbrains.entities.weapons;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Intersector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
-import ru.geekbrains.entities.objects.AntiMissile;
+import ru.geekbrains.entities.projectile.AntiMissile;
 import ru.geekbrains.entities.objects.GameObject;
-import ru.geekbrains.entities.objects.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.GameScreen;
 
 public class AntiMissileLauncher extends MissileLauncher {
 
-    public float maxRange = 700;
+    public float maxRange = 800;
 
     // Список целей, по котоым идет огонь
     // По которым запущены противо-ракеты и идет поражение
@@ -38,7 +33,7 @@ public class AntiMissileLauncher extends MissileLauncher {
         gunHeatingDelta = 60;
         coolingGunDelta = 1;
         maxGunHeat = 200;
-        power = 100;
+        power = 300;
 
     }
 

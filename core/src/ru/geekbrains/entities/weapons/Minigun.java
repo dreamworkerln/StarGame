@@ -10,7 +10,7 @@ import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 
 import java.util.List;
 
-import ru.geekbrains.entities.objects.Bullet;
+import ru.geekbrains.entities.projectile.Bullet;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.Projectile;

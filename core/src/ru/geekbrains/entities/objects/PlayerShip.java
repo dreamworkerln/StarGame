@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
 import ru.geekbrains.entities.equipment.ForceShield;
+import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.entities.weapons.AntiMissileLauncher;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
@@ -99,11 +100,6 @@ public class PlayerShip extends Ship {
         else {
             launcher.stopFire();
         }
-
-        //launcher.startFire();
-
-
-
 
     }
 

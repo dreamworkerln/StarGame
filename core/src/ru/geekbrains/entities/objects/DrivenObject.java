@@ -29,9 +29,6 @@ public abstract class DrivenObject extends GameObject {
 
     protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
 
-    public float health;                       // текущий запас прочности корпуса(health)
-    public float maxHealth = 3;               // максимальный запас прочности корпуса(health)
-
     public float throttle = 0;                   // current throttle
 
     public float fuel = maxFuel;                   // current fuel level
@@ -49,8 +46,6 @@ public abstract class DrivenObject extends GameObject {
         super(textureRegion, height, owner);
 
         this.type.add(ObjectType.DRIVEN_OBJECT);
-
-        health = maxHealth;
 
         engineTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.5f,0.5f,0.5f,1), owner);
         smokeTrailList.add(engineTrail);
@@ -118,22 +113,16 @@ public abstract class DrivenObject extends GameObject {
         }
 
 
-        if (health < maxHealth) {
-            damageBurnTrail.add(pos, dir, vel, (maxHealth - health) / maxHealth);
+        if (health < getMaxHealth()) {
+            damageBurnTrail.add(pos, dir, vel, (getMaxHealth() - health) / maxHealth);
         }
 
         //damageBurnTrail.add(pos, dir, vel, 1);
 
         //damageBurnTrail.add(pos, dir, vel, 1);
-
-
-        // exploding if no health
-        if (health < 0 ) {
-            readyToDispose = true;
-        }
 
         // auto-repair for ships
-        if (health < maxHealth &&
+        if (health < getMaxHealth() &&
             type.contains(ObjectType.SHIP)) {
             health += 0.001;
         }
@@ -142,8 +131,6 @@ public abstract class DrivenObject extends GameObject {
         for (SmokeTrail st : smokeTrailList) {
             st.update(dt);
         }
-
-
 
     }
 
