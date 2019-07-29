@@ -1032,14 +1032,14 @@ public class GameScreen extends BaseScreen {
             case 5:
 
                 // IMPERIAL NAVY LIEUTENANT
-                ENEMY_RESPAWN_TIME = 1200;
+                ENEMY_RESPAWN_TIME = 1300;
                 ENEMIES_COUNT_IN_WAVE = 4;
 
                 break;
 
             case 6:
                 // IMPERIAL NAVY LORD-CAPITAN
-                ENEMY_RESPAWN_TIME = 1500;
+                ENEMY_RESPAWN_TIME = 1600;
                 ENEMIES_COUNT_IN_WAVE = 5;
 
 
