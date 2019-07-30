@@ -198,6 +198,11 @@ public class Missile extends DrivenObject {
         af.ax = target.acc.x /*- acc.x*/;
         af.ay = target.acc.y /*- acc.y*/;
 
+//        try {
+//            Thread.sleep(5);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
 
         for (int i = 0; i< 100; i++) {

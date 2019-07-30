@@ -28,7 +28,7 @@ public class AntiMissileLauncher extends MissileLauncher {
     public AntiMissileLauncher(float height, GameObject owner) {
         super(height, owner);
 
-        //dafireRate = 0.1f;
+        //fireRate = 0.1f;
         fireRate = 0.05f;
         gunHeatingDelta = 60;
         coolingGunDelta = 1;
@@ -139,7 +139,8 @@ public class AntiMissileLauncher extends MissileLauncher {
 
             if (o != owner &&
                     o.owner != owner &&
-                    !o.readyToDispose && o.type.contains(ObjectType.MISSILE)) {
+                    !o.readyToDispose && (o.type.contains(ObjectType.MISSILE) ||
+                     o.type.contains(ObjectType.SHIP))) {
 
                 // Умеет сопровождать не более 6 целей одновременно
                 if (inboundMissiles.size() > 6) {
