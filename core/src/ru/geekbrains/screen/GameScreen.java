@@ -31,6 +31,7 @@ import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.Planet;
 import ru.geekbrains.entities.objects.PlayerShip;
 import ru.geekbrains.entities.particles.Message;
+import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;
@@ -164,17 +165,13 @@ public class GameScreen extends BaseScreen {
 //        addObject(missile);
 
 
-
         music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
         music.setVolume(1f);
         music.play();
 
 
         expl01 = Gdx.audio.newSound(Gdx.files.internal("expl01.mp3"));
-
-
         expl02 = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
-        expl02.setVolume(expl02.play(),0.2f);
 
 
         // DIFFICULTY LEVEL ------------------------------------------------------------------------

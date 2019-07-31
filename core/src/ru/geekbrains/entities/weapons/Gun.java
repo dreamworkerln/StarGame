@@ -229,6 +229,8 @@ public class Gun extends ParticleObject {
 
         tmp0.set(pos).add(guideVector);
 
+        Gdx.gl.glLineWidth(1);
+
         shape.set(ShapeRenderer.ShapeType.Line);
         // reticle
 //        shape.setColor(0f, 1f, 0f, 1);
@@ -237,7 +239,7 @@ public class Gun extends ParticleObject {
         shape.line(pos, tmp0);
 
 
-        Gdx.gl.glLineWidth(1);
+        Gdx.gl.glLineWidth(2);
         shape.end();
     }
 

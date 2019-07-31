@@ -63,9 +63,19 @@ public class Minigun extends Gun {
     @Override
     public void update(float dt) {
 
+        super.update(dt);
+
 
         if (target != null && target.readyToDispose) {
             target = null;
+        }
+
+        // Out of range
+        if (target != null) {
+            tmp0.set(target.pos).sub(pos);
+            if (tmp0.len() > maxRange) {
+                target = null;
+            }
         }
 
         // --------------------------------------------------
@@ -213,7 +223,19 @@ public class Minigun extends Gun {
             float tmp = tmp3.dot(tmp2);
 
             // функция обратного числа (от расстояния корабль-цель), умноженная на константу 100 (эмпирические данные)
-            float ttt = (owner.getRadius())*100/tmp0.len();
+
+            float z = tmp0.len();
+            float ttt;
+
+            if (z > owner.getRadius() * 2f) {
+                ttt = (owner.getRadius()) * 100 / tmp0.len();
+            }
+            else  {         //if (z <= owner.getRadius() * 2f)
+                ttt = (owner.getRadius()) * 50 / tmp0.len();
+            }
+
+            //ttt = (owner.getRadius()) * 50 / tmp0.len();
+            
 
             tmp *= dt * ttt; // увеличиваем эту проекцию на ttt и умножаем на dt (переходим от скорости к расстоянию)
 
@@ -230,6 +252,9 @@ public class Minigun extends Gun {
             if (step > 360) {
                 step = 0;
             }
+
+            //System.out.println(tmp3.len());
+
 
             float xx = (float) Math.cos(step*Math.PI/180.)*tmp3.len();
             float yy = (float) Math.sin(step*Math.PI/180.)*tmp3.len();
@@ -252,13 +277,18 @@ public class Minigun extends Gun {
         if (target != null &&
                 Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
 
+//            try {
+//                Thread.sleep(170);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+
+
             startFire();
         }
         else {
             stopFire();
         }
-
-        super.update(dt);
     }
 
 
