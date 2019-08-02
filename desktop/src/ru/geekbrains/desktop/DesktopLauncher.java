@@ -14,6 +14,7 @@ public class DesktopLauncher {
 		float aspect = 3f/4f;
 		config.height = 2000;
 		config.width = (int) (config.height / aspect);
+		//config.forceExit = false;
 		//config.resizable = true;
         config.fullscreen = true;
 

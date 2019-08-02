@@ -135,6 +135,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     public void dispose() {
         System.out.println("dispose");
         renderer.dispose();
+        System.exit(0);
     }
 
 
@@ -166,7 +167,6 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
             case 131:
                 dispose();
-                System.exit(0);
                 break;
         }
 

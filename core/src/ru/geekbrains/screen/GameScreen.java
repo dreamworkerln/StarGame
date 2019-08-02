@@ -186,7 +186,6 @@ public class GameScreen extends BaseScreen {
 
     private void update(float dt) {
 
-
         // spawnEnemyShip
         if (getTick() % ENEMY_RESPAWN_TIME == 0) {
             enemyShipsToSpawn += ENEMIES_COUNT_IN_WAVE;
@@ -563,13 +562,8 @@ public class GameScreen extends BaseScreen {
                     }
                     else {
 
-                        // logging
-                        if (tgt.getClass() == PlayerShip.class) {
-                            System.out.println("Player hitted by: " + prj.getClass().getSimpleName());
-                        }
-                        if (prj.getClass() == PlayerShip.class) {
-                            System.out.println("Player hitted by: " + tgt.getClass().getSimpleName());
-                        }
+                        hitLogger(tgt, prj);
+                        hitLogger(prj, tgt);
 
 
                         // повреждаем цель
@@ -632,11 +626,6 @@ public class GameScreen extends BaseScreen {
         }
     }
 
-
-
-
-
-
     @Override
     public void dispose() {
 
@@ -687,14 +676,14 @@ public class GameScreen extends BaseScreen {
 
             dummy = new DummyObject(10,null);
             dummy.pos.set(tmp1);
-            nearCount = getCloseObjects(dummy, 100).size();
+            nearCount = getCloseObjects(dummy, 200).size();
 
             if (cnt++ >= 10) {
                 foundPlace = false;
                 break;
             }
         }
-        while (tmp2.len() < 500 || nearCount > 0);
+        while (tmp2.len() < 500 || nearCount > 0); // 500  - расстояние до корабля игрока
 
 
 
@@ -1036,7 +1025,7 @@ public class GameScreen extends BaseScreen {
 
             case 6:
                 // IMPERIAL NAVY LORD-CAPITAN
-                ENEMY_RESPAWN_TIME = 1700;
+                ENEMY_RESPAWN_TIME = 1600;
                 ENEMIES_COUNT_IN_WAVE = 5;
 
 
@@ -1044,6 +1033,24 @@ public class GameScreen extends BaseScreen {
 
         }
     }
+
+
+
+    private void hitLogger(GameObject tgt, GameObject prj) {
+        // logging
+        if (tgt.getClass() == PlayerShip.class) {
+            
+            System.out.println("Player hitted by: " + prj.getClass().getSimpleName());
+
+            if (prj.getClass() == Missile.class &&
+                    prj.owner.getClass() == PlayerShip.class) {
+
+                System.out.println("Committed suicide");
+            }
+
+        }
+    }
+
 
 }
 
