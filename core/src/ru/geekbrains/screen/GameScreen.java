@@ -1043,7 +1043,8 @@ public class GameScreen extends BaseScreen {
             System.out.println("Player hitted by: " + prj.getClass().getSimpleName());
 
             if (prj.getClass() == Missile.class &&
-                    prj.owner.getClass() == PlayerShip.class) {
+                prj.owner!= null &&
+                prj.owner.getClass() == PlayerShip.class) {
 
                 System.out.println("Committed suicide");
             }
