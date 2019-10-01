@@ -6,30 +6,32 @@ java -jar desktop-1.0.jar
 
 A D - rotate ship ( + SHIFT to slow down rotation)
 W S - throttle level controls  
-Space - push-to-max throttle (better use this)  
+SPACE  - push-to-max throttle (better use this)  
 
-LMB - fire cannon shell  
+LMB - shoot cannon shell  
 RMB - launch self-guided missiles (position mouse cursor on top to fire at desired target)  
 
 // ---------------------------------------------------------------------------------------
 
 
-Ship hull will destroyed in 3 shell hit, but slowly auto-repairing
-so 4 needed to be sure.
+Ship hull will be destroyed in 3 shell hit, but slowly auto-repairing so 4 hits are needed to be sure.
 
-Missile kill ship in one hit.
+Missile kills ship in one hit.
 
-Minigun is auto-firing at close target (act as close-in weapon system (point-defence))  
-Most time bringing targets down but may miss on simultaneous incoming missiles from different directions).
+Mini-gun is auto-firing at closest target (act as close-in weapon system (point-defence))  
+Most time it bringing targets down but may miss on simultaneous incoming missiles from different directions.
+Misses targets in low orbit. So avoid catching incoming missiles while flying on it.
+Doesn’t shoot at your missiles. (So launch missiles safely.)
 
 Anti-missile system also help against inbound missiles on long range.
+Doesn’t shoot at your missiles, but can unintentionally shoot them down.
+
+Force shield can repulse several (~6) tangent hit or ~3 direct hit (fired from enemy ship flying towards you) by shell.
+It's slowly regenerating to full charge, changing self colour.
+Doesn’t repulse you shells so be carefull.
 
 Green curve - you trajectory in planet gravity force.  
 Blue curve - you shell trajectory in planet gravity force.
-
-Force shield can repulse several (~5) tangent hit
-or ~2 direct hit (fired from enemy ship flying towards you) by shell.
-It's slowly regenerating to full charge, changing self colour.
 
 // -------------------------------------------------------------------------------------------------
 
@@ -45,13 +47,5 @@ Set one that fit you skill in StarGame/desktop/build/libs/config.ini
 5 - IMPERIAL NAVY LIEUTENANT  
 6 - IMPERIAL NAVY LORD-CAPITAN  
 
-Code need refactoring, etc., but better if it was written in C++ to avoid using buffer objects for Vector2,
-GC related things, so i give up on it.
-
-
-
-
-
-
-
-
+Code need refactoring, etc., but better if it was written in C++ to avoid using buffer objects for Vector2, 
+GC related things, so i give up to do this.
