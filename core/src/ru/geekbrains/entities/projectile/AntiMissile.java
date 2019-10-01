@@ -18,8 +18,8 @@ public class AntiMissile extends Missile {
         maxThrottle = 5f;
         throttle = maxThrottle;
 
-        setMaxHealth(0.9f);
-        damage = 1f;
+        setMaxHealth(0.01f);
+        damage = 0.5f;
 
 
         selfdOnTargetDestroyed = true;

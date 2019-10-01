@@ -18,8 +18,8 @@ public class AntiMissileLauncher extends MissileLauncher {
 
     public float maxRange = 700;
 
-    // Список целей, по котоым идет огонь
-    // По которым запущены противо-ракеты и идет поражение
+    // Список целей, по которым идет огонь
+    // (По которым запущены противо-ракеты и идет поражение)
     protected Map<GameObject, AntiMissile> targetMissile = new HashMap<>(); // Назначение антиракет по целям
 
     private List<GameObject> inboundMissiles = new ArrayList<>();
@@ -33,7 +33,7 @@ public class AntiMissileLauncher extends MissileLauncher {
         gunHeatingDelta = 60;
         coolingGunDelta = 1;
         maxGunHeat = 200;
-        power = 300;
+        power = 100;
 
     }
 
@@ -54,6 +54,37 @@ public class AntiMissileLauncher extends MissileLauncher {
 
 
         tmp1.set(target.pos).sub(owner.pos).nor();
+
+        // Берем в качестве точки прицеливания(выпуска ракеты) линейное приближение
+
+        // 1. get distance to target
+        tmp2.set(tmp1);
+        float dst = tmp2.len();
+
+        // 2. get speed vector projection to vector target - ship
+        tmp2.set(target.vel).scl(tmp1);
+
+
+        // same with ship speed, then
+        tmp3.set(owner.vel).scl(tmp1);
+
+        // sum both projections
+        tmp2.add(tmp3);
+
+        // time to collision
+        float tt = dst/tmp2.len();
+
+        // дистанция, которую пройдет цель
+        tmp4.set(tmp2).scl(tt);
+
+        // позиция цели через tt
+        tmp3.set(target.pos).add(tmp4);
+
+
+        tmp1.set(tmp3).sub(owner.pos).nor();
+
+
+
 
         // set launcher collinear to vector ship - target
         dir.set(tmp1);

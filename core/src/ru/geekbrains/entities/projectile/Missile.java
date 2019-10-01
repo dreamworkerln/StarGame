@@ -37,7 +37,7 @@ public class Missile extends DrivenObject {
         maxThrottle = 10f;
         throttle = maxThrottle;
 
-        setMaxHealth(0.1f);
+        setMaxHealth(0.02f);
         damage = 4f;
 
         selfdOnTargetDestroyed = true;

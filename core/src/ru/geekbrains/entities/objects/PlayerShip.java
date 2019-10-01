@@ -48,14 +48,22 @@ public class PlayerShip extends Ship {
     @Override
     protected void guide(float dt) {
 
+        float rot = maxRotationSpeed;
+
+
+        if (KeyDown.SHIFT) {
+            rot = maxRotationSpeed/2;
+        }
+
+
         if (KeyDown.A) {
-            dir.rotateRad(maxRotationSpeed);
-            minigun.dir.rotateRad(maxRotationSpeed);
+            dir.rotateRad(rot);
+            minigun.dir.rotateRad(rot);
 
         }
         if (KeyDown.D) {
-            dir.rotateRad(-maxRotationSpeed);
-            minigun.dir.rotateRad(-maxRotationSpeed);
+            dir.rotateRad(-rot);
+            minigun.dir.rotateRad(-rot);
         }
 
         if (KeyDown.W) {

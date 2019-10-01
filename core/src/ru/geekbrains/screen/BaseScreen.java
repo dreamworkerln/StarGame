@@ -78,8 +78,8 @@ public abstract class BaseScreen implements Screen, InputProcessor {
         // (use tor-browser if can't access this pages)
 
         // setup World
-        worldBounds.setHeight(1000f);
-        worldBounds.setWidth(1000f);
+        worldBounds.setHeight(1100f);
+        worldBounds.setWidth(1100f);
 
         // Read manual from here (use tor browser for a while)
         //
@@ -141,7 +141,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-        //System.out.println("keyDown keycode = " + keycode);
+        // System.out.println("keyDown keycode = " + keycode);
 
         switch (keycode) {
 
@@ -163,6 +163,10 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
             case 62:
                 KeyDown.SPACE = true;
+                break;
+
+            case 59:
+                KeyDown.SHIFT = true;
                 break;
 
             case 131:
@@ -199,6 +203,10 @@ public abstract class BaseScreen implements Screen, InputProcessor {
             case 62:
                 KeyDown.SPACE = false;
                 break;
+
+            case 59:
+                KeyDown.SHIFT = false;
+
         }
         return false;
     }

@@ -67,9 +67,9 @@ public class ForceShield extends ParticleObject {
         shape.set(ShapeRenderer.ShapeType.Line);
 
 
-        if (power/maxPower < 0.2) {
+        if (power/maxPower < 0.5) {
             bufColor.set(chargingColor);
-            bufColor.a = 0.2f + power/maxPower;
+            bufColor.a = 0.0f + power/maxPower;
         }
         else {
             bufColor.set(color);

@@ -22,7 +22,7 @@ public class Bullet extends Projectile {
         mass = 0.001f;
 
         setMaxHealth(0.01f);
-        damage = 0.05f;
+        damage = 0.01f;
     }
 
 
