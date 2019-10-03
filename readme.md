@@ -20,7 +20,7 @@ Missile kills ship in one hit.
 
 Mini-gun is auto-firing at closest target (act as close-in weapon system (point-defence))  
 Most time it bringing targets down but may miss on simultaneous incoming missiles from different directions.
-Misses targets in low orbit. So avoid catching incoming missiles while flying on it.
+(Or when attacked by missile launched from close enemy ship.)
 Doesn’t shoot at your missiles. (So launch missiles safely.)
 
 Anti-missile system also help against inbound missiles on long range.
@@ -28,7 +28,7 @@ Doesn’t shoot at your missiles, but can unintentionally shoot them down.
 
 Force shield can repulse several (~6) tangent hit or ~3 direct hit (fired from enemy ship flying towards you) by shell.
 It's slowly regenerating to full charge, changing self colour.
-Doesn’t repulse you shells so be carefull.
+Doesn’t repulse you shells so be careful.
 
 Green curve - you trajectory in planet gravity force.  
 Blue curve - you shell trajectory in planet gravity force.
