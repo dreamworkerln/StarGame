@@ -165,8 +165,11 @@ public class GameScreen extends BaseScreen {
 //        addObject(missile);
 
 
-        music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
-        music.setVolume(1f);
+        //music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
+        music = Gdx.audio.newMusic(Gdx.files.internal("TNT21.mp3"));
+
+
+        music.setVolume(0.7f);
         music.play();
 
 

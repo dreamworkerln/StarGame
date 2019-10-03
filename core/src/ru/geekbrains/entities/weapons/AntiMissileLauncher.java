@@ -32,6 +32,7 @@ public class AntiMissileLauncher extends MissileLauncher {
         fireRate = 0.05f;
         gunHeatingDelta = 60;
         coolingGunDelta = 1;
+        //coolingGunDelta = 60f;
         maxGunHeat = 200;
         power = 100;
 
@@ -68,8 +69,8 @@ public class AntiMissileLauncher extends MissileLauncher {
         // same with ship speed, then
         tmp3.set(owner.vel).scl(tmp1);
 
-        // sum both projections
-        tmp2.add(tmp3);
+        // sum both projections (sub due to inverse)
+        tmp2.sub(tmp3);
 
         // time to collision
         float tt = dst/tmp2.len();

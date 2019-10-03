@@ -12,9 +12,9 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
-		//Graphics.DisplayMode displayMode = LwjglApplicationConfiguration.getDesktopDisplayMode();
-		//Graphics.DisplayMode[] modes = LwjglApplicationConfiguration.getDisplayModes();
-		//config.setFromDisplayMode(modes[1]);
+		Graphics.DisplayMode displayMode = LwjglApplicationConfiguration.getDesktopDisplayMode();
+		Graphics.DisplayMode[] modes = LwjglApplicationConfiguration.getDisplayModes();
+		config.setFromDisplayMode(modes[1]);
 
 		float aspect = 3f/4f;
 		config.height = 2000;

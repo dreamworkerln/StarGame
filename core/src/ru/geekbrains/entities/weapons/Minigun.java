@@ -9,6 +9,9 @@ import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 
 
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import ru.geekbrains.entities.projectile.Bullet;
 import ru.geekbrains.entities.objects.GameObject;
@@ -29,8 +32,9 @@ public class Minigun extends Gun {
     private int step = 0;
     //private int maxStep = 100;
 
-
-
+    // Цели, отсортированные по времени попадания в корабль
+    private NavigableMap<Float, GameObject> impactTimes = new TreeMap<>();
+    private NavigableMap<Float, GameObject> distances = new TreeMap<>();
 
     public float maxRange = 350f;
 
@@ -94,11 +98,12 @@ public class Minigun extends Gun {
             // которая не является ни owner ни его снарядами,
             // Если нашли по missile приоритет огня выше
 
-            for (GameObject o : targets) {
+/*            for (GameObject o : targets) {
 
                 if (o != owner &&
                         o.owner != owner &&
-                        !o.readyToDispose && o.type.contains(ObjectType.SHIP)
+                        !o.readyToDispose &&
+                        o.type.contains(ObjectType.SHIP)
                 ){
 
                     target = o;
@@ -120,8 +125,82 @@ public class Minigun extends Gun {
                     target = o;
                     break;
                 }
+            }*/
+
+            // Прощитываем "время столкновения" с каждым из объектов (линейное приближение по проекции скорости)
+
+            impactTimes.clear();
+            distances.clear();
+
+            for (GameObject o : targets) {
+
+                if (o == owner ||
+                    o.owner == owner ||
+                    o.readyToDispose) {
+                    continue;
+                }
+
+                if ( (!o.type.contains(ObjectType.MISSILE) &&
+                        !o.type.contains(ObjectType.SHIP)) ) {
+
+                    continue;
+                }
+
+                tmp1.set(o.pos).sub(owner.pos);
+                // 1. get distance to target
+                float dst = tmp1.len()- (owner.getRadius() + o.getRadius());
+
+                // 2. get speed vector projection to vector target - ship
+                tmp2.set(o.vel).scl(tmp1);
+
+                // same with ship speed, then
+                tmp3.set(owner.vel).scl(tmp1);
+
+                // sum both projections (sub due to inverse)
+                tmp2.sub(tmp3);
+
+                // time to collision
+                float tt = dst/tmp2.len();
+
+                impactTimes.put(tt, o);
+                distances.put(dst,o);
+
+//                if (tt <0) {
+//                    throw new RuntimeException("tt<0");
+//                }
+
             }
 
+
+            GameObject tmp;
+
+            target = null;
+
+            for (Map.Entry<Float, GameObject> entry : impactTimes.entrySet()) {
+
+
+                if (entry.getValue().type.contains(ObjectType.MISSILE) ||
+                        entry.getValue().type.contains(ObjectType.SHIP)) {
+
+                    target = entry.getValue();
+                }
+
+                if (target != null &&
+                        target.type.contains(ObjectType.MISSILE)) {
+
+                    break;
+                }
+            }
+
+            // Если цель слишком близко, то сбивать нахрен
+            if (distances.size() > 0) {
+
+                if (distances.firstEntry().getKey() <= 3*owner.getRadius()) {
+
+                    target = distances.firstEntry().getValue();
+                }
+
+            }
         }
 
 
@@ -203,6 +282,8 @@ public class Minigun extends Gun {
 
         if(target != null) {
 
+
+
             tmp0.set(target.pos).sub(owner.pos);
             float len = tmp0.len();
 
@@ -235,7 +316,7 @@ public class Minigun extends Gun {
             }
 
             //ttt = (owner.getRadius()) * 50 / tmp0.len();
-            
+
 
             tmp *= dt * ttt; // увеличиваем эту проекцию на ttt и умножаем на dt (переходим от скорости к расстоянию)
 
@@ -387,7 +468,7 @@ public class Minigun extends Gun {
 
                 // Корней нет - функция не пересекает ось Ox
                 if (gf.value(0) > 0 && gf.value(dt * i*10) > 0 ||
-                    gf.value(0) < 0 && gf.value(dt * i*10) < 0) {
+                        gf.value(0) < 0 && gf.value(dt * i*10) < 0) {
 
                     continue;
                 }
