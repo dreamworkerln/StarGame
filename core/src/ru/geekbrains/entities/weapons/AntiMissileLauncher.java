@@ -16,7 +16,7 @@ import ru.geekbrains.screen.GameScreen;
 
 public class AntiMissileLauncher extends MissileLauncher {
 
-    public float maxRange = 700;
+    public float maxRange = 1000;
 
     // Список целей, по которым идет огонь
     // (По которым запущены противо-ракеты и идет поражение)

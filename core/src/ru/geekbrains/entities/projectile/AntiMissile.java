@@ -13,9 +13,9 @@ public class AntiMissile extends Missile {
         this.type.add(ObjectType.ANTIMISSILE);
 
         mass = 0.01f;
-        fuel = 3f;
+        fuel = 4f;
 
-        maxThrottle = 5f;
+        maxThrottle = 4f;
         throttle = maxThrottle;
 
         setMaxHealth(0.01f);
