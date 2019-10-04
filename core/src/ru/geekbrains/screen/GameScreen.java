@@ -125,7 +125,7 @@ public class GameScreen extends BaseScreen {
         quadTree = new QuadTree<>(-4000,-4000,4000,4000);
 
         background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
-        background.setHeightAndResize(2000f);
+        background.setHeightAndResize(2050f);
 
         planet = new Planet(new TextureRegion(new Texture("dune.png")),100f, null);
         planet.pos = new Vector2(0, 0);
@@ -155,8 +155,8 @@ public class GameScreen extends BaseScreen {
 //        missile.dir.set(-1,-1);
 //        missile.target = playerShip;
 //        addObject(missile);
-
-
+//
+//
 //        Missile missile = new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, null);
 //        missile.pos.set(0,330);
 //        missile.vel.set(300,5);
@@ -165,11 +165,9 @@ public class GameScreen extends BaseScreen {
 //        addObject(missile);
 
 
-        //music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
-        music = Gdx.audio.newMusic(Gdx.files.internal("TNT21.mp3"));
+        music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
 
-
-        music.setVolume(0.7f);
+        music.setVolume(0.9f);
         music.play();
 
 
@@ -667,7 +665,7 @@ public class GameScreen extends BaseScreen {
 
         do {
 
-            float r = MathUtils.random(300, 500);
+            float r = MathUtils.random(400, 600);
             float fi = MathUtils.random(0.1f, 360f);
 
             float x = (float)(r * Math.cos(fi));
@@ -686,7 +684,7 @@ public class GameScreen extends BaseScreen {
                 break;
             }
         }
-        while (tmp2.len() < 500 || nearCount > 0); // 500  - расстояние до корабля игрока
+        while (tmp2.len() < 400 || nearCount > 0); // 500  - расстояние до корабля игрока
 
 
 
@@ -1014,21 +1012,21 @@ public class GameScreen extends BaseScreen {
             case 4:
 
                 // SPECIALIST
-                ENEMY_RESPAWN_TIME = 1100;
+                ENEMY_RESPAWN_TIME = 1200;
                 ENEMIES_COUNT_IN_WAVE = 3;
                 break;
 
             case 5:
 
                 // IMPERIAL NAVY LIEUTENANT
-                ENEMY_RESPAWN_TIME = 1400;
+                ENEMY_RESPAWN_TIME = 1500;
                 ENEMIES_COUNT_IN_WAVE = 4;
 
                 break;
 
             case 6:
                 // IMPERIAL NAVY LORD-CAPITAN
-                ENEMY_RESPAWN_TIME = 1600;
+                ENEMY_RESPAWN_TIME = 1700;
                 ENEMIES_COUNT_IN_WAVE = 5;
 
 

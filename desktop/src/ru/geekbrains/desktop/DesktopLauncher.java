@@ -23,7 +23,7 @@ public class DesktopLauncher {
 
 		//config.forceExit = false;
 		//config.resizable = true;
-		config.fullscreen = true;
+		//config.fullscreen = false;
 
 		new LwjglApplication(new StarGame(), config);
 	}

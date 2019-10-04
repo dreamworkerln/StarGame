@@ -30,6 +30,8 @@ public class MissileLauncher extends Gun {
 
     protected long start = -1;
 
+    private boolean reverseLaunch;
+
 
     public MissileLauncher(float height, GameObject owner) {
         super(height, owner);
@@ -57,6 +59,7 @@ public class MissileLauncher extends Gun {
 
                 repeatFire();
                 start = -1;
+                reverseLaunch = false;
             }
         }
 
@@ -117,24 +120,30 @@ public class MissileLauncher extends Gun {
     protected void repeatFire() {
 
 
+        tmp4.set(dir);
+        if (reverseLaunch) {
+            tmp4.scl(-1);
+        }
+
+
         Missile missile =
                 new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, owner);
 
-        tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius()*2)
+        tmp0.set(tmp4).setLength(owner.getRadius() + missile.getRadius()*2)
                 .rotate(90 * sideLaunch).add(owner.pos);
 
 
         missile.pos.set(tmp0);
         missile.vel.set(owner.vel);
-        missile.dir.set(dir);
+        missile.dir.set(tmp4);
 
         missile.target = target;
 
 
         //tmp1.set(dir).nor().scl(sideLaunch*100);
         // apply force applied to missile
-        tmp1.set(dir).scl(power * 0.3f);
-        tmp0.set(dir).setLength(power).rotate(40*sideLaunch).add(tmp1); // force
+        tmp1.set(tmp4).scl(power * 0.3f);
+        tmp0.set(tmp4).setLength(power).rotate(40*sideLaunch).add(tmp1); // force
         //tmp0.rotate(60 * sideLaunch);
         missile.applyForce(tmp0);
 
@@ -148,8 +157,9 @@ public class MissileLauncher extends Gun {
         sideLaunch = -sideLaunch;
     }
 
-
-
+    public void reverse(boolean reverseLaunch) {
+        this.reverseLaunch = reverseLaunch;
+    }
 
 
     @Override

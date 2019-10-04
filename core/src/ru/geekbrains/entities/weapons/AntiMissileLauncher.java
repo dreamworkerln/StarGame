@@ -30,11 +30,11 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         //fireRate = 0.1f;
         fireRate = 0.05f;
-        gunHeatingDelta = 60;
-        coolingGunDelta = 1;
+        gunHeatingDelta = 50;
+        coolingGunDelta = 1.5f;
         //coolingGunDelta = 60f;
         maxGunHeat = 200;
-        power = 100;
+        power = 300;
 
     }
 
@@ -54,23 +54,31 @@ public class AntiMissileLauncher extends MissileLauncher {
 
 
 
-        tmp1.set(target.pos).sub(owner.pos).nor();
+        tmp1.set(target.pos).sub(owner.pos);
 
         // Берем в качестве точки прицеливания(выпуска ракеты) линейное приближение
 
         // 1. get distance to target
-        tmp2.set(tmp1);
-        float dst = tmp2.len();
+        float dst = tmp1.len() - (owner.getRadius() + target.getRadius());
+        if (dst < 0) {
+            dst = 0;
+        }
+
+        //tmp4.set(tmp1).nor();
 
         // 2. get speed vector projection to vector target - ship
-        tmp2.set(target.vel).scl(tmp1);
 
+        tmp2.set(target.vel);
+        float pr = tmp2.dot(tmp1)/tmp1.len();
+        tmp2.nor().scl(pr);
 
         // same with ship speed, then
-        tmp3.set(owner.vel).scl(tmp1);
+        tmp3.set(owner.vel);
+        pr = tmp3.dot(tmp1)/tmp1.len();
+        tmp3.nor().scl(pr);
 
         // sum both projections (sub due to inverse)
-        tmp2.sub(tmp3);
+        tmp2.add(tmp3);
 
         // time to collision
         float tt = dst/tmp2.len();

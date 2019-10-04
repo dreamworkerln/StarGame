@@ -148,22 +148,51 @@ public class Minigun extends Gun {
 
                 tmp1.set(o.pos).sub(owner.pos);
                 // 1. get distance to target
-                float dst = tmp1.len()- (owner.getRadius() + o.getRadius());
+                float dst = tmp1.len() - (owner.getRadius()*1.5f + o.getRadius());
+                if (dst < 0) {
+                    dst = 0;
+                }
+
 
                 // 2. get speed vector projection to vector target - ship
-                tmp2.set(o.vel).scl(tmp1);
+                tmp2.set(o.vel);
+                float pr = tmp2.dot(tmp1)/tmp1.len();
+                tmp2.nor().scl(pr);
+
 
                 // same with ship speed, then
-                tmp3.set(owner.vel).scl(tmp1);
+                tmp3.set(owner.vel);
+                pr = tmp3.dot(tmp1)/tmp1.len();
+                tmp3.nor().scl(pr);
 
                 // sum both projections (sub due to inverse)
-                tmp2.sub(tmp3);
+                tmp2.add(tmp3);
+
+
+
+
+
+
+
+                //tmp4.set(tmp1).nor();
+
+                // 2. get speed vector projection to vector target - ship
+                //tmp2.set(o.vel).scl(tmp4);
+
+                // same with ship speed, then
+                //tmp3.set(owner.vel).scl(tmp4);
+
+                // sum both projections (sub due to inverse)
+                //tmp2.sub(tmp3);
 
                 // time to collision
-                float tt = dst/tmp2.len();
+                float tt = Math.abs(dst/tmp2.len());
+
 
                 impactTimes.put(tt, o);
                 distances.put(dst,o);
+
+
 
 //                if (tt <0) {
 //                    throw new RuntimeException("tt<0");
@@ -192,20 +221,21 @@ public class Minigun extends Gun {
                 }
             }
 
-            // Если цель слишком близко, то сбивать нахрен
-            if (distances.size() > 0) {
-
-                if (distances.firstEntry().getKey() <= 3*owner.getRadius()) {
-
-                    target = distances.firstEntry().getValue();
-                }
-
-            }
+//            // Если цель слишком близко, то сбивать нахрен
+//            if (distances.size() > 0) {
+//
+//                if (distances.firstEntry().getKey() <= owner.getRadius()) {
+//
+//                    target = distances.firstEntry().getValue();
+//                }
+//
+//            }
         }
 
 
 
 
+        /*
         // Смысл - не стрелять по целям, которые не попадут в нас, без симуляции полета каждой цели.
 
         // Как оно работает я хз
@@ -268,6 +298,7 @@ public class Minigun extends Gun {
                 target = null;
             }
         }
+        */
 
 
 
@@ -366,6 +397,11 @@ public class Minigun extends Gun {
 
 
             startFire();
+//            try {
+//                Thread.sleep(25);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
         else {
             stopFire();

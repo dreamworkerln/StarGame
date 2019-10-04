@@ -75,11 +75,12 @@ public class Gun extends ParticleObject {
         firing = true;
     }
 
+
+
     public void stopFire() {
 
         firing = false;
     }
-
 
     protected void rotateGun() {
 

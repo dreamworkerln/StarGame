@@ -50,11 +50,10 @@ public class PlayerShip extends Ship {
 
         float rot = maxRotationSpeed;
 
-
         if (KeyDown.SHIFT) {
             rot = maxRotationSpeed/2;
-        }
 
+        }
 
         if (KeyDown.A) {
             dir.rotateRad(rot);
@@ -80,7 +79,7 @@ public class PlayerShip extends Ship {
             }
         }
 
-        // 50% throttle ------------------------
+        // full throttle ------------------------
         if (KeyDown.SPACE) {
             throttle = maxThrottle * 1.f;
             KeyDown.SPACE_TRIGGER_ON = true;
@@ -101,11 +100,30 @@ public class PlayerShip extends Ship {
 
 
         // missile fire------------------------------
-        if (KeyDown.MOUSE1) {
+        if (KeyDown.MOUSE1 || KeyDown.CTRL) {
+
+            if (KeyDown.SHIFT || KeyDown.CTRL) {
+                launcher.reverse(true);
+            }
+            else {
+                launcher.reverse(false);
+            }
+
             launcher.startFire();
         }
         else {
             launcher.stopFire();
+        }
+
+
+        if (KeyDown.SCROLLED != 0) {
+
+            rot = maxRotationSpeed/2 * KeyDown.SCROLLED;
+
+            dir.rotateRad(rot);
+            minigun.dir.rotateRad(rot);
+
+            KeyDown.SCROLLED = 0;
         }
 
     }
