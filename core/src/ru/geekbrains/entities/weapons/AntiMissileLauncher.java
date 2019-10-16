@@ -1,7 +1,13 @@
 package ru.geekbrains.entities.weapons;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.solvers.BrentSolver;
+import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,12 +15,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ru.geekbrains.entities.objects.Projectile;
 import ru.geekbrains.entities.projectile.AntiMissile;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.screen.Renderer;
 
 public class AntiMissileLauncher extends MissileLauncher {
+
+    private static Texture missileTexture;
 
     public float maxRange = 1000;
 
@@ -25,6 +36,14 @@ public class AntiMissileLauncher extends MissileLauncher {
     private List<GameObject> inboundMissiles = new ArrayList<>();
 
 
+    AntiMissileLauncher.AimFunction gf;
+    UnivariateSolver nonBracketing;
+
+
+    static {
+        missileTexture = new Texture("M-45_missile2.png");
+    }
+
     public AntiMissileLauncher(float height, GameObject owner) {
         super(height, owner);
 
@@ -34,13 +53,20 @@ public class AntiMissileLauncher extends MissileLauncher {
         coolingGunDelta = 1.5f;
         //coolingGunDelta = 60f;
         maxGunHeat = 200;
-        power = 300;
+        power = 200;
+
+
+        final double relativeAccuracy = 1.0e-12;
+        final double absoluteAccuracy = 1.0e-8;
+
+        gf =  new AntiMissileLauncher.AimFunction();
+        nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
 
     }
 
 
     @Override
-    protected void fire() {
+    protected void fire(float dt) {
 
 
         if (target == null || target.readyToDispose){
@@ -48,13 +74,17 @@ public class AntiMissileLauncher extends MissileLauncher {
         }
 
         AntiMissile missile =
-                new AntiMissile(new TextureRegion(new Texture("M-45_missile2.png")), 1f, owner);
+                new AntiMissile(new TextureRegion(missileTexture), 1f, owner);
 
         targetMissile.put(target, missile);
 
 
 
         tmp1.set(target.pos).sub(owner.pos);
+
+        selfGuiding(dt);
+
+        /*
 
         // Берем в качестве точки прицеливания(выпуска ракеты) линейное приближение
 
@@ -69,34 +99,39 @@ public class AntiMissileLauncher extends MissileLauncher {
         // 2. get speed vector projection to vector target - ship
 
         tmp2.set(target.vel);
-        float pr = tmp2.dot(tmp1)/tmp1.len();
-        tmp2.nor().scl(pr);
+        float pr1 = -tmp2.dot(tmp1)/tmp1.len();
+
+        //tmp2.set(tmp1).nor().scl(pr).scl(-1f);
+        //tmp2.nor().scl(pr);
 
         // same with ship speed, then
         tmp3.set(owner.vel);
-        pr = tmp3.dot(tmp1)/tmp1.len();
-        tmp3.nor().scl(pr);
+        float pr2 = tmp3.dot(tmp1)/tmp1.len();
+        //tmp3.nor().scl(pr);
+        //tmp3.set(tmp1).nor().scl(pr);
 
         // sum both projections (sub due to inverse)
-        tmp2.add(tmp3);
+        //float pr3 = pr1 + pr2;
+        //tmp4.set(tmp2).add(tmp3);
 
-        // time to collision
-        float tt = dst/tmp2.len();
+
+        // ~time to collision
+        float tt = Math.abs(dst/(pr1 + pr2));
 
         // дистанция, которую пройдет цель
-        tmp4.set(tmp2).scl(tt);
+        tmp4.set(target.vel).scl(tt);
 
         // позиция цели через tt
         tmp3.set(target.pos).add(tmp4);
 
 
         tmp1.set(tmp3).sub(owner.pos).nor();
+*/
 
+        //dir.set(tmp1);
 
-
-
-        // set launcher collinear to vector ship - target
-        dir.set(tmp1);
+        // set launcher toward guide point (rotate cost zero time)
+        dir.set(guideVector).nor();
 
         tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius()*10).add(owner.pos);
 
@@ -112,7 +147,6 @@ public class AntiMissileLauncher extends MissileLauncher {
         missile.applyForce(tmp0);
 
         GameScreen.addObject(missile);
-
     }
 
 
@@ -180,7 +214,7 @@ public class AntiMissileLauncher extends MissileLauncher {
             if (o != owner &&
                     o.owner != owner &&
                     !o.readyToDispose && (o.type.contains(ObjectType.MISSILE) ||
-                     o.type.contains(ObjectType.SHIP))) {
+                    o.type.contains(ObjectType.SHIP))) {
 
                 // Умеет сопровождать не более 6 целей одновременно
                 if (inboundMissiles.size() > 6) {
@@ -214,7 +248,6 @@ public class AntiMissileLauncher extends MissileLauncher {
         }
 
 
-
         // Auto fire control
         if (target != null) {
             startFire();
@@ -224,6 +257,129 @@ public class AntiMissileLauncher extends MissileLauncher {
         }
 
         super.update(dt);
+    }
+
+
+/*    @Override
+    public void draw(Renderer renderer) {
+
+
+        if (target!= null &&
+                !target.readyToDispose ) {
+
+            ShapeRenderer shape = renderer.shape;
+
+            shape.begin();
+
+            tmp0.set(pos);//.add(tmp4);
+            //Gdx.gl.glLineWidth(1);
+            shape.set(ShapeRenderer.ShapeType.Line);
+            // reticle
+            //        shape.setColor(0f, 1f, 0f, 1);
+            //        shape.circle(tmp0.x, tmp0.y, 3);
+            shape.setColor(1f, 1f, 0f, 0.5f);
+            shape.line(pos, tmp3);
+            shape.circle(tmp3.x, tmp3.y, 10);
+
+            Gdx.gl.glLineWidth(2);
+            shape.circle(target.pos.x, target.pos.y, 20);
+            Gdx.gl.glLineWidth(1);
+            shape.end();
+
+        }
+
+
+    }*/
+
+
+    // ToDo: Говнокод, перенести в class Gun
+    public static class AimFunction implements UnivariateFunction {
+
+        public double rx, ry, vx, vy, ax, ay, VCC;
+
+
+        public AimFunction() {}
+
+        public double value(double t) {
+
+            double result = Math.pow(rx,2) + Math.pow(ry,2) + ((Math.pow(ax,2) + Math.pow(ay,2))*Math.pow(t,4))/4. +
+                    Math.pow(t,3)*(ax*vx + ay*vy) + 2*t*(rx*vx + ry*vy) +
+                    Math.pow(t,2)*(ax*rx + ay*ry - Math.pow(VCC,2) + Math.pow(vx,2) + Math.pow(vy,2));
+
+            return result;
+        }
+    }
+
+    // ToDo: Говнокод, перенести в class Gun
+    public void selfGuiding(float dt) {
+
+        // Система наведения для  minigun
+        //https://gamedev.stackexchange.com/questions/149327/projectile-aim-prediction-with-acceleration
+
+
+        if (target== null || target.readyToDispose)
+            return;
+
+        // F = m*a
+        // a = f / m;
+        // dv = a*t
+        // a = dv/t;
+        // f/m = dv/t
+        // dv = f/m*t - Импульс силы, деленный на массу пули
+
+
+                         // Лютый говнокод (0.01f)
+        gf.VCC = power / 0.01f * dt;  // Начальная скорость пули
+
+
+        // ORIGINAL
+        // r =  rt - rs
+        gf.rx = target.pos.x - owner.pos.x;
+        gf.ry = target.pos.y - owner.pos.y;
+
+        //  relative target velocity to object
+        gf.vx = target.vel.x - owner.vel.x;
+        gf.vy = target.vel.y - owner.vel.y;
+
+        gf.ax = target.acc.x - owner.acc.x;
+        gf.ay = target.acc.y - owner.acc.y;
+
+
+        // Гидра доминатус !!!!
+
+
+        //double tbd = 0;
+        // Цикл - попытка отделить корни
+
+        //int i_tt = 0;
+        for (int i = 0; i< 100; i++) {
+            try {
+
+                // Корней нет - функция не пересекает ось Ox
+                if (gf.value(0) > 0 && gf.value(dt * i*10) > 0 ||
+                        gf.value(0) < 0 && gf.value(dt * i*10) < 0) {
+
+                    continue;
+                }
+
+                double t = nonBracketing.solve(100, gf,  0, dt * i*10);
+
+                //t -= 0.2;
+
+                if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {
+
+                    double vs_x = gf.rx / t + 0.5 * gf.ax * t + gf.vx;
+                    double vs_y = gf.ry / t + 0.5 * gf.ay * t + gf.vy;
+
+                    guideVector.set((float) vs_x, (float) vs_y);//.nor();
+                    break;
+                }
+            }
+            catch (Exception ignore) {}
+
+        }
+
+
     }
 
 }

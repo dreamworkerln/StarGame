@@ -1,6 +1,7 @@
 package ru.geekbrains.entities.weapons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -18,6 +19,14 @@ import ru.geekbrains.screen.Renderer;
 
 public class MissileLauncher extends Gun {
 
+    private static Sound missileFire01;
+
+    private static Texture missileTexture;
+
+
+
+
+
     private int sideLaunch = -1;
 
     public int sideLaunchCount = 2;
@@ -31,6 +40,13 @@ public class MissileLauncher extends Gun {
     protected long start = -1;
 
     private boolean reverseLaunch;
+
+    static {
+        //missileFire01 = Gdx.audio.newSound(Gdx.files.internal("Missile launch Sound effect3.mp3"));
+        missileFire01 = Gdx.audio.newSound(Gdx.files.internal("launch04.mp3"));
+
+        missileTexture = new Texture("M-45_missile2.png");
+    }
 
 
     public MissileLauncher(float height, GameObject owner) {
@@ -70,7 +86,13 @@ public class MissileLauncher extends Gun {
 
 
     @Override
-    protected void fire() {
+    protected void fire(float dt) {
+
+
+
+        if (this.getClass() != AntiMissileLauncher.class) {
+            missileFire01.play(0.25f);
+        }
 
         List<GameObject> targets;
 
@@ -127,7 +149,7 @@ public class MissileLauncher extends Gun {
 
 
         Missile missile =
-                new Missile(new TextureRegion(new Texture("M-45_missile2.png")), 2, owner);
+                new Missile(new TextureRegion(missileTexture), 2, owner);
 
         tmp0.set(tmp4).setLength(owner.getRadius() + missile.getRadius()*2)
                 .rotate(90 * sideLaunch).add(owner.pos);
@@ -191,6 +213,7 @@ public class MissileLauncher extends Gun {
                 tmp0.set(target.pos).sub(0, target.getRadius() * 2);
                 tmp1.set(tmp0).set(target.pos).add(0, target.getRadius() * 2);
                 shape.line(tmp0, tmp1);
+
 
                 shape.end();
             }

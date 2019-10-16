@@ -101,7 +101,7 @@ public class Missile extends DrivenObject {
                 minDistance = dist;
             }
 
-            if (dist - target.getRadius() * 30 > minDistance) {
+            if (dist - target.getRadius() * 30 > minDistance + 50) {
                 this.readyToDispose = true;
             }
         }

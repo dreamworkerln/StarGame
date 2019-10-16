@@ -108,6 +108,9 @@ public class GameScreen extends BaseScreen {
     private Music music;
     private Sound expl01;
     private Sound expl02;
+    private Sound metalHit;
+
+
 
 
     private int ENEMY_RESPAWN_TIME;
@@ -142,7 +145,14 @@ public class GameScreen extends BaseScreen {
         //playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
         //playerShip.gun.fireRate = 0.025f;
+
+        //playerShip.vel = new Vector2(+100f, 0f);
+
+
+
         addObject(playerShip);
+
+
 
         Message msg = new Message("New objectives: survive till warp engine have been repaired.");
         particleObjects.add(msg);
@@ -172,8 +182,8 @@ public class GameScreen extends BaseScreen {
 
 
         expl01 = Gdx.audio.newSound(Gdx.files.internal("expl01.mp3"));
-        expl02 = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
-
+	    expl02 = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
+        metalHit = Gdx.audio.newSound(Gdx.files.internal("IMPACT CAN METAL HIT RING 01.mp3"));
 
         // DIFFICULTY LEVEL ------------------------------------------------------------------------
         getDifficultyLevel();
@@ -293,8 +303,7 @@ public class GameScreen extends BaseScreen {
                 // removing from gameObjects
                 it.remove();
 
-
-                playExplosionSound(obj);
+                playExplosionSound(obj, null);
 
                 Explosion expl = new Explosion(obj);
                 particleObjects.add(expl);
@@ -571,6 +580,9 @@ public class GameScreen extends BaseScreen {
                         tgt.doDamage(prj.damage);
                         // повреждаем снаряд
                         prj.doDamage(tgt.damage);
+
+                        playExplosionSound(prj, tgt);
+
                     }
 
 
@@ -694,7 +706,6 @@ public class GameScreen extends BaseScreen {
 
             EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50, null);
             enemyShip.pos = tmp1.cpy();
-            enemyShip.maxRotationSpeed *= 2f;
             enemyShip.name = "enemyship";
 
             addObject(enemyShip);
@@ -844,7 +855,7 @@ public class GameScreen extends BaseScreen {
     // -----------------------------------------------------------------------------------------
 
 
-    private void playExplosionSound(GameObject obj) {
+    private void playExplosionSound(GameObject obj, GameObject target) {
 
         if (obj.type.contains(ObjectType.SHIP)) {
 
@@ -855,6 +866,15 @@ public class GameScreen extends BaseScreen {
 
             expl02.play(0.3f);
         }
+        else if (target != null &&
+                obj.type.contains(ObjectType.SHELL) &&
+                target.type.contains(ObjectType.SHIP)) {
+
+            metalHit.play();
+        }
+
+
+
 
     }
 

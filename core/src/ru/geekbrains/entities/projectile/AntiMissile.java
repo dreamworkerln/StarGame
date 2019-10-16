@@ -15,7 +15,7 @@ public class AntiMissile extends Missile {
         mass = 0.01f;
         fuel = 4f;
 
-        maxThrottle = 4f;
+        maxThrottle = 3f;
         throttle = maxThrottle;
 
         setMaxHealth(0.01f);
@@ -27,4 +27,19 @@ public class AntiMissile extends Missile {
         selfdOnMiss = true;
 
     }
+
+
+//    @Override
+//    protected void guide(float dt) {
+//        super.guide(dt);
+//
+//        if (vel.len() > 700) {
+//            throttle = maxThrottle / 2;
+//        }
+//        else {
+//            throttle = maxThrottle;
+//        }
+//
+//    }
+
 }

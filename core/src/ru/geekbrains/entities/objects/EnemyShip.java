@@ -44,7 +44,11 @@ public class EnemyShip extends Ship {
 
         //guideSystem = new GuideSystem(this);
 
+        //gun.fireRate = 1f;
+        //gun.coolingGunDelta = 40;
+
         gun.fireRate = 0.01f;
+        maxRotationSpeed *= 2f;
 
         //gun.fireRate = 0.1f;
         //gun.fireRate = 0.02f;

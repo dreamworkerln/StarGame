@@ -1,6 +1,7 @@
 package ru.geekbrains.entities.weapons;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -13,6 +14,10 @@ import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 
 public class Gun extends ParticleObject {
+
+    private static Sound cannonFire01;
+    private static Sound minigunFire;
+    private static boolean minigunPlaying = false;
 
     protected float calibre = 6;
     public float power = 230;     // force length, applied to shell
@@ -44,6 +49,12 @@ public class Gun extends ParticleObject {
 
     public Projectile firingAmmoType;
 
+    static {
+
+        cannonFire01 = Gdx.audio.newSound(Gdx.files.internal("Light Naval Cannon Blast 15.mp3"));
+        minigunFire = Gdx.audio.newSound(Gdx.files.internal("vulcan.mp3"));
+    }
+
 
 
     //ToDo: make abstract gun than fire abstract Projectile
@@ -73,6 +84,12 @@ public class Gun extends ParticleObject {
     public void startFire() {
 
         firing = true;
+
+        if (this.getClass() == Minigun.class && !minigunPlaying) {
+            minigunPlaying = true;
+            minigunFire.play(0.3f);
+        }
+
     }
 
 
@@ -80,7 +97,14 @@ public class Gun extends ParticleObject {
     public void stopFire() {
 
         firing = false;
+
+
+        if (this.getClass() == Minigun.class && minigunPlaying) {
+            minigunPlaying = false;
+            minigunFire.stop();
+        }
     }
+
 
     protected void rotateGun() {
 
@@ -103,7 +127,7 @@ public class Gun extends ParticleObject {
 
             lastFired = GameScreen.INSTANCE.getTick();
             gunHeat+= gunHeatingDelta;
-            fire();
+            fire(dt);
         }
 
         // gun heating
@@ -153,9 +177,14 @@ public class Gun extends ParticleObject {
 
 
 
-    protected void fire() {
+    protected void fire(float dt) {
 
         Projectile proj = createProjectile();
+
+
+        if (this.getClass() != Minigun.class) {
+            cannonFire01.play(0.5f);
+        }
 
         if (projectileMass > 0) {
             proj.setMass(projectileMass);

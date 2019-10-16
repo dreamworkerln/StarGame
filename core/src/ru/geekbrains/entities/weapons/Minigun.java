@@ -28,6 +28,8 @@ public class Minigun extends Gun {
 
     AimFunction gf;
     UnivariateSolver nonBracketing;
+    double impactTime;
+
 
     private int step = 0;
     //private int maxStep = 100;
@@ -57,8 +59,6 @@ public class Minigun extends Gun {
         final double relativeAccuracy = 1.0e-12;
         final double absoluteAccuracy = 1.0e-8;
 
-        //final double relativeAccuracy = 1.0e-10;
-        //final double absoluteAccuracy = 1.0e-8;
         gf =  new AimFunction();
         nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
     }
@@ -149,6 +149,8 @@ public class Minigun extends Gun {
                 tmp1.set(o.pos).sub(owner.pos);
                 // 1. get distance to target
                 float dst = tmp1.len() - (owner.getRadius()*1.5f + o.getRadius());
+                /*
+
                 if (dst < 0) {
                     dst = 0;
                 }
@@ -166,7 +168,27 @@ public class Minigun extends Gun {
                 tmp3.nor().scl(pr);
 
                 // sum both projections (sub due to inverse)
-                tmp2.add(tmp3);
+                tmp4.set(tmp2).add(tmp3);
+                //tmp2.add(tmp3);
+
+                float tt = Math.abs(dst/tmp4.len());
+
+                impactTimes.put(tt, o);
+                distances.put(dst,o);
+*/
+
+                impactTime = -1;
+
+                target = o;
+
+                selfGuiding(dt);
+
+                if (impactTime >=0) {
+                    impactTimes.put((float)impactTime, o);
+                    distances.put(dst, o);
+                }
+
+
 
 
 
@@ -186,11 +208,7 @@ public class Minigun extends Gun {
                 //tmp2.sub(tmp3);
 
                 // time to collision
-                float tt = Math.abs(dst/tmp2.len());
 
-
-                impactTimes.put(tt, o);
-                distances.put(dst,o);
 
 
 
@@ -351,7 +369,7 @@ public class Minigun extends Gun {
 
             tmp *= dt * ttt; // увеличиваем эту проекцию на ttt и умножаем на dt (переходим от скорости к расстоянию)
 
-            tmp3.scl(tmp); // скалируем нормаль на tmp - получаем смещение но нормали за dt
+            tmp3.scl(tmp); // скалируем нормаль на tmp - получаем смещение по нормали за dt
 
 
 
@@ -371,16 +389,21 @@ public class Minigun extends Gun {
             float xx = (float) Math.cos(step*Math.PI/180.)*tmp3.len();
             float yy = (float) Math.sin(step*Math.PI/180.)*tmp3.len();
 
-
             tmp0.set(xx, yy);
 
-            // смещаем guideVector на вектор этой окружности
-            guideVector.add(tmp0);
+            //System.out.println(tmp3.len());
+            //System.out.println(guideVector);
 
 
             // Если самонаведение не осилиось
             if (guideVector.isZero()) {
                 guideVector.set(target.pos).sub(pos).nor();
+            }
+            else {
+
+
+                // смещаем guideVector на вектор этой окружности
+                guideVector.add(tmp0);
             }
         }
 
@@ -397,8 +420,9 @@ public class Minigun extends Gun {
 
 
             startFire();
+
 //            try {
-//                Thread.sleep(25);
+//                Thread.sleep(20);
 //            } catch (InterruptedException e) {
 //                e.printStackTrace();
 //            }
@@ -519,6 +543,8 @@ public class Minigun extends Gun {
                     double vs_y = gf.ry / t + 0.5 * gf.ay * t + gf.vy;
 
                     guideVector.set((float) vs_x, (float) vs_y);//.nor();
+                    impactTime = t;
+
                     break;
                 }
             }catch (Exception ignore) {}
