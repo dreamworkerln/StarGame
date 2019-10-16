@@ -12,20 +12,17 @@ import java.util.List;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.Projectile;
 import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 
 public class MissileLauncher extends Gun {
 
     private static Sound missileFire01;
-
     private static Texture missileTexture;
-
-
-
-
 
     private int sideLaunch = -1;
 
@@ -42,9 +39,7 @@ public class MissileLauncher extends Gun {
     private boolean reverseLaunch;
 
     static {
-        //missileFire01 = Gdx.audio.newSound(Gdx.files.internal("Missile launch Sound effect3.mp3"));
         missileFire01 = Gdx.audio.newSound(Gdx.files.internal("launch04.mp3"));
-
         missileTexture = new Texture("M-45_missile2.png");
     }
 
@@ -54,12 +49,15 @@ public class MissileLauncher extends Gun {
 
         dummy = new DummyObject(owner);
 
+
+
         fireRate = 0.004f;
-        //fireRate = 0.05f;
         gunHeatingDelta = 0;
         coolingGunDelta = 0;
         maxGunHeat = 1;
         power = 500;
+
+
     }
 
 
@@ -90,7 +88,7 @@ public class MissileLauncher extends Gun {
 
 
 
-        if (this.getClass() != AntiMissileLauncher.class) {
+        if (this.getClass() == MissileLauncher.class) {
             missileFire01.play(0.25f);
         }
 
@@ -219,6 +217,11 @@ public class MissileLauncher extends Gun {
             }
         }
 
+    }
+
+
+    protected Projectile createProjectile() {
+        return new Shell(calibre, owner);
     }
 
 }

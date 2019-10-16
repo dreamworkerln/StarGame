@@ -14,7 +14,7 @@ import ru.geekbrains.sprite.Sprite;
 /**
  * Movable game object with inertia
  */
-public abstract class GameObject implements Disposable {
+public abstract class GameObject implements Disposable, PhysicalInfo {
 
     protected Set<RendererType> rendererType = new HashSet<>();
 
