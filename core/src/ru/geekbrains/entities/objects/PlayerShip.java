@@ -197,14 +197,16 @@ public class PlayerShip extends Ship {
 
     @Override
     public void dispose() {
+
         trajectorySim.dispose();
         gunSim.dispose();
 
-
         launcher.dispose();
         antiLauncher.dispose();
-        shield.readyToDispose = true;
         shield.dispose();
+
+        minigun.dispose();
+        gun.dispose();
 
         super.dispose();
     }

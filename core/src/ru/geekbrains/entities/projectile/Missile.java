@@ -6,17 +6,21 @@ import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.solvers.BrentSolver;
 import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 
 public class Missile extends DrivenObject {
 
+    protected BPU pbu = new BPU();
+
 
     AimFunction af;
     protected boolean selfdOnTargetDestroyed;
     protected boolean selfdOnNoFuel;
     protected boolean selfdOnMiss;
+
     protected UnivariateSolver nonBracketing;
 
     protected float minDistance = Float.MAX_VALUE;
@@ -45,24 +49,11 @@ public class Missile extends DrivenObject {
 
         aspectRatio = 1;
 
-
-
-        //final double relativeAccuracy = 1.0e-12;
-        //final double absoluteAccuracy = 1.0e-8;
-
-        // Особо точные ракеты не нужны
-        final double relativeAccuracy = 1.0e-6;
-        final double absoluteAccuracy = 1.0e-4;
+        final double relativeAccuracy = 1.0e-10;
+        final double absoluteAccuracy = 1.0e-8;
 
         af =  new AimFunction();
         nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
-
-
-
-        //Sound sound = Gdx.audio.newSound(Gdx.files.internal("launch01.mp3"));
-        //sound.setVolume(sound.play(),0.05f);
-
-
 
     }
 
@@ -108,15 +99,31 @@ public class Missile extends DrivenObject {
 
 
 
+        //guideVector.setZero();
+
         guideVector.setZero();
 
-        selfGuiding(dt);
+        if(target != null && !this.readyToDispose) {
 
-        // Самонаведение не сгидродоминировало
-        if (target != null && guideVector.isZero()) {
+            // Максимальное возможное ускорение ракеты своим движком
+            float maxAcc = maxThrottle / mass;
 
-            guideVector.set(target.pos).sub(pos).nor();
+
+            pbu.guideMissile(this, target, maxAcc, dt);
+            
+            //selfGuiding(dt);
+
+            if (!pbu.guideResult.guideVector.isZero()) {
+                guideVector.set(pbu.guideResult.guideVector.nor());
+            }
+
+            // Самонаведение не сгидродоминировало, наводимся по прямой (только первые 20 тиков после запуска)
+            if (guideVector.isZero() && age < 20) {
+                guideVector.set(target.pos).sub(pos).nor();
+            }
         }
+
+
 
 
 
@@ -141,7 +148,6 @@ public class Missile extends DrivenObject {
     }
 
 
-
     private static class AimFunction implements UnivariateFunction {
 
         public double rx, ry, vx, vy, ax, ay, ACC;
@@ -159,6 +165,7 @@ public class Missile extends DrivenObject {
             return result;
         }
     }
+
 
 
     public void selfGuiding(float dt) {
@@ -195,8 +202,8 @@ public class Missile extends DrivenObject {
         af.vy = target.vel.y - vel.y;
 
         // apply inverted object acceleration to target
-        af.ax = target.acc.x /*- acc.x*/;
-        af.ay = target.acc.y /*- acc.y*/;
+        af.ax = target.acc.x - acc.x;
+        af.ay = target.acc.y - acc.y;
 
 //        try {
 //            Thread.sleep(5);
@@ -226,17 +233,11 @@ public class Missile extends DrivenObject {
                     guideVector.set((float) vs_x, (float) vs_y).nor();
                     break;
                 }
-            }catch (Exception ignore) {}
+            }
+            catch (Exception ignore) {}
 
         }
-
-
-
-
-
-
-
-
     }
+
 
 }

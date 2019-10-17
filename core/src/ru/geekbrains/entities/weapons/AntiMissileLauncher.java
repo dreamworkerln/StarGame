@@ -1,13 +1,8 @@
 package ru.geekbrains.entities.weapons;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.solvers.BrentSolver;
-import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,13 +10,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import ru.geekbrains.entities.objects.Projectile;
 import ru.geekbrains.entities.projectile.AntiMissile;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.screen.GameScreen;
-import ru.geekbrains.screen.Renderer;
 
 public class AntiMissileLauncher extends MissileLauncher {
 
@@ -36,8 +28,8 @@ public class AntiMissileLauncher extends MissileLauncher {
     private List<GameObject> inboundMissiles = new ArrayList<>();
 
 
-    AntiMissileLauncher.AimFunction gf;
-    UnivariateSolver nonBracketing;
+    //AntiMissileLauncher.AimFunction gf;
+    //UnivariateSolver nonBracketing;
 
 
     static {
@@ -55,13 +47,6 @@ public class AntiMissileLauncher extends MissileLauncher {
         maxGunHeat = 200;
         power = 200;
 
-
-        final double relativeAccuracy = 1.0e-12;
-        final double absoluteAccuracy = 1.0e-8;
-
-        gf =  new AntiMissileLauncher.AimFunction();
-        nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
-
     }
 
 
@@ -69,20 +54,33 @@ public class AntiMissileLauncher extends MissileLauncher {
     protected void fire(float dt) {
 
 
-        if (target == null || target.readyToDispose){
+        if (target == null || target.readyToDispose ||
+            owner.readyToDispose){
             return;
         }
 
-        AntiMissile missile =
-                new AntiMissile(new TextureRegion(missileTexture), 1f, owner);
+        AntiMissile missile = (AntiMissile)createProjectile();
+
 
         targetMissile.put(target, missile);
 
 
 
-        tmp1.set(target.pos).sub(owner.pos);
+        //tmp1.set(target.pos).sub(owner.pos);
 
-        selfGuiding(dt);
+
+        float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+        pbu.guideGun(owner, target, maxPrjVel, dt);
+        // get results
+
+        if (!pbu.guideResult.guideVector.isZero()) {
+            guideVector.set(pbu.guideResult.guideVector.nor());
+        }
+
+        // Самонаведение не сгидродоминировало
+        if (guideVector.isZero()) {
+            guideVector.set(target.pos).sub(owner.pos).nor();
+        }
 
         /*
 
@@ -292,6 +290,8 @@ public class AntiMissileLauncher extends MissileLauncher {
     }*/
 
 
+    /*
+
     // ToDo: Говнокод, перенести в class Gun
     public static class AimFunction implements UnivariateFunction {
 
@@ -380,6 +380,21 @@ public class AntiMissileLauncher extends MissileLauncher {
         }
 
 
+    }
+
+    */
+
+    @Override
+    protected GameObject createProjectile() {
+        return new AntiMissile(new TextureRegion(missileTexture), 1f, owner);
+    }
+
+
+    @Override
+    public void dispose() {
+
+        stopFire();
+        super.dispose();
     }
 
 }

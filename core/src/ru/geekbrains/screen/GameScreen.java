@@ -309,7 +309,7 @@ public class GameScreen extends BaseScreen {
                 particleObjects.add(expl);
 
 
-
+                // call object destructor
                 obj.dispose();
             }
         }

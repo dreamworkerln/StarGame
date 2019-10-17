@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Disposable;
 import java.util.HashSet;
 import java.util.Set;
 
+import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 import ru.geekbrains.sprite.Sprite;
@@ -17,6 +18,10 @@ import ru.geekbrains.sprite.Sprite;
 public abstract class GameObject implements Disposable, PhysicalInfo {
 
     protected Set<RendererType> rendererType = new HashSet<>();
+
+    protected long TTL;
+    protected long birth;  // object birth date in ticks
+    protected long age;    // object ages in game ticks
 
     public String name = "";
 
@@ -76,6 +81,8 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         dir.set(1, 0);
 
         rendererType.add(RendererType.TEXTURE);
+
+        birth = GameScreen.INSTANCE.getTick();
     }
 
 
@@ -109,6 +116,8 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
      * @param dt time elapsed from previous emulation step
      */
     public void update(float dt) {
+
+        age = GameScreen.INSTANCE.getTick() - birth;
 
         // auto removing destroyed targets
         if (owner == null ||  owner.readyToDispose) {
@@ -209,7 +218,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         if (rendererType.contains(RendererType.TEXTURE)) {
             sprite.dispose();
         }
-
+        readyToDispose = true;
     }
 
     // ---------------------------------------------------------------------------------------------

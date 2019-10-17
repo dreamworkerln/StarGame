@@ -54,6 +54,8 @@ public abstract class DrivenObject extends GameObject {
         damageBurnTrail.speed = 0;
         damageBurnTrail.TTL = 100;
         smokeTrailList.add(damageBurnTrail);
+
+        guideVector.setZero();
     }
 
 
@@ -205,8 +207,5 @@ public abstract class DrivenObject extends GameObject {
         vel = null;
         acc = null;
         mass = 0;
-
-
-
     }
 }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.Projectile;
 import ru.geekbrains.entities.projectile.Shell;
@@ -21,7 +22,7 @@ public class Gun extends ParticleObject {
 
     protected float calibre = 6;
     public float power = 230;     // force length, applied to shell
-    public float projectileMass = -1;
+    //public float projectileMass = -1;
 
     public float fireRate = 0.2f;
     public float gunHeat = 0;
@@ -47,7 +48,10 @@ public class Gun extends ParticleObject {
 
     public float maxRotationSpeed = 0; // maximum rotation speed
 
-    public Projectile firingAmmoType;
+    public GameObject firingAmmoType;
+    //protected Float maxProjectileVel = null;
+
+    protected BPU pbu = new BPU();
 
     static {
 
@@ -73,7 +77,8 @@ public class Gun extends ParticleObject {
         maxBlastRadius = this.radius;
         nozzlePos = new Vector2();
 
-        firingAmmoType = createProjectile();
+        setCalibre(this.calibre);
+
     }
 
 
@@ -87,7 +92,7 @@ public class Gun extends ParticleObject {
 
         if (this.getClass() == Minigun.class && !minigunPlaying) {
             minigunPlaying = true;
-            minigunFire.play(0.3f);
+            minigunFire.loop(0.3f);
         }
 
     }
@@ -154,14 +159,14 @@ public class Gun extends ParticleObject {
 
 
 
-//        if (frame >= 0 && frame < 2) {
+//        if (age >= 0 && age < 2) {
 //            blastRadius = maxBlastRadius * 0.1f;
-//        } else if (frame >= 2 && frame < 5) {
+//        } else if (age >= 2 && age < 5) {
 //            blastRadius = maxBlastRadius * 0.5f;
-//        } else if (frame >= 5 && frame < 7) {
+//        } else if (age >= 5 && age < 7) {
 //            blastRadius = maxBlastRadius * 1f;
-//        } else if (frame >= 7 && frame < 10) {
-//            blastRadius = maxBlastRadius - maxBlastRadius * ((frame - 10) / 10f);
+//        } else if (age >= 7 && age < 10) {
+//            blastRadius = maxBlastRadius - maxBlastRadius * ((age - 10) / 10f);
 //        } else {
 //            blastRadius = 0;
 //        }
@@ -170,7 +175,7 @@ public class Gun extends ParticleObject {
 
 
 
-    protected Projectile createProjectile() {
+    protected GameObject createProjectile() {
         return new Shell(calibre, owner);
     }
 
@@ -179,17 +184,12 @@ public class Gun extends ParticleObject {
 
     protected void fire(float dt) {
 
-        Projectile proj = createProjectile();
+        Projectile proj = (Projectile)createProjectile();
 
 
         if (this.getClass() != Minigun.class) {
-            cannonFire01.play(0.5f);
+            cannonFire01.play(0.4f);
         }
-
-        if (projectileMass > 0) {
-            proj.setMass(projectileMass);
-        }
-
 
         proj.pos.set(nozzlePos);
         proj.vel.set(owner.vel);
@@ -282,4 +282,13 @@ public class Gun extends ParticleObject {
         this.calibre = calibre;
         firingAmmoType = createProjectile();
     }
+
+
+    @Override
+    public void dispose() {
+
+        stopFire();
+        super.dispose();
+    }
+
 }

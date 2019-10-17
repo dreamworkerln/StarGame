@@ -88,10 +88,6 @@ public class MissileLauncher extends Gun {
 
 
 
-        if (this.getClass() == MissileLauncher.class) {
-            missileFire01.play(0.25f);
-        }
-
         List<GameObject> targets;
 
         if (owner.type.contains(ObjectType.PLAYER_SHIP)) {
@@ -146,8 +142,14 @@ public class MissileLauncher extends Gun {
         }
 
 
-        Missile missile =
-                new Missile(new TextureRegion(missileTexture), 2, owner);
+        if (this.getClass() == MissileLauncher.class) {
+            missileFire01.play(0.25f);
+        }
+
+        Missile missile = (Missile)createProjectile();
+
+        //Missile missile =
+        //        new Missile(new TextureRegion(missileTexture), 2, owner);
 
         tmp0.set(tmp4).setLength(owner.getRadius() + missile.getRadius()*2)
                 .rotate(90 * sideLaunch).add(owner.pos);
@@ -219,9 +221,17 @@ public class MissileLauncher extends Gun {
 
     }
 
+    @Override
+    protected GameObject createProjectile() {
+        return new Missile(new TextureRegion(missileTexture), 2, owner);
+    }
 
-    protected Projectile createProjectile() {
-        return new Shell(calibre, owner);
+
+    @Override
+    public void dispose() {
+
+        stopFire();
+        super.dispose();
     }
 
 }

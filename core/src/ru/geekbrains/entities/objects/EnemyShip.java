@@ -9,12 +9,15 @@ import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 
 import java.util.Arrays;
 
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 
 public class EnemyShip extends Ship {
+
+    protected BPU pbu = new BPU();
 
     //static Vector2 tmp0 = new Vector2();
     //static Vector2 tmp1 = new Vector2();
@@ -23,10 +26,12 @@ public class EnemyShip extends Ship {
     public MissileLauncher launcher;
 
 
-    Minigun.AimFunction gf;
-    UnivariateSolver nonBracketing;
 
-    public Minigun minigun;
+
+    //Minigun.AimFunction gf;
+    //UnivariateSolver nonBracketing;
+
+    //public Minigun minigun;
 
 
 
@@ -59,15 +64,18 @@ public class EnemyShip extends Ship {
 
         launcher = new MissileLauncher(10, this);
 
-        //launcher.fireRate = 0.02f;
+        //alauncher.fireRate = 0.02f;
         launcher.sideLaunchCount = 2;
 
         //maxThrottle =  maxThrottle / 10;
 
-        final double relativeAccuracy = 1.0e-6;
-        final double absoluteAccuracy = 1.0e-4;
-        gf =  new Minigun.AimFunction();
-        nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
+        //final double relativeAccuracy = 1.0e-6;
+        //final double absoluteAccuracy = 1.0e-4;
+
+//        final double relativeAccuracy = 1.0e-10;
+//        final double absoluteAccuracy = 1.0e-8;
+//        gf =  new Minigun.AimFunction();
+//        nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
 
 
         //minigun = new Minigun(4, this);
@@ -173,20 +181,30 @@ public class EnemyShip extends Ship {
         // ЛИБО Наведение на цель ------------------------------------------------------------------------
 
         // Если есть цель и мы не уклоняемся от планеты
-        if (target != null && guideVector.isZero()) {
+        if (!this.readyToDispose &&
+            target != null && guideVector.isZero()) {
 
 
-            if (tmp0.set(target.pos).sub(pos).len() > 150) {
+            if (/*tmp0.set(target.pos).sub(pos).len() > 150*/ true) {
 
-                // гидродоминируем с самонаведением от ракет
-                selfGuiding(dt);
+                // гидродоминируем с самонаведением пушки
+
+                // Максимальное возможное ускорение ракеты своим движком
+                float maxVel = gun.power / gun.firingAmmoType.getMass() * dt;
+                pbu.guideGun(this, target, maxVel, dt);
+
+                if (!pbu.guideResult.guideVector.isZero()) {
+                    guideVector.set(pbu.guideResult.guideVector.nor());
+                }
+
+                // Самонаведение не сгидродоминировало
+                if (guideVector.isZero()) {
+                    guideVector.set(target.pos).sub(pos).nor();
+                }
+
             }
 
-            // Самонаведение не сгидродоминировало
-            if (guideVector.isZero()) {
 
-                guideVector.set(target.pos).sub(pos).nor();
-            }
 
 
             // Acceleration
@@ -228,6 +246,20 @@ public class EnemyShip extends Ship {
         }
     }
 
+
+    @Override
+    public void dispose() {
+
+        launcher.dispose();
+        gun.dispose();
+
+        super.dispose();
+    }
+
+
+
+/*
+
     public void selfGuiding(float dt) {
 
         // Система наведения для пушки
@@ -252,8 +284,8 @@ public class EnemyShip extends Ship {
 
         // ORIGINAL
         // r =  rt - rs
-        gf.rx = target.pos.x + -  pos.x;
-        gf.ry = target.pos.y +  - pos.y;
+        gf.rx = target.pos.x -  pos.x;
+        gf.ry = target.pos.y  - pos.y;
 
         //  relative target velocity to object
         gf.vx = target.vel.x - vel.x;
@@ -288,7 +320,7 @@ public class EnemyShip extends Ship {
 
         }
 
-    }
+    }*/
 
 
 

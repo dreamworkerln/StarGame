@@ -20,12 +20,12 @@ public class ForceShield extends ParticleObject {
     public Color chargingColor = new Color(1f, 1f, 0.5f, 1f);
 
 
-    public float forceValue = 10000f;
+    public float forceValue = 10000f*1.0f;
 
     //public float forceValue = 30f;
 
     public float power;
-    public float maxPower = 70; // ~5 hits
+    public float maxPower = 70 * 1.0f; // ~5 hits
 
     public float powerIncrementDelta =  maxPower * 0.00001f;
 

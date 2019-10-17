@@ -36,4 +36,14 @@ public abstract class Ship extends DrivenObject {
 
         gun.draw(renderer);
     }
+
+
+    @Override
+    public void dispose() {
+        super.dispose();
+    }
+
+
+
+
 }

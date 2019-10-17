@@ -1,11 +1,7 @@
 package ru.geekbrains.entities.weapons;
 
-import com.badlogic.gdx.math.Intersector;
-
 
 import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.solvers.BrentSolver;
-import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 
 
 import java.util.List;
@@ -13,6 +9,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.projectile.Bullet;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -26,17 +23,19 @@ public class Minigun extends Gun {
     // Скопировано из DrivenObject, EnemyShip
     // походу нужно множественное наследование из C++
 
-    AimFunction gf;
-    UnivariateSolver nonBracketing;
-    double impactTime;
+//    AimFunction gf;
+//    UnivariateSolver nonBracketing;
+//    double impactTime;
 
 
     private int step = 0;
     //private int maxStep = 100;
 
     // Цели, отсортированные по времени попадания в корабль
-    private NavigableMap<Float, GameObject> impactTimes = new TreeMap<>();
-    private NavigableMap<Float, GameObject> distances = new TreeMap<>();
+    private NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
+
+    // Цели, отсортированные по времени попадания в корабль
+    //private NavigableMap<Float, GameObject> distances = new TreeMap<>();
 
     public float maxRange = 350f;
 
@@ -56,11 +55,11 @@ public class Minigun extends Gun {
         power = 20;
 
 
-        final double relativeAccuracy = 1.0e-12;
-        final double absoluteAccuracy = 1.0e-8;
-
-        gf =  new AimFunction();
-        nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
+//        final double relativeAccuracy = 1.0e-12;
+//        final double absoluteAccuracy = 1.0e-8;
+//
+//        gf =  new AimFunction();
+//        nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
     }
 
 
@@ -130,7 +129,8 @@ public class Minigun extends Gun {
             // Прощитываем "время столкновения" с каждым из объектов (линейное приближение по проекции скорости)
 
             impactTimes.clear();
-            distances.clear();
+
+            int i = 0;
 
             for (GameObject o : targets) {
 
@@ -148,7 +148,7 @@ public class Minigun extends Gun {
 
                 tmp1.set(o.pos).sub(owner.pos);
                 // 1. get distance to target
-                float dst = tmp1.len() - (owner.getRadius()*1.5f + o.getRadius());
+                //float dst = tmp1.len() - (owner.getRadius()*1.5f + o.getRadius());
                 /*
 
                 if (dst < 0) {
@@ -177,15 +177,27 @@ public class Minigun extends Gun {
                 distances.put(dst,o);
 */
 
-                impactTime = -1;
-
                 target = o;
 
-                selfGuiding(dt);
+                if (!owner.readyToDispose) {
+                    float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+                    pbu.guideGun(owner, target, maxPrjVel, dt);
+                }
+                // get results
 
-                if (impactTime >=0) {
-                    impactTimes.put((float)impactTime, o);
-                    distances.put(dst, o);
+                Float impactTime = (float)pbu.guideResult.impactTime;
+                
+                if (!impactTime.isNaN() && impactTime >= 0) {
+
+                    impactTimes.put(impactTime, pbu.guideResult.clone());
+                    //distances.put(dst, o);
+                }
+
+
+                // EXPERIMENTAL do not track more than 6 targets
+                ++i;
+                if (i > 6) {
+                    break;
                 }
 
 
@@ -219,17 +231,19 @@ public class Minigun extends Gun {
             }
 
 
-            GameObject tmp;
+            //GameObject tmp;
 
             target = null;
 
-            for (Map.Entry<Float, GameObject> entry : impactTimes.entrySet()) {
+            guideVector.setZero();
 
+            for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
 
-                if (entry.getValue().type.contains(ObjectType.MISSILE) ||
-                        entry.getValue().type.contains(ObjectType.SHIP)) {
+                if (entry.getValue().target.type.contains(ObjectType.MISSILE) ||
+                    entry.getValue().target.type.contains(ObjectType.SHIP)) {
 
-                    target = entry.getValue();
+                    target = entry.getValue().target;
+                    guideVector.set(entry.getValue().guideVector);
                 }
 
                 if (target != null &&
@@ -323,25 +337,25 @@ public class Minigun extends Gun {
         // --------------------------------------------------
         //aiming target
 
+        if(target != null &&owner != null) {
+
+            //guideVector.set(impactTimes.firstEntry().getValue().guideVector);
 
 
+//            float len = tmp0.len();
+//
+//
+//            float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+//            pbu.guideGun(owner, target, maxPrjVel, dt);
+//            // get results
+//            guideVector = pbu.guideVector;
+//
+//
+//            tmp0.set(target.pos).sub(owner.pos);
 
-        guideVector.setZero();
 
-
-        if(target != null) {
-
-
-
+            // вектор пушка(корабль) - цель
             tmp0.set(target.pos).sub(owner.pos);
-            float len = tmp0.len();
-
-
-            selfGuiding(dt);
-
-
-            tmp0.set(target.pos).sub(owner.pos);
-
 
             //Нормаль к вектору корабль-цель (нормализованный)
             tmp3.set(tmp0).rotate(90).nor();
@@ -412,20 +426,8 @@ public class Minigun extends Gun {
         if (target != null &&
                 Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
 
-//            try {
-//                Thread.sleep(170);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-
-
             startFire();
 
-//            try {
-//                Thread.sleep(20);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
         }
         else {
             stopFire();
@@ -456,12 +458,21 @@ public class Minigun extends Gun {
 
     @Override
     protected Projectile createProjectile() {
-
         return new Bullet(getCalibre(), owner);
     }
 
 
 
+
+    @Override
+    public void dispose() {
+
+        stopFire();
+        super.dispose();
+    }
+
+
+    /*
 
     public static class AimFunction implements UnivariateFunction {
 
@@ -479,8 +490,10 @@ public class Minigun extends Gun {
             return result;
         }
     }
+    */
 
 
+/*
 
     public void selfGuiding(float dt) {
 
@@ -553,5 +566,6 @@ public class Minigun extends Gun {
 
 
     }
+*/
 
 }

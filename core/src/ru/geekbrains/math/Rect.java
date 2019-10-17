@@ -127,7 +127,7 @@ public class Rect {
 //    public void resize(Rect wordBounds) {
 //        //setHeight(halfHeight);
 //
-//        float aspect = textureList[frame].getRegionWidth() / (float) textureList[frame].getRegionHeight();
+//        float aspect = textureList[age].getRegionWidth() / (float) textureList[age].getRegionHeight();
 //        halfWidth = halfHeight * aspect;
 //        //setWidth(halfHeight * aspect);
 //    }

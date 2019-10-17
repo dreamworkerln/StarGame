@@ -4,21 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 
 public abstract class Projectile extends GameObject {
-
-    protected int TTL = 10000;
-
-    protected long start;
 
     public Projectile(float height, GameObject owner) {
         super(height, owner);
 
         type.add(ObjectType.PROJECTILE);
-
-        start = GameScreen.INSTANCE.getTick();
+        TTL = 10000;
     }
 
 
@@ -26,9 +20,7 @@ public abstract class Projectile extends GameObject {
     public void update(float dt) {
         super.update(dt);
 
-        long frame = GameScreen.INSTANCE.getTick() - start;
-
-        if (frame >= TTL) {
+        if (age >= TTL) {
             readyToDispose = true;
         }
 
