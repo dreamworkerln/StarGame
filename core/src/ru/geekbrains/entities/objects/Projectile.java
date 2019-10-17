@@ -9,7 +9,7 @@ import ru.geekbrains.screen.Renderer;
 public abstract class Projectile extends GameObject {
 
     public Projectile(float height, GameObject owner) {
-        super(height, owner);
+        super(owner, height);
 
         type.add(ObjectType.PROJECTILE);
         TTL = 10000;

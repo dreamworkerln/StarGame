@@ -11,7 +11,7 @@ public class DummyObject extends GameObject {
      * @param radius
      */
     public DummyObject(float height, GameObject owner) {
-        super(height, owner);
+        super(owner, height);
     }
 
 

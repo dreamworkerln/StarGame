@@ -68,10 +68,15 @@ public class Minigun extends Gun {
 
         super.update(dt);
 
+        if (owner == null && owner.readyToDispose) {
+            return;
+        }
 
         if (target != null && target.readyToDispose) {
             target = null;
         }
+
+
 
         // Out of range
         if (target != null) {
@@ -337,7 +342,7 @@ public class Minigun extends Gun {
         // --------------------------------------------------
         //aiming target
 
-        if(target != null &&owner != null) {
+        if(target != null && !target.readyToDispose) {
 
             //guideVector.set(impactTimes.firstEntry().getValue().guideVector);
 

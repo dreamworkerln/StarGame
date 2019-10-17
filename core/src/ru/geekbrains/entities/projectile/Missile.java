@@ -117,8 +117,8 @@ public class Missile extends DrivenObject {
                 guideVector.set(pbu.guideResult.guideVector.nor());
             }
 
-            // Самонаведение не сгидродоминировало, наводимся по прямой (только первые 20 тиков после запуска)
-            if (guideVector.isZero() && age < 20) {
+            // Самонаведение не сгидродоминировало, наводимся по прямой (только для больших ракет)
+            if (guideVector.isZero() && this.getClass() == Missile.class && TTL < 30) {
                 guideVector.set(target.pos).sub(pos).nor();
             }
         }

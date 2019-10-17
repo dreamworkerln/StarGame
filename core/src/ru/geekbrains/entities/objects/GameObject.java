@@ -63,6 +63,16 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
 
 
+    private GameObject(GameObject owner, float radius, RendererType renderType) {
+
+        birth = GameScreen.INSTANCE.getTick();
+        this.type.add(ObjectType.OBJECT);
+        this.owner = owner;
+        dir.set(1, 0);
+        this.radius = radius;
+        rendererType.add(renderType);
+    }
+
     /**
      * Constructor with sprite
      * @param textureRegion texture
@@ -70,19 +80,11 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
      */
     public GameObject(TextureRegion textureRegion, float height, GameObject owner) {
 
-        this.type.add(ObjectType.OBJECT);
+        this(owner, height/2f, RendererType.TEXTURE);
 
-        this.radius = height / 2f;
-        this.owner = owner;
         sprite = new Sprite(textureRegion);
         sprite.setFilter();
         sprite.setHeightAndResize(2*radius);
-        //radius = sprite.getHalfHeight();
-        dir.set(1, 0);
-
-        rendererType.add(RendererType.TEXTURE);
-
-        birth = GameScreen.INSTANCE.getTick();
     }
 
 
@@ -90,24 +92,14 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
      * Constructor without sprite - using ShapeRenderer to draw particles
      * @param radius
      */
-    public GameObject(float height, GameObject owner) {
+    public GameObject(GameObject owner, float height) {
 
-        this.type.add(ObjectType.OBJECT);
-        this.owner = owner;
-        this.radius = height / 2f;
-        dir.set(1, 0);
-
-        rendererType.add(RendererType.SHAPE);
+        this(owner, height / 2f, RendererType.SHAPE);
     }
 
     public GameObject(GameObject owner) {
 
-        this.owner = owner;
-        this.radius =  owner.radius;
-        dir.set(1, 0);
-
-        rendererType.add(RendererType.SHAPE);
-
+        this(owner, owner.radius, RendererType.SHAPE);
     }
 
 

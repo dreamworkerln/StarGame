@@ -9,7 +9,7 @@ import ru.geekbrains.entities.objects.GameObject;
 public abstract class ParticleObject extends GameObject {
 
     public ParticleObject(float height, GameObject owner) {
-        super(height, owner);
+        super(owner, height);
     }
 
     public ParticleObject(GameObject owner) {
