@@ -1,10 +1,10 @@
 download release from  
 https://github.com/dreamworkerln/StarGame/releases/tag/1.0
 
-desktop-1.0.jar  
-config.ini  
+unzip
+release.zip 
 
-run  
+run (required java 1.8)  
 java -jar desktop-1.0.jar  
 
 
