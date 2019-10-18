@@ -183,7 +183,7 @@ public class GameScreen extends BaseScreen {
 
 
         expl01 = Gdx.audio.newSound(Gdx.files.internal("expl01.mp3"));
-	    expl02 = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
+        expl02 = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
         flak = Gdx.audio.newSound(Gdx.files.internal("flak.mp3"));
         metalHit = Gdx.audio.newSound(Gdx.files.internal("IMPACT CAN METAL HIT RING 01.mp3"));
 
@@ -307,8 +307,12 @@ public class GameScreen extends BaseScreen {
 
                 playExplosionSound(obj, null);
 
-                Explosion expl = new Explosion(obj);
-                particleObjects.add(expl);
+                // do not explode fragments
+                if (!obj.type.contains(ObjectType.PLANET)) {
+                    Explosion expl = new Explosion(obj);
+                    particleObjects.add(expl);
+                }
+
 
 
                 // call object destructor
@@ -461,6 +465,11 @@ public class GameScreen extends BaseScreen {
     }
 
 
+
+
+
+
+
     private void collisionDetection(float dt) {
 
         // objects with greater radius goes first
@@ -503,8 +512,7 @@ public class GameScreen extends BaseScreen {
                 GameObject prj = points[i].getValue(); // projectile (may be DRIVEN_OBJECT)
 
                 // уничтоженный объект не взаимодействует с другими, сам с собой тоже (в матрице по диагонали нули)
-                if (prj.readyToDispose ||
-                        tgt == prj)
+                if (prj.readyToDispose || tgt == prj)
                     continue;
 
                 tmp1.set(prj.pos).sub(tgt.pos); // vector from target to projectile
@@ -513,7 +521,11 @@ public class GameScreen extends BaseScreen {
                 if (tgt.type.contains(ObjectType.PLAYER_SHIP) &&
                         (prj.type.contains(ObjectType.PROJECTILE)
                                 /*|| prj.type.contains(ObjectType.DRIVEN_OBJECT)*/) &&
-                        prj.owner != tgt) {     // щит не влияет на свои снаряды
+
+                        (prj.owner != tgt || prj.type.contains(ObjectType.FRAG))
+
+
+                ) {     // щит не влияет на свои снаряды
 
 
                     PlayerShip plsp = (PlayerShip) tgt;
@@ -873,7 +885,8 @@ public class GameScreen extends BaseScreen {
             flak.play(0.3f);
         }
         else if (target != null &&
-                obj.type.contains(ObjectType.SHELL) &&
+                (obj.type.contains(ObjectType.SHELL)/*||
+                 obj.type.contains(ObjectType.FRAG)*/) &&
                 target.type.contains(ObjectType.SHIP)) {
 
             metalHit.play();
@@ -1066,12 +1079,12 @@ public class GameScreen extends BaseScreen {
     private void hitLogger(GameObject tgt, GameObject prj) {
         // logging
         if (tgt.getClass() == PlayerShip.class) {
-            
+
             System.out.println("Player hitted by: " + prj.getClass().getSimpleName());
 
             if (prj.getClass() == Missile.class &&
-                prj.owner!= null &&
-                prj.owner.getClass() == PlayerShip.class) {
+                    prj.owner!= null &&
+                    prj.owner.getClass() == PlayerShip.class) {
 
                 System.out.println("Committed suicide");
             }

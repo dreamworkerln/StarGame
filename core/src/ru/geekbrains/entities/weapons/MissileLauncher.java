@@ -12,10 +12,10 @@ import java.util.List;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
-import ru.geekbrains.entities.objects.Projectile;
+import ru.geekbrains.entities.objects.PlayerShip;
+import ru.geekbrains.entities.projectile.FragMissile;
 import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 
@@ -220,7 +220,19 @@ public class MissileLauncher extends Gun {
 
     @Override
     protected GameObject createProjectile() {
-        return new Missile(new TextureRegion(missileTexture), 2, owner);
+
+        GameObject result;
+
+        if (owner.getClass() == PlayerShip.class) {
+
+            result =  new FragMissile(new TextureRegion(missileTexture), 2, owner);
+        }
+        else {
+            result = new Missile(new TextureRegion(missileTexture), 2, owner);
+
+        }
+
+        return result;
     }
 
 

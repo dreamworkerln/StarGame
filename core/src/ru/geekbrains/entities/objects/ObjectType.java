@@ -6,6 +6,7 @@ public enum ObjectType {
     DRIVEN_OBJECT,
     PROJECTILE,
     SHELL,
+    FRAG,
     BULLET,
     SHIP,
     MISSILE,

@@ -24,7 +24,9 @@ public class AntiMissile extends Missile {
 
         selfdOnTargetDestroyed = true;
         selfdOnNoFuel = true;
-        selfdOnMiss = true;
+        selfdOnProximity = true;
+
+        proximityTargetDistance = 50;
 
     }
 

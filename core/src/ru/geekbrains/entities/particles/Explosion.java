@@ -56,7 +56,7 @@ public class Explosion extends ParticleObject {
         frame = GameScreen.INSTANCE.getTick() - start;
 
         if(frame >= 0 && frame < 5) {
-            radius =  maxRadius * 0.1f;
+            radius =  maxRadius * 0.3f;
         }
         else if(frame >= 5 && frame < 10) {
             radius =  maxRadius * 0.5f;

@@ -1,9 +1,11 @@
-package ru.geekbrains.entities.objects;
+package ru.geekbrains.entities.projectile;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.Renderer;
 
 public abstract class Projectile extends GameObject {
@@ -51,7 +53,8 @@ public abstract class Projectile extends GameObject {
             }
 
         }
-        else {
+        else if (type.contains(ObjectType.SHELL) ||
+                 type.contains(ObjectType.FRAG)) {
             Gdx.gl.glLineWidth(1);
             shape.set(ShapeRenderer.ShapeType.Filled);
             shape.circle(pos.x,pos.y,radius);

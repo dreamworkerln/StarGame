@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
-import ru.geekbrains.entities.objects.Projectile;
+import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.screen.GameScreen;

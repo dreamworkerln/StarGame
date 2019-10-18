@@ -2,8 +2,6 @@ package ru.geekbrains.entities.projectile;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.solvers.BrentSolver;
 import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 
 import ru.geekbrains.entities.equipment.BPU;
@@ -19,11 +17,21 @@ public class Missile extends DrivenObject {
     //AimFunction af;
     protected boolean selfdOnTargetDestroyed;
     protected boolean selfdOnNoFuel;
-    protected boolean selfdOnMiss;
+    protected boolean selfdOnProximity;
 
-    protected UnivariateSolver nonBracketing;
 
+    // минимальная дистанция сближения с целью (которая была зарегистрирована в полете)
     protected float minDistance = Float.MAX_VALUE;
+
+    protected float distToCarrier = Float.MAX_VALUE;
+    protected float distToTarget = Float.MAX_VALUE;
+
+    // при превышении мнинимальной дистанции до цели это величины происходит подрыв
+    protected float proximityTargetDistance = Float.MAX_VALUE;
+
+    // подрыв не призводится при расстоянии до носителя меньшим, чем это
+    // (безопасная дистанция блокировки подрыва)
+    protected float proximitySafeDistance = 0;
 
 
     public Missile(TextureRegion textureRegion, float height, GameObject owner) {
@@ -46,6 +54,8 @@ public class Missile extends DrivenObject {
 
         selfdOnTargetDestroyed = true;
         selfdOnNoFuel = false;
+        selfdOnProximity = false;
+
 
         aspectRatio = 1;
 
@@ -58,22 +68,33 @@ public class Missile extends DrivenObject {
 
     }
 
-
-
-
     @Override
     protected void guide(float dt) {
+
+        if (owner != null && !owner.readyToDispose) {
+            distToCarrier = tmp0.set(owner.pos).sub(pos).len() - owner.getRadius() - radius;
+        }
+        else {
+            distToCarrier = Float.MAX_VALUE;
+        }
+
+        if(target != null && !this.readyToDispose) {
+            distToTarget = tmp0.set(target.pos).sub(pos).len() - target.getRadius() - radius;
+        }
+
+
 
         if (target != null && target.readyToDispose) {
             target = null;
         }
 
         // self-d on target destroyed
-        if (target == null) {
+        if (selfdOnTargetDestroyed &&
+            target == null &&
+            distToCarrier > proximitySafeDistance) {
 
-            if (selfdOnTargetDestroyed) {
                 this.readyToDispose = true;
-            }
+
         }
 
         // self-d on no fuel
@@ -85,15 +106,24 @@ public class Missile extends DrivenObject {
         }
 
 
-        // Self-d on miss target
-        if (target != null && selfdOnMiss) {
-            float dist = tmp0.set(target.pos).sub(pos).len();
+        // Self-d on miss target (proximity explosion)
+        if (target != null && selfdOnProximity) {
 
-            if (dist < minDistance) {
-                minDistance = dist;
+
+
+
+            if (distToTarget < minDistance) {
+                minDistance = distToTarget;
             }
 
-            if (dist - target.getRadius() * 30 > minDistance + 50) {
+
+            // Дистанция до цели начала расти
+            // Находимся от цели на расстоянии, меньшем proximityTargetDistance
+            // находимся от носителя дальше минимального расстояния
+            if (distToTarget > minDistance &&
+                minDistance < proximityTargetDistance &&
+                distToCarrier > proximitySafeDistance) {
+
                 this.readyToDispose = true;
             }
         }

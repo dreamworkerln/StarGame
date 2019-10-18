@@ -4,8 +4,6 @@ package ru.geekbrains.entities.weapons;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
-
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +14,7 @@ import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.projectile.Bullet;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.objects.Projectile;
+import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
 
 
@@ -253,6 +251,11 @@ public class Minigun extends Gun {
             guideVector.setZero();
 
             for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
+
+                if(entry.getValue().target == null ||
+                        entry.getValue().target.readyToDispose) {
+                    continue;
+                }
 
                 if (entry.getValue().target.type.contains(ObjectType.MISSILE) ||
                     entry.getValue().target.type.contains(ObjectType.SHIP)) {

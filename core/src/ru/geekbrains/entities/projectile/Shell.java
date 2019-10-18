@@ -2,7 +2,6 @@ package ru.geekbrains.entities.projectile;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.objects.Projectile;
 
 public class Shell extends Projectile {
 

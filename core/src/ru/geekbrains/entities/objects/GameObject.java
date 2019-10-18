@@ -258,7 +258,13 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         health = maxHealth;
     }
 
+    public long getTTL() {
+        return TTL;
+    }
 
+    public void setTTL(long TTL) {
+        this.TTL = TTL;
+    }
 
     public void doDamage(float amount) {
 
