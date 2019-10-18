@@ -117,7 +117,8 @@ public class Missile extends DrivenObject {
                 guideVector.set(pbu.guideResult.guideVector.nor());
             }
 
-            // Самонаведение не сгидродоминировало, наводимся по прямой (только для больших ракет)
+            // Самонаведение не сгидродоминировало, наводимся по прямой
+            // (только для больших ракет и только неск сек от запуска)
             if (guideVector.isZero() && this.getClass() == Missile.class && TTL < 30) {
                 guideVector.set(target.pos).sub(pos).nor();
             }

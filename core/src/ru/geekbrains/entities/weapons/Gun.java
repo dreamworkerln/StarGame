@@ -17,8 +17,6 @@ import ru.geekbrains.screen.Renderer;
 public class Gun extends ParticleObject {
 
     private static Sound cannonFire01;
-    private static Sound minigunFire;
-    private static boolean minigunPlaying = false;
 
     protected float calibre = 6;
     public float power = 230;     // force length, applied to shell
@@ -56,7 +54,6 @@ public class Gun extends ParticleObject {
     static {
 
         cannonFire01 = Gdx.audio.newSound(Gdx.files.internal("Light Naval Cannon Blast 15.mp3"));
-        minigunFire = Gdx.audio.newSound(Gdx.files.internal("vulcan.mp3"));
     }
 
 
@@ -89,12 +86,6 @@ public class Gun extends ParticleObject {
     public void startFire() {
 
         firing = true;
-
-        if (this.getClass() == Minigun.class && !minigunPlaying) {
-            minigunPlaying = true;
-            minigunFire.loop(0.3f);
-        }
-
     }
 
 
@@ -102,12 +93,6 @@ public class Gun extends ParticleObject {
     public void stopFire() {
 
         firing = false;
-
-
-        if (this.getClass() == Minigun.class && minigunPlaying) {
-            minigunPlaying = false;
-            minigunFire.stop();
-        }
     }
 
 
@@ -187,9 +172,7 @@ public class Gun extends ParticleObject {
         Projectile proj = (Projectile)createProjectile();
 
 
-        if (this.getClass() != Minigun.class) {
-            cannonFire01.play(0.4f);
-        }
+        playFireSound();
 
         proj.pos.set(nozzlePos);
         proj.vel.set(owner.vel);
@@ -281,6 +264,16 @@ public class Gun extends ParticleObject {
     public void setCalibre(float calibre) {
         this.calibre = calibre;
         firingAmmoType = createProjectile();
+    }
+
+
+    // костыли, нарушение подстановки Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher
+    // в абстрактный  метод playLaunchSound()
+    private void playFireSound() {
+
+        if (this.getClass() == Gun.class) {
+            cannonFire01.play(0.4f);
+        }
     }
 
 

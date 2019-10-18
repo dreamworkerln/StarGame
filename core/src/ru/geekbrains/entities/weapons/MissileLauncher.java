@@ -65,7 +65,7 @@ public class MissileLauncher extends Gun {
     public void update(float dt) {
         super.update(dt);
 
-        // костыли
+        // костыли, нарушение подстановки Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher
         if (this.getClass() ==  MissileLauncher.class) {
 
 
@@ -76,7 +76,6 @@ public class MissileLauncher extends Gun {
                 reverseLaunch = false;
             }
         }
-
     }
 
 
@@ -141,12 +140,9 @@ public class MissileLauncher extends Gun {
             tmp4.scl(-1);
         }
 
-
-        if (this.getClass() == MissileLauncher.class) {
-            missileFire01.play(0.25f);
-        }
-
         Missile missile = (Missile)createProjectile();
+
+        playLaunchSound();
 
         //Missile missile =
         //        new Missile(new TextureRegion(missileTexture), 2, owner);
@@ -189,10 +185,11 @@ public class MissileLauncher extends Gun {
 
         //super.draw(renderer);
 
-        // костыли
+        // костыли, нарушение Лискова, нужно выделить в  класс abstract BaseMissileLauncher
         if (this.getClass() ==  MissileLauncher.class) {
 
 
+            // Рисуем перекрестье на цели
             if (target != null && !target.readyToDispose) {
 
                 ShapeRenderer shape = renderer.shape;
@@ -225,6 +222,18 @@ public class MissileLauncher extends Gun {
     protected GameObject createProjectile() {
         return new Missile(new TextureRegion(missileTexture), 2, owner);
     }
+
+
+    // костыли, нарушение подстановки Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher
+    // в абстрактный  метод playLaunchSound()
+    private void playLaunchSound() {
+
+        if (this.getClass() == MissileLauncher.class) {
+            missileFire01.play(0.25f);
+        }
+    }
+
+
 
 
     @Override

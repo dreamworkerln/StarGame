@@ -1,6 +1,9 @@
 package ru.geekbrains.entities.weapons;
 
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+
 import org.apache.commons.math3.analysis.UnivariateFunction;
 
 
@@ -18,6 +21,9 @@ import ru.geekbrains.screen.GameScreen;
 
 
 public class Minigun extends Gun {
+
+    private static Sound minigunFire;
+    private static boolean minigunPlaying = false;
 
 
     // Скопировано из DrivenObject, EnemyShip
@@ -38,6 +44,10 @@ public class Minigun extends Gun {
     //private NavigableMap<Float, GameObject> distances = new TreeMap<>();
 
     public float maxRange = 350f;
+
+    static {
+        minigunFire = Gdx.audio.newSound(Gdx.files.internal("vulcan.mp3"));
+    }
 
     public Minigun(float height, GameObject owner) {
 
@@ -458,6 +468,30 @@ public class Minigun extends Gun {
                 doAngle = -doAngle;
             }
             dir.rotateRad(doAngle);
+        }
+    }
+
+
+    @Override
+    public void startFire() {
+
+        super.startFire();
+
+        if (this.getClass() == Minigun.class && !minigunPlaying) {
+            minigunPlaying = true;
+            minigunFire.loop(0.3f);
+        }
+    }
+
+
+    @Override
+    public void stopFire() {
+
+        super.stopFire();
+
+        if (this.getClass() == Minigun.class && minigunPlaying) {
+            minigunPlaying = false;
+            minigunFire.stop();
         }
     }
 

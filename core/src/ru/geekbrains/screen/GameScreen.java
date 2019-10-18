@@ -108,6 +108,7 @@ public class GameScreen extends BaseScreen {
     private Music music;
     private Sound expl01;
     private Sound expl02;
+    private Sound flak;
     private Sound metalHit;
 
 
@@ -177,12 +178,13 @@ public class GameScreen extends BaseScreen {
 
         music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
 
-        music.setVolume(0.9f);
+        music.setVolume(1f);
         music.play();
 
 
         expl01 = Gdx.audio.newSound(Gdx.files.internal("expl01.mp3"));
 	    expl02 = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
+        flak = Gdx.audio.newSound(Gdx.files.internal("flak.mp3"));
         metalHit = Gdx.audio.newSound(Gdx.files.internal("IMPACT CAN METAL HIT RING 01.mp3"));
 
         // DIFFICULTY LEVEL ------------------------------------------------------------------------
@@ -864,7 +866,10 @@ public class GameScreen extends BaseScreen {
         else if (obj.type.contains(ObjectType.MISSILE) &&
                 !obj.type.contains(ObjectType.ANTIMISSILE)) {
 
-            expl02.play(0.3f);
+            expl02.play(0.4f);
+        }
+        else if (obj.type.contains(ObjectType.ANTIMISSILE)) {
+            flak.play(0.3f);
         }
         else if (target != null &&
                 obj.type.contains(ObjectType.SHELL) &&
