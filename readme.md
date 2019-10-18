@@ -57,4 +57,4 @@ Set one that fit you skill in StarGame/desktop/build/libs/config.ini
 Code need refactoring, etc., but better if it was written in C++ to avoid using buffer objects for Vector2, 
 GC related things, so i give up to do this. 
 
-Demo: https://www.youtube.com/watch?v=LNbT0_k0FFU
+Demo: https://www.youtube.com/watch?v=yvjAXCUgGY8
