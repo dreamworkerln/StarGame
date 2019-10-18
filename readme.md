@@ -1,7 +1,7 @@
 download release from  
 https://github.com/dreamworkerln/StarGame/releases/tag/1.0
 
-desktop-1.0.jar 
+desktop-1.0.jar  
 config.ini  
 
 run  
@@ -25,9 +25,9 @@ Ship hull will be destroyed in 3 shell hit, but slowly auto-repairing so 4 hits 
 
 Missile kills ship in one hit.  
 
-Mini-gun is auto-firing at closest target (act as close-in weapon system (point-defence))
-Most time it bringing targets down but may miss on simultaneous incoming missiles from different directions.
-(Or when attacked by missile launched from close enemy ship.)
+Mini-gun is auto-firing at closest target (act as close-in weapon system (point-defence))  
+Most time it bringing targets down but may miss on simultaneous incoming missiles from different directions.  
+(Or when attacked by missile launched from close enemy ship.)  
 Doesn’t shoot at your missiles. (So launch missiles safely.)  
 
 Anti-missile system also help against inbound missiles on long range.  
