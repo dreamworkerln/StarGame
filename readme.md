@@ -4,7 +4,7 @@ https://github.com/dreamworkerln/StarGame/releases/tag/1.0
 unzip
 release.zip 
 
-run  
+run (required java 8) 
 java -jar desktop-1.0.jar  
 
 
