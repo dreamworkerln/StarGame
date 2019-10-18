@@ -447,9 +447,10 @@ public class GameScreen extends BaseScreen {
 
         tmp1s.set(planet.pos);
         tmp1s.sub(obj.pos);
-        float G = 2f;
 
-        //float G = 0f;
+        //float G = 2f;
+        float G = 0f;
+
         float divider = tmp1s.len2();
         // avoid division by zero 
         if (divider < 0.0000001)

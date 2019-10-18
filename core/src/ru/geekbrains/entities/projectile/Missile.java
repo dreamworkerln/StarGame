@@ -16,7 +16,7 @@ public class Missile extends DrivenObject {
     protected BPU pbu = new BPU();
 
 
-    AimFunction af;
+    //AimFunction af;
     protected boolean selfdOnTargetDestroyed;
     protected boolean selfdOnNoFuel;
     protected boolean selfdOnMiss;
@@ -49,11 +49,12 @@ public class Missile extends DrivenObject {
 
         aspectRatio = 1;
 
-        final double relativeAccuracy = 1.0e-10;
-        final double absoluteAccuracy = 1.0e-8;
+//        final double relativeAccuracy = 1.0e-10;
+//        final double absoluteAccuracy = 1.0e-8;
+//
+//        af =  new AimFunction();
+//        nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
 
-        af =  new AimFunction();
-        nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
 
     }
 
@@ -101,7 +102,7 @@ public class Missile extends DrivenObject {
 
         //guideVector.setZero();
 
-        guideVector.setZero();
+        //guideVector.setZero();
 
         if(target != null && !this.readyToDispose) {
 
@@ -114,13 +115,17 @@ public class Missile extends DrivenObject {
             //selfGuiding(dt);
 
             if (!pbu.guideResult.guideVector.isZero()) {
+
+                //tmp0.set(pbu.guideResult.guideVector.nor());
                 guideVector.set(pbu.guideResult.guideVector.nor());
             }
-
             // Самонаведение не сгидродоминировало, наводимся по прямой
-            // (только для больших ракет и только неск сек от запуска)
-            if (guideVector.isZero() && this.getClass() == Missile.class && TTL < 30) {
-                guideVector.set(target.pos).sub(pos).nor();
+            else {
+                // (только для больших ракет)
+                if (this.getClass() == Missile.class /*&& age < 10000*/ ) {
+                    guideVector.set(target.pos).sub(pos).nor();
+                    //System.out.println(this + "   " + age);
+                }
             }
         }
 
@@ -148,7 +153,7 @@ public class Missile extends DrivenObject {
 
     }
 
-
+/*
     private static class AimFunction implements UnivariateFunction {
 
         public double rx, ry, vx, vy, ax, ay, ACC;
@@ -166,8 +171,9 @@ public class Missile extends DrivenObject {
             return result;
         }
     }
+    */
 
-
+/*
 
     public void selfGuiding(float dt) {
 
@@ -239,6 +245,7 @@ public class Missile extends DrivenObject {
 
         }
     }
+    */
 
 
 }

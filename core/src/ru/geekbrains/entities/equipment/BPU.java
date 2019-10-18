@@ -193,14 +193,11 @@ public class BPU {
         mf.vx = target.vel.x - owner.vel.x;
         mf.vy = target.vel.y - owner.vel.y;
 
-//        // apply inverted object acceleration to target
-//        mf.ax = target.acc.x /*- acc.x*/;
-//        mf.ay = target.acc.y /*- acc.y*/;
-
         // EXPERIMENTAL
-        // apply inverted object acceleration to target
-        mf.ax = target.acc.x - owner.acc.x;
-        mf.ay = target.acc.y - owner.acc.y;
+        // removed applied inverted object acceleration to target
+        // почему так лучше работает - я хз
+        mf.ax = target.acc.x /*- owner.acc.x*/;
+        mf.ay = target.acc.y /*- owner.acc.y*/;
 
         guideResult.impactTime = Double.NaN;
         guideResult.target = null;

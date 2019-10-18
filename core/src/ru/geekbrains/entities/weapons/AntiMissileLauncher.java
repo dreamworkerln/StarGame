@@ -248,7 +248,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         // Auto fire control
         if (target != null) {
-            startFire();
+            //startFire();
         }
         else {
             stopFire();
