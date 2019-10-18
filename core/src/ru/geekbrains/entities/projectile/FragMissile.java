@@ -29,12 +29,15 @@ public class FragMissile extends Missile{
     protected void guide(float dt) {
         super.guide(dt);
 
+
         if (distToTarget < proximityTargetDistance) {
 
             dir.set(target.pos).sub(pos).nor();
 
             shapedExplosion = true;
             readyToDispose = true;
+
+
         }
 
     }
@@ -45,7 +48,6 @@ public class FragMissile extends Missile{
     public void dispose() {
 
         // create fragments
-
         for (int i = 0; i < 50; i++) {
 
 
