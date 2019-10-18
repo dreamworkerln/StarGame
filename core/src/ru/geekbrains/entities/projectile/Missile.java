@@ -122,7 +122,7 @@ public class Missile extends DrivenObject {
             // Самонаведение не сгидродоминировало, наводимся по прямой
             else {
                 // (только для больших ракет)
-                if (/*this.getClass() == Missile.class*/ /*&& age < 10000*/true ) {
+                if (this.getClass() == Missile.class /*&& age < 10000*/ ) {
                     guideVector.set(target.pos).sub(pos).nor();
                     //System.out.println(this + "   " + age);
                 }
