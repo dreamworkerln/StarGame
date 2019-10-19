@@ -21,8 +21,8 @@ public class Fragment extends Projectile implements SmokeTrailList {
         super(height, owner);
 
         type.add(ObjectType.FRAG);
-        mass = 0.001f;
-        //mass = 0.016f;
+
+        mass = 0.005f;
 
         setMaxHealth(0.002f);
         damage = 0.15f;
@@ -31,7 +31,10 @@ public class Fragment extends Projectile implements SmokeTrailList {
         //damage = 1;
 
 
+        //SmokeTrail smoke = new SmokeTrail(1, new Color(0.5f,0.5f,0.5f,1f), this);
+
         SmokeTrail smoke = new SmokeTrail(1, new Color(0.3f,0.2f,0.3f,1f), this);
+
         smoke.speed = 0;
         smoke.TTL = 50;
         smokeTrailList.add(smoke);
@@ -70,7 +73,7 @@ public class Fragment extends Projectile implements SmokeTrailList {
 
 
     @Override
-    public List<SmokeTrail> getSmokeTrailList() {
+    public List<SmokeTrail> removeSmokeTrailList() {
         return smokeTrailList;
     }
 }

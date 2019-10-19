@@ -26,11 +26,17 @@ public class Missile extends DrivenObject {
 
     // при промахе при удалении от цели
     // до этой величины происходит подрыв
-    protected float proximityTargetDistance = Float.MAX_VALUE;
+    protected float proximityMissTargetDistance = Float.MAX_VALUE;
 
     // подрыв не призводится при расстоянии до носителя меньшим, чем это
     // (безопасная дистанция блокировки подрыва)
     protected float proximitySafeDistance = 0;
+
+
+
+    // Производится дистанционный подрыв
+    // при сокращении дистанции до цели меньше этой величины
+    protected float proximityMinDistance = 0;
 
 
     public Missile(TextureRegion textureRegion, float height, GameObject owner) {
@@ -79,6 +85,10 @@ public class Missile extends DrivenObject {
 
         if(target != null && !this.readyToDispose) {
             distToTarget = tmp0.set(target.pos).sub(pos).len() - target.getRadius() - radius;
+
+            if (distToTarget < 0 ) {
+                distToTarget = 0;
+            }
         }
 
 
@@ -108,24 +118,33 @@ public class Missile extends DrivenObject {
         // Self-d on miss target (proximity explosion)
         if (target != null && selfdOnProximityMiss) {
 
-
-
-
             if (distToTarget < minDistance) {
                 minDistance = distToTarget;
             }
 
 
             // Дистанция до цели начала расти
-            // Находимся от цели на расстоянии, меньшем proximityTargetDistance
-            // находимся от носителя дальше минимального расстояния
-            if (distToTarget > minDistance &&
-                minDistance < proximityTargetDistance &&
+            // Находимся от цели на расстоянии, меньшем proximityMissTargetDistance
+            // находимся от носителя дальше безопасного расстояния
+            if (distToTarget > (minDistance + radius + target.getRadius()) &&
+                distToTarget < proximityMissTargetDistance &&
                 distToCarrier > proximitySafeDistance) {
 
                 this.readyToDispose = true;
             }
         }
+
+
+        // explode on min distance to target
+        // находимся от носителя дальше безопасного расстояния
+        if (distToTarget < proximityMinDistance &&
+            distToCarrier > proximitySafeDistance) {
+
+            this.readyToDispose = true;
+        }
+
+
+
 
 
 

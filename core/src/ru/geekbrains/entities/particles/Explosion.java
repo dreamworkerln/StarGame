@@ -6,9 +6,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.List;
 
-import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
-import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -46,7 +44,10 @@ public class Explosion extends ParticleObject {
 
         // move SmokeTrail fom owner to this
         if (owner instanceof SmokeTrailList /*owner.type.contains(ObjectType.DRIVEN_OBJECT)*/) {
-            this.smokeTrailList = ((SmokeTrailList)owner).getSmokeTrailList();
+
+            SmokeTrailList slist = (SmokeTrailList)owner;
+
+            this.smokeTrailList = slist.removeSmokeTrailList();
         }
     }
 

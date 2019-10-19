@@ -185,8 +185,11 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     }
 
     @Override
-    public List<SmokeTrail> getSmokeTrailList() {
-        return smokeTrailList;
+    public List<SmokeTrail> removeSmokeTrailList() {
+
+        List<SmokeTrail> result = smokeTrailList;
+        smokeTrailList = new ArrayList<>();
+        return result;
     }
 
     @Override
@@ -233,12 +236,18 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         // do not dispose engineTrail and damageBurnTrail
         // they will be owned by explosion
 
-        engineTrail = null;
-        damageBurnTrail = null;
+        for (SmokeTrail st : smokeTrailList) {
+            st.dispose();
+        }
 
-        pos = null;
-        vel = null;
-        acc = null;
-        mass = 0;
+//        engineTrail = null;
+//        damageBurnTrail = null;
+//
+//        pos = null;
+//        vel = null;
+//        acc = null;
+//        mass = 0;
+
+        super.dispose();
     }
 }

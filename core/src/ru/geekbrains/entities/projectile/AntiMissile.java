@@ -26,10 +26,16 @@ public class AntiMissile extends Missile {
         selfdOnNoFuel = true;
         selfdOnProximityMiss = true;
 
-        proximityTargetDistance = 50;
+        proximityMissTargetDistance = 50;
 
     }
 
+    @Override
+    public void update(float dt) {
+        super.update(dt);
+
+        
+    }
 
 //    @Override
 //    protected void guide(float dt) {

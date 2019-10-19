@@ -107,9 +107,11 @@ public class Sprite extends Rect {
 
     public void dispose() {
 
-        for (TextureRegion texture: textureList) {
-            texture.getTexture().dispose();
-        }
+        this.textureList = null;
+
+//        for (TextureRegion texture: textureList) {
+//            texture.getTexture().dispose();
+//        }
     }
 
 

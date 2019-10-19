@@ -234,7 +234,7 @@ public class MissileLauncher extends Gun {
 
         GameObject result;
 
-        if (owner.getClass() == PlayerShip.class) {
+        if (owner.getClass() == PlayerShip.class|| true) {
 
             result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
         }
