@@ -37,7 +37,10 @@ public class AntiMissileLauncher extends MissileLauncher {
     }
 
     public AntiMissileLauncher(float height, GameObject owner) {
+
         super(height, owner);
+
+        isModule = true;
 
         //fireRate = 0.1f;
         fireRate = 0.05f;

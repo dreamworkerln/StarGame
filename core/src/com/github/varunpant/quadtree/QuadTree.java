@@ -13,6 +13,8 @@ import java.util.List;
 @SuppressWarnings("unchecked")
 public class QuadTree<T> {
 
+    //List<Point<T>> megaBuffer = new ArrayList<>();
+
 
     private Node<T> root_;
     private int count_ = 0;
@@ -180,6 +182,30 @@ public class QuadTree<T> {
         }, xmin, ymin, xmax, ymax);
         return arr.toArray((Point<T>[]) new Point[arr.size()]);
     }
+
+
+    public List<Point<T>> searchIntersect2(final double xmin, final double ymin, final double xmax, final double ymax) {
+
+        List<Point<T>> arr = new ArrayList<>();
+
+        //megaBuffer.clear();
+
+        this.navigate(this.root_, (quadTree, node) -> {
+            Point<T> pt = node.getPoint();
+            if (pt.getX() < xmin || pt.getX() > xmax || pt.getY() < ymin || pt.getY() > ymax) {
+                // Definitely not within the polygon!
+            } else {
+                arr.add(node.getPoint());
+            }
+
+        }, xmin, ymin, xmax, ymax);
+        return arr;
+    }
+
+
+
+
+
 
     public Point<T>[] searchWithin(final double xmin, final double ymin, final double xmax, final double ymax) {
         final List<Point<T>> arr = new ArrayList<Point<T>>();

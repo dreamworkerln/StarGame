@@ -16,14 +16,14 @@ public class DesktopLauncher {
 		Graphics.DisplayMode[] modes = LwjglApplicationConfiguration.getDisplayModes();
 		config.setFromDisplayMode(modes[1]);
 
-		float aspect = 3f/4f;
+		float aspect = 10f/16f;
 		config.height = 2000;
 		config.width = (int) (config.height / aspect);
 
 
 		//config.forceExit = false;
 		//config.resizable = true;
-		config.fullscreen = false;
+		//config.fullscreen = false;
 
 		new LwjglApplication(new StarGame(), config);
 	}

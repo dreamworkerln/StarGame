@@ -14,6 +14,7 @@ import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 
 public class EnemyShip extends Ship {
 
@@ -89,6 +90,7 @@ public class EnemyShip extends Ship {
 
         super.update(dt);
 
+        gun.update(dt);
         launcher.update(dt);
 
         //minigun.update(dt);
@@ -98,9 +100,11 @@ public class EnemyShip extends Ship {
 
     @Override
     public void draw(Renderer renderer) {
+
         super.draw(renderer);
 
-        //minigun.draw(renderer);
+        gun.draw(renderer);
+        launcher.draw(renderer);
     }
 
     @Override
@@ -228,7 +232,7 @@ public class EnemyShip extends Ship {
         // -----------------------------------------------------------------------------------------
 
 
-        // ToDo: перенести в GameObject.update()
+/*        // ToDo: перенести в GameObject.update()
         // rotation dynamics --------------------------------
         // Aiming
         if (!guideVector.isZero()) {
@@ -243,7 +247,7 @@ public class EnemyShip extends Ship {
             }
             dir.rotateRad(doAngle);
 
-        }
+        }*/
     }
 
 

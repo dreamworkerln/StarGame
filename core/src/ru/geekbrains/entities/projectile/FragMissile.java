@@ -1,10 +1,12 @@
 package ru.geekbrains.entities.projectile;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.GameScreen;
 
 public class FragMissile extends Missile{
@@ -15,29 +17,42 @@ public class FragMissile extends Missile{
         super(textureRegion, height, owner);
 
         damage = 0.5f;
+        setMaxHealth(0.04f);
 
         selfdOnTargetDestroyed = true;
         selfdOnNoFuel = true;
-        selfdOnProximity = true;
+        selfdOnProximityMiss = false;
 
-        proximityTargetDistance = 100;
-        proximitySafeDistance = 200;
+        proximityTargetDistance = 150;
+        proximitySafeDistance = 150;
+
+        type.add(ObjectType.FRAGMISSILE);
+
+
+
+        this.engineTrail.color = new Color(0.7f, 0.2f, 0.2f, 1);
     }
 
 
     @Override
     protected void guide(float dt) {
+
+        // стандартное наведение
         super.guide(dt);
 
+        if (target == null || target.readyToDispose) {
+            return;
+        }
 
-        if (distToTarget < proximityTargetDistance) {
-
-            dir.set(target.pos).sub(pos).nor();
-
+        // разворот в сторону цели
+        if (distToTarget <  proximityTargetDistance + proximityTargetDistance * 0.5 &&
+            distToTarget >  proximityTargetDistance) {
+            guideVector.set(target.pos).sub(pos).nor();
+        }
+        // подрыв
+        else if (distToTarget <  proximityTargetDistance){
             shapedExplosion = true;
             readyToDispose = true;
-
-
         }
 
     }
@@ -52,7 +67,7 @@ public class FragMissile extends Missile{
 
 
             Projectile frag = new Fragment(3f, owner);
-            float power = 50f;
+            float power = 10f;
             
             //frag.setTTL(200);
 
@@ -60,13 +75,23 @@ public class FragMissile extends Missile{
             frag.vel.set(vel);
             frag.dir.set(dir);
 
-            double spreadAngle = Math.PI;
+
+            double fromAn;
+            double toAn;
+
+
+
             if (shapedExplosion) {
-                spreadAngle /=4;
+                fromAn = Math.PI /3;
+                toAn = Math.PI /3;
+            }
+            else {
+                fromAn = 0;
+                toAn =  2*Math.PI;
             }
 
-            float fi_min = (float) (dir.angleRad() - spreadAngle);
-            float fi_max = (float) (dir.angleRad() + spreadAngle);
+            float fi_min = (float) (dir.angleRad() - fromAn);
+            float fi_max = (float) (dir.angleRad() + toAn);
 
 
             float r = (float)ThreadLocalRandom.current().nextDouble(0, power);

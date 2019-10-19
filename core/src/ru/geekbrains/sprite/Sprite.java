@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.math.Rect;
+import ru.geekbrains.screen.Renderer;
 
 public class Sprite extends Rect {
 
@@ -37,10 +38,12 @@ public class Sprite extends Rect {
         resizeWidth();
     }
 
-    public void draw(SpriteBatch batch) {
+    public void draw(Renderer renderer) {
 
-        batch.begin();
-        batch.draw(
+        SpriteBatch sprite = renderer.batch;
+
+        //batch.begin();
+        sprite.draw(
                 textureList[frame],
                 getLeft(), getBottom(),
                 halfWidth, halfHeight,
@@ -48,7 +51,7 @@ public class Sprite extends Rect {
                 scale, scale,
                 angle
         );
-        batch.end();
+        //batch.end();
     }
 
 

@@ -7,11 +7,15 @@ public class Renderer {
 
     public SpriteBatch batch;
     public ShapeRenderer shape;
+    public RendererType rendererType;
 
-    public Renderer(SpriteBatch batch, ShapeRenderer shape) {
+    public Renderer(SpriteBatch batch, ShapeRenderer shape, RendererType rendererType) {
         this.batch = batch;
         this.shape = shape;
+        this.rendererType = rendererType;
     }
+
+    
 
     public void dispose() {
 

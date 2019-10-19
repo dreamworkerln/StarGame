@@ -11,6 +11,7 @@ import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 
 public class Explosion extends ParticleObject {
 
@@ -44,8 +45,8 @@ public class Explosion extends ParticleObject {
         this.maxRadius = this.radius;
 
         // move SmokeTrail fom owner to this
-        if (owner.type.contains(ObjectType.DRIVEN_OBJECT)) {
-            this.smokeTrailList = ((DrivenObject)owner).getSmokeTrailList();
+        if (owner instanceof SmokeTrailList /*owner.type.contains(ObjectType.DRIVEN_OBJECT)*/) {
+            this.smokeTrailList = ((SmokeTrailList)owner).getSmokeTrailList();
         }
     }
 
@@ -90,6 +91,11 @@ public class Explosion extends ParticleObject {
 
     @Override
     public void draw(Renderer renderer) {
+        super.draw(renderer);
+
+        if (renderer.rendererType!= RendererType.SHAPE) {
+            return;
+        }
 
         ShapeRenderer shape = renderer.shape;
 
@@ -101,7 +107,7 @@ public class Explosion extends ParticleObject {
             }
         }
 
-        shape.begin();
+        //shape.begin();
         Gdx.gl.glLineWidth(1);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -121,7 +127,7 @@ public class Explosion extends ParticleObject {
         shape.circle(pos.x, pos.y, radius);
 
         Gdx.gl.glLineWidth(1);
-        shape.end();
+        //shape.end();
     }
 
     @Override

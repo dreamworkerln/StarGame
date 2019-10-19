@@ -13,6 +13,7 @@ import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 
 public class Gun extends ParticleObject {
 
@@ -63,9 +64,9 @@ public class Gun extends ParticleObject {
 
     public Gun(float height, GameObject owner) {
 
-
-
         super(height, owner);
+
+        isModule = true;
 
         this.dir.set(owner.dir);
 
@@ -96,22 +97,28 @@ public class Gun extends ParticleObject {
     }
 
 
-    protected void rotateGun() {
+    @Override
+    protected void rotateObject() {
 
         // Nozzle-mounted gun
-        dir.set(owner.dir);
+        if (owner!= null && !owner.readyToDispose) {
+            dir.set(owner.dir);
+        }
 
     }
 
     @Override
     public void update(float dt) {
 
+        super.update(dt);
+
+        if (owner == null || owner.readyToDispose) {
+            return;
+        }
+
         long tick = GameScreen.INSTANCE.getTick();
 
-        pos = owner.pos;
         nozzlePos.set(dir).setLength(owner.getRadius() + firingAmmoType.getRadius() + 5).add(pos);
-
-        rotateGun();
 
         if (firing && !overHeated && lastFired < tick - 1/fireRate) {
 
@@ -223,12 +230,25 @@ public class Gun extends ParticleObject {
     @Override
     public void draw(Renderer renderer) {
 
+        super.draw(renderer);
+
+        if (renderer.rendererType!=RendererType.SHAPE) {
+            return;
+        }
+
+        if (this.getClass() !=  Gun.class &&
+            this.getClass() !=  Minigun.class) {
+            return;
+        }
+
+
+
         ShapeRenderer shape = renderer.shape;
 
         Gdx.gl.glLineWidth(1);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        shape.begin();
+        //shape.begin();
         shape.set(ShapeRenderer.ShapeType.Filled);
 
         shape.setColor(1f, 1f, 0.2f, 1);
@@ -253,7 +273,7 @@ public class Gun extends ParticleObject {
 
 
         Gdx.gl.glLineWidth(2);
-        shape.end();
+        //shape.end();
     }
 
 

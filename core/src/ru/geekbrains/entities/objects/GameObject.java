@@ -27,6 +27,8 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     public GameObject owner;
 
+    public boolean isModule;
+
     public Set<ObjectType> type = new HashSet<>();
 
     protected Sprite sprite = null;                 // displaying sprite (if have one)
@@ -40,7 +42,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected Vector2 tailPos = new Vector2();      // tail position
     protected float aspectRatio = 1;
 
-    protected Vector2 tmpForce = new Vector2();     // tmp force
+    //protected Vector2 tmpForce = new Vector2();     // tmp force
     protected Vector2 force = new Vector2();          // resulting force (sum of all forces)
     protected float radius;                         // object radius (== halfHeight)
     protected float mass = 1;                          // mass
@@ -71,6 +73,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         dir.set(1, 0);
         this.radius = radius;
         rendererType.add(renderType);
+        isModule = false;
     }
 
     /**
@@ -102,6 +105,11 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         this(owner, owner.radius, RendererType.SHAPE);
     }
 
+    public GameObject() {
+
+        this(null, 1, RendererType.SHAPE);
+    }
+
 
     /**
      * Perform simulation step
@@ -122,47 +130,63 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         }
 
 
+        if (!isModule) {
 
-        // apply medium resistance (atmosphere) - proportionally speed -----------------------------
-        tmpForce.set(vel);
-        // medium resistance ~ vel -
-        //obj.mediumRes.scl(-0.001f * (obj.vel.len() + 1000));
-        //scale
-        tmpForce.scl(-0.1f);
 
-        // disable atmosphere
-        //force.add(tmpForce);
+            // apply medium resistance (atmosphere) - proportionally speed -----------------------------
+            //tmp3.set(vel);
+            // medium resistance ~ vel -
+            //obj.mediumRes.scl(-0.001f * (obj.vel.len() + 1000));
+            //scale
+            //tmp3.scl(-0.1f);
+
+            // disable atmosphere
+            //force.add(tmpForce);
+
+            // -----------------------------------------------------------------------------------------
+
+            // calc resulting acceleration
+            acc.set(force.scl(1 / mass));
+
+
+            // calc velocity and position
+            // =========================================================================================
+
+            // a - current acceleration,
+            // v0, x0 - initial speed and coordinates
+            // v, x - new speed and coordinates
+
+            // a = f/m;    - Second Newton law
+            // v = v0 + a*t
+            // x = x0 + v0*t + (a*t^2)/2
+
+            tmp1.set(acc); // a*t
+
+            // update velocity
+            vel.add(tmp1.scl(dt)); // v
+
+            tmp1.set(vel); // v*t
+            tmp2.set(acc); // (a*t^2)/2
+
+            // update position
+            pos.add(tmp1.scl(dt)).add(tmp2.scl(dt * dt / 2f));
+
+            // clearing force to be ready for next iteration
+            force.setZero();
+
+        }
+        // module attached to it's parent body
+        else {
+            if (owner != null) {
+                pos.set(owner.pos);
+            }
+
+        }
 
         // -----------------------------------------------------------------------------------------
+        // rotation
+        rotateObject();
 
-        // calc resulting acceleration
-        acc.set(force.scl(1/mass));
-
-
-        // calc velocity and position
-        // =========================================================================================
-
-        // a - current acceleration,
-        // v0, x0 - initial speed and coordinates
-        // v, x - new speed and coordinates
-
-        // a = f/m;    - Second Newton law
-        // v = v0 + a*t
-        // x = x0 + v0*t + (a*t^2)/2
-
-        tmp1.set(acc); // a*t
-
-        // update velocity
-        vel.add(tmp1.scl(dt)); // v
-
-        tmp1.set(vel); // v*t
-        tmp2.set(acc); // (a*t^2)/2
-
-        // update position
-        pos.add(tmp1.scl(dt)).add(tmp2.scl(dt * dt / 2f));
-
-        // clearing force to be ready for next iteration
-        force.setZero();
 
         // -----------------------------------------------------------------------------------------
 
@@ -195,14 +219,22 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 //    }
 
 
+    protected void rotateObject() {}
+
+
     // ---------------------------------------------------------------------------------------------
 
     public void draw(Renderer renderer) {
 
-        if (rendererType.contains(RendererType.TEXTURE)) {
-            sprite.draw(renderer.batch);
+        if (renderer.rendererType == RendererType.TEXTURE &&
+            rendererType.contains(RendererType.TEXTURE)) {
+            
+            sprite.draw(renderer);
         }
     }
+
+
+
 
     @Override
     public void dispose() {
@@ -275,6 +307,8 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
             readyToDispose = true;
         }
     }
+
+
 
 
 

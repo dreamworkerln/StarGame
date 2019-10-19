@@ -18,6 +18,7 @@ import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 
 public class MissileLauncher extends Gun {
 
@@ -45,11 +46,12 @@ public class MissileLauncher extends Gun {
 
 
     public MissileLauncher(float height, GameObject owner) {
+
         super(height, owner);
 
+        isModule = true;
+
         dummy = new DummyObject(owner);
-
-
 
         fireRate = 0.004f;
         gunHeatingDelta = 0;
@@ -64,6 +66,10 @@ public class MissileLauncher extends Gun {
     @Override
     public void update(float dt) {
         super.update(dt);
+
+        if (owner == null || owner.readyToDispose) {
+            return;
+        }
 
         // костыли, нарушение подстановки Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher
         if (this.getClass() ==  MissileLauncher.class) {
@@ -183,10 +189,15 @@ public class MissileLauncher extends Gun {
     @Override
     public void draw(Renderer renderer) {
 
-        //super.draw(renderer);
+        super.draw(renderer);
+
+        if (renderer.rendererType!=RendererType.SHAPE) {
+            return;
+        }
 
         // костыли, нарушение Лискова, нужно выделить в  класс abstract BaseMissileLauncher
-        if (this.getClass() ==  MissileLauncher.class) {
+        if (this.getClass() ==  MissileLauncher.class &&
+            this.owner.getClass() == PlayerShip.class) {
 
 
             // Рисуем перекрестье на цели
@@ -197,7 +208,7 @@ public class MissileLauncher extends Gun {
                 Gdx.gl.glLineWidth(1);
                 Gdx.gl.glEnable(GL20.GL_BLEND);
                 Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-                shape.begin();
+                //shape.begin();
                 shape.set(ShapeRenderer.ShapeType.Line);
 
                 shape.setColor(0.5f, 0.9f, 0.9f, 0.5f);
@@ -212,7 +223,7 @@ public class MissileLauncher extends Gun {
                 shape.line(tmp0, tmp1);
 
 
-                shape.end();
+                //shape.end();
             }
         }
 
@@ -225,7 +236,7 @@ public class MissileLauncher extends Gun {
 
         if (owner.getClass() == PlayerShip.class) {
 
-            result =  new FragMissile(new TextureRegion(missileTexture), 2, owner);
+            result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
         }
         else {
             result = new Missile(new TextureRegion(missileTexture), 2, owner);

@@ -2,8 +2,6 @@ package ru.geekbrains.entities.projectile;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
-
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
@@ -17,7 +15,7 @@ public class Missile extends DrivenObject {
     //AimFunction af;
     protected boolean selfdOnTargetDestroyed;
     protected boolean selfdOnNoFuel;
-    protected boolean selfdOnProximity;
+    protected boolean selfdOnProximityMiss;
 
 
     // минимальная дистанция сближения с целью (которая была зарегистрирована в полете)
@@ -26,7 +24,8 @@ public class Missile extends DrivenObject {
     protected float distToCarrier = Float.MAX_VALUE;
     protected float distToTarget = Float.MAX_VALUE;
 
-    // при превышении мнинимальной дистанции до цели это величины происходит подрыв
+    // при промахе при удалении от цели
+    // до этой величины происходит подрыв
     protected float proximityTargetDistance = Float.MAX_VALUE;
 
     // подрыв не призводится при расстоянии до носителя меньшим, чем это
@@ -54,7 +53,7 @@ public class Missile extends DrivenObject {
 
         selfdOnTargetDestroyed = true;
         selfdOnNoFuel = false;
-        selfdOnProximity = false;
+        selfdOnProximityMiss = false;
 
 
         aspectRatio = 1;
@@ -107,7 +106,7 @@ public class Missile extends DrivenObject {
 
 
         // Self-d on miss target (proximity explosion)
-        if (target != null && selfdOnProximity) {
+        if (target != null && selfdOnProximityMiss) {
 
 
 
@@ -158,29 +157,6 @@ public class Missile extends DrivenObject {
                 }
             }
         }
-
-
-
-
-
-
-
-        // ToDo: перенести в GameObject.update()
-        // rotation dynamics --------------------------------
-        // Aiming
-        if (!guideVector.isZero()) {
-
-            // angle between direction and guideVector
-            float guideAngle = dir.angleRad(guideVector);
-
-            float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
-
-            if (guideAngle < 0) {
-                doAngle = -doAngle;
-            }
-            dir.rotateRad(doAngle);
-        }
-
     }
 
 /*

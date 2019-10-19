@@ -90,7 +90,10 @@ public class GameScreen extends BaseScreen {
     private Set<GameObject> spawningObjects = new HashSet<>(); // objects to spawn
 
     private LinkedList<GameObject> gameObjects = new LinkedList<>();
+
     private Set<GameObject> particleObjects = new HashSet<>();
+
+    private Set<GameObject> explosionObjects = new HashSet<>();
 
     // Список объектов, по которым можно попадать снарядами
     // Используется в quadTree в качестве целей, отсортирован по убыванию радиуса
@@ -108,6 +111,7 @@ public class GameScreen extends BaseScreen {
     private Music music;
     private Sound expl01;
     private Sound expl02;
+    private Sound bigExpl;
     private Sound flak;
     private Sound metalHit;
 
@@ -185,6 +189,7 @@ public class GameScreen extends BaseScreen {
         expl01 = Gdx.audio.newSound(Gdx.files.internal("expl01.mp3"));
         expl02 = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
         flak = Gdx.audio.newSound(Gdx.files.internal("flak.mp3"));
+        bigExpl = Gdx.audio.newSound(Gdx.files.internal("big_expl2.mp3"));
         metalHit = Gdx.audio.newSound(Gdx.files.internal("IMPACT CAN METAL HIT RING 01.mp3"));
 
         // DIFFICULTY LEVEL ------------------------------------------------------------------------
@@ -274,33 +279,51 @@ public class GameScreen extends BaseScreen {
 
         reticle.setPos(target);
 
+
+
+        // check collision
+        collisionDetection(dt);
+
+
+        // check out of bounds ------------------------------------------------
+
+        for (GameObject obj : gameObjects) {
+            // removing player ship
+            if (!obj.readyToDispose &&
+                    obj.pos.len() > GameScreen.INSTANCE.worldBounds.getWidth()*2) {
+
+                obj.readyToDispose = true;
+            }
+        }
+        // ----------------------------------------------------------------------
+
         // -----------------------------------------------------------------------------------------
         // gameObjects
         // -----------------------------------------------------------------------------------------
-        Iterator<GameObject> it = gameObjects.iterator();
 
+        Iterator<GameObject> it = gameObjects.iterator();
         GameObject obj;
 
         while (it.hasNext()) {
 
             obj = it.next();
 
-            // calculate gravitation force from planet
-            applyPlanetGravForce(obj, planet);
+            if (!obj.readyToDispose) {
 
-            // update velocity, position, self-guiding, prepare animation, etc
-            obj.update(dt);
 
-            // check wall bouncing
-            borderBounce(obj);
+                // calculate gravitation force from planet
+                applyPlanetGravForce(obj, planet);
 
-            // check collision
-            collisionDetection(dt);
+                // update velocity, position, self-guiding, prepare animation, etc
+                obj.update(dt);
 
+                // check wall bouncing
+                borderBounce(obj);
+            }
             // -------------------------------------------------------------------------------------
 
             // add obj to objectsToDelete
-            if (obj.readyToDispose) {
+            else {
 
                 // removing from gameObjects
                 it.remove();
@@ -310,7 +333,8 @@ public class GameScreen extends BaseScreen {
                 // do not explode fragments
                 if (!obj.type.contains(ObjectType.PLANET)) {
                     Explosion expl = new Explosion(obj);
-                    particleObjects.add(expl);
+                    //particleObjects.add(expl);
+                    explosionObjects.add(expl);
                 }
 
 
@@ -339,6 +363,33 @@ public class GameScreen extends BaseScreen {
             }
         }
 
+
+        // -----------------------------------------------------------------------------------------
+        // explosionObjects
+        // -----------------------------------------------------------------------------------------
+        it = explosionObjects.iterator();
+        while (it.hasNext()) {
+
+            obj = it.next();
+
+            // update velocity, position
+            obj.update(dt);
+
+            // add obj to objectsToDelete
+            if (obj.readyToDispose) {
+                // removing from explosionObjects
+                it.remove();
+                obj.dispose();
+            }
+        }
+
+
+
+
+
+
+
+
         // -----------------------------------------------------------------------------------------
 
         // increment game tick
@@ -362,42 +413,61 @@ public class GameScreen extends BaseScreen {
 
         // -----------------------------------------------------------------------------------------
 
+
         // rendering
-        super.render(dt);
+        //super.render(dt);
 
         // clear screen
         Gdx.gl.glClearColor(0.3f, 0.3f, 0.3f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
-        // background
+        // RENDER ALL BATCH TEXTURE OBJECTS ------------------------------------
 
-        background.draw(renderer.batch);
+
+        renderer.rendererType = RendererType.TEXTURE;
+
+        renderer.batch.begin();
+
+        background.draw(renderer);
         planet.draw(renderer);
+        reticle.draw(renderer);
 
+        // gameObjects
+        for (GameObject obj : gameObjects) {
+            obj.draw(renderer);
+        }
 
-//        // coordinate axis
-//        renderer.shape.begin();
-//        Gdx.gl.glLineWidth(1);
-//        renderer.shape.set(ShapeRenderer.ShapeType.Line);
-//        renderer.shape.setColor(Color.BLUE);
-//        renderer.shape.line(new Vector2(-1000f, 0f), new Vector2(1000, 0f));
-//        renderer.shape.line(new Vector2(0f, -1000f), new Vector2(0, 1000f));
-//        Gdx.gl.glLineWidth(1);
-//        renderer.shape.end();
+        renderer.batch.end();
 
-        // reticle
-        reticle.draw(renderer.batch);
+        // RENDER ALL SHAPE OBJECTS ------------------------------------
+
+        renderer.rendererType = RendererType.SHAPE;
+
+        renderer.shape.begin();
+
+        // gameObjects
+        for (GameObject obj : gameObjects) {
+            obj.draw(renderer);
+        }
 
         // particleObjects
         for (GameObject obj : particleObjects) {
             obj.draw(renderer);
         }
 
-        // gameObjects
-        for (GameObject obj : gameObjects) {
+        // explosionObjects
+        for (GameObject obj : explosionObjects) {
             obj.draw(renderer);
         }
+
+
+
+
+
+        renderer.shape.end();
+
+        // ---------------------------------------------------------------------------------------
 
 
         Duration du = Duration.between(inst, Instant.now());
@@ -484,35 +554,34 @@ public class GameScreen extends BaseScreen {
             double x1,x2,y1,y2;
 
 
-            x1 = tgt.pos.x - 2*tgt.getRadius();
-            x2 = tgt.pos.x + 2*tgt.getRadius();
-            y1 = tgt.pos.y - 2*tgt.getRadius();
-            y2 = tgt.pos.y + 2*tgt.getRadius();
+            x1 = tgt.pos.x - 2.1*tgt.getRadius();
+            x2 = tgt.pos.x + 2.1*tgt.getRadius();
+            y1 = tgt.pos.y - 2.1*tgt.getRadius();
+            y2 = tgt.pos.y + 2.1*tgt.getRadius();
 
 
             // HAAACK for shield
             if (tgt.type.contains(ObjectType.PLAYER_SHIP)) {
 
                 PlayerShip plsp = (PlayerShip) tgt;
-                x1 = tgt.pos.x - 2*plsp.shield.getRadius();
-                x2 = tgt.pos.x + 2*plsp.shield.getRadius();
-                y1 = tgt.pos.y - 2*plsp.shield.getRadius();
-                y2 = tgt.pos.y + 2*plsp.shield.getRadius();
+                x1 = tgt.pos.x - 2.2*plsp.shield.getRadius();
+                x2 = tgt.pos.x + 2.2*plsp.shield.getRadius();
+                y1 = tgt.pos.y - 2.2*plsp.shield.getRadius();
+                y2 = tgt.pos.y + 2.2*plsp.shield.getRadius();
             }
 
 
 
 
-            Point<GameObject>[] points = quadTree.searchIntersect(x1, y1, x2, y2);
-            //Arrays.sort(points);
+            List<Point<GameObject>> points = quadTree.searchIntersect2(x1, y1, x2, y2);
+
+            for(int i = 0; i < points.size(); i++) {
 
 
-            for(int i = 0; i < points.length; i++) {
-
-                GameObject prj = points[i].getValue(); // projectile (may be DRIVEN_OBJECT)
+                GameObject prj = points.get(i).getValue(); // projectile (may be DRIVEN_OBJECT)
 
                 // уничтоженный объект не взаимодействует с другими, сам с собой тоже (в матрице по диагонали нули)
-                if (prj.readyToDispose || tgt == prj)
+                if (prj.readyToDispose || tgt.readyToDispose  || tgt == prj)
                     continue;
 
                 tmp1.set(prj.pos).sub(tgt.pos); // vector from target to projectile
@@ -554,6 +623,8 @@ public class GameScreen extends BaseScreen {
 
                         float dA =  (float)(tmp3.len2() * prj.getMass() * dt*dt*0.5);
 
+                        //System.out.println(dA);
+
                         // Если поле может совершить эту работу (хватает запасенной энергии)
                         // repulsing by force shield
                         if (plsp.shield.power > dA) {
@@ -566,6 +637,8 @@ public class GameScreen extends BaseScreen {
 
                             // depleting power shield
                             plsp.shield.power -= dA;
+
+                            //System.out.println(dA);
                         }
 
                         // абсолютно неупругое столкновение
@@ -651,6 +724,8 @@ public class GameScreen extends BaseScreen {
                     }*/
                 }
             }
+
+
         }
     }
 
@@ -692,8 +767,10 @@ public class GameScreen extends BaseScreen {
 
         do {
 
-            float r = MathUtils.random(400, 600);
-            float fi = MathUtils.random(0.1f, 360f);
+            nearCount =  0;
+
+            float r = MathUtils.random(250, 600);
+            float fi = MathUtils.random(0, (float) (2*Math.PI));
 
             float x = (float)(r * Math.cos(fi));
             float y = (float)(r * Math.sin(fi));
@@ -704,7 +781,19 @@ public class GameScreen extends BaseScreen {
 
             dummy = new DummyObject(10,null);
             dummy.pos.set(tmp1);
-            nearCount = getCloseObjects(dummy, 200).size();
+            List<GameObject> list = getCloseObjects(dummy, 200);
+
+
+            for (int i = 0; i < list.size(); i++) {
+
+                if (list.get(i).type.contains(ObjectType.DRIVEN_OBJECT)) {
+
+                    nearCount = 1;
+                    break;
+                }
+            }
+
+
 
             if (cnt++ >= 10) {
                 foundPlace = false;
@@ -877,9 +966,13 @@ public class GameScreen extends BaseScreen {
             expl01.play(1f);
         }
         else if (obj.type.contains(ObjectType.MISSILE) &&
-                !obj.type.contains(ObjectType.ANTIMISSILE)) {
+                !obj.type.contains(ObjectType.ANTIMISSILE)&&
+                !obj.type.contains(ObjectType.FRAGMISSILE)) {
 
             expl02.play(0.4f);
+        }
+        else if (obj.type.contains(ObjectType.FRAGMISSILE)) {
+            bigExpl.play(1f);
         }
         else if (obj.type.contains(ObjectType.ANTIMISSILE)) {
             flak.play(0.3f);
@@ -975,7 +1068,7 @@ public class GameScreen extends BaseScreen {
         // https://github.com/varunpant/Quadtree
         // Примеры как использовать - там же в tests
 
-        Point<GameObject>[] points = INSTANCE.quadTree.searchIntersect(x1, y1, x2, y2);
+        List<Point<GameObject>> points = INSTANCE.quadTree.searchIntersect2(x1, y1, x2, y2);
 
         //remove invalid
         for (Point<GameObject> p : points) {
@@ -1098,3 +1191,20 @@ public class GameScreen extends BaseScreen {
 
 
 
+
+
+//        // coordinate axis
+//        renderer.shape.begin();
+//        Gdx.gl.glLineWidth(1);
+//        renderer.shape.set(ShapeRenderer.ShapeType.Line);
+//        renderer.shape.setColor(Color.BLUE);
+//        renderer.shape.line(new Vector2(-1000f, 0f), new Vector2(1000, 0f));
+//        renderer.shape.line(new Vector2(0f, -1000f), new Vector2(0, 1000f));
+//        Gdx.gl.glLineWidth(1);
+//        renderer.shape.end();
+
+// reticle
+
+
+
+// ------------------------------------------------------------------------------------------

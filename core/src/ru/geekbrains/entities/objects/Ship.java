@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import ru.geekbrains.entities.weapons.Gun;
 import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 
 public abstract class Ship extends DrivenObject {
 
@@ -25,16 +26,14 @@ public abstract class Ship extends DrivenObject {
     @Override
     public void update(float dt) {
 
-        gun.update(dt);
-
         super.update(dt);
+
     }
 
     @Override
     public void draw(Renderer renderer) {
         super.draw(renderer);
 
-        gun.draw(renderer);
     }
 
 

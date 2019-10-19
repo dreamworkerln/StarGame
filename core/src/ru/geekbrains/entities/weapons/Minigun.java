@@ -51,6 +51,8 @@ public class Minigun extends Gun {
 
         super(height, owner);
 
+        isModule = true;
+
         maxRotationSpeed = 0.1f;
         maxRotationSpeed = 1f;
 
@@ -76,11 +78,11 @@ public class Minigun extends Gun {
 
         super.update(dt);
 
-        if (owner == null && owner.readyToDispose) {
+        if (owner == null || owner.readyToDispose) {
             return;
         }
 
-        if (target != null && target.readyToDispose) {
+        if (target == null ||  target.readyToDispose) {
             target = null;
         }
 
@@ -455,7 +457,7 @@ public class Minigun extends Gun {
 
 
     @Override
-    protected void rotateGun() {
+    protected void rotateObject() {
 
         // ToDo: перенести в GameObject.update()
         // rotation dynamics --------------------------------

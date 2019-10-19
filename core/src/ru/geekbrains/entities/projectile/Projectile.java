@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 
 public abstract class Projectile extends GameObject {
 
@@ -31,11 +32,15 @@ public abstract class Projectile extends GameObject {
     @Override
     public void draw(Renderer renderer) {
 
-        ShapeRenderer shape =renderer.shape;
+        super.draw(renderer);
 
+        if (renderer.rendererType!=RendererType.SHAPE) {
+            return;
+        }
 
+        ShapeRenderer shape = renderer.shape;
 
-        shape.begin();
+        //shape.begin();
         shape.setColor(Color.WHITE);
         Gdx.gl.glLineWidth(1);
 
@@ -62,7 +67,7 @@ public abstract class Projectile extends GameObject {
 
 
 
-        shape.end();
+        //shape.end();
 
     }
 

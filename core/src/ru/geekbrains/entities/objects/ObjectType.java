@@ -11,6 +11,7 @@ public enum ObjectType {
     SHIP,
     MISSILE,
     ANTIMISSILE,
+    FRAGMISSILE,
     FORCE_SHIELD,
     ENEMY_SHIP,
     PLAYER_SHIP,

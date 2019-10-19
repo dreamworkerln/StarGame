@@ -43,7 +43,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
         System.out.println("show");
         Gdx.input.setInputProcessor(this);
 
-        this.renderer = new Renderer(new SpriteBatch(), new ShapeRenderer());
+        this.renderer = new Renderer(new SpriteBatch(), new ShapeRenderer(), RendererType.SHAPE);
         renderer.shape.setAutoShapeType(true);
 
         this.touch = new Vector3();

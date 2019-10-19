@@ -10,13 +10,15 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.geekbrains.entities.particles.SmokeTrailList;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.entities.particles.SmokeTrail;
+import ru.geekbrains.screen.RendererType;
 
 /**
  * Object with thruster and gyrodine
  */
-public abstract class DrivenObject extends GameObject {
+public abstract class DrivenObject extends GameObject implements SmokeTrailList {
 
 
     public float maxFuel = 100000f;        // maximum fuel tank capacity
@@ -41,26 +43,30 @@ public abstract class DrivenObject extends GameObject {
 
     public SmokeTrail engineTrail;                      // trail from thruster burst
     public SmokeTrail damageBurnTrail;                  // trail from burning on damage
-    
+
     public DrivenObject(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
         this.type.add(ObjectType.DRIVEN_OBJECT);
 
-        engineTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.5f,0.5f,0.5f,1), owner);
+        engineTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.5f, 0.5f, 0.5f, 1), owner);
         smokeTrailList.add(engineTrail);
 
-        damageBurnTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.3f,0.2f,0.2f,1), owner);
+        damageBurnTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.3f, 0.2f, 0.2f, 1), owner);
         damageBurnTrail.speed = 0;
         damageBurnTrail.TTL = 100;
         smokeTrailList.add(damageBurnTrail);
 
         guideVector.setZero();
+
+        rendererType.add(RendererType.TEXTURE);
+        rendererType.add(RendererType.SHAPE);
     }
 
 
     /**
      * Perform simulation step
+     *
      * @param dt time elapsed from previous emulation step
      */
     public void update(float dt) {
@@ -71,7 +77,7 @@ public abstract class DrivenObject extends GameObject {
         // ~~~~~~~~~~~~~~
 
         // auto removing destroyed targets
-        if (target == null ||  target.readyToDispose) {
+        if (target == null || target.readyToDispose) {
             target = null;
         }
 
@@ -84,8 +90,7 @@ public abstract class DrivenObject extends GameObject {
         // check fuel
         if (fuel <= 0) {
             throttle = 0;
-        }
-        else {
+        } else {
             // update fuel
             fuel -= (throttle / maxThrottle * dt);
         }
@@ -125,7 +130,7 @@ public abstract class DrivenObject extends GameObject {
 
         // auto-repair for ships
         if (health < getMaxHealth() &&
-            type.contains(ObjectType.SHIP)) {
+                type.contains(ObjectType.SHIP)) {
             health += 0.001;
         }
 
@@ -135,6 +140,26 @@ public abstract class DrivenObject extends GameObject {
         }
 
     }
+
+    // rotation dynamics --------------------------------
+    @Override
+    protected void rotateObject() {
+
+        if(!guideVector.isZero()){
+
+            // angle between direction and guideVector
+            float guideAngle = dir.angleRad(guideVector);
+
+            float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
+
+            if (guideAngle < 0) {
+                doAngle = -doAngle;
+            }
+            dir.rotateRad(doAngle);
+        }
+
+    }
+    
 
 
     protected abstract void guide(float dt);
@@ -151,14 +176,15 @@ public abstract class DrivenObject extends GameObject {
 
             st.radius = radius * 0.4f;
 
-           if (this.type.contains(ObjectType.MISSILE)) {
-               st.radius = 0.5f;
-           }
+            if (this.type.contains(ObjectType.MISSILE)) {
+                st.radius = 0.5f;
+            }
 
 
         }
     }
 
+    @Override
     public List<SmokeTrail> getSmokeTrailList() {
         return smokeTrailList;
     }
@@ -166,18 +192,25 @@ public abstract class DrivenObject extends GameObject {
     @Override
     public void draw(Renderer renderer) {
 
+        super.draw(renderer);
+
+        if (renderer.rendererType!=RendererType.SHAPE) {
+            return;
+        }
+
+
         // render smoke before ship
         engineTrail.draw(renderer);
 
 
         // render ship
-        super.draw(renderer);
+        //super.draw(renderer);
 
         // render engine burst
         Gdx.gl.glLineWidth(1);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        renderer.shape.begin();
+        //renderer.shape.begin();
         renderer.shape.set(ShapeRenderer.ShapeType.Filled);
 
         renderer.shape.setColor(1f, 0.8f, 0.2f, 1);
@@ -185,7 +218,7 @@ public abstract class DrivenObject extends GameObject {
                 radius * aspectRatio * 0.3f * (throttle/maxThrottle));
 
         Gdx.gl.glLineWidth(1);
-        renderer.shape.end();
+        //renderer.shape.end();
 
 
         // render damage burn after ship

@@ -11,6 +11,7 @@ import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.KeyDown;
 import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 
 public class PlayerShip extends Ship {
 
@@ -142,12 +143,13 @@ public class PlayerShip extends Ship {
 
         super.update(dt);
 
-        // simulate playerShip trajectory for future steps
-        trajectorySim.update(dt);
 
+        trajectorySim.update(dt);
         gunSim.update(dt);
 
         shield.update(dt);
+
+        gun.update(dt);
 
         minigun.update(dt);
 
@@ -159,12 +161,16 @@ public class PlayerShip extends Ship {
     @Override
     public void draw(Renderer renderer) {
 
+        super.draw(renderer);
+
         // trajectory sim
         trajectorySim.draw(renderer);
 
         gunSim.draw(renderer);
 
         shield.draw(renderer);
+
+        gun.draw(renderer);
 
         minigun.draw(renderer);
 
