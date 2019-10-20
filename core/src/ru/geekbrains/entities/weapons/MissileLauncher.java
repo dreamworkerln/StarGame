@@ -57,7 +57,7 @@ public class MissileLauncher extends Gun {
         gunHeatingDelta = 0;
         coolingGunDelta = 0;
         maxGunHeat = 1;
-        power = 500;
+        //power = 500;
 
 
     }
@@ -166,8 +166,12 @@ public class MissileLauncher extends Gun {
 
         //tmp1.set(dir).nor().scl(sideLaunch*100);
         // apply force applied to missile
-        tmp1.set(tmp4).scl(power * 0.3f);
-        tmp0.set(tmp4).setLength(power).rotate(40*sideLaunch).add(tmp1); // force
+        //tmp1.set(tmp4).scl((missile.boost) * 0.3f);
+        tmp0.set(tmp4).setLength((missile.boost)).rotate(40*sideLaunch)/*.add(tmp1)*/; // force
+
+        if (reverseLaunch) {
+            tmp0.scl(0.75f);
+        }
         //tmp0.rotate(60 * sideLaunch);
         missile.applyForce(tmp0);
 
@@ -234,7 +238,7 @@ public class MissileLauncher extends Gun {
 
         GameObject result;
 
-        if (owner.getClass() == PlayerShip.class|| true) {
+        if (owner.getClass() == PlayerShip.class) {
 
             result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
         }

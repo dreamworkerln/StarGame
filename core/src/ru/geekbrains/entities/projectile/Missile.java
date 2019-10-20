@@ -9,6 +9,9 @@ import ru.geekbrains.entities.objects.ObjectType;
 
 public class Missile extends DrivenObject {
 
+    // rocket launching boost thrust
+    public float boost;
+
     protected BPU pbu = new BPU();
 
 
@@ -50,6 +53,8 @@ public class Missile extends DrivenObject {
         mass = 0.1f;
         //maxRotationSpeed = 0.02f;
         fuel = 8;
+
+        boost = 500f;
 
         maxThrottle = 10f;
         throttle = maxThrottle;
@@ -97,16 +102,16 @@ public class Missile extends DrivenObject {
             target = null;
         }
 
-        // self-d on target destroyed
-        if (selfdOnTargetDestroyed &&
-            target == null &&
-            distToCarrier > proximitySafeDistance) {
+        // target destroyed - self-d on
+        if (selfdOnTargetDestroyed && target == null) {
 
+            throttle = 0;
+            if (distToCarrier > proximitySafeDistance) {
                 this.readyToDispose = true;
-
+            }
         }
 
-        // self-d on no fuel
+        // no fuel - self-d
         if (fuel <= 0) {
 
             if (selfdOnNoFuel) {
@@ -123,12 +128,12 @@ public class Missile extends DrivenObject {
             }
 
 
-            // Дистанция до цели начала расти
+            // Промах по цели - дистанция до цели начала расти
             // Находимся от цели на расстоянии, меньшем proximityMissTargetDistance
             // находимся от носителя дальше безопасного расстояния
             if (distToTarget > (minDistance + radius + target.getRadius()) &&
-                distToTarget < proximityMissTargetDistance &&
-                distToCarrier > proximitySafeDistance) {
+                    distToTarget < proximityMissTargetDistance &&
+                    distToCarrier > proximitySafeDistance) {
 
                 this.readyToDispose = true;
             }
@@ -138,7 +143,7 @@ public class Missile extends DrivenObject {
         // explode on min distance to target
         // находимся от носителя дальше безопасного расстояния
         if (distToTarget < proximityMinDistance &&
-            distToCarrier > proximitySafeDistance) {
+                distToCarrier > proximitySafeDistance) {
 
             this.readyToDispose = true;
         }
@@ -159,7 +164,7 @@ public class Missile extends DrivenObject {
 
 
             pbu.guideMissile(this, target, maxAcc, dt);
-            
+
             //selfGuiding(dt);
 
             if (!pbu.guideResult.guideVector.isZero()) {

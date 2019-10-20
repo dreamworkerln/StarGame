@@ -625,21 +625,27 @@ public class GameScreen extends BaseScreen {
 
                         //System.out.println(dA);
 
-                        // Если поле может совершить эту работу (хватает запасенной энергии)
-                        // repulsing by force shield
-                        if (plsp.shield.power > dA) {
 
 
-                            // отражаем снаряд
-                            prj.applyForce(tmp0);
-                            // 3 закон Ньютона - отражаем корабль
-                            plsp.applyForce(tmp0.scl(-1));
+                        //float currentA = Math.min(plsp.shield.power, dA);
 
-                            // depleting power shield
-                            plsp.shield.power -= dA;
-
-                            //System.out.println(dA);
+                        // Если энергии поля не хватает совершить эту работу (не хватает запасенной энергии)
+                        // то уменьшим силу, действующую на prj/plsp
+                        if (dA > plsp.shield.power) {
+                            tmp0.scl(plsp.shield.power/dA);
                         }
+
+
+                        // отражаем снаряд
+                        prj.applyForce(tmp0);
+                        // 3 закон Ньютона - отражаем корабль
+                        plsp.applyForce(tmp0.scl(-1));
+
+                        // depleting power shield
+                        plsp.shield.power -= Math.min(plsp.shield.power, dA);
+
+                        //System.out.println(dA);
+
 
                         // абсолютно неупругое столкновение
                         // affect impact on target ship
