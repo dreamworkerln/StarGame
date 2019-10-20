@@ -20,6 +20,8 @@ public class FragMissile extends Missile{
 
         //mass = 0.03f;
 
+        fuel = 10;
+
         damage = 0.5f;
         setMaxHealth(0.05f);
         boost = 600;
@@ -28,11 +30,12 @@ public class FragMissile extends Missile{
 
         selfdOnTargetDestroyed = true;
         selfdOnNoFuel = true;
-        selfdOnProximityMiss = true;
+        selfdOnProximityMiss = false;
 
-        proximityMissTargetDistance = 300;
+
         proximityMinDistance = 100;
         proximitySafeDistance = 150;
+        proximityMissTargetDistance = 100;
 
         type.add(ObjectType.FRAGMISSILE);
 
@@ -48,7 +51,16 @@ public class FragMissile extends Missile{
         // стандартное наведение
         super.guide(dt);
 
+        
         if (target == null || target.readyToDispose) {
+
+            // отворачиваемся от носителяб чтоб не подоравть его случайно
+            if(owner!=null && !owner.readyToDispose) {
+
+                tmp0.set(owner.pos).sub(pos).scl(-1).nor().rotate(45);
+                guideVector.set(tmp0);
+            }
+
             return;
         }
 

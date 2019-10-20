@@ -806,7 +806,7 @@ public class GameScreen extends BaseScreen {
                 break;
             }
         }
-        while (tmp2.len() < 400 || nearCount > 0); // 500  - расстояние до корабля игрока
+        while (tmp2.len() < 600 || nearCount > 0); // 500  - расстояние до корабля игрока
 
 
 

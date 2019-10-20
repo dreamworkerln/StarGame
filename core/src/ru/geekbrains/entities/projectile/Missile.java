@@ -2,10 +2,18 @@ package ru.geekbrains.entities.projectile;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.screen.GameScreen;
 
 public class Missile extends DrivenObject {
 
@@ -40,6 +48,11 @@ public class Missile extends DrivenObject {
     // Производится дистанционный подрыв
     // при сокращении дистанции до цели меньше этой величины
     protected float proximityMinDistance = 0;
+
+
+    protected int retargetCount = 0;
+
+    NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
 
 
     public Missile(TextureRegion textureRegion, float height, GameObject owner) {
@@ -81,6 +94,63 @@ public class Missile extends DrivenObject {
     @Override
     protected void guide(float dt) {
 
+        if (target != null && target.readyToDispose) {
+            target = null;
+        }
+
+
+        // EXPERIMENTAL RETARGETING
+        if (target == null &&
+                (this.getClass() == Missile.class ||
+                        this.getClass() == FragMissile.class) &&
+                retargetCount < 10) {
+
+            retargetCount ++;
+
+            // search new target
+            List<GameObject> targets = GameScreen.getCloseObjects(this, 2000);
+            impactTimes.clear();
+
+            // leave only ENEMY_SHIP in targets;
+            targets.removeIf(t -> !t.type.contains(ObjectType.ENEMY_SHIP));
+
+
+
+            for (GameObject trg : targets) {
+
+                float maxPrjVel = 300;  // Задаем начальную скорость "тестовой" пули
+                pbu.guideGun(this, trg, maxPrjVel, dt);
+
+                // get results
+
+                Float impactTime = (float)pbu.guideResult.impactTime;
+
+                if (!impactTime.isNaN() && impactTime >= 0) {
+                    impactTimes.put(impactTime, pbu.guideResult.clone());
+                }
+
+
+            }
+
+            if (impactTimes.size() > 0) {
+
+                minDistance = Float.MAX_VALUE;
+                target = impactTimes.firstEntry().getValue().target;
+            }
+            else if (targets.size() > 0) {
+
+                minDistance = Float.MAX_VALUE;
+                target = targets.get(0);
+
+            }
+        }
+
+
+
+
+
+
+
         if (owner != null && !owner.readyToDispose) {
             distToCarrier = tmp0.set(owner.pos).sub(pos).len() - owner.getRadius() - radius;
         }
@@ -94,13 +164,16 @@ public class Missile extends DrivenObject {
             if (distToTarget < 0 ) {
                 distToTarget = 0;
             }
+
+            // calc new minDistance
+            if (distToTarget < minDistance) {
+                minDistance = distToTarget;
+            }
         }
 
 
 
-        if (target != null && target.readyToDispose) {
-            target = null;
-        }
+
 
         // target destroyed - self-d on
         if (selfdOnTargetDestroyed && target == null) {
@@ -122,11 +195,6 @@ public class Missile extends DrivenObject {
 
         // Self-d on miss target (proximity explosion)
         if (target != null && selfdOnProximityMiss) {
-
-            if (distToTarget < minDistance) {
-                minDistance = distToTarget;
-            }
-
 
             // Промах по цели - дистанция до цели начала расти
             // Находимся от цели на расстоянии, меньшем proximityMissTargetDistance

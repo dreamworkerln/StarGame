@@ -33,7 +33,7 @@ public class MissileLauncher extends Gun {
 
     public GameObject target = null;
 
-    protected int TTL = 10;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
+    protected int TTL = 20;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
 
     protected long start = -1;
 
