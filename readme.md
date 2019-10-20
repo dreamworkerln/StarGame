@@ -1,3 +1,5 @@
+![alt text](https://i.ibb.co/mqDpWS4/StarGame.png)
+
 download release from  
 https://github.com/dreamworkerln/StarGame/releases/tag/1.0
 
@@ -45,7 +47,7 @@ Blue curve - you shell trajectory in planet gravity force.
 
 Difficulty levels  
 
-Set one that fit you skill in StarGame/desktop/build/libs/config.ini  
+Set one that fit you skill in config.ini  
 
 1 - NEVER PLAYED  
 2 - NOVICE  
