@@ -7,7 +7,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
@@ -33,7 +35,10 @@ public class MissileLauncher extends Gun {
 
     public GameObject target = null;
 
-    protected int TTL = 20;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
+    private Set<GameObject> targetList = new HashSet<>();
+    private int lounchCnt = 0;
+
+    protected int TTL = 10;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
 
     protected long start = -1;
 
@@ -71,7 +76,7 @@ public class MissileLauncher extends Gun {
             return;
         }
 
-        // костыли, нарушение подстановки Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher
+        // костыли, нарушение подстановкиa Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher
         if (this.getClass() ==  MissileLauncher.class) {
 
 
@@ -81,6 +86,7 @@ public class MissileLauncher extends Gun {
                 start = -1;
                 reverseLaunch = false;
             }
+
         }
     }
 
@@ -95,38 +101,17 @@ public class MissileLauncher extends Gun {
 
         List<GameObject> targets;
 
-        if (owner.type.contains(ObjectType.PLAYER_SHIP)) {
 
-            dummy.pos.set(GameScreen.INSTANCE.target);
 
-            targets = GameScreen.getCloseObjects(dummy, 2000);
-
-            for (GameObject o : targets) {
-
-                // берем первую - ближайшую цель
-                // которая не является ни owner ни его снарядами
-                if (o != owner &&
-                        o.owner != owner &&
-                        !o.readyToDispose &&
-                        (o.type.contains(ObjectType.SHIP))) {
-
-                    target = o;
-                    break;
-                }
-            }
-        }
-        else {
+        if (!owner.type.contains(ObjectType.PLAYER_SHIP)) {
 
             target = ((DrivenObject)owner).target;
+
+            if (target== null || target.readyToDispose){
+
+                return;
+            }
         }
-
-
-        if (target== null || target.readyToDispose){
-
-            return;
-        }
-
-
 
         repeatFire();
 
@@ -135,6 +120,39 @@ public class MissileLauncher extends Gun {
         if (sideLaunchCount > 1) {
             start = GameScreen.INSTANCE.getTick();
         }
+    }
+
+    private GameObject getTarget() {
+
+        GameObject result = null;
+
+        List<GameObject> targets;
+        dummy.pos.set(GameScreen.INSTANCE.target);
+
+        targets = GameScreen.getCloseObjects(dummy, 2000);
+
+        targets.removeIf(t -> !t.type.contains(ObjectType.SHIP));
+        targets.removeIf(t -> t == this.owner);
+        targets.removeIf(t -> t.owner == this.owner);
+        targets.removeIf(t -> t.readyToDispose);
+
+
+        for (GameObject o : targets) {
+
+            // берем первую - ближайшую цель
+            // которая не является ни owner ни его снарядами
+            if ((!targetList.contains(o) || targets.size() == 1)) {
+
+                target = o;
+                targetList.add(o);
+
+                result = target;
+
+                break;
+            }
+        }
+
+        return  result;
     }
 
 
@@ -148,6 +166,7 @@ public class MissileLauncher extends Gun {
 
         Missile missile = (Missile)createProjectile();
 
+
         playLaunchSound();
 
         //Missile missile =
@@ -160,6 +179,26 @@ public class MissileLauncher extends Gun {
         missile.pos.set(tmp0);
         missile.vel.set(owner.vel);
         missile.dir.set(tmp4);
+
+
+
+
+        if (owner.type.contains(ObjectType.PLAYER_SHIP) &&
+            this.getClass() ==  MissileLauncher.class) {
+
+            target = getTarget();
+
+            lounchCnt++;
+
+            if (lounchCnt >= sideLaunchCount) {
+                targetList.clear();
+                lounchCnt = 0;
+            }
+
+        }
+
+
+
 
         missile.target = target;
 
@@ -201,7 +240,7 @@ public class MissileLauncher extends Gun {
 
         // костыли, нарушение Лискова, нужно выделить в  класс abstract BaseMissileLauncher
         if (this.getClass() ==  MissileLauncher.class &&
-            this.owner.getClass() == PlayerShip.class) {
+                this.owner.getClass() == PlayerShip.class) {
 
 
             // Рисуем перекрестье на цели

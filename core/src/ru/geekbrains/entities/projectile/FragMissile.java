@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.particles.SmokeTrail;
@@ -20,7 +21,7 @@ public class FragMissile extends Missile{
 
         //mass = 0.03f;
 
-        fuel = 10;
+        fuel = 12;
 
         damage = 0.5f;
         setMaxHealth(0.05f);
@@ -29,7 +30,7 @@ public class FragMissile extends Missile{
         fragCount = 500;
 
         selfdOnTargetDestroyed = true;
-        selfdOnNoFuel = false;
+        selfdOnNoFuel = true;
         selfdOnProximityMiss = false;
 
 
@@ -67,8 +68,32 @@ public class FragMissile extends Missile{
         // разворот в сторону цели
         if (distToTarget <  proximityMinDistance*2.5  &&
                 distToTarget > proximityMinDistance) {
+
+            float maxPrjVel = 500;  // Задаем начальную скорость "тестовой" пули
+            pbu.guideMissile(this, target, maxPrjVel, dt);
+
+            tmp0 = pbu.guideResult.guideVector.nor();
+
+            if (tmp0.isZero()) {
+                tmp0.set(target.pos).sub(pos).nor();
+            }
+            guideVector.set(tmp0);
+
+
+//            // get results
+//
+//            Float impactTime = (float)pbu.guideResult.impactTime;
+//
+//            if (!impactTime.isNaN() && impactTime >= 0) {
+//                impactTimes.put(impactTime, pbu.guideResult.clone());
+//            }
+
+
+
+
+
             
-            guideVector.set(target.pos).sub(pos).nor();
+
         }
         // взвод направленного подрыва
         // находимся от носителя дальше безопасного расстояния

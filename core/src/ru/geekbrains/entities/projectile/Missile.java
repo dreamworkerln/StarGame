@@ -94,6 +94,10 @@ public class Missile extends DrivenObject {
     @Override
     protected void guide(float dt) {
 
+        if (this.readyToDispose) {
+            return;
+        }
+
         if (target != null && target.readyToDispose) {
             target = null;
         }
@@ -215,7 +219,24 @@ public class Missile extends DrivenObject {
         if (distToTarget < proximityMinDistance &&
                 distToCarrier > proximitySafeDistance) {
 
-            this.readyToDispose = true;
+
+
+
+            float maxVel = 300;
+            pbu.guideGun(this, target, maxVel, dt);
+
+            double t = pbu.guideResult.impactTime;
+
+            if (t < 2)  {
+                this.readyToDispose = true;
+            }
+
+//            if (tmp0.isZero()) {
+//                tmp0.set(target.pos).sub(pos).nor();
+//            }
+//            guideVector.set(tmp0);
+
+
         }
 
 

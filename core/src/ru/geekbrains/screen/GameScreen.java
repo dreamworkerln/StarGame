@@ -144,8 +144,8 @@ public class GameScreen extends BaseScreen {
         reticle.setHeightAndResize(30f);
 
         playerShip = new PlayerShip(new TextureRegion(new Texture("ship_player.png")), 50, null);
-        playerShip.pos = new Vector2(400f, 400f);
-        playerShip.vel = new Vector2(0f, -100f);
+        playerShip.pos = new Vector2(500f, 500f);
+        playerShip.vel = new Vector2(0f, -10f);
         playerShip.target = null;         //add target
         //playerShip.guidance = Guidance.MANUAL;
         playerShip.name = "playerShip";
@@ -806,7 +806,7 @@ public class GameScreen extends BaseScreen {
                 break;
             }
         }
-        while (tmp2.len() < 700 || nearCount > 0); // 500  - расстояние до корабля игрока
+        while (tmp2.len() < 600 || nearCount > 0); // 500  - расстояние до корабля игрока
 
 
 
