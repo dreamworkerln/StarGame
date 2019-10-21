@@ -24,20 +24,22 @@ public class FragMissile extends Missile{
 
         damage = 0.5f;
         setMaxHealth(0.05f);
-        boost = 600;
+        boost = 700;
 
         fragCount = 500;
 
         selfdOnTargetDestroyed = true;
-        selfdOnNoFuel = true;
+        selfdOnNoFuel = false;
         selfdOnProximityMiss = false;
 
 
-        proximityMinDistance = 100;
+        proximityMinDistance = 70;
         proximitySafeDistance = 150;
         proximityMissTargetDistance = 100;
 
         type.add(ObjectType.FRAGMISSILE);
+
+        maxRotationSpeed = 0.1f;
 
 
 
@@ -56,16 +58,14 @@ public class FragMissile extends Missile{
 
             // отворачиваемся от носителяб чтоб не подоравть его случайно
             if(owner!=null && !owner.readyToDispose) {
-
-                tmp0.set(owner.pos).sub(pos).scl(-1).nor().rotate(45);
-                guideVector.set(tmp0);
+                guideVector.set(owner.pos).sub(pos).scl(-1).nor().rotate(45);
             }
 
             return;
         }
 
         // разворот в сторону цели
-        if (distToTarget <  proximityMinDistance + proximityMinDistance * 0.5 &&
+        if (distToTarget <  proximityMinDistance*2.5  &&
                 distToTarget > proximityMinDistance) {
             
             guideVector.set(target.pos).sub(pos).nor();

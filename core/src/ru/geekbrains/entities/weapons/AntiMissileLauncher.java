@@ -43,6 +43,8 @@ public class AntiMissileLauncher extends MissileLauncher {
         isModule = true;
 
         //fireRate = 0.1f;
+
+
         fireRate = 0.05f;
         gunHeatingDelta = 50;
         coolingGunDelta = 1.5f;
@@ -134,7 +136,7 @@ public class AntiMissileLauncher extends MissileLauncher {
         // set launcher toward guide point (rotate cost zero time)
         dir.set(guideVector).nor();
 
-        tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius()*10).add(owner.pos);
+        tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius()*15).add(owner.pos);
 
         missile.pos.set(tmp0);
         missile.vel.set(owner.vel);

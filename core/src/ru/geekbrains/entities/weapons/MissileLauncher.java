@@ -153,7 +153,7 @@ public class MissileLauncher extends Gun {
         //Missile missile =
         //        new Missile(new TextureRegion(missileTexture), 2, owner);
 
-        tmp0.set(tmp4).setLength(owner.getRadius() + missile.getRadius()*2)
+        tmp0.set(tmp4).setLength(owner.getRadius() + missile.getRadius()*3)
                 .rotate(90 * sideLaunch).add(owner.pos);
 
 
@@ -166,8 +166,8 @@ public class MissileLauncher extends Gun {
 
         //tmp1.set(dir).nor().scl(sideLaunch*100);
         // apply force applied to missile
-        //tmp1.set(tmp4).scl((missile.boost) * 0.3f);
-        tmp0.set(tmp4).setLength((missile.boost)).rotate(40*sideLaunch)/*.add(tmp1)*/; // force
+        //tmp1.set(tmp4).scl((missile.boost) * 0.3f);    40
+        tmp0.set(tmp4).setLength((missile.boost)).rotate(30*sideLaunch)/*.add(tmp1)*/; // force
 
         if (reverseLaunch) {
             tmp0.scl(0.75f);
