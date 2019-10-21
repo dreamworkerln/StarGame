@@ -26,6 +26,9 @@ public class FragMissile extends Missile{
         setMaxHealth(0.05f);
         boost = 700;
 
+        maxThrottle = 15f;
+        throttle = maxThrottle;
+
         fragCount = 500;
 
         selfdOnTargetDestroyed = true;
@@ -85,6 +88,8 @@ public class FragMissile extends Missile{
 
     @Override
     public void dispose() {
+
+        
 
         float power = 20f;
 

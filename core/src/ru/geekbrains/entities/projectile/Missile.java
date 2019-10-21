@@ -102,7 +102,7 @@ public class Missile extends DrivenObject {
         // EXPERIMENTAL RETARGETING
         if (target == null &&
                 (this.getClass() == Missile.class ||
-                        this.getClass() == FragMissile.class) &&
+                 this.getClass() == FragMissile.class) &&
                 retargetCount < 10) {
 
             retargetCount ++;
@@ -114,7 +114,7 @@ public class Missile extends DrivenObject {
             // leave only ENEMY_SHIP in targets;
             //ToDO: implement friend or foe radar recognition system
             // Or all will fire to enemy ships only
-            targets.removeIf(t -> !t.type.contains(ObjectType.ENEMY_SHIP));
+            targets.removeIf(t -> !t.type.contains(ObjectType.ENEMY_SHIP) || t.readyToDispose);
 
 
 
@@ -159,6 +159,7 @@ public class Missile extends DrivenObject {
         else {
             distToCarrier = Float.MAX_VALUE;
         }
+
 
         if(target != null && !this.readyToDispose) {
             distToTarget = tmp0.set(target.pos).sub(pos).len() - target.getRadius() - radius;
