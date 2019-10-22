@@ -37,7 +37,7 @@ public class FragMissile extends Missile{
         selfdOnProximityMiss = false;
 
 
-        proximityMinDistance = 70;
+        proximityMinDistance = 100;
         proximitySafeDistance = 150;
         proximityMissTargetDistance = 100;
 
@@ -60,7 +60,7 @@ public class FragMissile extends Missile{
         
         if (target == null || target.readyToDispose) {
 
-            // отворачиваемся от носителяб чтоб не подоравть его случайно
+            // отворачиваемся от носителя, чтоб не подоравть его случайно
             if(owner!=null && !owner.readyToDispose) {
                 guideVector.set(owner.pos).sub(pos).scl(-1).nor().rotate(45);
             }
@@ -151,8 +151,8 @@ public class FragMissile extends Missile{
 
 
             if (shapedExplosion) {
-                fromAn = Math.PI / 4;
-                toAn = Math.PI / 4;
+                fromAn = Math.PI / 6;
+                toAn = Math.PI / 6;
             } else {
                 fromAn = 0;
                 toAn = 2 * Math.PI;

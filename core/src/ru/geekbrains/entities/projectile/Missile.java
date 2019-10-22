@@ -217,8 +217,9 @@ public class Missile extends DrivenObject {
 
         // explode on min distance to target
         // находимся от носителя дальше безопасного расстояния
-        if (distToTarget < proximityMinDistance &&
-                distToCarrier > proximitySafeDistance) {
+        if (target != null && !this.readyToDispose &&
+            distToTarget < proximityMinDistance &&
+            distToCarrier > proximitySafeDistance) {
 
 
 
