@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +25,17 @@ import ru.geekbrains.screen.RendererType;
 
 public class MissileLauncher extends Gun {
 
+
+    public static enum Side {
+        LEFT,
+        RIGHT;
+    }
+
+
+
+
+
+
     private static Sound missileFire01;
     private static Texture missileTexture;
 
@@ -35,7 +47,8 @@ public class MissileLauncher extends Gun {
 
     public GameObject target = null;
 
-    private Set<GameObject> targetList = new HashSet<>();
+    private Set<GameObject> targetSet = new HashSet<>();
+    private List<GameObject> targetList = new ArrayList<>();
     private int lounchCnt = 0;
 
     protected int TTL = 10;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
@@ -94,6 +107,8 @@ public class MissileLauncher extends Gun {
 
 
 
+
+
     @Override
     protected void fire(float dt) {
 
@@ -122,9 +137,9 @@ public class MissileLauncher extends Gun {
         }
     }
 
-    private GameObject getTarget() {
+    private List<GameObject> getTarget() {
 
-        GameObject result = null;
+        List<GameObject> result = new ArrayList<>();
 
         List<GameObject> targets;
         dummy.pos.set(GameScreen.INSTANCE.target);
@@ -136,19 +151,22 @@ public class MissileLauncher extends Gun {
         targets.removeIf(t -> t.owner == this.owner);
         targets.removeIf(t -> t.readyToDispose);
 
+        if (targets.size() == 1) {
+            result.add(targets.get(0));
+        }
+        else {
 
-        for (GameObject o : targets) {
+            for (GameObject o : targets) {
 
-            // берем первую - ближайшую цель
-            // которая не является ни owner ни его снарядами
-            if ((!targetList.contains(o) || targets.size() == 1)) {
+                if (!targetSet.contains(o)) {
 
-                target = o;
-                targetList.add(o);
+                    //target = o;
+                    result.add(o);
 
-                result = target;
-
-                break;
+                    if (result.size() >= 2) {
+                        break;
+                    }
+                }
             }
         }
 
@@ -159,54 +177,101 @@ public class MissileLauncher extends Gun {
     protected void repeatFire() {
 
 
-        tmp4.set(dir);
+        tmp6.set(dir);
         if (reverseLaunch) {
-            tmp4.scl(-1);
+            tmp6.scl(-1);
         }
 
         Missile missile = (Missile)createProjectile();
-
-
         playLaunchSound();
-
-        //Missile missile =
-        //        new Missile(new TextureRegion(missileTexture), 2, owner);
-
-        tmp0.set(tmp4).setLength(owner.getRadius() + missile.getRadius()*3)
-                .rotate(90 * sideLaunch).add(owner.pos);
-
-
-        missile.pos.set(tmp0);
-        missile.vel.set(owner.vel);
-        missile.dir.set(tmp4);
-
 
 
 
         if (owner.type.contains(ObjectType.PLAYER_SHIP) &&
-            this.getClass() ==  MissileLauncher.class) {
+                this.getClass() ==  MissileLauncher.class) {
 
-            target = getTarget();
 
-            lounchCnt++;
 
             if (lounchCnt >= sideLaunchCount) {
-                targetList.clear();
+                //targetList.clear();
+                targetSet.clear();
                 lounchCnt = 0;
             }
 
+            targetList = getTarget();
+            lounchCnt++;
         }
 
 
 
 
+        tmp0.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
+                .rotate(90*sideLaunch).add(owner.pos);
+
+        tmp1.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
+                .rotate(-90*sideLaunch).add(owner.pos);
+
+        if (targetList.size() >=  2 && lounchCnt < 2) {
+
+            tmp2.set(targetList.get(0).pos).sub(tmp0);
+            tmp3.set(targetList.get(1).pos).sub(tmp0);
+
+            tmp4.set(targetList.get(0).pos).sub(tmp1);
+            tmp5.set(targetList.get(1).pos).sub(tmp1);
+
+            System.out.println(tmp2.len() + " " + tmp4.len());
+            System.out.println(tmp3.len() + " " + tmp5.len());
+
+            // OK
+            if (tmp2.len() < tmp4.len() &&
+                tmp5.len() < tmp3.len()) {
+
+                //sideLaunch = -sideLaunch;
+                //tmp0.set(tmp1);
+                target = targetList.get(0);
+                //
+            }
+            else {
+                target = targetList.get(1);
+            }
+            targetSet.add(target);
+
+        }
+        else if (targetList.size() > 0) {
+            target = targetList.get(0);
+            targetSet.add(target);
+        }
+
+
+
+
+
+
+
+
+
+
+//        if (tmp3.len() < tmp2.len()) {
+//            tmp0 = tmp1;
+//            sideLaunch2 = -1;
+//        }
+
+
+        missile.pos.set(tmp0);
+        missile.vel.set(owner.vel);
+        missile.dir.set(tmp6);
         missile.target = target;
+
+
+
 
 
         //tmp1.set(dir).nor().scl(sideLaunch*100);
         // apply force applied to missile
-        //tmp1.set(tmp4).scl((missile.boost) * 0.3f);    40
-        tmp0.set(tmp4).setLength((missile.boost)).rotate(30*sideLaunch)/*.add(tmp1)*/; // force
+        //tmp1.set(tmp6).scl((missile.boost) * 0.3f);    40
+        //tmp0.set(tmp6).setLength((missile.boost)).rotate(30*sideLaunch)/*.add(tmp1)*/; // force
+
+        tmp0.set(tmp6).setLength((missile.boost)).rotate(30*sideLaunch);
 
         if (reverseLaunch) {
             tmp0.scl(0.75f);
@@ -243,31 +308,61 @@ public class MissileLauncher extends Gun {
                 this.owner.getClass() == PlayerShip.class) {
 
 
-            // Рисуем перекрестье на цели
-            if (target != null && !target.readyToDispose) {
+            for (GameObject o : targetSet) {
 
-                ShapeRenderer shape = renderer.shape;
+                // Рисуем перекрестье на цели
+                if (o != null && !o.readyToDispose) {
 
-                Gdx.gl.glLineWidth(1);
-                Gdx.gl.glEnable(GL20.GL_BLEND);
-                Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-                //shape.begin();
-                shape.set(ShapeRenderer.ShapeType.Line);
+                    ShapeRenderer shape = renderer.shape;
 
-                shape.setColor(0.5f, 0.9f, 0.9f, 0.5f);
-                shape.circle(target.pos.x, target.pos.y, target.getRadius() * 2);
+                    Gdx.gl.glLineWidth(1);
+                    Gdx.gl.glEnable(GL20.GL_BLEND);
+                    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+                    //shape.begin();
+                    shape.set(ShapeRenderer.ShapeType.Line);
 
-                tmp0.set(target.pos).sub(target.getRadius() * 2, 0);
-                tmp1.set(tmp0).set(target.pos).add(target.getRadius() * 2, 0);
-                shape.line(tmp0, tmp1);
+                    shape.setColor(0.5f, 0.9f, 0.9f, 0.5f);
+                    shape.circle(o.pos.x, o.pos.y, o.getRadius() * 2);
 
-                tmp0.set(target.pos).sub(0, target.getRadius() * 2);
-                tmp1.set(tmp0).set(target.pos).add(0, target.getRadius() * 2);
-                shape.line(tmp0, tmp1);
+                    tmp0.set(o.pos).sub(o.getRadius() * 2, 0);
+                    tmp1.set(tmp0).set(o.pos).add(o.getRadius() * 2, 0);
+                    shape.line(tmp0, tmp1);
+
+                    tmp0.set(o.pos).sub(0, o.getRadius() * 2);
+                    tmp1.set(tmp0).set(o.pos).add(0, o.getRadius() * 2);
+                    shape.line(tmp0, tmp1);
 
 
-                //shape.end();
+                    //shape.end();
+                }
+                
+
             }
+//            // Рисуем перекрестье на цели
+//            if (target != null && !target.readyToDispose) {
+//
+//                ShapeRenderer shape = renderer.shape;
+//
+//                Gdx.gl.glLineWidth(1);
+//                Gdx.gl.glEnable(GL20.GL_BLEND);
+//                Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+//                //shape.begin();
+//                shape.set(ShapeRenderer.ShapeType.Line);
+//
+//                shape.setColor(0.5f, 0.9f, 0.9f, 0.5f);
+//                shape.circle(target.pos.x, target.pos.y, target.getRadius() * 2);
+//
+//                tmp0.set(target.pos).sub(target.getRadius() * 2, 0);
+//                tmp1.set(tmp0).set(target.pos).add(target.getRadius() * 2, 0);
+//                shape.line(tmp0, tmp1);
+//
+//                tmp0.set(target.pos).sub(0, target.getRadius() * 2);
+//                tmp1.set(tmp0).set(target.pos).add(0, target.getRadius() * 2);
+//                shape.line(tmp0, tmp1);
+//
+//
+//                //shape.end();
+//            }
         }
 
     }

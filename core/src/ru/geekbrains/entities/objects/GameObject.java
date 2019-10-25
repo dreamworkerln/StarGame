@@ -56,6 +56,8 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected Vector2 tmp2 = new Vector2();           // buffer
     protected Vector2 tmp3 = new Vector2();           // buffer
     protected Vector2 tmp4 = new Vector2();           // buffer
+    protected Vector2 tmp5 = new Vector2();           // buffer
+    protected Vector2 tmp6 = new Vector2();           // buffer
 
     protected float health;                       // текущий запас прочности корпуса(health)
     protected float maxHealth = 0;               // максимальный запас прочности корпуса(health)

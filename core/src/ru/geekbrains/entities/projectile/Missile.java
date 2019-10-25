@@ -49,6 +49,8 @@ public class Missile extends DrivenObject {
     // при сокращении дистанции до цели меньше этой величины
     protected float proximityMinDistance = 0;
 
+    protected float proximityMinDistanceVel = 300;
+
 
     protected int retargetCount = 0;
 
@@ -124,7 +126,7 @@ public class Missile extends DrivenObject {
 
             for (GameObject trg : targets) {
 
-                float maxPrjVel = 300;  // Задаем начальную скорость "тестовой" пули
+                float maxPrjVel = proximityMinDistanceVel;  // Задаем начальную скорость "тестовой" пули
                 pbu.guideGun(this, trg, maxPrjVel, dt);
 
                 // get results
@@ -224,7 +226,7 @@ public class Missile extends DrivenObject {
 
 
 
-            float maxVel = 300;
+            float maxVel = proximityMinDistanceVel;
             pbu.guideGun(this, target, maxVel, dt);
 
             double t = pbu.guideResult.impactTime;

@@ -17,13 +17,13 @@ public class DesktopLauncher {
 		config.setFromDisplayMode(modes[1]);
 
 		float aspect = 10f/16f;
-		config.height = 2000;
+		config.height = 1920;
 		config.width = (int) (config.height / aspect);
 
 
 		//config.forceExit = false;
 		//config.resizable = true;
-		//config.fullscreen = false;
+		//dconfig.fullscreen = false;
 
 		new LwjglApplication(new StarGame(), config);
 	}
