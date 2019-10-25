@@ -193,7 +193,7 @@ public class EnemyShip extends Ship {
 
                 // гидродоминируем с самонаведением пушки
 
-                // Максимальное возможное ускорение ракеты своим движком
+                // скорость снаряда
                 float maxVel = gun.power / gun.firingAmmoType.getMass() * dt;
                 pbu.guideGun(this, target, maxVel, dt);
 

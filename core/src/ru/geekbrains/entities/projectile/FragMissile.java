@@ -162,7 +162,10 @@ public class FragMissile extends Missile{
             float fi_max = (float) (dir.angleRad() + toAn);
 
 
+
+
             float r = (float) ThreadLocalRandom.current().nextDouble(power - power*0.1f, power);
+            //float r = (float) ThreadLocalRandom.current().nextGaussian()*power*0.05f + power;
             //float r = power;
             float fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
 

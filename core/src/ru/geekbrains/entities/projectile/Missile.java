@@ -49,7 +49,7 @@ public class Missile extends DrivenObject {
     // при сокращении дистанции до цели меньше этой величины
     protected float proximityMinDistance = 0;
 
-    protected float proximityMinDistanceVel = 300;
+    protected float proximityMinDistanceVel = 100;
 
 
     protected int retargetCount = 0;
@@ -231,7 +231,7 @@ public class Missile extends DrivenObject {
 
             double t = pbu.guideResult.impactTime;
 
-            if (t < 2)  {
+            if (t < 1)  {
                 this.readyToDispose = true;
             }
 

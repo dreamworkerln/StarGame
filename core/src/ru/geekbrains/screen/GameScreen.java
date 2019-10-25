@@ -13,6 +13,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.github.varunpant.quadtree.Point;
 import com.github.varunpant.quadtree.QuadTree;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import ru.geekbrains.entities.objects.DrivenObject;
@@ -1115,9 +1119,19 @@ public class GameScreen extends BaseScreen {
     private void getDifficultyLevel() {
         int rank = 1;
         try {
-            FileHandle file = Gdx.files.absolute("config.ini");
-            String rankString = file.readString();
-            rank = Integer.parseInt(rankString.trim());
+
+            Properties prop = new Properties();
+            String fileName = "config.ini";
+            InputStream stream = null;
+            try {
+                stream = new FileInputStream(fileName);
+            }
+            catch (Exception ignore) {}
+            try {
+                prop.load(stream);
+            }
+            catch (Exception ignore) {}
+            rank  = Integer.parseInt(prop.getProperty("app.rank").trim());
         }
         catch (Exception ignore){}
 
@@ -1125,51 +1139,57 @@ public class GameScreen extends BaseScreen {
 
             default:
             case 1:
-
                 // NEVER PLAYED
                 ENEMY_RESPAWN_TIME = 1000;
                 ENEMIES_COUNT_IN_WAVE = 1;
-
                 break;
 
             case 2:
-
                 // NOVICE
-                ENEMY_RESPAWN_TIME = 500;
-                ENEMIES_COUNT_IN_WAVE = 1;
-
-                break;
-
-            case 3:
-
-                // EXPERIENCED
-                ENEMY_RESPAWN_TIME = 700;
+                ENEMY_RESPAWN_TIME = 600;
                 ENEMIES_COUNT_IN_WAVE = 2;
                 break;
 
-            case 4:
-
-                // SPECIALIST
-                ENEMY_RESPAWN_TIME = 1200;
+            case 3:
+                // EXPERIENCED
+                ENEMY_RESPAWN_TIME = 800;
                 ENEMIES_COUNT_IN_WAVE = 3;
                 break;
 
-            case 5:
-
-                // IMPERIAL NAVY LIEUTENANT
-                ENEMY_RESPAWN_TIME = 1500;
+            case 4:
+                // SPECIALIST
+                ENEMY_RESPAWN_TIME = 1100;
                 ENEMIES_COUNT_IN_WAVE = 4;
+                break;
 
+            case 5:
+                // IMPERIAL NAVY ENSIGN
+                ENEMY_RESPAWN_TIME = 1300;
+                ENEMIES_COUNT_IN_WAVE = 5;
                 break;
 
             case 6:
-                // IMPERIAL NAVY LORD-CAPITAN
-                ENEMY_RESPAWN_TIME = 1700;
-                ENEMIES_COUNT_IN_WAVE = 5;
-
-
+                // IMPERIAL NAVY LIEUTENANT
+                ENEMY_RESPAWN_TIME = 1600;
+                ENEMIES_COUNT_IN_WAVE = 6;
                 break;
 
+            case 7:
+                // IMPERIAL NAVY LORD-LIEUTENANT
+                ENEMY_RESPAWN_TIME = 1900;
+                ENEMIES_COUNT_IN_WAVE = 7;
+
+            case 8:
+                // IMPERIAL NAVY COMMANDER
+                ENEMY_RESPAWN_TIME = 2300;
+                ENEMIES_COUNT_IN_WAVE = 7;
+                break;
+
+            case 9:
+                // IMPERIAL NAVY CAPITAN
+                ENEMY_RESPAWN_TIME = 2600;
+                ENEMIES_COUNT_IN_WAVE = 7;
+                break;
         }
     }
 

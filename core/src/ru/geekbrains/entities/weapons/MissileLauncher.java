@@ -224,7 +224,7 @@ public class MissileLauncher extends Gun {
 
             // OK
             if (tmp2.len() < tmp4.len() &&
-                tmp5.len() < tmp3.len()) {
+                    tmp5.len() < tmp3.len()) {
 
                 //sideLaunch = -sideLaunch;
                 //tmp0.set(tmp1);
@@ -335,7 +335,7 @@ public class MissileLauncher extends Gun {
 
                     //shape.end();
                 }
-                
+
 
             }
 //            // Рисуем перекрестье на цели
