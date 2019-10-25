@@ -182,11 +182,6 @@ public class MissileLauncher extends Gun {
             tmp6.scl(-1);
         }
 
-        Missile missile = (Missile)createProjectile();
-        playLaunchSound();
-
-
-
         if (owner.type.contains(ObjectType.PLAYER_SHIP) &&
                 this.getClass() ==  MissileLauncher.class) {
 
@@ -199,11 +194,15 @@ public class MissileLauncher extends Gun {
             }
 
             targetList = getTarget();
+            if (targetList.size() == 0) {
+                return;
+            }
             lounchCnt++;
         }
 
 
-
+        Missile missile = (Missile)createProjectile();
+        playLaunchSound();
 
         tmp0.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
                 .rotate(90*sideLaunch).add(owner.pos);
