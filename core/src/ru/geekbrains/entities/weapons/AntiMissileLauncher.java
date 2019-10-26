@@ -20,7 +20,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
     private static Texture missileTexture;
 
-    public float maxRange = 700;
+    public float maxRange = 800;
 
     // Список целей, по которым идет огонь
     // (По которым запущены противо-ракеты и идет поражение)
@@ -75,7 +75,8 @@ public class AntiMissileLauncher extends MissileLauncher {
         //tmp1.set(target.pos).sub(owner.pos);
 
 
-        float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+        //float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+        float  maxPrjVel = 400;
         pbu.guideGun(owner, target, maxPrjVel, dt);
         // get results
 
