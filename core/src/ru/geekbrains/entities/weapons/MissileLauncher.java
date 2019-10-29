@@ -218,8 +218,8 @@ public class MissileLauncher extends Gun {
             tmp4.set(targetList.get(0).pos).sub(tmp1);
             tmp5.set(targetList.get(1).pos).sub(tmp1);
 
-            System.out.println(tmp2.len() + " " + tmp4.len());
-            System.out.println(tmp3.len() + " " + tmp5.len());
+            //System.out.println(tmp2.len() + " " + tmp4.len());
+            //System.out.println(tmp3.len() + " " + tmp5.len());
 
             // OK
             if (tmp2.len() < tmp4.len() &&

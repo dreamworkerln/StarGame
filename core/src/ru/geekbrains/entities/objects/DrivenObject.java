@@ -36,7 +36,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     public float fuel = maxFuel;                   // current fuel level
 
     protected Vector2 enginePos = new Vector2();         // tail position
-    protected Vector2 engineTrailPos = new Vector2();    // tail position
+    public Vector2 engineTrailPos = new Vector2();    // tail position
 
     public List<SmokeTrail> smokeTrailList = new ArrayList<>();
 
@@ -49,12 +49,13 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
         this.type.add(ObjectType.DRIVEN_OBJECT);
 
-        engineTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.5f, 0.5f, 0.5f, 1), owner);
+        engineTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.5f, 0.5f, 0.5f, 1), this);
+        engineTrail.TTL = 50;
         smokeTrailList.add(engineTrail);
 
-        damageBurnTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.3f, 0.2f, 0.2f, 1), owner);
+        damageBurnTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.3f, 0.2f, 0.2f, 1), this);
+        damageBurnTrail.TTL = 50;
         damageBurnTrail.speed = 0;
-        damageBurnTrail.TTL = 100;
         smokeTrailList.add(damageBurnTrail);
 
         guideVector.setZero();
@@ -114,19 +115,25 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         tmp1.set(tailVec).scl(1.7f);
         engineTrailPos.set(pos).add(tmp1);
 
+        engineTrail.setTrailPos(engineTrailPos);
+        damageBurnTrail.setTrailPos(pos);
+
+
+        for (SmokeTrail st : smokeTrailList) {
+            st.update(dt);
+        }
+
         // add smoke trail particle
         if (throttle > 0) {
-            engineTrail.add(engineTrailPos, dir, vel, throttle / maxThrottle);
+            engineTrail.add(throttle / maxThrottle);
         }
 
-
+        // add damage rail particle
         if (health < getMaxHealth()) {
-            damageBurnTrail.add(pos, dir, vel, (getMaxHealth() - health) / maxHealth);
+            damageBurnTrail.add((getMaxHealth() - health) / maxHealth);
         }
 
-        //damageBurnTrail.add(pos, dir, vel, 1);
 
-        //damageBurnTrail.add(pos, dir, vel, 1);
 
         // auto-repair for ships
         if (health < getMaxHealth() &&
@@ -135,9 +142,6 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         }
 
 
-        for (SmokeTrail st : smokeTrailList) {
-            st.update(dt);
-        }
 
     }
 
@@ -236,9 +240,9 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         // do not dispose engineTrail and damageBurnTrail
         // they will be owned by explosion
 
-        for (SmokeTrail st : smokeTrailList) {
-            st.dispose();
-        }
+//        for (SmokeTrail st : smokeTrailList) {
+//            st.dispose();
+//        }
 
 //        engineTrail = null;
 //        damageBurnTrail = null;

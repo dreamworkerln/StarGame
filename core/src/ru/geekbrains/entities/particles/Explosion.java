@@ -15,9 +15,9 @@ public class Explosion extends ParticleObject {
 
     private float maxRadius;
     private long start;
-    long frame;
+    //long frame;
 
-    private boolean readyToDisposeSelf = false;
+    private boolean trailReadyToDispose = false;
 
     private List<SmokeTrail> smokeTrailList = null;
 
@@ -31,6 +31,7 @@ public class Explosion extends ParticleObject {
 
         return newRadius;
     }
+
 
     public Explosion (GameObject owner) {
 
@@ -51,44 +52,52 @@ public class Explosion extends ParticleObject {
         }
     }
 
+
+
     public void update(float dt) {
 
         super.update(dt);
 
-        frame = GameScreen.INSTANCE.getTick() - start;
+        if (smokeTrailList != null) {
+            for (SmokeTrail st : smokeTrailList) {
+                st.update(dt);
+            }
+        }
 
-        if(frame >= 0 && frame < 5) {
+        //frame = GameScreen.INSTANCE.getTick() - start;
+
+        if(age >= 0 && age < 5) {
             radius =  maxRadius * 0.3f;
         }
-        else if(frame >= 5 && frame < 10) {
+        else if(age >= 5 && age < 10) {
             radius =  maxRadius * 0.5f;
         }
-        else if(frame >= 10 && frame < 15) {
+        else if(age >= 10 && age < 15) {
             radius =  maxRadius * 1f;
         }
-        else if(frame >= 15 && frame < 30) {
-            radius =  maxRadius  - maxRadius * ((frame - 15)/15f);
+        else if(age >= 15 && age < 30) {
+            radius =  maxRadius  - maxRadius * ((age - 15)/15f);
         }
         else {
             radius = 0;
-            readyToDisposeSelf = true;
+
+            trailReadyToDispose = true;
+
+            if (smokeTrailList != null) {
+
+                for (SmokeTrail st : smokeTrailList) {
+                    trailReadyToDispose = trailReadyToDispose && st.readyToDispose;
+                }
+            }
+            readyToDispose = trailReadyToDispose;
         }
 
         // ---------------------------------------------------------
 
-        if (smokeTrailList != null) {
 
-            for (SmokeTrail st : smokeTrailList) {
-                st.update(dt);
-
-                readyToDispose = readyToDisposeSelf && st.readyToDispose;
-            }
-
-        }
-        else {
-            readyToDispose = readyToDisposeSelf;
-        }
     }
+
+
 
     @Override
     public void draw(Renderer renderer) {
@@ -115,14 +124,14 @@ public class Explosion extends ParticleObject {
         shape.set(ShapeRenderer.ShapeType.Filled);
 
 
-        if (frame < 10) {
+        if (age < 10) {
             shape.setColor(1f, 1f, 0.2f, 1);
         }
-        else if (frame < 15) {
+        else if (age < 15) {
             shape.setColor(1f, 1f, 0.2f, 1);
         }
         else {
-            shape.setColor(1f, 1f, 0.2f, 1 - (frame - 15) / 15f);
+            shape.setColor(1f, 1f, 0.2f, 1 - (age - 15) / 15f);
         }
 
         shape.circle(pos.x, pos.y, radius);

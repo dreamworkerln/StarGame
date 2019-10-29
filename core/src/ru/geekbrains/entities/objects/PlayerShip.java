@@ -11,7 +11,6 @@ import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.KeyDown;
 import ru.geekbrains.screen.Renderer;
-import ru.geekbrains.screen.RendererType;
 
 public class PlayerShip extends Ship {
 
@@ -45,7 +44,7 @@ public class PlayerShip extends Ship {
 
         maxThrottle = 70f;
 
-
+        //setMaxHealth(100);
     }
 
 
@@ -135,12 +134,6 @@ public class PlayerShip extends Ship {
 
     @Override
     public void update(float dt) {
-
-
-
-
-
-
         super.update(dt);
 
 

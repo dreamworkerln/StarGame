@@ -310,8 +310,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         }
     }
 
-
-
-
-
+    public long getAge() {
+        return age;
+    }
 }

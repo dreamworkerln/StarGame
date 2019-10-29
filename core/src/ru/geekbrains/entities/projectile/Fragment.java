@@ -41,15 +41,27 @@ public class Fragment extends Projectile implements SmokeTrailList {
         //smokeTrailList.add(smoke);
     }
 
+    public Fragment(float height, boolean trail, GameObject owner) {
+        this(height, owner);
+
+        SmokeTrail smoke = new SmokeTrail(1, new Color(0.5f, 0.2f, 0.7f, 1), this);
+        smoke.pos.set(pos);
+        smoke.vel.set(vel);
+        smoke.speed = 0;
+        smoke.setTTL(40);
+        smokeTrailList.add(smoke);
+    }
+
     @Override
     public void update(float dt) {
         super.update(dt);
 
-        tmp0.set(vel).scl(5* -dt);
-        tmp1.set(pos).add(tmp0);
+        //tmp0.set(vel).scl(5* -dt);
+        //tmp1.set(pos).add(tmp0);
 
         for (SmokeTrail trail : smokeTrailList) {
-            trail.add(tmp1 , dir, vel, 1);
+            trail.setTrailPos(pos);
+            trail.add(1);
             trail.update(dt);
         }
 

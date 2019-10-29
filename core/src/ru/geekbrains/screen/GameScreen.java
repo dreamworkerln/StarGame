@@ -387,13 +387,6 @@ public class GameScreen extends BaseScreen {
             }
         }
 
-
-
-
-
-
-
-
         // -----------------------------------------------------------------------------------------
 
         // increment game tick
@@ -979,7 +972,7 @@ public class GameScreen extends BaseScreen {
                 !obj.type.contains(ObjectType.ANTIMISSILE)&&
                 !obj.type.contains(ObjectType.FRAGMISSILE)) {
 
-            expl02.play(0.4f);
+            expl02.play(0.6f);
         }
         else if (obj.type.contains(ObjectType.FRAGMISSILE)) {
             bigExpl.play(1f);
@@ -1191,6 +1184,9 @@ public class GameScreen extends BaseScreen {
                 ENEMIES_COUNT_IN_WAVE = 7;
                 break;
         }
+
+        //ENEMY_RESPAWN_TIME = 1;
+        //ENEMIES_COUNT_IN_WAVE = 0;
     }
 
 

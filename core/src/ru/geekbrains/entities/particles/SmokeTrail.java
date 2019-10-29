@@ -15,78 +15,48 @@ import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 import ru.geekbrains.storage.Game;
 
-public class SmokeTrail extends ParticleObject {
+public class SmokeTrail extends GameObject{
 
-    public long TTL = 60; // time to live (in ticks)
-    public long speed = 300; // trail speed
+    public long speed = 300L; // trail speed
 
+    protected GameObject owner;
     public Color color;
     public Color bufColor;
 
-    public SmokeTrail(float height, Color color, GameObject owner) {
-        super(height, owner);
+    public SmokeTrail(float radius, Color color, GameObject owner) {
 
+        this.owner = owner;
         this.color = color;
-        bufColor = new Color();
+        this.radius = radius;
+        this.bufColor = new Color();
     }
-
-    class TraceElement {
-
-        public Vector2 pos;
-        public Vector2 vel;
-        protected Vector2 tmp;
-        public float throttlePercent;
-
-        public long expired;
-
-        /**
-         *
-         * @param pos thruster pos
-         * @param dir negated thruster direction
-         * @param vel ship velocity
-         */
-        public TraceElement(Vector2 pos, Vector2 dir, Vector2 vel, float throttlePercent) {
-
-            this.tmp = new Vector2();
-
-            this.throttlePercent = throttlePercent;
-            this.pos = pos;
-            this.expired = GameScreen.INSTANCE.getTick() + (long)(TTL*throttlePercent);
-            this.vel = dir.nor().scl(-speed);
-        }
-
-
-        public void update(float dt) {
-
-            tmp.set(vel);
-            pos.add(tmp.scl(dt));
-        }
-
-    }
-
-
-
 
     private LinkedList<TraceElement> list = new LinkedList<>();
 
 
     public void update(float dt) {
 
-        long tick = GameScreen.INSTANCE.getTick();
+        // pos already setted in setTrailPos()
+        dir.set(owner.dir).scl(-1);
+        vel.set(owner.vel).scl(-1);
 
-        Iterator<TraceElement> it = list.iterator();
-        if (it.hasNext()) {
+        //long tick = GameScreen.INSTANCE.getTick();
 
-            TraceElement el = it.next();
-            if (tick >= el.expired) {
-                it.remove();
-            }
-        }
 
         // move smoke
         for(TraceElement el : list) {
             el.update(dt);
         }
+
+        Iterator<TraceElement> it = list.iterator();
+        if (it.hasNext()) {
+            TraceElement el = it.next();
+            if (el.readyToDispose) {
+                it.remove();
+            }
+        }
+
+
 
 
         // allow to dispose owner of SmokeTrail if owner is destroyed
@@ -97,9 +67,9 @@ public class SmokeTrail extends ParticleObject {
 
 
 
-    public void add(Vector2 pos, Vector2 dir, Vector2 vel, float throttlePercent) {
+    public void add(float throttlePercent) {
 
-        list.add(new TraceElement(pos.cpy(), dir.cpy(), vel.cpy(), throttlePercent));
+        list.add(new TraceElement(throttlePercent, this));
     }
 
 
@@ -124,7 +94,7 @@ public class SmokeTrail extends ParticleObject {
         //shape.begin();
         shape.set(ShapeRenderer.ShapeType.Line);
 
-        long tick = GameScreen.INSTANCE.getTick();
+        //long tick = GameScreen.INSTANCE.getTick();
 
 
 
@@ -132,18 +102,23 @@ public class SmokeTrail extends ParticleObject {
 
             bufColor.set(color);
 
-            bufColor.a = 1f*((el.expired - tick)/(float)TTL);
+            bufColor.a = 1 - 1f*((el.getAge())/(float)el.getTTL());
 
-            if (bufColor.a < 0) {
+            if (bufColor.a < 0 || bufColor.a > 1) {
                 bufColor.a = 0;
             }
 
 
             shape.setColor(bufColor);
+
+            shape.circle(el.pos.x, el.pos.y, el.getRadius());
+
             //shape.setColor(0.5f, 0.5f, 0.5f, 1f*((el.expired - tick)/(float)SmokeTrail.TTL));
 
-            shape.circle(el.pos.x, el.pos.y, 2 *radius +
-                         radius * 2 * el.throttlePercent *(1-((el.expired - tick)/(float)TTL)));
+//            shape.circle(el.pos.x, el.pos.y, 2 *radius +
+//                    radius * 2 * el.throttlePercent *(1-(el.getAge()/(float)TTL)));
+
+            //shape.circle(el.pos.x, el.pos.y, 10);
         }
         Gdx.gl.glLineWidth(1);
         //shape.end();
@@ -159,6 +134,66 @@ public class SmokeTrail extends ParticleObject {
 //            el.dispose();
 //        }
         list.clear();
+    }
+
+    public void setTrailPos(Vector2 pos) {
+        this.pos.set(pos);
+    }
+
+
+    // =============================================================================================
+
+
+
+
+    class TraceElement extends ParticleObject {
+
+
+        float throttlePercent;
+
+        //public long expired;
+
+        /**
+         *
+         * @param pos thruster pos
+         * @param dir negated thruster direction
+         * @param vel ship velocity
+         */
+        public TraceElement(float throttlePercent, GameObject owner) {
+            super(owner);
+
+
+            //this.tmp = new Vector2();
+
+            this.throttlePercent = throttlePercent;
+
+            this.pos.set(owner.pos);
+            this.dir.set(owner.dir);
+            this.radius = owner.getRadius();
+
+            tmp0.set(owner.dir).scl(speed*throttlePercent);
+            //this.vel.set(tmp0);
+            this.vel.set(owner.vel).add(tmp0);
+
+            this.TTL = (long) (owner.getTTL()*throttlePercent);
+        }
+
+        public void update(float dt) {
+
+            // no super - update age and pos manually
+            age = GameScreen.INSTANCE.getTick() - birth;
+
+            tmp0.set(vel);
+            // HAAX
+            pos.add(tmp0.scl(dt * 0.5f));
+
+
+            if (radius < 2* owner.getRadius()) {
+                radius += 0.2f;
+            }
+
+            readyToDispose = age > TTL;
+        }
     }
 
 }

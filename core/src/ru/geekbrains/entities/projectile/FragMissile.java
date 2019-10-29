@@ -118,17 +118,12 @@ public class FragMissile extends Missile{
 
         float power = 20f;
 
-        Fragment trash = new Fragment(4f, owner);
+        Fragment trash = new Fragment(4f, true, owner);
         trash.setMass(fragCount*trash.getMass());
         trash.pos.set(pos);
         trash.vel.set(vel);
         trash.dir.set(dir);
         trash.damage = 1;
-        SmokeTrail smoke = new SmokeTrail(1, new Color(0.5f, 0.2f, 0.7f, 1), this);
-        smoke.speed = 0;
-        smoke.TTL = 100;
-        trash.smokeTrailList.add(smoke);
-
 
 
         GameScreen.addObject(trash);
