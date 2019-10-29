@@ -60,7 +60,12 @@ public class Fragment extends Projectile implements SmokeTrailList {
         //tmp1.set(pos).add(tmp0);
 
         for (SmokeTrail trail : smokeTrailList) {
-            trail.setTrailPos(pos);
+
+            // engine burst pos
+            tmp1.set(vel).nor().scl(-5f);
+            tmp2.set(pos).add(tmp1);
+
+            trail.setTrailPos(tmp2);
             trail.add(1);
             trail.update(dt);
         }

@@ -184,8 +184,8 @@ public class SmokeTrail extends GameObject{
             age = GameScreen.INSTANCE.getTick() - birth;
 
             tmp0.set(vel);
-            // HAAX
-            pos.add(tmp0.scl(dt * 0.5f));
+
+            pos.add(tmp0.scl(dt)/*HAAX*/.scl(0.5f));
 
 
             if (radius < 2* owner.getRadius()) {
