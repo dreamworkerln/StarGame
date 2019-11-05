@@ -89,8 +89,6 @@ public class Gun extends ParticleObject {
         firing = true;
     }
 
-
-
     public void stopFire() {
 
         firing = false;
@@ -175,6 +173,8 @@ public class Gun extends ParticleObject {
 
 
     protected void fire(float dt) {
+
+        //System.out.println(owner.name);
 
         Projectile proj = (Projectile)createProjectile();
 
@@ -285,6 +285,12 @@ public class Gun extends ParticleObject {
         this.calibre = calibre;
         firingAmmoType = createProjectile();
     }
+
+    public void recalibrate() {
+        firingAmmoType = createProjectile();
+    }
+
+
 
 
     // костыли, нарушение подстановки Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher

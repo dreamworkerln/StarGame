@@ -20,7 +20,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
     private static Texture missileTexture;
 
-    public float maxRange = 800;
+    public float maxRange = 900;
 
     // Список целей, по которым идет огонь
     // (По которым запущены противо-ракеты и идет поражение)
@@ -48,7 +48,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         fireRate = 0.05f;
         gunHeatingDelta = 50;
-        coolingGunDelta = 1.5f;
+        coolingGunDelta = 1.8f;
         //coolingGunDelta = 60f;
         maxGunHeat = 200;
         power = 200;

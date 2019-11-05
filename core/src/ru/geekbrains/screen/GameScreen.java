@@ -35,6 +35,8 @@ import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.Planet;
 import ru.geekbrains.entities.objects.PlayerShip;
 import ru.geekbrains.entities.particles.Message;
+import ru.geekbrains.entities.particles.SmokeTrail;
+import ru.geekbrains.entities.particles.SmokeTrailList;
 import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
@@ -216,6 +218,8 @@ public class GameScreen extends BaseScreen {
         if (enemyShipsToSpawn> 0)  {
             spawnEnemyShip();
         }
+
+        planet.update(dt);
 
 
 
@@ -658,6 +662,13 @@ public class GameScreen extends BaseScreen {
                     if (tgt == planet) {
                         // stop projectile - fallen on planet
                         prj.vel.setZero();
+
+                        // stop proj smoke trail
+                        if (prj instanceof SmokeTrailList) {
+                            ((SmokeTrailList)prj).stop();
+                        }
+
+                        planet.hit(prj);
                         // destroy projectile (or driven object)
                         prj.readyToDispose = true;
                     }
@@ -1051,6 +1062,10 @@ public class GameScreen extends BaseScreen {
     public static void addObject(GameObject obj) {
 
         INSTANCE.spawningObjects.add(obj);
+    }
+
+    public static List<GameObject> getHittableObjects() {
+        return INSTANCE.hittableObjects;
     }
 
 

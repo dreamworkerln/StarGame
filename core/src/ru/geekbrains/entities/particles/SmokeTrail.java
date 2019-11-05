@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.projectile.FragMissile;
+import ru.geekbrains.entities.projectile.Fragment;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -38,7 +40,14 @@ public class SmokeTrail extends GameObject{
 
         // pos already setted in setTrailPos()
         dir.set(owner.dir).scl(-1);
-        vel.set(owner.vel);//.scl(-1);
+        // НАРУШЕНИЕ ФИЗИКИ, НО ТАК КРАСИВЕЕ
+
+        if (owner.getClass() != Fragment.class) {
+
+            vel.set(owner.vel);
+        }
+
+        //vel.set(owner.vel);//.scl(-1);
 
         //long tick = GameScreen.INSTANCE.getTick();
 
@@ -124,6 +133,14 @@ public class SmokeTrail extends GameObject{
         //shape.end();
     }
 
+    public void stop() {
+
+        for(TraceElement el : list) {
+            el.stop();
+        }
+
+    }
+
 
 
 
@@ -193,6 +210,12 @@ public class SmokeTrail extends GameObject{
             }
 
             readyToDispose = age > TTL;
+        }
+
+        public void stop() {
+
+            vel.setZero();
+
         }
     }
 

@@ -188,12 +188,25 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         }
     }
 
+    public void setMaxThrottle(float value) {
+        maxThrottle = value;
+        throttle = maxThrottle;
+    }
+
     @Override
     public List<SmokeTrail> removeSmokeTrailList() {
 
         List<SmokeTrail> result = smokeTrailList;
         smokeTrailList = new ArrayList<>();
         return result;
+    }
+
+    @Override
+    public void stop() {
+
+        for (SmokeTrail trail : smokeTrailList) {
+            trail.stop();
+        }
     }
 
     @Override

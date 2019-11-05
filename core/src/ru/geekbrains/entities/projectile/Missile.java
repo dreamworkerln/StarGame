@@ -120,7 +120,7 @@ public class Missile extends DrivenObject {
             // leave only ENEMY_SHIP in targets;
             //ToDO: implement friend or foe radar recognition system
             // Or all will fire to enemy ships only
-            targets.removeIf(t -> !t.type.contains(ObjectType.ENEMY_SHIP) || t.readyToDispose);
+            targets.removeIf(t -> !t.type.contains(ObjectType.SHIP) || t.readyToDispose || t == owner);
 
 
 

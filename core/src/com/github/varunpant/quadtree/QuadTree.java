@@ -352,7 +352,7 @@ public class QuadTree<T> {
                 }
                 break;
             case POINTER:
-                result = this.insert(
+                  result = this.insert(
                         this.getQuadrantForPoint(parent, point.getX(), point.getY()), point);
                 break;
 

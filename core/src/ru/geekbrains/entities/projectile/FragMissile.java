@@ -2,6 +2,7 @@ package ru.geekbrains.entities.projectile;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -23,7 +24,7 @@ public class FragMissile extends Missile{
 
         fuel = 12;
 
-        damage = 0.5f;
+        damage = 1f;
         setMaxHealth(0.05f);
         boost = 700;
 
@@ -60,7 +61,7 @@ public class FragMissile extends Missile{
         
         if (target == null || target.readyToDispose) {
 
-            // отворачиваемся от носителя, чтоб не подоравть его случайно
+            // перед самоликвидацией отворачиваемся от носителя, чтоб не подоравть его случайно
             if(owner!=null && !owner.readyToDispose) {
                 guideVector.set(owner.pos).sub(pos).scl(-1).nor().rotate(45);
             }
@@ -68,7 +69,7 @@ public class FragMissile extends Missile{
             return;
         }
 
-        // разворот в сторону цели
+        // перед подрывом разворот в сторону цели
         if (distToTarget <  proximityMinDistance*2.5  &&
                 distToTarget > proximityMinDistance) {
 
@@ -98,6 +99,7 @@ public class FragMissile extends Missile{
             
 
         }
+        // отключено
         // взвод направленного подрыва
         // находимся от носителя дальше безопасного расстояния
         else if (distToTarget < proximityMinDistance &&
@@ -116,14 +118,15 @@ public class FragMissile extends Missile{
 
         
 
-        float power = 20f;
+        float power = 10f;
 
         Fragment trash = new Fragment(4f, true, owner);
-        trash.setMass(fragCount*trash.getMass());
+        trash.setMass(fragCount*trash.getMass()); // намного больше изначальной массы ракеты
         trash.pos.set(pos);
         trash.vel.set(vel);
         trash.dir.set(dir);
         trash.damage = 1;
+        trash.owner = owner;
 
 
         GameScreen.addObject(trash);
@@ -139,7 +142,7 @@ public class FragMissile extends Missile{
             frag.pos.set(pos);
             frag.vel.set(vel);
             frag.dir.set(dir);
-
+            frag.owner = owner;
 
             double fromAn;
             double toAn;
@@ -162,7 +165,21 @@ public class FragMissile extends Missile{
             float r = (float) ThreadLocalRandom.current().nextDouble(power - power*0.1f, power);
             //float r = (float) ThreadLocalRandom.current().nextGaussian()*power*0.05f + power;
             //float r = power;
-            float fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
+            float fi;
+
+            try {
+
+                fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
+            }
+            catch(Exception e) {
+                System.out.println(dir);
+                System.out.println(fi_min);
+                System.out.println(fi_max);
+                System.out.println(e);
+                // гениально
+                throw e;
+            }
+
 
             float x = (float) (r * Math.cos(fi));
             float y = (float) (r * Math.sin(fi));
