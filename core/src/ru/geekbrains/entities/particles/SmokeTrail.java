@@ -38,7 +38,7 @@ public class SmokeTrail extends GameObject{
 
         // pos already setted in setTrailPos()
         dir.set(owner.dir).scl(-1);
-        vel.set(owner.vel).scl(-1);
+        vel.set(owner.vel);//.scl(-1);
 
         //long tick = GameScreen.INSTANCE.getTick();
 
@@ -185,7 +185,7 @@ public class SmokeTrail extends GameObject{
 
             tmp0.set(vel);
 
-            pos.add(tmp0.scl(dt)/*HAAX*/.scl(0.5f));
+            pos.add(tmp0.scl(dt)/*HAAX.scl(1.0f)*/);
 
 
             if (radius < 2* owner.getRadius()) {
