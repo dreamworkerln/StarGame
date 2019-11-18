@@ -23,6 +23,8 @@ import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 
+import static ru.geekbrains.screen.GameScreen.getPlanet;
+
 public class MissileLauncher extends Gun {
 
 
@@ -150,6 +152,8 @@ public class MissileLauncher extends Gun {
         targets.removeIf(t -> t == this.owner);
         targets.removeIf(t -> t.owner == this.owner);
         targets.removeIf(t -> t.readyToDispose);
+
+        targets.add(getPlanet());
 
         if (targets.size() == 1) {
             result.add(targets.get(0));

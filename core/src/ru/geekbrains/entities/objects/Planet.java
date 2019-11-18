@@ -1,5 +1,7 @@
 package ru.geekbrains.entities.objects;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
@@ -10,17 +12,19 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import ru.geekbrains.entities.equipment.BPU;
+import ru.geekbrains.entities.particles.Message;
 import ru.geekbrains.entities.projectile.FragMissile;
 import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.entities.weapons.Gun;
 import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.screen.Renderer;
 
 public class Planet extends GameObject {
 
     private static Texture missileTexture;
 
-    private static float MAX_TOLERANCE = 2f;
+    private static float MAX_TOLERANCE = 4f;
 
     private float tolerance = MAX_TOLERANCE;
 
@@ -30,11 +34,15 @@ public class Planet extends GameObject {
 
     private BPU pbu = new BPU();
 
+    protected static Sound cannonFire01;
+
+    protected float ddd = 2;
+
     static {
         missileTexture = new Texture("M-45_missile2.png");
     }
 
-    private Gun gun;
+    public Gun gun;
 
     public Planet(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
@@ -43,6 +51,9 @@ public class Planet extends GameObject {
 
 
         mass = 1000000f;
+
+        setMaxHealth(100);
+
         this.type.add(ObjectType.PLANET);
 
 
@@ -51,26 +62,36 @@ public class Planet extends GameObject {
             @Override
             protected void rotateObject() {}
 
+
+
             @Override
             protected GameObject createProjectile() {
 
                 Shell result = new Shell(calibre, owner);
-                //result.setMass(0.16f);
+                result.setMass(0.05f);
+                result.damage = 4;
                 return result;
             }
         };
 
+        gun.cannonFire01 = Gdx.audio.newSound(Gdx.files.internal("big_expl2.mp3"));
 
-        gun.power = 260;
+
+        
+        gun.power = 800;
         gun.fireRate = 0.01f;
         target = null;
+        gun.setCalibre(15);
+        gun.maxBlastRadius = 16;
         gun.recalibrate();
+
     }
 
     // Силы планетарной обороны
     public void hit(GameObject o) {
 
         tolerance -= o.damage;
+        health -= o.damage;
 
 
         if (tolerance < 0) {
@@ -97,6 +118,15 @@ public class Planet extends GameObject {
             }
         }
 
+        if (health < 0) {
+
+            ddd = 1;
+            for (int i = 0; i < 200; i++) {
+                launch();
+            }
+            readyToDispose = true;
+        }
+
     }
 
 
@@ -112,8 +142,8 @@ public class Planet extends GameObject {
             tmp0.scl(radius * 1.3f / tmp0.len());
 
 
-            float fromAn = (float) (Math.PI / 2);
-            float toAn = (float) (Math.PI / 2);
+            float fromAn = (float) (Math.PI / ddd);
+            float toAn = (float) (Math.PI / ddd);
             float fi_min = (tmp0.angleRad() - fromAn);
             float fi_max = (tmp0.angleRad() + toAn);
             tmp0.rotateRad(MathUtils.random(fi_min, fi_max));
@@ -141,6 +171,9 @@ public class Planet extends GameObject {
 
     private void fire(float dt) {
 
+        if (readyToDispose)
+            return;
+
         if (target != null && !target.readyToDispose) {
 
 
@@ -157,8 +190,10 @@ public class Planet extends GameObject {
 //            if (guideVector.isZero()) {
 //                guideVector.set(target.pos).sub(pos).nor();
 //            }
-            if (pbu.guideResult.impactTime < 1.8f) {
+            if (pbu.guideResult.impactTime < 2.2f) {
 
+                dir.set(guideVector).nor();
+                sprite.setAngle(dir.angle());
                 gun.dir.set(guideVector).nor();
 
                 gun.startFire();
@@ -179,6 +214,13 @@ public class Planet extends GameObject {
     public void update(float dt) {
         gun.update(dt);
         fire(dt);
+
+    }
+
+    @Override
+    public void draw(Renderer renderer) {
+        super.draw(renderer);
+        gun.draw(renderer);
 
     }
 

@@ -8,24 +8,22 @@ import ru.geekbrains.screen.RendererType;
 
 public class Message extends GameObject {
 
-    private static Font font;
-
-    static {
-
-        font = new Font("font/font.fnt", "font/font2.png");
-        font.setSize(20f);
-    }
+    public Font font;
 
 
-
-    public long TTL = 400; // time to live (in ticks)
+    long TTL = 400; // time to live (in ticks)
 
     long expired;
 
-    String text;
+    public String text;
+    public float down;
 
     public Message(String text) {
         super();
+
+
+        font = new Font("font/font.fnt", "font/font2.png");
+        font.setSize(20f);
 
         //super(1, null);
 
@@ -61,8 +59,13 @@ public class Message extends GameObject {
         //renderer.batch.begin();
         font.draw(renderer.batch, text,
                 GameScreen.INSTANCE.worldBounds.getLeft() * GameScreen.INSTANCE.aspect + 5,
-                GameScreen.INSTANCE.worldBounds.getTop()-5);
+                GameScreen.INSTANCE.worldBounds.getTop()-5 - down);
         //renderer.batch.end();
     }
 
+    @Override
+    public void setTTL(long TTL) {
+        super.setTTL(TTL);
+        expired = GameScreen.INSTANCE.getTick() + TTL;
+    }
 }

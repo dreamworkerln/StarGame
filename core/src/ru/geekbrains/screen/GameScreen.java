@@ -120,6 +120,11 @@ public class GameScreen extends BaseScreen {
     private Sound bigExpl;
     private Sound flak;
     private Sound metalHit;
+    private Sound forTheEmperor;
+
+    private Message msgPlanet;
+
+    private boolean forTheEmperorPlayed = false;
 
 
 
@@ -136,7 +141,7 @@ public class GameScreen extends BaseScreen {
         }
 
 
-        quadTree = new QuadTree<>(-4000,-4000,4000,4000);
+        quadTree = new QuadTree<>(-5000,-5000,5000,5000);
 
         background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
         background.setHeightAndResize(2050f);
@@ -165,8 +170,15 @@ public class GameScreen extends BaseScreen {
 
 
 
-        Message msg = new Message("New objectives: survive till warp engine have been repaired.");
+        //Message msg = new Message("New objectives: survive till warp engine have been repaired.");
+        Message msg = new Message("New objectives: EXTERMINATE THIS XENOS PLANET !!!!");
         particleObjects.add(msg);
+
+        msgPlanet = new Message("Planet: ");
+        particleObjects.add(msgPlanet);
+        msgPlanet.setTTL(10000000);
+        msgPlanet.down = 50;
+        msgPlanet.font.setSize(10f);
 
 //        Тесты для CIWS minigun
 
@@ -187,6 +199,8 @@ public class GameScreen extends BaseScreen {
 
 
         music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
+
+        forTheEmperor = Gdx.audio.newSound(Gdx.files.internal("FOR THE EMPEROR.mp3"));
 
         music.setVolume(1f);
         music.play();
@@ -431,7 +445,13 @@ public class GameScreen extends BaseScreen {
         renderer.batch.begin();
 
         background.draw(renderer);
-        planet.draw(renderer);
+
+        if (!planet.readyToDispose) {
+            planet.draw(renderer);
+        }
+
+
+
         reticle.draw(renderer);
 
         // gameObjects
@@ -462,11 +482,33 @@ public class GameScreen extends BaseScreen {
             obj.draw(renderer);
         }
 
-
-
+        planet.gun.draw(renderer);
+        msgPlanet.text = String.valueOf((int)(planet.getHealth() / planet.getMaxHealth()* 100));
 
 
         renderer.shape.end();
+
+
+        // RENDER ALL FONT OBJECTS ------------------------------------
+
+        renderer.rendererType = RendererType.FONT;
+
+        renderer.batch.begin();
+
+        // particleObjects
+        for (GameObject obj : particleObjects) {
+            obj.draw(renderer);
+        }
+
+        renderer.batch.end();
+
+
+
+
+
+
+
+        ;
 
         // ---------------------------------------------------------------------------------------
 
@@ -520,16 +562,15 @@ public class GameScreen extends BaseScreen {
         // Newton's law of universal gravitation
         // F = G * m1*m2/r^2;
 
-        tmp1s.set(planet.pos);
-        tmp1s.sub(obj.pos);
+        tmp1s.set(planet.pos).sub(obj.pos);
 
         float G = 2f;
         //float G = 0f;
 
         float divider = tmp1s.len2();
         // avoid division by zero 
-        if (divider < 0.0000001)
-            divider = 0.0000001f;
+        if (divider < 1)
+            divider = 1f;
 
         tmp0s.set(tmp1s.setLength(G*planet.getMass() * obj.getMass()/divider));
         obj.applyForce(tmp0s);
@@ -1013,11 +1054,11 @@ public class GameScreen extends BaseScreen {
         // -----------------------------------------------------------------------------------------
         // game objective completed
         // -----------------------------------------------------------------------------------------
-        if (!playerShip.readyToDispose && !win && !music.isPlaying()) {
+        if (!playerShip.readyToDispose && !win && !music.isPlaying() && !planet.readyToDispose) {
 
 
 
-            Message msg = new Message("Objectives completed. Leaving area.");
+            Message msg = new Message("You loose.");
             particleObjects.add(msg);
             music = null;
 
@@ -1032,6 +1073,37 @@ public class GameScreen extends BaseScreen {
 
             win = true;
         }
+
+        // true win
+        if (!playerShip.readyToDispose && !win && planet.readyToDispose) {
+
+            win = true;
+
+            Message msg = new Message("EMPEROR WIN !!!");
+            msg.font.setSize(30f);
+            GameScreen.addParticleObject(msg);
+        }
+
+        if (playerShip.readyToDispose && win && planet.readyToDispose && !forTheEmperorPlayed) {
+
+            forTheEmperor.play();
+            forTheEmperor.play();
+            forTheEmperor.play();
+            forTheEmperor.play();
+
+            forTheEmperorPlayed = true;
+        }
+
+
+
+
+
+
+
+
+
+
+
 
         // override manual throttle level
         if (win) {
@@ -1064,8 +1136,20 @@ public class GameScreen extends BaseScreen {
         INSTANCE.spawningObjects.add(obj);
     }
 
+
+    public static void addParticleObject(GameObject obj) {
+
+        INSTANCE.particleObjects.add(obj);
+    }
+
     public static List<GameObject> getHittableObjects() {
         return INSTANCE.hittableObjects;
+    }
+
+    public static GameObject getPlanet() {
+
+        return INSTANCE.planet;
+
     }
 
 

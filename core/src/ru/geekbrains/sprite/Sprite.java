@@ -42,7 +42,6 @@ public class Sprite extends Rect {
 
         SpriteBatch sprite = renderer.batch;
 
-        //batch.begin();
         sprite.draw(
                 textureList[frame],
                 getLeft(), getBottom(),
@@ -51,7 +50,6 @@ public class Sprite extends Rect {
                 scale, scale,
                 angle
         );
-        //batch.end();
     }
 
 
@@ -109,10 +107,14 @@ public class Sprite extends Rect {
 
         this.textureList = null;
 
+
+
 //        for (TextureRegion texture: textureList) {
 //            texture.getTexture().dispose();
 //        }
     }
+
+
 
 
 }

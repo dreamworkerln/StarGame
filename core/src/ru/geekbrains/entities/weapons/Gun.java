@@ -17,7 +17,7 @@ import ru.geekbrains.screen.RendererType;
 
 public class Gun extends ParticleObject {
 
-    private static Sound cannonFire01;
+    public static Sound cannonFire01;
 
     protected float calibre = 6;
     public float power = 230;     // force length, applied to shell
@@ -33,7 +33,7 @@ public class Gun extends ParticleObject {
     //public long lastFiredBurst;
 
     protected float blastRadius;
-    protected float maxBlastRadius;
+    public float maxBlastRadius;
 
 
     public Vector2 nozzlePos;
@@ -72,7 +72,6 @@ public class Gun extends ParticleObject {
 
         lastFired = -1000;
         //lastFiredBurst = -1000;
-        maxBlastRadius = this.radius;
         nozzlePos = new Vector2();
 
         setCalibre(this.calibre);
@@ -237,11 +236,10 @@ public class Gun extends ParticleObject {
         }
 
         if (this.getClass() !=  Gun.class &&
-            this.getClass() !=  Minigun.class) {
+            this.getClass() !=  Minigun.class &&
+            !this.getClass().getName().equals("ru.geekbrains.entities.objects.Planet$1")) {
             return;
         }
-
-
 
         ShapeRenderer shape = renderer.shape;
 
@@ -299,6 +297,13 @@ public class Gun extends ParticleObject {
 
         if (this.getClass() == Gun.class) {
             cannonFire01.play(0.4f);
+        }
+
+        if (this.getClass().getName().equals("ru.geekbrains.entities.objects.Planet$1")) {
+            cannonFire01.play(0.7f);
+            cannonFire01.play(0.7f);
+            cannonFire01.play(0.7f);
+
         }
     }
 

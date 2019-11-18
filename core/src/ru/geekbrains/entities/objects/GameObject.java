@@ -285,6 +285,10 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         return maxHealth;
     }
 
+    public float getHealth() {
+        return  health;
+    }
+
 
 
     public void setMaxHealth(float maxHealth) {
