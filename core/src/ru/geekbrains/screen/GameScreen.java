@@ -38,6 +38,7 @@ import ru.geekbrains.entities.particles.Message;
 import ru.geekbrains.entities.particles.SmokeTrail;
 import ru.geekbrains.entities.particles.SmokeTrailList;
 import ru.geekbrains.entities.projectile.Missile;
+import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;
@@ -683,8 +684,23 @@ public class GameScreen extends BaseScreen {
                         // 3 закон Ньютона - отражаем корабль
                         plsp.applyForce(tmp0.scl(-1));
 
+
                         // depleting power shield
                         plsp.shield.power -= Math.min(plsp.shield.power, dA);
+
+
+//                        if (prj.owner == planet && prj.getClass() == Shell.class) {
+//
+//                            plsp.shield.power += Math.min(plsp.shield.maxPower - plsp.shield.power, dA);
+//
+//                        }
+//                        else {
+//                            // depleting power shield
+//                            plsp.shield.power -= Math.min(plsp.shield.power, dA);
+//
+//                        }
+
+
 
                         //System.out.println(dA);
 

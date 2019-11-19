@@ -66,8 +66,8 @@ public class Planet extends GameObject {
             protected GameObject createProjectile() {
 
                 Shell result = new Shell(calibre, owner);
-                result.setMass(0.05f);
-                result.damage = 4;
+                result.setMass(0.05f*2);
+                result.damage = 5;
                 return result;
             }
         };
@@ -76,7 +76,7 @@ public class Planet extends GameObject {
 
 
         
-        gun.power = 800;
+        gun.power = 800*2f;
         gun.fireRate = 0.05f;
         target = null;
         gun.setCalibre(15);
@@ -140,11 +140,12 @@ public class Planet extends GameObject {
             tmp0.scl(radius * 1.3f / tmp0.len());
 
 
-            float fromAn = (float) (Math.PI / ddd);
+            float fromAn = (float) (-Math.PI / ddd);
             float toAn = (float) (Math.PI / ddd);
             float fi_min = (tmp0.angleRad() - fromAn);
             float fi_max = (tmp0.angleRad() + toAn);
-            tmp0.rotateRad(MathUtils.random(fi_min, fi_max));
+           // tmp0.rotateRad(MathUtils.random(fi_min, fi_max));
+            tmp0.rotateRad(MathUtils.random(fromAn, toAn));
 
 
             missile = new FragMissile(new TextureRegion(missileTexture), 4.5f, this);
@@ -188,7 +189,7 @@ public class Planet extends GameObject {
 //            if (guideVector.isZero()) {
 //                guideVector.set(target.pos).sub(pos).nor();
 //            }
-            if (pbu.guideResult.impactTime < 2.2f) {
+            if (pbu.guideResult.impactTime < 2.3f) {
 
                 dir.set(guideVector).nor();
                 sprite.setAngle(dir.angle());
