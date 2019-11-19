@@ -32,6 +32,7 @@ public class FragMissile extends Missile{
         throttle = maxThrottle;
 
         fragCount = 500;
+        //fragCount = 50;
 
         selfdOnTargetDestroyed = true;
         selfdOnNoFuel = true;
@@ -119,6 +120,7 @@ public class FragMissile extends Missile{
         
 
         float power = 10f;
+        //float power = 100f;
 
         Fragment trash = new Fragment(4f, true, owner);
         trash.setMass(fragCount*trash.getMass()); // намного больше изначальной массы ракеты
@@ -136,6 +138,7 @@ public class FragMissile extends Missile{
 
 
             Projectile frag = new Fragment(2f, owner);
+            //Projectile frag = new Fragment(2f, true, owner);
 
             //frag.setTTL(200);
 
@@ -146,6 +149,8 @@ public class FragMissile extends Missile{
 
             double fromAn;
             double toAn;
+
+            shapedExplosion = false;
 
 
             if (shapedExplosion) {

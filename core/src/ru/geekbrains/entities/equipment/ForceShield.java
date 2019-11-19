@@ -96,4 +96,9 @@ public class ForceShield extends ParticleObject {
         Gdx.gl.glLineWidth(1);
         //shape.end();
     }
+
+    public void setMaxPower(float a) {
+        maxPower = a;
+        powerIncrementDelta =  maxPower * 0.0000005f;
+    }
 }

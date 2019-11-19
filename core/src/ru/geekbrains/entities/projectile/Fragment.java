@@ -23,10 +23,17 @@ public class Fragment extends Projectile implements SmokeTrailList {
         type.add(ObjectType.FRAG);
 
         mass = 0.001f;
+        //mass = 0.01f;
 
         setMaxHealth(0.002f);
-        //damage = 0.15f;
+        //setMaxHealth(0.02f);
+
+
+
         damage = 0.015f;
+        //damage = 0.15f;
+
+
         //TTL = 100;
 
         //damage = 1;

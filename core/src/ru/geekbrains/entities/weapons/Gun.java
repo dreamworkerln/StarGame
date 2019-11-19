@@ -17,7 +17,9 @@ import ru.geekbrains.screen.RendererType;
 
 public class Gun extends ParticleObject {
 
-    public static Sound cannonFire01;
+    public static Sound cannonFire01Base;
+
+    public Sound cannonFire01;
 
     protected float calibre = 6;
     public float power = 230;     // force length, applied to shell
@@ -52,9 +54,11 @@ public class Gun extends ParticleObject {
 
     protected BPU pbu = new BPU();
 
+
+
     static {
 
-        cannonFire01 = Gdx.audio.newSound(Gdx.files.internal("Light Naval Cannon Blast 15.mp3"));
+        cannonFire01Base = Gdx.audio.newSound(Gdx.files.internal("Light Naval Cannon Blast 15.mp3"));
     }
 
 
@@ -75,6 +79,8 @@ public class Gun extends ParticleObject {
         nozzlePos = new Vector2();
 
         setCalibre(this.calibre);
+
+        cannonFire01 = cannonFire01Base;
 
     }
 

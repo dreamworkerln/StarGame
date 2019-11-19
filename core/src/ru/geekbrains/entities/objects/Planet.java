@@ -34,8 +34,6 @@ public class Planet extends GameObject {
 
     private BPU pbu = new BPU();
 
-    protected static Sound cannonFire01;
-
     protected float ddd = 2;
 
     static {
@@ -79,7 +77,7 @@ public class Planet extends GameObject {
 
         
         gun.power = 800;
-        gun.fireRate = 0.01f;
+        gun.fireRate = 0.05f;
         target = null;
         gun.setCalibre(15);
         gun.maxBlastRadius = 16;
