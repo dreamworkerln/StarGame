@@ -171,14 +171,14 @@ public class GameScreen extends BaseScreen {
 
 
         //Message msg = new Message("New objectives: survive till warp engine have been repaired.");
-        Message msg = new Message("New objectives: EXTERMINATE THIS XENOS PLANET !!!!");
-        particleObjects.add(msg);
+        //Message msg = new Message("New objectives: EXTERMINATE THIS XENOS PLANET !!!!");
+        //particleObjects.add(msg);
 
-        msgPlanet = new Message("Planet: ");
-        particleObjects.add(msgPlanet);
-        msgPlanet.setTTL(10000000);
-        msgPlanet.down = 50;
-        msgPlanet.font.setSize(10f);
+//        msgPlanet = new Message("Planet: ");
+//        particleObjects.add(msgPlanet);
+//        msgPlanet.setTTL(10000000);
+//        msgPlanet.down = 50;
+//        msgPlanet.font.setSize(10f);
 
 //        Тесты для CIWS minigun
 
@@ -200,7 +200,7 @@ public class GameScreen extends BaseScreen {
 
         music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
 
-        forTheEmperor = Gdx.audio.newSound(Gdx.files.internal("FOR THE EMPEROR.mp3"));
+        //forTheEmperor = Gdx.audio.newSound(Gdx.files.internal("FOR THE EMPEROR.mp3"));
 
         music.setVolume(1f);
         music.play();
@@ -483,8 +483,6 @@ public class GameScreen extends BaseScreen {
         }
 
         planet.gun.draw(renderer);
-        msgPlanet.text = String.valueOf((int)(planet.getHealth() / planet.getMaxHealth()* 100));
-
 
         renderer.shape.end();
 
@@ -1073,36 +1071,6 @@ public class GameScreen extends BaseScreen {
 
             win = true;
         }
-
-        // true win
-        if (!playerShip.readyToDispose && !win && planet.readyToDispose) {
-
-            win = true;
-
-            Message msg = new Message("EMPEROR WIN !!!");
-            msg.font.setSize(30f);
-            GameScreen.addParticleObject(msg);
-        }
-
-        if (playerShip.readyToDispose && win && planet.readyToDispose && !forTheEmperorPlayed) {
-
-            forTheEmperor.play();
-            forTheEmperor.play();
-            forTheEmperor.play();
-            forTheEmperor.play();
-
-            forTheEmperorPlayed = true;
-        }
-
-
-
-
-
-
-
-
-
-
 
 
         // override manual throttle level
