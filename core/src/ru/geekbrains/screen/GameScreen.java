@@ -170,15 +170,9 @@ public class GameScreen extends BaseScreen {
 
 
 
-        //Message msg = new Message("New objectives: survive till warp engine have been repaired.");
-        Message msg = new Message("New objectives: EXTERMINATE THIS XENOS PLANET !!!!");
+        Message msg = new Message("New objectives: survive till warp engine have been repaired.");
         particleObjects.add(msg);
 
-        msgPlanet = new Message("Planet: ");
-        particleObjects.add(msgPlanet);
-        msgPlanet.setTTL(10000000);
-        msgPlanet.down = 50;
-        msgPlanet.font.setSize(10f);
 
 //        Тесты для CIWS minigun
 
@@ -198,7 +192,9 @@ public class GameScreen extends BaseScreen {
 //        addObject(missile);
 
 
-        music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
+        //music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
+        music = Gdx.audio.newMusic(Gdx.files.internal("a0000019.ogg"));
+
 
         forTheEmperor = Gdx.audio.newSound(Gdx.files.internal("FOR THE EMPEROR.mp3"));
 
@@ -481,10 +477,6 @@ public class GameScreen extends BaseScreen {
         for (GameObject obj : explosionObjects) {
             obj.draw(renderer);
         }
-
-        planet.gun.draw(renderer);
-        msgPlanet.text = String.valueOf((int)(planet.getHealth() / planet.getMaxHealth()* 100));
-
 
         renderer.shape.end();
 
@@ -1054,11 +1046,11 @@ public class GameScreen extends BaseScreen {
         // -----------------------------------------------------------------------------------------
         // game objective completed
         // -----------------------------------------------------------------------------------------
-        if (!playerShip.readyToDispose && !win && !music.isPlaying() && !planet.readyToDispose) {
+        if (!playerShip.readyToDispose && !win && !music.isPlaying()) {
 
 
 
-            Message msg = new Message("You loose.");
+            Message msg = new Message("You win");
             particleObjects.add(msg);
             music = null;
 
@@ -1073,37 +1065,6 @@ public class GameScreen extends BaseScreen {
 
             win = true;
         }
-
-        // true win
-        if (!playerShip.readyToDispose && !win && planet.readyToDispose) {
-
-            win = true;
-
-            Message msg = new Message("EMPEROR WIN !!!");
-            msg.font.setSize(30f);
-            GameScreen.addParticleObject(msg);
-        }
-
-        if (playerShip.readyToDispose && win && planet.readyToDispose && !forTheEmperorPlayed) {
-
-            forTheEmperor.play();
-            forTheEmperor.play();
-            forTheEmperor.play();
-            forTheEmperor.play();
-
-            forTheEmperorPlayed = true;
-        }
-
-
-
-
-
-
-
-
-
-
-
 
         // override manual throttle level
         if (win) {
@@ -1250,36 +1211,36 @@ public class GameScreen extends BaseScreen {
 
             case 4:
                 // SPECIALIST
-                ENEMY_RESPAWN_TIME = 1100;
+                ENEMY_RESPAWN_TIME = 1200;
                 ENEMIES_COUNT_IN_WAVE = 4;
                 break;
 
             case 5:
                 // IMPERIAL NAVY ENSIGN
-                ENEMY_RESPAWN_TIME = 1300;
+                ENEMY_RESPAWN_TIME = 1500;
                 ENEMIES_COUNT_IN_WAVE = 5;
                 break;
 
             case 6:
                 // IMPERIAL NAVY LIEUTENANT
-                ENEMY_RESPAWN_TIME = 1600;
+                ENEMY_RESPAWN_TIME = 1800;
                 ENEMIES_COUNT_IN_WAVE = 6;
                 break;
 
             case 7:
                 // IMPERIAL NAVY LORD-LIEUTENANT
-                ENEMY_RESPAWN_TIME = 1900;
+                ENEMY_RESPAWN_TIME = 2000;
                 ENEMIES_COUNT_IN_WAVE = 7;
 
             case 8:
                 // IMPERIAL NAVY COMMANDER
-                ENEMY_RESPAWN_TIME = 2300;
+                ENEMY_RESPAWN_TIME = 2500;
                 ENEMIES_COUNT_IN_WAVE = 7;
                 break;
 
             case 9:
                 // IMPERIAL NAVY CAPITAN
-                ENEMY_RESPAWN_TIME = 2600;
+                ENEMY_RESPAWN_TIME = 2900;
                 ENEMIES_COUNT_IN_WAVE = 7;
                 break;
         }

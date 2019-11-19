@@ -25,6 +25,8 @@ public class SmokeTrail extends GameObject{
     public Color color;
     public Color bufColor;
 
+    public boolean isStatic = false;
+
     public SmokeTrail(float radius, Color color, GameObject owner) {
 
         this.owner = owner;
@@ -42,8 +44,7 @@ public class SmokeTrail extends GameObject{
         dir.set(owner.dir).scl(-1);
         // НАРУШЕНИЕ ФИЗИКИ, НО ТАК КРАСИВЕЕ
 
-        if (owner.getClass() != Fragment.class) {
-
+        if (!isStatic) {
             vel.set(owner.vel);
         }
 

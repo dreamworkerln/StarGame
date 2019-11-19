@@ -51,6 +51,7 @@ public class Fragment extends Projectile implements SmokeTrailList {
             smoke.vel.set(vel);
             smoke.speed = 0;
             smoke.setTTL(50);
+            smoke.isStatic = true;
             smokeTrailList.add(smoke);
         }
 
@@ -105,4 +106,5 @@ public class Fragment extends Projectile implements SmokeTrailList {
             trail.stop();
         }
     }
+
 }

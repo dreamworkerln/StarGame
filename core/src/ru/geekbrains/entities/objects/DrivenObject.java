@@ -56,6 +56,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         damageBurnTrail = new SmokeTrail(radius * 0.4f * aspectRatio, new Color(0.3f, 0.2f, 0.2f, 1), this);
         damageBurnTrail.TTL = 50;
         damageBurnTrail.speed = 0;
+        damageBurnTrail.isStatic = true;
         smokeTrailList.add(damageBurnTrail);
 
         guideVector.setZero();

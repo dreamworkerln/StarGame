@@ -153,8 +153,6 @@ public class MissileLauncher extends Gun {
         targets.removeIf(t -> t.owner == this.owner);
         targets.removeIf(t -> t.readyToDispose);
 
-        targets.add(getPlanet());
-
         if (targets.size() == 1) {
             result.add(targets.get(0));
         }
@@ -377,7 +375,9 @@ public class MissileLauncher extends Gun {
 
         if (owner.getClass() == PlayerShip.class) {
 
-            result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
+            result = new Missile(new TextureRegion(missileTexture), 2, owner);
+
+            //result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
         }
         else {
             result = new Missile(new TextureRegion(missileTexture), 2, owner);
