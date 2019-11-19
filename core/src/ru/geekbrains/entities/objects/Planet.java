@@ -34,7 +34,7 @@ public class Planet extends GameObject {
 
     private BPU pbu = new BPU();
 
-    protected float ddd = 2;
+    protected float ddd = 1;
 
     static {
         missileTexture = new Texture("M-45_missile2.png");
@@ -50,7 +50,7 @@ public class Planet extends GameObject {
 
         mass = 1000000f;
 
-        setMaxHealth(100);
+        setMaxHealth(200);
 
         this.type.add(ObjectType.PLANET);
 
