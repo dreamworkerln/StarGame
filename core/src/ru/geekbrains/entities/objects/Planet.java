@@ -24,7 +24,7 @@ public class Planet extends GameObject {
 
     private static Texture missileTexture;
 
-    private static float MAX_TOLERANCE = 4f;
+    private static float MAX_TOLERANCE = 2f;
 
     private float tolerance = MAX_TOLERANCE;
 
