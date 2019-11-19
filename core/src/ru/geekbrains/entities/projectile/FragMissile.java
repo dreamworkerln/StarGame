@@ -150,7 +150,7 @@ public class FragMissile extends Missile{
             double fromAn;
             double toAn;
 
-            shapedExplosion = false;
+            //shapedExplosion = false;
 
 
             if (shapedExplosion) {
