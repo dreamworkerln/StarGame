@@ -9,7 +9,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.projectile.AntiMissile;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -21,6 +24,8 @@ public class AntiMissileLauncher extends MissileLauncher {
     private static Texture missileTexture;
 
     public float maxRange = 800;
+
+    protected float proximityMinDistanceVel = 200;
 
     // Список целей, по которым идет огонь
     // (По которым запущены противо-ракеты и идет поражение)
@@ -207,14 +212,35 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         List<GameObject> targets;
 
+        NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
+
         // inbound missiles
         inboundMissiles.clear();
 
         targets = GameScreen.getCloseObjects(owner, maxRange);
 
-        // inbound missiles
-        for (GameObject o : targets) {
 
+
+        for (GameObject trg : targets) {
+
+            float maxPrjVel = proximityMinDistanceVel;  // Задаем начальную скорость "тестовой" пули
+            pbu.guideGun(this, trg, maxPrjVel, dt);
+
+            // get results
+
+            Float impactTime = (float)pbu.guideResult.impactTime;
+
+            if (!impactTime.isNaN() && impactTime >= 0 && impactTime < 2f) {
+                impactTimes.put(impactTime, pbu.guideResult.clone());
+            }
+
+
+        }
+
+        // inbound missiles
+        for (BPU.GuideResult guideResult : impactTimes.values()) {
+
+            GameObject o = guideResult.target;
             if (o != owner &&
                     o.owner != owner &&
                     !o.readyToDispose && (o.type.contains(ObjectType.MISSILE) ||
@@ -226,7 +252,23 @@ public class AntiMissileLauncher extends MissileLauncher {
                 }
                 inboundMissiles.add(o);
             }
+
         }
+
+//        for (GameObject o : targets) {
+//
+//            if (o != owner &&
+//                    o.owner != owner &&
+//                    !o.readyToDispose && (o.type.contains(ObjectType.MISSILE) ||
+//                    o.type.contains(ObjectType.SHIP))) {
+//
+//                // Умеет сопровождать не более 6 целей одновременно
+//                if (inboundMissiles.size() > 6) {
+//                    break;
+//                }
+//                inboundMissiles.add(o);
+//            }
+//        }
 
         // В inboundMissiles лежит не более 6 целей,
         // отсортированных в порядке удаления
