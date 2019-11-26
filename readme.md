@@ -47,7 +47,7 @@ Blue curve - you shell trajectory in planet gravity force.
 
 Difficulty levels  
 
-Set one that fit you skill in config.ini  
+Set one that fit you skill in config.ini (app.rank=N)
 
 1 - NEVER PLAYED  
 2 - NOVICE  
