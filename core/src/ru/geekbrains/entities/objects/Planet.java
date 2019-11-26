@@ -1,23 +1,6 @@
 package ru.geekbrains.entities.objects;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
-
-import ru.geekbrains.entities.equipment.BPU;
-import ru.geekbrains.entities.particles.Message;
-import ru.geekbrains.entities.projectile.FragMissile;
-import ru.geekbrains.entities.projectile.Missile;
-import ru.geekbrains.entities.projectile.Shell;
-import ru.geekbrains.entities.weapons.Gun;
-import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 
 public class Planet extends GameObject {

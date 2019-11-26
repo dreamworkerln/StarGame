@@ -23,9 +23,11 @@ public class AntiMissileLauncher extends MissileLauncher {
 
     private static Texture missileTexture;
 
-    public float maxRange = 800;
+    public float maxRange = 1000;
 
-    protected float proximityMinDistanceVel = 200;
+    protected float maxPrjVel = 400;
+
+    protected float maxTargets = 10;
 
     // Список целей, по которым идет огонь
     // (По которым запущены противо-ракеты и идет поражение)
@@ -53,7 +55,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         fireRate = 0.05f;
         gunHeatingDelta = 50;
-        coolingGunDelta = 1.2f;
+        coolingGunDelta = 1.4f;
         maxGunHeat = 200;
         power = 200;
 
@@ -80,7 +82,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
 
         //float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
-        float  maxPrjVel = 400;
+        //float  maxPrjVel = 400;
         pbu.guideGun(owner, target, maxPrjVel, dt);
         // get results
 
@@ -223,8 +225,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         for (GameObject trg : targets) {
 
-            float maxPrjVel = proximityMinDistanceVel;  // Задаем начальную скорость "тестовой" пули
-            pbu.guideGun(this, trg, maxPrjVel, dt);
+            pbu.guideGun(this, trg, maxPrjVel - 100, dt);
 
             // get results
 
@@ -246,8 +247,8 @@ public class AntiMissileLauncher extends MissileLauncher {
                     !o.readyToDispose && (o.type.contains(ObjectType.MISSILE) ||
                     o.type.contains(ObjectType.SHIP))) {
 
-                // Умеет сопровождать не более 6 целей одновременно
-                if (inboundMissiles.size() > 6) {
+                // Умеет сопровождать не более 10 целей одновременно
+                if (inboundMissiles.size() > maxTargets) {
                     break;
                 }
                 inboundMissiles.add(o);
@@ -277,8 +278,8 @@ public class AntiMissileLauncher extends MissileLauncher {
 
 
 
-        // Умеет сопровождать не более 6 целей одновременно
-        if(targetMissile.size() <= 6) {
+        // Умеет сопровождать не более 10 целей одновременно
+        if(targetMissile.size() <= maxTargets) {
 
             for (GameObject o : inboundMissiles) {
 

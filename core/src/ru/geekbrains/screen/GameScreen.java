@@ -816,24 +816,40 @@ public class GameScreen extends BaseScreen {
 
             nearCount =  0;
 
-            float r = MathUtils.random(250, 600);
-            float fi = MathUtils.random(0, (float) (2*Math.PI));
+            //float r = MathUtils.random(250, 600);
+            //float fi = MathUtils.random(0, (float) (2*Math.PI));
 
-            float x = (float)(r * Math.cos(fi));
-            float y = (float)(r * Math.sin(fi));
+            //float x = (float)(r * Math.cos(fi));
+            //float y = (float)(r * Math.sin(fi));
 
+
+
+
+            float x = MathUtils.random(-worldBounds.getHalfWidth() * aspect, worldBounds.getHalfWidth() * aspect);
+            float y = MathUtils.random(-worldBounds.getHalfWidth(), worldBounds.getHalfWidth());
 
             tmp1.set(x,y);
             tmp2.set(tmp1).sub(tmp0);
+
+
+            tmp3.set(tmp1).sub(planet.pos);
+            if (tmp3.len() < 400) {
+                nearCount = 1;
+            }
+
 
             dummy = new DummyObject(10,null);
             dummy.pos.set(tmp1);
             List<GameObject> list = getCloseObjects(dummy, 200);
 
 
+
+
+
             for (int i = 0; i < list.size(); i++) {
 
-                if (list.get(i).type.contains(ObjectType.DRIVEN_OBJECT)) {
+                if (list.get(i).type.contains(ObjectType.DRIVEN_OBJECT) ||
+                    list.get(i).type.contains(ObjectType.PLANET)) {
 
                     nearCount = 1;
                     break;
@@ -847,7 +863,7 @@ public class GameScreen extends BaseScreen {
                 break;
             }
         }
-        while (tmp2.len() < 600 || nearCount > 0); // 500  - расстояние до корабля игрока
+        while (tmp2.len() < 700 || nearCount > 0); // 500  - расстояние до корабля игрока
 
 
 
@@ -1229,19 +1245,20 @@ public class GameScreen extends BaseScreen {
 
             case 7:
                 // IMPERIAL NAVY LORD-LIEUTENANT
-                ENEMY_RESPAWN_TIME = 2000;
+                ENEMY_RESPAWN_TIME = 1900;
                 ENEMIES_COUNT_IN_WAVE = 7;
+                break;
 
             case 8:
                 // IMPERIAL NAVY COMMANDER
-                ENEMY_RESPAWN_TIME = 2500;
-                ENEMIES_COUNT_IN_WAVE = 7;
+                ENEMY_RESPAWN_TIME = 2100;
+                ENEMIES_COUNT_IN_WAVE = 8;
                 break;
 
             case 9:
                 // IMPERIAL NAVY CAPITAN
-                ENEMY_RESPAWN_TIME = 2900;
-                ENEMIES_COUNT_IN_WAVE = 7;
+                ENEMY_RESPAWN_TIME = 2200;
+                ENEMIES_COUNT_IN_WAVE = 9;
                 break;
         }
 
