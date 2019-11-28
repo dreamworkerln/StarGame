@@ -825,8 +825,8 @@ public class GameScreen extends BaseScreen {
 
 
 
-            float x = MathUtils.random(-worldBounds.getHalfWidth() * aspect, worldBounds.getHalfWidth() * aspect);
-            float y = MathUtils.random(-worldBounds.getHalfWidth(), worldBounds.getHalfWidth());
+            float x = MathUtils.random(-worldBounds.getHalfWidth() * aspect + 25, worldBounds.getHalfWidth() * aspect - 25);
+            float y = MathUtils.random(-worldBounds.getHalfWidth() + 25, worldBounds.getHalfWidth() - 25);
 
             tmp1.set(x,y);
             tmp2.set(tmp1).sub(tmp0);

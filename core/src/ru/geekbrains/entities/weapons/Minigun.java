@@ -41,7 +41,7 @@ public class Minigun extends Gun {
     // Цели, отсортированные по времени попадания в корабль
     //private NavigableMap<Float, GameObject> distances = new TreeMap<>();
 
-    public float maxRange = 500f;
+    public float maxRange = 400f;
 
     static {
         minigunFire = Gdx.audio.newSound(Gdx.files.internal("vulcan.mp3"));
