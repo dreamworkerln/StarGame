@@ -507,7 +507,7 @@ public class Minigun extends Gun {
 
     @Override
     protected Projectile createProjectile() {
-        return new Bullet(getCalibre(), owner);
+        return new Bullet(calibre,   owner);
     }
 
 

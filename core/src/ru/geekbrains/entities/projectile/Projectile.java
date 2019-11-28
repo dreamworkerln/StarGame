@@ -4,18 +4,44 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.particles.SmokeTrail;
+import ru.geekbrains.entities.particles.SmokeTrailList;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 
-public abstract class Projectile extends GameObject {
+public abstract class Projectile extends GameObject implements SmokeTrailList {
+
+    protected List<SmokeTrail> smokeTrailList = new ArrayList<>();
+
+    //protected boolean trail = false;
 
     public Projectile(float height, GameObject owner) {
         super(owner, height);
 
         type.add(ObjectType.PROJECTILE);
         TTL = 10000;
+    }
+
+    public Projectile(float height, float trailRadius, GameObject owner) {
+        this(height, owner);
+
+        //this.trail = trail;
+
+        if (trailRadius!=0) {
+            SmokeTrail smoke = new SmokeTrail(trailRadius, new Color(0.5f, 0.2f, 0.7f, 1), this);
+            //SmokeTrail smoke = new SmokeTrail(1, new Color(0.7f, 0.2f, 0.5f, 1), this);
+            smoke.pos.set(pos);
+            smoke.vel.set(vel);
+            smoke.speed = 0;
+            smoke.setTTL(25);
+            smoke.isStatic = true;
+            smokeTrailList.add(smoke);
+        }
     }
 
 
@@ -25,6 +51,18 @@ public abstract class Projectile extends GameObject {
 
         if (age >= TTL) {
             readyToDispose = true;
+        }
+
+
+        for (SmokeTrail trail : smokeTrailList) {
+
+            // engine burst pos
+            tmp1.set(vel).nor().scl(-5f);
+            tmp2.set(pos).add(tmp1);
+
+            trail.setTrailPos(tmp2);
+            trail.add(1);
+            trail.update(dt);
         }
 
     }
@@ -59,16 +97,30 @@ public abstract class Projectile extends GameObject {
 
         }
         else if (type.contains(ObjectType.SHELL) ||
-                 type.contains(ObjectType.FRAG)) {
+                type.contains(ObjectType.FRAG)) {
             Gdx.gl.glLineWidth(1);
             shape.set(ShapeRenderer.ShapeType.Filled);
             shape.circle(pos.x,pos.y,radius);
         }
 
+        for (SmokeTrail trail : smokeTrailList) {
+            trail.draw(renderer);
+        }
+
+    }
 
 
-        //shape.end();
+    @Override
+    public List<SmokeTrail> removeSmokeTrailList() {
+        return smokeTrailList;
+    }
 
+    @Override
+    public void stop() {
+
+        for (SmokeTrail trail : smokeTrailList) {
+            trail.stop();
+        }
     }
 
 }

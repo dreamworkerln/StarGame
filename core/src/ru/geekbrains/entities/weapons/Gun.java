@@ -165,7 +165,7 @@ public class Gun extends ParticleObject {
 
 
     protected GameObject createProjectile() {
-        return new Shell(calibre, owner);
+        return new Shell(calibre, calibre/8, owner);
     }
 
 

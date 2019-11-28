@@ -120,7 +120,7 @@ public class FragMissile extends Missile{
 
         float power = 10f;
 
-        Fragment trash = new Fragment(4f, true, owner);
+        Fragment trash = new Fragment(4f, 2, owner);
         trash.setMass(fragCount*trash.getMass()); // намного больше изначальной массы ракеты
         trash.pos.set(pos);
         trash.vel.set(vel);
