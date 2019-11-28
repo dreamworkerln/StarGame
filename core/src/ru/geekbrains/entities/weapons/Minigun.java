@@ -420,6 +420,11 @@ public class Minigun extends Gun {
             //System.out.println(tmp3.len());
 
 
+            // минимальный разброс
+            if (tmp3.len() < 10) {
+                tmp3.setLength(10);
+            }
+
             float xx = (float) Math.cos(step*Math.PI/180.)*tmp3.len();
             float yy = (float) Math.sin(step*Math.PI/180.)*tmp3.len();
 
