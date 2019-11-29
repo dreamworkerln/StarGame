@@ -193,7 +193,10 @@ public class GameScreen extends BaseScreen {
 
 
         //music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
-        music = Gdx.audio.newMusic(Gdx.files.internal("a0000019.ogg"));
+        //music = Gdx.audio.newMusic(Gdx.files.internal("a0000019.ogg"));
+        music = Gdx.audio.newMusic(Gdx.files.internal("Quake Champions OST - Corrupted Keep-UCFYBaGzlFc.mp3"));
+
+
 
 
         forTheEmperor = Gdx.audio.newSound(Gdx.files.internal("FOR THE EMPEROR.mp3"));

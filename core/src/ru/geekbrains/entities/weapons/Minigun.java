@@ -41,7 +41,7 @@ public class Minigun extends Gun {
     // Цели, отсортированные по времени попадания в корабль
     //private NavigableMap<Float, GameObject> distances = new TreeMap<>();
 
-    public float maxRange = 400f;
+    public float maxRange = 1000f;
 
     static {
         minigunFire = Gdx.audio.newSound(Gdx.files.internal("vulcan.mp3"));
@@ -202,18 +202,17 @@ public class Minigun extends Gun {
 
                 Float impactTime = (float)pbu.guideResult.impactTime;
                 
-                if (!impactTime.isNaN() && impactTime >= 0) {
+                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= 1f) {
 
                     impactTimes.put(impactTime, pbu.guideResult.clone());
                     //distances.put(dst, o);
                 }
 
-
-                // EXPERIMENTAL do not track more than 6 targets
                 ++i;
-                if (i > 6) {
-                    break;
-                }
+                // EXPERIMENTAL do not track more than 60 targets
+//                if (i > 60) {
+//                    break;
+//                }
 
 
 
@@ -412,18 +411,18 @@ public class Minigun extends Gun {
             // step будет меняться от выстрела к выстрелу (step +=20 подобрано эмпирически)
             // пули будут лететь по синусоиде
 
-            step +=20;
+            step +=30;
             if (step > 360) {
                 step = 0;
             }
 
             //System.out.println(tmp3.len());
+            tmp3.scl(2);
 
-
-            // минимальный разброс
-            if (tmp3.len() < 10) {
-                tmp3.setLength(10);
-            }
+//            // минимальный разброс
+//            if (tmp3.len() < 10) {
+//                tmp3.setLength(10);
+//            }
 
             float xx = (float) Math.cos(step*Math.PI/180.)*tmp3.len();
             float yy = (float) Math.sin(step*Math.PI/180.)*tmp3.len();
@@ -486,6 +485,15 @@ public class Minigun extends Gun {
     public void startFire() {
 
         super.startFire();
+
+
+        
+//        try {
+//            Thread.sleep(50);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
 
         if (this.getClass() == Minigun.class && !minigunPlaying) {
             minigunPlaying = true;
