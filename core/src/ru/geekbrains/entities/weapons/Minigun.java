@@ -391,16 +391,16 @@ public class Minigun extends Gun {
             float ttt;
 
             if (z > owner.getRadius() * 2f) {
-                ttt = (owner.getRadius()) * 100 / tmp0.len();
+                ttt = (owner.getRadius()) * 100 / tmp0.len();   // was 100
             }
             else  {         //if (z <= owner.getRadius() * 2f)
-                ttt = (owner.getRadius()) * 50 / tmp0.len();
+                ttt = (owner.getRadius()) * 50 / tmp0.len();   // was 50
             }
 
             //ttt = (owner.getRadius()) * 50 / tmp0.len();
 
-
-            tmp *= dt * ttt; // увеличиваем эту проекцию на ttt и умножаем на dt (переходим от скорости к расстоянию)
+            tmp *= dt * ttt;
+            //tmp *= dt * ttt * 1.5 + 0.5; // увеличиваем эту проекцию на ttt и умножаем на dt (переходим от скорости к расстоянию)
 
             tmp3.scl(tmp); // скалируем нормаль на tmp - получаем смещение по нормали за dt
 
@@ -417,12 +417,19 @@ public class Minigun extends Gun {
             }
 
             //System.out.println(tmp3.len());
-            tmp3.scl(2);
+            //tmp3.scl(1.5f);
 
-            // минимальный разброс
-            if (tmp3.len() < 5) {
-                tmp3.setLength(5);
+            //минимальный разброс
+            if (tmp3.len() < 7) {
+                tmp3.setLength(3);
             }
+
+            //максимальный разброс
+            if (tmp3.len() > 20) {
+                tmp3.setLength(20);
+            }
+
+            //System.out.println(tmp3.len());
 
             float xx = (float) Math.cos(step*Math.PI/180.)*tmp3.len();
             float yy = (float) Math.sin(step*Math.PI/180.)*tmp3.len();
