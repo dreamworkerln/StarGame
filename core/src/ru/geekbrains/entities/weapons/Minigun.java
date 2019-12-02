@@ -420,13 +420,13 @@ public class Minigun extends Gun {
             //tmp3.scl(1.5f);
 
             //минимальный разброс
-            if (tmp3.len() < 7) {
+            if (tmp3.len() < 10) {
                 tmp3.setLength(3);
             }
 
             //максимальный разброс
-            if (tmp3.len() > 20) {
-                tmp3.setLength(20);
+            if (tmp3.len() > 40) {
+                tmp3.setLength(40);
             }
 
             //System.out.println(tmp3.len());
