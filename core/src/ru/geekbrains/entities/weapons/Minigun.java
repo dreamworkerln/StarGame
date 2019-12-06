@@ -4,16 +4,18 @@ package ru.geekbrains.entities.weapons;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import ru.geekbrains.entities.equipment.BPU;
-import ru.geekbrains.entities.projectile.Bullet;
+import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.objects.Planet;
+import ru.geekbrains.entities.projectile.Bullet;
 import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
 
@@ -27,10 +29,6 @@ public class Minigun extends Gun {
     // Скопировано из DrivenObject, EnemyShip
     // походу нужно множественное наследование из C++
 
-//    AimFunction gf;
-//    UnivariateSolver nonBracketing;
-//    double impactTime;
-
 
     private int step = 0;
     //private int maxStep = 100;
@@ -38,10 +36,15 @@ public class Minigun extends Gun {
     // Цели, отсортированные по времени попадания в корабль
     private NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
 
+    private NavigableMap<Float, GameObject> impactTimesCalculated = new TreeMap<>();
+
+    private List<GameObject> targetList = new ArrayList<>();
+
     // Цели, отсортированные по времени попадания в корабль
     //private NavigableMap<Float, GameObject> distances = new TreeMap<>();
 
-    public float maxRange = 1000f;
+    public float maxRange = 500;
+    public float maxTime = 2f;
 
     static {
         minigunFire = Gdx.audio.newSound(Gdx.files.internal("vulcan.mp3"));
@@ -78,300 +81,132 @@ public class Minigun extends Gun {
 
         super.update(dt);
 
-        if (owner == null || owner.readyToDispose) {
-            return;
-        }
-
-        if (target == null ||  target.readyToDispose) {
-            target = null;
-        }
-
-
-
-        // Out of range
-        if (target != null) {
-            tmp0.set(target.pos).sub(pos);
-            if (tmp0.len() > maxRange) {
-                target = null;
-            }
-        }
-
+//
         // --------------------------------------------------
+
+
+        impactTimes.clear();
+        impactTimesCalculated.clear();
+        targetList.clear();
+
         // getting target
+        if (owner != null && !owner.readyToDispose) {
+            targetList = GameScreen.getCloseObjects(owner, maxRange);
+        }
 
-        List<GameObject> targets;
 
+        for (GameObject o : targetList) {
 
-
-        // Если нет цели или это Ship (стрельба только по missile)  - так стрельба по кораблям и missile
-        if (/*target == null || target.type.contains(ObjectType.SHIP)*/true ) {
-
-            targets = GameScreen.getCloseObjects(owner, maxRange);
-
-            // берем первую  цель (она будет ближе всего)
-            // которая не является ни owner ни его снарядами,
-            // Если нашли по missile приоритет огня выше
-
-/*            for (GameObject o : targets) {
-
-                if (o != owner &&
-                        o.owner != owner &&
-                        !o.readyToDispose &&
-                        o.type.contains(ObjectType.SHIP)
-                ){
-
-                    target = o;
-                    break;
-                }
+            if (o == owner ||o.owner == owner ||o.readyToDispose) {
+                continue;
             }
 
+            if ( (!o.type.contains(ObjectType.MISSILE) &&
+                    !o.type.contains(ObjectType.SHIP)) ) {
 
-            // переключаемся на missile/более близкую missile
-            for (GameObject o : targets) {
-
-                if (o != owner &&
-                        o.owner != owner &&
-                        !o.readyToDispose &&
-                        o.type.contains(ObjectType.MISSILE)
-                    //(o.type.contains(ObjectType.MISSILE) ||
-                    //                o.pos.dst(owner.pos) < target.pos.dst(owner.pos))
-                ){
-                    target = o;
-                    break;
-                }
-            }*/
-
-            // Прощитываем "время столкновения" с каждым из объектов (линейное приближение по проекции скорости)
-
-            impactTimes.clear();
-
-            int i = 0;
-
-            for (GameObject o : targets) {
-
-                if (o == owner ||
-                    o.owner == owner ||
-                    o.readyToDispose) {
-                    continue;
-                }
-
-                if ( (!o.type.contains(ObjectType.MISSILE) &&
-                        !o.type.contains(ObjectType.SHIP)) ) {
-
-                    continue;
-                }
-
-                tmp1.set(o.pos).sub(owner.pos);
-                // 1. get distance to target
-                //float dst = tmp1.len() - (owner.getRadius()*1.5f + o.getRadius());
-                /*
-
-                if (dst < 0) {
-                    dst = 0;
-                }
-
-
-                // 2. get speed vector projection to vector target - ship
-                tmp2.set(o.vel);
-                float pr = tmp2.dot(tmp1)/tmp1.len();
-                tmp2.nor().scl(pr);
-
-
-                // same with ship speed, then
-                tmp3.set(owner.vel);
-                pr = tmp3.dot(tmp1)/tmp1.len();
-                tmp3.nor().scl(pr);
-
-                // sum both projections (sub due to inverse)
-                tmp4.set(tmp2).add(tmp3);
-                //tmp2.add(tmp3);
-
-                float tt = Math.abs(dst/tmp4.len());
-
-                impactTimes.put(tt, o);
-                distances.put(dst,o);
-*/
-
-                target = o;
-
-                if (!owner.readyToDispose) {
-                    float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
-                    pbu.guideGun(owner, target, maxPrjVel, dt);
-                }
-                // get results
-
-                Float impactTime = (float)pbu.guideResult.impactTime;
-                
-                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= 1f) {
-
-                    impactTimes.put(impactTime, pbu.guideResult.clone());
-                    //distances.put(dst, o);
-                }
-
-                ++i;
-                // EXPERIMENTAL do not track more than 60 targets
-//                if (i > 60) {
-//                    break;
-//                }
-
-
-
-
-
-
-
-
-
-                //tmp4.set(tmp1).nor();
-
-                // 2. get speed vector projection to vector target - ship
-                //tmp2.set(o.vel).scl(tmp4);
-
-                // same with ship speed, then
-                //tmp3.set(owner.vel).scl(tmp4);
-
-                // sum both projections (sub due to inverse)
-                //tmp2.sub(tmp3);
-
-                // time to collision
-
-
-
-
-//                if (tt <0) {
-//                    throw new RuntimeException("tt<0");
-//                }
-
+                continue;
             }
 
+            //tmp1.set(o.pos).sub(owner.pos);
 
-            //GameObject tmp;
-
-            target = null;
-
-            guideVector.setZero();
-
-            for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
-
-                if(entry.getValue().target == null ||
-                        entry.getValue().target.readyToDispose) {
-                    continue;
-                }
-
-                if (entry.getValue().target.type.contains(ObjectType.MISSILE) ||
-                    entry.getValue().target.type.contains(ObjectType.SHIP)) {
-
-                    target = entry.getValue().target;
-                    guideVector.set(entry.getValue().guideVector);
-                }
-
-                if (target != null &&
-                        target.type.contains(ObjectType.MISSILE)) {
-
-                    break;
-                }
+            if (!owner.readyToDispose) {
+                float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+                pbu.guideGun(owner, o, maxPrjVel, dt);
             }
+            // get results
 
-//            // Если цель слишком близко, то сбивать нахрен
-//            if (distances.size() > 0) {
-//
-//                if (distances.firstEntry().getKey() <= owner.getRadius()) {
-//
-//                    target = distances.firstEntry().getValue();
-//                }
-//
-//            }
+            Float impactTime = (float)pbu.guideResult.impactTime;
+
+            if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxTime) {
+
+                impactTimes.put(impactTime, pbu.guideResult.clone());
+            }
         }
 
 
 
-
-        /*
-        // Смысл - не стрелять по целям, которые не попадут в нас, без симуляции полета каждой цели.
-
-        // Как оно работает я хз
-        // Заменить всю эту хрень на проверку пересечение луча с кругом
-        if (target != null) {
+        // calculating in simulator
 
 
-
-            tmp1.set(target.vel).scl(200); // 200 - эмпирически
-            tmp2.set(owner.vel).scl(200);
-
-
-            float scale = Intersector.intersectRayRay(target.pos, tmp1, owner.pos, tmp2);
+        DummyObject ship  = new DummyObject(owner);
+        Planet planet = GameScreen.INSTANCE.planet;
 
 
-            //collinear
-            if (Float.isInfinite(scale) || tmp1.angle(tmp2) < 0.1f) {
-                //tmp1.set(owner.vel).sub(target.vel);
+        int iterationCount = 300;
 
-                tmp0.set(owner.pos).sub(target.pos); // vec from target to owner
-                tmp4.set(target.vel).sub(owner.vel);
+        for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
+
+            ship.setRadius(owner.getRadius());
+            ship.setMass(owner.getMass());
+            ship.dir.set(owner.dir);
+            ship.pos.set(owner.pos);
+            ship.vel.set(owner.vel);
+            ship.acc.set(owner.acc);
+
+            GameObject tgt = entry.getValue().target;
+            DummyObject missile = new DummyObject(tgt);
+            missile.setMass(entry.getValue().target.getMass());
+            missile.dir.set(tgt.dir);
+            missile.pos.set(tgt.pos);
+            missile.vel.set(tgt.vel);
+            missile.acc.set(tgt.acc);
 
 
-                //float angle = Math.abs(target.vel.angle(owner.vel));
-                if(Math.abs(tmp4.angle(tmp0)) <= 100) {
-                    tmp3.set(owner.pos); // попал в цель
+            for (int i = 0; i <  iterationCount; i++) {
+
+
+                // calculate gravitation force from planet
+                GameScreen.applyPlanetGravForce(ship, planet);
+                GameScreen.applyPlanetGravForce(missile, planet);
+
+                // update aceleration, velocity, position
+                ship.update(dt);
+                missile.update(dt);
+
+                // check collision ship to planet
+                tmp0.set(planet.pos).sub(ship.pos);
+                if (tmp0.len() <= planet.getRadius() + ship.getRadius()) {
+                    break;
                 }
-                else {
-                    // не попал
-                    tmp3.set(Float.POSITIVE_INFINITY,Float.POSITIVE_INFINITY);
+
+                // check collision missile to planet
+                tmp0.set(planet.pos).sub(missile.pos);
+                if (tmp0.len() <= planet.getRadius() + missile.getRadius()) {
+                    break;
                 }
 
-            }
-            else {
+                // check collision missile to ship  (-50%)
+                tmp0.set(ship.pos).sub(missile.pos);
+                if (tmp0.len() <= (ship.getRadius() + missile.getRadius())*1.7f) {
 
-                tmp3.set(tmp1).scl(scale).add(target.pos); // точа пересечения
-
-                tmp0.set(owner.pos).sub(target.pos); // vec from ship to target
-                tmp4.set(target.vel).sub(owner.vel); // relative velocity vector
-
-                if(Math.abs(tmp4.angle(tmp0)) <= 100){
-
+                    impactTimesCalculated.put(i*dt, tgt);
+                    break;
                 }
-                else {
-                    // не попал
-                    tmp3.set(Float.POSITIVE_INFINITY,Float.POSITIVE_INFINITY);
-                }
-            }
-            float len = tmp1.set(tmp3).sub(owner.pos).len();
 
 
-            // target out of range - reset
-            tmp0.set(target.pos).sub(owner.pos);
-
-            if (tmp0.len() > maxRange || // вне радиуса действия minigun
-
-                    // точка пересечения с центром цели лежит далеко
-                    (len > maxRange)) {
-
-                target = null;
             }
         }
-        */
 
 
-
-        // --------------------------------------------------
-        //aiming target
-
-        if(target != null && !target.readyToDispose) {
-
-            //guideVector.set(impactTimes.firstEntry().getValue().guideVector);
+        //impactTimesCalculated.entrySet().removeIf(entry -> entry.getValue().readyToDispose);
 
 
-//            float len = tmp0.len();
-//
-//
-//            float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
-//            pbu.guideGun(owner, target, maxPrjVel, dt);
-//            // get results
-//            guideVector = pbu.guideVector;
-//
-//
-//            tmp0.set(target.pos).sub(owner.pos);
+        target = null;
+        guideVector.setZero();
+        if (impactTimesCalculated.size() > 0) {
+            target = impactTimesCalculated.firstEntry().getValue();
+        }
 
+        // ---------------------------------------------------------------
+
+        if (target != null && !target.readyToDispose) {
+
+            float maxPrjVel = power / firingAmmoType.getMass() * dt;
+            pbu.guideGun(owner, target, maxPrjVel, dt);
+            guideVector.set(pbu.guideResult.guideVector);
+
+            // Делаем разброс
+            // -----------------------------------------------------------
 
             // вектор пушка(корабль) - цель
             tmp0.set(target.pos).sub(owner.pos);
@@ -391,10 +226,9 @@ public class Minigun extends Gun {
             float ttt;
 
             if (z > owner.getRadius() * 2f) {
-                ttt = (owner.getRadius()) * 100 / tmp0.len();   // was 100
-            }
-            else  {         //if (z <= owner.getRadius() * 2f)
-                ttt = (owner.getRadius()) * 50 / tmp0.len();   // was 50
+                ttt = (owner.getRadius()) * 50 / z;     // was 100
+            } else {         //if (z <= owner.getRadius() * 2f)
+                ttt = (owner.getRadius()) * 50 / z;      // was 50
             }
 
             //ttt = (owner.getRadius()) * 50 / tmp0.len();
@@ -405,13 +239,12 @@ public class Minigun extends Gun {
             tmp3.scl(tmp); // скалируем нормаль на tmp - получаем смещение по нормали за dt
 
 
-
             // Генерирует окружность радиусом ||tmp3|| и центром в (0,0) используя step в качестве времени
             // (Гармонические колебания)
             // step будет меняться от выстрела к выстрелу (step +=20 подобрано эмпирически)
             // пули будут лететь по синусоиде
 
-            step +=30;
+            step += 30;
             if (step > 360) {
                 step = 0;
             }
@@ -419,17 +252,36 @@ public class Minigun extends Gun {
             //System.out.println(tmp3.len());
             //tmp3.scl(1.5f);
 
-            //минимальный разброс
-            if (tmp3.len() < 10) {
-                tmp3.setLength(3);
+//            //минимальный разброс
+//            if (tmp3.len() < 5  && z > owner.getRadius() * 2) {
+//                tmp3.setLength(5);
+//            }
+//
+//            //минимальный разброс
+//            if (tmp3.len() < 5  && z <= owner.getRadius() * 2) {
+//                tmp3.setLength(7);
+//            }
+
+            if (z > owner.getRadius() * 4) {
+
+                if (tmp3.len() < 5) {
+                    tmp3.setLength(5);
+                }
+            }
+            else {
+
+                if (tmp3.len() < 10) {
+                    tmp3.setLength(10);
+                }
+
             }
 
             //максимальный разброс
-            if (tmp3.len() > 40) {
-                tmp3.setLength(40);
+            if (tmp3.len() > 50) {
+                tmp3.setLength(50);
             }
 
-            //System.out.println(tmp3.len());
+            //System.out.println("z: " + z + " owner.getRadius():" + owner.getRadius() +"    " + tmp3.len());
 
             float xx = (float) Math.cos(step*Math.PI/180.)*tmp3.len();
             float yy = (float) Math.sin(step*Math.PI/180.)*tmp3.len();
@@ -440,21 +292,67 @@ public class Minigun extends Gun {
             //System.out.println(guideVector);
 
 
-            // Если самонаведение не осилиось
-            if (guideVector.isZero()) {
-                guideVector.set(target.pos).sub(pos).nor();
-            }
-            else {
+            guideVector.add(tmp0);
 
 
-                // смещаем guideVector на вектор этой окружности
-                guideVector.add(tmp0);
-            }
+//            // Если самонаведение не осилиось
+//            if (guideVector.isZero()) {
+//                guideVector.set(target.pos).sub(pos).nor();
+//            }
+//            else {
+//
+//
+//                // смещаем guideVector на вектор этой окружности
+//                guideVector.add(tmp0);
+//            }
         }
 
 
+
+
+
+
+
+
+
+
+
+
+//        // фильтруем impactTimesCalculated,
+//        // если в списке только ракеты - стреляем по первой
+//        // если ракет нет а есть корабль - стреляем по первому кораблю
+//        // но по факту получается по последнему - хрен с ним, надо по нормальному создавать индекс по типу цели
+//
+//        for (Map.Entry<Float, GameObject> entry : impactTimesCalculated.entrySet()) {
+//
+////            if(entry.getValue() == null ||
+////                    entry.getValue().readyToDispose) {
+////                continue;
+////            }
+//
+//            if (entry.getValue().type.contains(ObjectType.MISSILE) ||
+//                entry.getValue().type.contains(ObjectType.SHIP)) {
+//
+//                target = entry.getValue();
+//                guideVector.set(entry.getValue());
+//            }
+//
+//            if (target != null &&
+//                    target.type.contains(ObjectType.MISSILE)) {
+//
+//                break;
+//            }
+//        }
+
+
+
+        // --------------------------------------------------
+        //aiming target
+
+
+
         // Auto fire control
-        if (target != null &&
+        if (target != null && !target.readyToDispose &&
                 Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
 
             startFire();
@@ -494,7 +392,7 @@ public class Minigun extends Gun {
         super.startFire();
 
 
-        
+
 //        try {
 //            Thread.sleep(50);
 //        } catch (InterruptedException e) {

@@ -28,7 +28,6 @@ public class Missile extends DrivenObject {
     protected boolean selfdOnNoFuel;
     protected boolean selfdOnProximityMiss;
 
-
     // минимальная дистанция сближения с целью (которая была зарегистрирована в полете)
     protected float minDistance = Float.MAX_VALUE;
 
@@ -37,10 +36,15 @@ public class Missile extends DrivenObject {
 
     // при промахе при удалении от цели
     // до этой величины происходит подрыв
-    protected float proximityMissTargetDistance = Float.MAX_VALUE;
+
+    // При приближении к цели до этой величины взводится самоуничтожение (по удалении от цели)
+    protected float proximityMissMinGateDistance = Float.MAX_VALUE;
+
+    // При удалении от цели в взведеном состоянии на эту величину, производится подрыв
+    protected float proximityMissMaxSelfdDistance = 1;
 
     // подрыв не призводится при расстоянии до носителя меньшим, чем это
-    // (безопасная дистанция блокировки подрыва)
+    // (дистанция блокировки подрыва до носителя)
     protected float proximitySafeDistance = 0;
 
 
@@ -202,19 +206,33 @@ public class Missile extends DrivenObject {
         }
 
 
+
         // Self-d on miss target (proximity explosion)
         if (target != null && selfdOnProximityMiss) {
 
-            // Промах по цели - дистанция до цели начала расти
-            // Находимся от цели на расстоянии, меньшем proximityMissTargetDistance
-            // находимся от носителя дальше безопасного расстояния
-            if (distToTarget > (minDistance + radius + target.getRadius()) &&
-                    distToTarget < proximityMissTargetDistance &&
-                    distToCarrier > proximitySafeDistance) {
+            if (minDistance < proximityMissMinGateDistance &&
+                distToTarget - minDistance > proximityMissMaxSelfdDistance &&
+                distToCarrier > proximitySafeDistance) {
 
                 this.readyToDispose = true;
             }
         }
+
+
+
+//        // Self-d on miss target (proximity explosion)
+//        if (target != null && selfdOnProximityMiss) {
+//
+//            // Промах по цели - дистанция до цели начала расти
+//            // Находимся от цели на расстоянии, меньшем proximityMissTargetDistance
+//            // находимся от носителя дальше безопасного расстояния
+//            if (distToTarget > (minDistance + radius + target.getRadius()) &&
+//                    distToTarget < proximityMissTargetDistance &&
+//                    distToCarrier > proximitySafeDistance) {
+//
+//                this.readyToDispose = true;
+//            }
+//        }
 
 
         // explode on min distance to target

@@ -1,18 +1,30 @@
 package ru.geekbrains.entities.objects;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.ForceShield;
 import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.entities.weapons.AntiMissileLauncher;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
+import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.KeyDown;
 import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 
 public class PlayerShip extends Ship {
+
+
 
 
     public TrajectorySimulator trajectorySim;
@@ -23,6 +35,10 @@ public class PlayerShip extends Ship {
     public MissileLauncher launcher;
     public AntiMissileLauncher antiLauncher;
 
+    public BPU pbu = new BPU();
+    public float maxAimRange = 1000;
+    private NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
+    private List<GameObject> targetList = new ArrayList<>();
 
 
     public PlayerShip(TextureRegion textureRegion, float height, GameObject owner) {
@@ -149,6 +165,49 @@ public class PlayerShip extends Ship {
         launcher.update(dt);
 
         antiLauncher.update(dt);
+
+        aimHelp(dt);
+    }
+
+
+    public void aimHelp(float dt) {
+
+        impactTimes.clear();
+        targetList.clear();
+
+        // getting target
+        if (!this.readyToDispose) {
+            targetList = GameScreen.getCloseObjects(this, maxAimRange);
+        }
+
+
+
+        for (GameObject o : targetList) {
+
+            if (o == this || o.owner == this || o.readyToDispose) {
+                continue;
+            }
+
+            if (!o.type.contains(ObjectType.SHIP)) {
+                continue;
+            }
+
+
+            if (!this.readyToDispose) {
+                float maxPrjVel = gun.power / gun.firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+                pbu.guideGun(this, o, maxPrjVel, dt);
+            }
+            // get results
+
+            Float impactTime = (float)pbu.guideResult.impactTime;
+
+            if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= 3f) {
+                impactTimes.put(impactTime, pbu.guideResult.clone());
+            }
+        }
+
+
+
     }
 
     @Override
@@ -170,6 +229,36 @@ public class PlayerShip extends Ship {
         launcher.draw(renderer);
 
         antiLauncher.draw(renderer);
+
+
+
+//        if (renderer.rendererType!= RendererType.SHAPE) {
+//            return;
+//        }
+//
+//        ShapeRenderer shape = renderer.shape;
+//
+//        shape.set(ShapeRenderer.ShapeType.Line);
+//        shape.setColor(0f,0.76f,0.9f,0.6f);
+//
+//        //Gdx.gl.glLineWidth(4);
+//
+//        for (BPU.GuideResult value : impactTimes.values()) {
+//
+//
+//            tmp0.set(value.guideVector).add(this.pos);
+//            shape.line(tmp0.x,tmp0.y, value.target.pos.x, value.target.pos.y);
+//            Gdx.gl.glLineWidth(1);
+//            shape.flush();
+//            shape.circle(tmp0.x, tmp0.y, 10);
+//            Gdx.gl.glLineWidth(2);
+//            shape.flush();
+//
+//            break;
+//        }
+
+
+
 
 //        // ship line of fire
 //        ShapeRenderer shape = renderer.shape;

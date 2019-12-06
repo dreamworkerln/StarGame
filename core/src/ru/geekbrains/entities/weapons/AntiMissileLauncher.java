@@ -18,6 +18,8 @@ import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.GameScreen;
 
+
+// система наведения и сопровождения целей - треш технологии, надо переписать
 public class AntiMissileLauncher extends MissileLauncher {
 
 
@@ -25,9 +27,12 @@ public class AntiMissileLauncher extends MissileLauncher {
 
     public float maxRange = 1000;
 
-    protected float maxPrjVel = 400;
+    protected float maxPrjVel = 600;
+    //protected float maxPrjVel = 200;
 
     protected float maxTargets = 10;
+
+    protected float maxImpactTime = 1.5f;
 
     // Список целей, по которым идет огонь
     // (По которым запущены противо-ракеты и идет поражение)
@@ -55,7 +60,8 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         fireRate = 0.05f;
         gunHeatingDelta = 50;
-        coolingGunDelta = 1.4f;
+        coolingGunDelta = 1.2f; //1.4
+        //coolingGunDelta = 90;
         maxGunHeat = 200;
         power = 200;
 
@@ -65,15 +71,22 @@ public class AntiMissileLauncher extends MissileLauncher {
     @Override
     protected void fire(float dt) {
 
+        guideVector.setZero();
 
-        if (target == null || target.readyToDispose ||
-            owner.readyToDispose){
+        if (target == null || target.readyToDispose || owner.readyToDispose){
             return;
         }
 
+        pbu.guideGun(owner, target, maxPrjVel, dt);
+        if (!pbu.guideResult.guideVector.isZero()) {
+            guideVector.set(pbu.guideResult.guideVector.nor());
+        }
+        else {
+            return;
+        }
+
+
         AntiMissile missile = (AntiMissile)createProjectile();
-
-
         targetMissile.put(target, missile);
 
 
@@ -83,17 +96,17 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         //float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
         //float  maxPrjVel = 400;
-        pbu.guideGun(owner, target, maxPrjVel, dt);
+
         // get results
 
-        if (!pbu.guideResult.guideVector.isZero()) {
-            guideVector.set(pbu.guideResult.guideVector.nor());
-        }
 
-        // Самонаведение не сгидродоминировало
-        if (guideVector.isZero()) {
-            guideVector.set(target.pos).sub(owner.pos).nor();
-        }
+
+
+
+//        // Самонаведение не сгидродоминировало
+//        if (guideVector.isZero()) {
+//            guideVector.set(target.pos).sub(owner.pos).nor();
+//        }
 
         /*
 
@@ -142,9 +155,11 @@ public class AntiMissileLauncher extends MissileLauncher {
         //dir.set(tmp1);
 
         // set launcher toward guide point (rotate cost zero time)
+
+
         dir.set(guideVector).nor();
 
-        tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius()*15).add(owner.pos);
+        tmp0.set(dir).setLength(owner.getRadius() + missile.getRadius() * 15).add(owner.pos);
 
         missile.pos.set(tmp0);
         missile.vel.set(owner.vel);
@@ -159,6 +174,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         GameScreen.addObject(missile);
     }
+
 
 
 
@@ -194,7 +210,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
             // цель вышла за радиус поражения
             tmp0.set(o.pos).sub(owner.pos);
-            if (tmp0.len() > maxRange*2){
+            if (tmp0.len() > maxRange*1.5){
 
                 it.remove();
                 continue;
@@ -221,17 +237,19 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         targets = GameScreen.getCloseObjects(owner, maxRange);
 
-
+        targets.removeIf(o ->
+                o.readyToDispose || o == owner || o.owner == owner ||
+                (!o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP)));
 
         for (GameObject trg : targets) {
 
-            pbu.guideGun(this, trg, maxPrjVel - 100, dt);
+            pbu.guideGun(this, trg, /*maxPrjVel - 100*/maxPrjVel, dt);
 
             // get results
 
             Float impactTime = (float)pbu.guideResult.impactTime;
 
-            if (!impactTime.isNaN() && impactTime >= 0 && impactTime < 2f) {
+            if (!impactTime.isNaN() && impactTime >= 0 && impactTime < maxImpactTime) {
                 impactTimes.put(impactTime, pbu.guideResult.clone());
             }
 
@@ -242,17 +260,17 @@ public class AntiMissileLauncher extends MissileLauncher {
         for (BPU.GuideResult guideResult : impactTimes.values()) {
 
             GameObject o = guideResult.target;
-            if (o != owner &&
-                    o.owner != owner &&
-                    !o.readyToDispose && (o.type.contains(ObjectType.MISSILE) ||
-                    o.type.contains(ObjectType.SHIP))) {
+//            if (o != owner &&
+//                    o.owner != owner &&
+//                    !o.readyToDispose && (o.type.contains(ObjectType.MISSILE) ||
+//                    o.type.contains(ObjectType.SHIP))) {
 
                 // Умеет сопровождать не более 10 целей одновременно
                 if (inboundMissiles.size() > maxTargets) {
                     break;
                 }
                 inboundMissiles.add(o);
-            }
+            //}
 
         }
 

@@ -38,9 +38,10 @@ public class FragMissile extends Missile{
         selfdOnProximityMiss = false;
 
 
-        proximityMinDistance = 100;
+        proximityMissMinGateDistance = 200;
+        proximityMinDistance = 200;
         proximitySafeDistance = 150;
-        proximityMissTargetDistance = 100;
+        proximityMissMaxSelfdDistance = 100;
 
         type.add(ObjectType.FRAGMISSILE);
 

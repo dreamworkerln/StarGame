@@ -114,6 +114,7 @@ public class GameScreen extends BaseScreen {
 
     private boolean win = false;
 
+    //private Message msgRemains;
     private Music music;
     private Sound expl01;
     private Sound expl02;
@@ -172,7 +173,6 @@ public class GameScreen extends BaseScreen {
 
         Message msg = new Message("New objectives: survive till warp engine have been repaired.");
         particleObjects.add(msg);
-
 
 //        Тесты для CIWS minigun
 
@@ -233,6 +233,10 @@ public class GameScreen extends BaseScreen {
         }
 
         planet.update(dt);
+
+
+        //msgRemains.text = Float.toString(music.getPosition());
+
 
 
 
