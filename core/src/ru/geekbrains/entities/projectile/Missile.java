@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DrivenObject;
@@ -112,7 +113,7 @@ public class Missile extends DrivenObject {
         // EXPERIMENTAL RETARGETING
         if (target == null &&
                 (this.getClass() == Missile.class ||
-                 this.getClass() == FragMissile.class) &&
+                        this.getClass() == FragMissile.class) &&
                 retargetCount < 10) {
 
             retargetCount ++;
@@ -211,8 +212,8 @@ public class Missile extends DrivenObject {
         if (target != null && selfdOnProximityMiss) {
 
             if (minDistance < proximityMissMinGateDistance &&
-                distToTarget - minDistance > proximityMissMaxSelfdDistance &&
-                distToCarrier > proximitySafeDistance) {
+                    distToTarget - minDistance > proximityMissMaxSelfdDistance &&
+                    distToCarrier > proximitySafeDistance) {
 
                 this.readyToDispose = true;
             }
@@ -238,8 +239,8 @@ public class Missile extends DrivenObject {
         // explode on min distance to target
         // находимся от носителя дальше безопасного расстояния
         if (target != null && !this.readyToDispose &&
-            distToTarget < proximityMinDistance &&
-            distToCarrier > proximitySafeDistance) {
+                distToTarget < proximityMinDistance &&
+                distToCarrier > proximitySafeDistance) {
 
 
 
@@ -391,4 +392,70 @@ public class Missile extends DrivenObject {
     */
 
 
+    /*
+    @Override
+    public void dispose() {
+
+        float power = 5f;
+
+        float fragCount = 10;
+
+
+        if (type.contains(ObjectType.ANTIMISSILE)) {
+            fragCount = 3;
+        }
+
+        // create fragments
+        for (int i = 0; i < fragCount; i++) {
+
+
+            Bullet bl = new Bullet(1, owner);
+
+            //frag.setTTL(200);
+
+            bl.pos.set(pos);
+            bl.vel.set(vel);
+            bl.dir.set(dir);
+            bl.owner = owner;
+
+            double fromAn;
+            double toAn;
+
+            fromAn = 0;
+            toAn = 2 * Math.PI;
+
+
+            float fi_min = (float) (dir.angleRad() - fromAn);
+            float fi_max = (float) (dir.angleRad() + toAn);
+
+            float r = (float) ThreadLocalRandom.current().nextDouble(0, power);
+            float fi;
+
+            try {
+
+                fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
+            }
+            catch(Exception e) {
+                System.out.println(dir);
+                System.out.println(fi_min);
+                System.out.println(fi_max);
+                System.out.println(e);
+                // гениально
+                throw e;
+            }
+
+
+            float x = (float) (r * Math.cos(fi));
+            float y = (float) (r * Math.sin(fi));
+
+            tmp0.set(x, y); // force
+            bl.applyForce(tmp0);          // apply force applied to frag
+            //bl.applyForce(tmp0.scl(-1));
+
+            bl.setTTL(ThreadLocalRandom.current().nextLong(400,600));
+            GameScreen.addObject(bl);
+        }
+        super.dispose();
+    }
+    */
 }

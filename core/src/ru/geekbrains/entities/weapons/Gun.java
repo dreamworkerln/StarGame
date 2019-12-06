@@ -117,7 +117,7 @@ public class Gun extends ParticleObject {
 
         nozzlePos.set(dir).setLength(owner.getRadius() + firingAmmoType.getRadius() + 5).add(pos);
 
-        if (firing && !overHeated && lastFired < tick - 1/fireRate) {
+        if (firing && !overHeated && lastFired <= (long)(tick - 1/fireRate)) {
 
             lastFired = GameScreen.INSTANCE.getTick();
             gunHeat+= gunHeatingDelta;

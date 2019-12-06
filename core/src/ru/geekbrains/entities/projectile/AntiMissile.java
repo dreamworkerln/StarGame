@@ -29,7 +29,7 @@ public class AntiMissile extends Missile {
         selfdOnNoFuel = true;
         selfdOnProximityMiss = true;
 
-        proximityMissMinGateDistance = 200;
+        proximityMissMinGateDistance = 500;
         proximityMissMaxSelfdDistance = 10;
 
         //maxRotationSpeed = 0.01f;

@@ -630,7 +630,7 @@ public class GameScreen extends BaseScreen {
                 // FORCE SHIELD REPULSING
                 if (tgt.type.contains(ObjectType.PLAYER_SHIP) &&
                         (prj.type.contains(ObjectType.PROJECTILE)
-                                /*|| prj.type.contains(ObjectType.DRIVEN_OBJECT)*/) &&
+                                || prj.type.contains(ObjectType.MISSILE)) &&
 
                         (prj.owner != tgt || prj.type.contains(ObjectType.FRAG))
 

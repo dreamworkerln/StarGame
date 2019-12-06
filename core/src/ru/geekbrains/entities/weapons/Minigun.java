@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DummyObject;
@@ -44,7 +45,7 @@ public class Minigun extends Gun {
     //private NavigableMap<Float, GameObject> distances = new TreeMap<>();
 
     public float maxRange = 500;
-    public float maxTime = 2f;
+    public float maxTime = 1.5f;
 
     static {
         minigunFire = Gdx.audio.newSound(Gdx.files.internal("vulcan.mp3"));
@@ -61,7 +62,7 @@ public class Minigun extends Gun {
 
         radius = 50;
         setCalibre(2);
-        fireRate = 1f;
+        fireRate = 0.7f;
         gunHeatingDelta = 2; // non-stop firing
         coolingGunDelta = 2;
         maxGunHeat = 200;
@@ -109,7 +110,7 @@ public class Minigun extends Gun {
 
             //tmp1.set(o.pos).sub(owner.pos);
 
-            if (!owner.readyToDispose) {
+            if (owner!= null && !owner.readyToDispose) {
                 float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
                 pbu.guideGun(owner, o, maxPrjVel, dt);
             }
@@ -177,7 +178,7 @@ public class Minigun extends Gun {
 
                 // check collision missile to ship  (-50%)
                 tmp0.set(ship.pos).sub(missile.pos);
-                if (tmp0.len() <= (ship.getRadius() + missile.getRadius())*1.7f) {
+                if (tmp0.len() <= (ship.getRadius() + missile.getRadius())*1.5f) {
 
                     impactTimesCalculated.put(i*dt, tgt);
                     break;
@@ -193,10 +194,19 @@ public class Minigun extends Gun {
 
         target = null;
         guideVector.setZero();
-        if (impactTimesCalculated.size() > 0) {
-            target = impactTimesCalculated.firstEntry().getValue();
-        }
 
+        // нужен индекс по типам целей
+        for (GameObject o : impactTimesCalculated.values()) {
+            if(o.type.contains(ObjectType.MISSILE)) {
+                target = o;
+                break;
+            }
+        }
+        if (target == null) {
+            if (impactTimesCalculated.size() > 0) {
+                target = impactTimesCalculated.firstEntry().getValue();
+            }
+        }
         // ---------------------------------------------------------------
 
         if (target != null && !target.readyToDispose) {
@@ -225,10 +235,14 @@ public class Minigun extends Gun {
             float z = tmp0.len();
             float ttt;
 
-            if (z > owner.getRadius() * 2f) {
+            if (z > owner.getRadius() * 4) {
                 ttt = (owner.getRadius()) * 50 / z;     // was 100
+
+
+
             } else {         //if (z <= owner.getRadius() * 2f)
                 ttt = (owner.getRadius()) * 50 / z;      // was 50
+
             }
 
             //ttt = (owner.getRadius()) * 50 / tmp0.len();
@@ -244,7 +258,7 @@ public class Minigun extends Gun {
             // step будет меняться от выстрела к выстрелу (step +=20 подобрано эмпирически)
             // пули будут лететь по синусоиде
 
-            step += 30;
+
             if (step > 360) {
                 step = 0;
             }
@@ -262,24 +276,26 @@ public class Minigun extends Gun {
 //                tmp3.setLength(7);
 //            }
 
-            if (z > owner.getRadius() * 4) {
+            if (z > owner.getRadius() * 7) {
 
                 if (tmp3.len() < 5) {
                     tmp3.setLength(5);
                 }
+                step += 40;
             }
             else {
 
-                if (tmp3.len() < 10) {
-                    tmp3.setLength(10);
+                if (tmp3.len() < 20) {
+                    tmp3.setLength(20);
                 }
+                step += 50;
 
             }
 
             //максимальный разброс
-            if (tmp3.len() > 50) {
-                tmp3.setLength(50);
-            }
+//            if (tmp3.len() > 50) {
+//                tmp3.setLength(50);
+//            }
 
             //System.out.println("z: " + z + " owner.getRadius():" + owner.getRadius() +"    " + tmp3.len());
 

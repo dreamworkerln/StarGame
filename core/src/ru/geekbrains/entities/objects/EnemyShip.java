@@ -150,7 +150,7 @@ public class EnemyShip extends Ship {
 
             // Если минимальное сближение меньше диаметра планеты и время сближения (меньше n)
             if (minConvergence < 2 *planet.radius &&
-                    impactTime < 6 &&
+                    impactTime < 4 * (vel.len()/50f) &&      //6
                     distToPlanet  < 400f + planet.radius) {
                     //distToPlanet  < 40f + planet.radius) {
 
