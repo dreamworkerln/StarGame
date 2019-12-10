@@ -55,11 +55,11 @@ Set one that fit you skill in config.ini (app.rank=N)
 2 - NOVICE  
 3 - EXPERIENCED  
 4 - SPECIALIST  
-5 - IMPERIAL NAVY ENSIGN
-6 - IMPERIAL NAVY LIEUTENANT
-7 - IMPERIAL NAVY LORD-LIEUTENANT
-8 - IMPERIAL NAVY COMMANDER
-9 - IMPERIAL NAVY CAPITAN
+5 - IMPERIAL NAVY ENSIGN  
+6 - IMPERIAL NAVY LIEUTENANT  
+7 - IMPERIAL NAVY LORD-LIEUTENANT  
+8 - IMPERIAL NAVY COMMANDER  
+9 - IMPERIAL NAVY CAPITAN  
 
 
 Code need refactoring, etc., but better if it was written in C++ to avoid using buffer objects for Vector2, 
