@@ -210,8 +210,8 @@ public class GameScreen extends BaseScreen {
 
 
 
-        String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3"        ;
-        //String musicFile = "Quake Champions OST - Corrupted Keep-UCFYBaGzlFc.mp3";
+        //String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3"        ;
+        String musicFile = "Quake Champions OST - Corrupted Keep-UCFYBaGzlFc.mp3";
         music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
 
 

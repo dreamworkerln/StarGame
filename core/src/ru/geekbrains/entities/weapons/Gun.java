@@ -281,12 +281,14 @@ public class Gun extends ParticleObject {
 
     public void setCalibre(float calibre) {
         this.calibre = calibre;
+        maxBlastRadius = calibre/1.5f;
         firingAmmoType = createProjectile();
     }
 
-    public void recalibrate() {
-        firingAmmoType = createProjectile();
-    }
+//    public void recalibrate() {
+//        maxBlastRadius = calibre/1.5f;
+//        firingAmmoType = createProjectile();
+//    }
 
 
 

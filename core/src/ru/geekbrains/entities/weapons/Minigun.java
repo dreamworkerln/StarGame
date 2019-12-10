@@ -68,6 +68,8 @@ public class Minigun extends Gun {
         maxGunHeat = 200;
         power = 20;
 
+        maxBlastRadius = 2;
+
 
 //        final double relativeAccuracy = 1.0e-12;
 //        final double absoluteAccuracy = 1.0e-8;
@@ -81,6 +83,8 @@ public class Minigun extends Gun {
     public void update(float dt) {
 
         super.update(dt);
+
+        nozzlePos.set(dir).setLength(5).add(pos);
 
 //
         // --------------------------------------------------
@@ -215,7 +219,7 @@ public class Minigun extends Gun {
             pbu.guideGun(owner, target, maxPrjVel, dt);
             guideVector.set(pbu.guideResult.guideVector);
 
-            // Делаем разброс
+            // Делаем разбросd a
             // -----------------------------------------------------------
 
             // вектор пушка(корабль) - цель
