@@ -18,7 +18,7 @@ public class Message extends GameObject {
     public String text;
     public float down;
 
-    public Message(String text) {
+    public Message(String text, int ps) {
         super();
 
 
@@ -29,6 +29,11 @@ public class Message extends GameObject {
 
         this.expired = GameScreen.INSTANCE.getTick() + TTL;
         this.text = text;
+
+        if (ps !=0 ) {
+            this.expired = Long.MAX_VALUE;
+            pos.set(GameScreen.INSTANCE.WORLD_SIZE - 100 , 0);
+        }
 
         rendererType.add(RendererType.FONT);
     }
@@ -58,8 +63,8 @@ public class Message extends GameObject {
 
         //renderer.batch.begin();
         font.draw(renderer.batch, text,
-                GameScreen.INSTANCE.worldBounds.getLeft() * GameScreen.INSTANCE.aspect + 5,
-                GameScreen.INSTANCE.worldBounds.getTop()-5 - down);
+                GameScreen.INSTANCE.worldBounds.getLeft() * GameScreen.INSTANCE.aspect + 5 + pos.x,
+                GameScreen.INSTANCE.worldBounds.getTop() - 5 - pos.y);
         //renderer.batch.end();
     }
 

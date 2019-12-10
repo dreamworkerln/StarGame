@@ -15,9 +15,11 @@ import com.github.varunpant.quadtree.QuadTree;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,9 +44,16 @@ import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;
 
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
+
 
 public class GameScreen extends BaseScreen {
 
+    public static final float WORLD_SIZE = 2050f;
     private static Vector2 tmp0s = new Vector2();
     private static Vector2 tmp1s = new Vector2();
 
@@ -123,7 +132,8 @@ public class GameScreen extends BaseScreen {
     private Sound metalHit;
     private Sound forTheEmperor;
 
-    private Message msgPlanet;
+    private Message msgEST;
+    private Duration musicDuration;
 
     private boolean forTheEmperorPlayed = false;
 
@@ -145,7 +155,7 @@ public class GameScreen extends BaseScreen {
         quadTree = new QuadTree<>(-5000,-5000,5000,5000);
 
         background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
-        background.setHeightAndResize(2050f);
+        background.setHeightAndResize(WORLD_SIZE);
 
         planet = new Planet(new TextureRegion(new Texture("dune.png")),100f, null);
         planet.pos = new Vector2(0, 0);
@@ -171,8 +181,11 @@ public class GameScreen extends BaseScreen {
 
 
 
-        Message msg = new Message("New objectives: survive till warp engine have been repaired.");
+        Message msg = new Message("New objectives: survive till warp engine have been repaired.", 0);
         particleObjects.add(msg);
+
+        msgEST = new Message("EST: ", 1);
+        particleObjects.add(msgEST);
 
 //        Тесты для CIWS minigun
 
@@ -194,7 +207,25 @@ public class GameScreen extends BaseScreen {
 
         //music = Gdx.audio.newMusic(Gdx.files.internal("Valves (remix) - Tiberian Sun soundtrack.mp3"));
         //music = Gdx.audio.newMusic(Gdx.files.internal("a0000019.ogg"));
-        music = Gdx.audio.newMusic(Gdx.files.internal("Quake Champions OST - Corrupted Keep-UCFYBaGzlFc.mp3"));
+
+
+
+        String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3"        ;
+        //String musicFile = "Quake Champions OST - Corrupted Keep-UCFYBaGzlFc.mp3";
+        music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
+
+
+        try {
+            Mp3File mp3file = new Mp3File(musicFile);
+            //System.out.println("Length of this mp3 is: " + mp3file.getLengthInSeconds() + " seconds");
+            musicDuration =  Duration.of(mp3file.getLengthInSeconds(), ChronoUnit.SECONDS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+
 
 
 
@@ -234,9 +265,11 @@ public class GameScreen extends BaseScreen {
 
         planet.update(dt);
 
+        // Duration.Formatter.ofPattern("hh:mm:ss").format(dur);
 
-        //msgRemains.text = Float.toString(music.getPosition());
 
+        Duration current = musicDuration.minus((long)music.getPosition(),ChronoUnit.SECONDS);
+        msgEST.text =  "EST: " + DurationFormatUtils.formatDuration(current.toMillis(), "mm:ss", true);
 
 
 
@@ -1073,7 +1106,7 @@ public class GameScreen extends BaseScreen {
 
 
 
-            Message msg = new Message("You win");
+            Message msg = new Message("You win", 0);
             particleObjects.add(msg);
             music = null;
 
