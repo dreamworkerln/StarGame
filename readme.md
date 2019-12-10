@@ -40,7 +40,9 @@ It's slowly regenerating to full charge, changing self colour.
 Doesn’t repulse you shells so be careful.  
 
 Green curve - you trajectory in planet gravity force.  
-Blue curve - you shell trajectory in planet gravity force.  
+Blue curve - you shell trajectory in planet gravity force.
+
+Experimental: now shield can repulse tangent  missile hit (~1) then need recharging. 
 
 // -------------------------------------------------------------------------------------------------
 
