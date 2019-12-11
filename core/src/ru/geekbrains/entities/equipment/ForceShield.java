@@ -6,6 +6,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.screen.Renderer;
@@ -19,6 +24,8 @@ public class ForceShield extends ParticleObject {
     public Color bufColor;
 
     public Color chargingColor = new Color(1f, 1f, 0.5f, 1f);
+
+    public Set<GameObject> targetSet = new HashSet<>();
 
 
     public float forceValue = 10000f*20f;

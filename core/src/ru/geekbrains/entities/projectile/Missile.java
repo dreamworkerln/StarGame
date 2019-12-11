@@ -70,13 +70,13 @@ public class Missile extends DrivenObject {
 
         setRadius(radius * 5); // fix issued by image aspect ratio
 
-        mass = 0.1f;
+        mass = 0.036f;
         //maxRotationSpeed = 0.02f;
         fuel = 8;
 
-        boost = 500f;
+        boost = 280f;
 
-        maxThrottle = 10f;
+        maxThrottle = 3.8f;
         throttle = maxThrottle;
 
         setMaxHealth(0.02f);

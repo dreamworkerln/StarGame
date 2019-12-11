@@ -14,8 +14,6 @@ import com.github.varunpant.quadtree.Point;
 import com.github.varunpant.quadtree.QuadTree;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
@@ -28,7 +26,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.EnemyShip;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -37,23 +34,20 @@ import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.Planet;
 import ru.geekbrains.entities.objects.PlayerShip;
 import ru.geekbrains.entities.particles.Message;
-import ru.geekbrains.entities.particles.SmokeTrail;
 import ru.geekbrains.entities.particles.SmokeTrailList;
 import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;
 
-import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 
 public class GameScreen extends BaseScreen {
 
-    public static final float WORLD_SIZE = 2050f;
+    public static final float BACKGROUND_SIZE = 2050f;
     private static Vector2 tmp0s = new Vector2();
     private static Vector2 tmp1s = new Vector2();
 
@@ -89,6 +83,7 @@ public class GameScreen extends BaseScreen {
     private Vector2 tmp1 = new Vector2();
     private Vector2 tmp2 = new Vector2();
     private Vector2 tmp3 = new Vector2();
+    private Vector2 tmp4 = new Vector2();
     private GameObject dummy;
 
     private int enemyShipsToSpawn = 0;
@@ -155,7 +150,7 @@ public class GameScreen extends BaseScreen {
         quadTree = new QuadTree<>(-5000,-5000,5000,5000);
 
         background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
-        background.setHeightAndResize(WORLD_SIZE);
+        background.setHeightAndResize(BACKGROUND_SIZE);
 
         planet = new Planet(new TextureRegion(new Texture("dune.png")),100f, null);
         planet.pos = new Vector2(0, 0);
@@ -210,15 +205,37 @@ public class GameScreen extends BaseScreen {
 
 
 
-        //String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3"        ;
-        String musicFile = "Quake Champions OST - Corrupted Keep-UCFYBaGzlFc.mp3";
+
+
+        //String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3";
+        String musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
+
+
+
         music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
-
-
         try {
-            Mp3File mp3file = new Mp3File(musicFile);
-            //System.out.println("Length of this mp3 is: " + mp3file.getLengthInSeconds() + " seconds");
-            musicDuration =  Duration.of(mp3file.getLengthInSeconds(), ChronoUnit.SECONDS);
+            FileHandle tmp = Gdx.files.absolute("test.mp3");
+            FileHandle aud = Gdx.files.absolute("aud.nfo");
+
+            if (!aud.exists()) {
+                Gdx.files.internal(musicFile).copyTo(tmp);
+                Mp3File mp3file = new Mp3File("test.mp3");
+                tmp.delete();
+                musicDuration =  Duration.of(mp3file.getLengthInSeconds(), ChronoUnit.SECONDS);
+                aud.writeString(Long.toString(musicDuration.getSeconds()), false);
+            }
+            else {
+                try {
+
+                    musicDuration = Duration.ofSeconds(Long.parseLong(aud.readString()));
+                }
+                catch (Exception e) {
+                    aud.delete();
+                }
+            }
+            
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -649,6 +666,11 @@ public class GameScreen extends BaseScreen {
 
             List<Point<GameObject>> points = quadTree.searchIntersect2(x1, y1, x2, y2);
 
+            if (points.size() <= 1) {
+                playerShip.shield.targetSet.clear();
+            }
+
+
             for(int i = 0; i < points.size(); i++) {
 
 
@@ -658,22 +680,29 @@ public class GameScreen extends BaseScreen {
                 if (prj.readyToDispose || tgt.readyToDispose  || tgt == prj)
                     continue;
 
-                tmp1.set(prj.pos).sub(tgt.pos); // vector from target to projectile
+                // vector from target to projectile
+                tmp1.set(prj.pos).sub(tgt.pos);
+                tmp4.set(prj.vel).sub(playerShip.vel);
+
 
                 // FORCE SHIELD REPULSING
                 if (tgt.type.contains(ObjectType.PLAYER_SHIP) &&
                         (prj.type.contains(ObjectType.PROJECTILE)
                                 || prj.type.contains(ObjectType.MISSILE)) &&
 
-                        (prj.owner != tgt || prj.type.contains(ObjectType.FRAG))
+
+                        (tmp1.dot(tmp4) < 0  || playerShip.shield.targetSet.contains(prj))
+                        //(prj.owner != tgt || prj.type.contains(ObjectType.FRAG))
 
 
                 ) {     // щит не влияет на свои снаряды
 
-
                     PlayerShip plsp = (PlayerShip) tgt;
 
+
                     if (tmp1.len() <= plsp.shield.getRadius() + prj.getRadius()) {
+
+                        plsp.shield.targetSet.add(prj);
 
                         Vector2 n = tmp3; // vector from target to projectile, normalized
                         n.set(prj.pos).sub(tgt.pos).nor();
@@ -725,6 +754,9 @@ public class GameScreen extends BaseScreen {
                         // affect impact on target ship
                         // tmp2.set(prj.vel).scl(prj.getMass() / dt);
                         // plsp.applyForce(tmp2);
+                    }
+                    else {
+                        plsp.shield.targetSet.remove(prj);
                     }
                 }
 

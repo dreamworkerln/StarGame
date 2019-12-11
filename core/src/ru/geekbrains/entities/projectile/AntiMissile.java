@@ -23,6 +23,7 @@ public class AntiMissile extends Missile {
 
         setMaxHealth(0.01f);
         damage = 0.5f;
+        boost = 600f;
 
 
         selfdOnTargetDestroyed = true;

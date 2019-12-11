@@ -32,7 +32,7 @@ public class Message extends GameObject {
 
         if (ps !=0 ) {
             this.expired = Long.MAX_VALUE;
-            pos.set(GameScreen.INSTANCE.WORLD_SIZE - 100 , 0);
+            pos.set(GameScreen.INSTANCE.BACKGROUND_SIZE - 100 , 0);
         }
 
         rendererType.add(RendererType.FONT);

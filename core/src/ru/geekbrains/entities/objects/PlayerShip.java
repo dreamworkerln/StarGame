@@ -41,6 +41,7 @@ public class PlayerShip extends Ship {
     private List<GameObject> targetList = new ArrayList<>();
 
 
+
     public PlayerShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 

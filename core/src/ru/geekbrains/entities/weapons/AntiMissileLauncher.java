@@ -27,7 +27,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
     public float maxRange = 1000;
 
-    protected float maxPrjVel = 600;
+    protected float maxPrjVel = 400;
     //protected float maxPrjVel = 200;
 
     protected float maxTargets = 10;

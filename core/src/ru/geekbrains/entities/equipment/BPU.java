@@ -204,7 +204,8 @@ public class BPU {
         guideResult.guideVector.setZero();
         guideResult.impactVector.setZero();
 
-        for (int i = 0; i< 100; i++) {
+        // i = 100 -> max_t =16
+        for (int i = 0; i< 70; i++) {
             try {
 
                 // Корней нет - функция не пересекает ось Ox
