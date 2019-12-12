@@ -97,98 +97,98 @@ public class Minigun extends Gun {
         // getting target
         if (owner != null && !owner.readyToDispose) {
             targetList = GameScreen.getCloseObjects(owner, maxRange);
-        }
-
-
-        for (GameObject o : targetList) {
-
-            if (o == owner ||o.owner == owner ||o.readyToDispose) {
-                continue;
-            }
-
-            if ( (!o.type.contains(ObjectType.MISSILE) &&
-                    !o.type.contains(ObjectType.SHIP)) ) {
-
-                continue;
-            }
-
-            //tmp1.set(o.pos).sub(owner.pos);
-
-            if (owner!= null && !owner.readyToDispose) {
-                float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
-                pbu.guideGun(owner, o, maxPrjVel, dt);
-            }
-            // get results
-
-            Float impactTime = (float)pbu.guideResult.impactTime;
-
-            if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxTime) {
-
-                impactTimes.put(impactTime, pbu.guideResult.clone());
-            }
-        }
 
 
 
-        // calculating in simulator
+            for (GameObject o : targetList) {
 
-
-        DummyObject ship  = new DummyObject(owner);
-        Planet planet = GameScreen.INSTANCE.planet;
-
-
-        int iterationCount = 300;
-
-        for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
-
-            ship.setRadius(owner.getRadius());
-            ship.setMass(owner.getMass());
-            ship.dir.set(owner.dir);
-            ship.pos.set(owner.pos);
-            ship.vel.set(owner.vel);
-            ship.acc.set(owner.acc);
-
-            GameObject tgt = entry.getValue().target;
-            DummyObject missile = new DummyObject(tgt);
-            missile.setMass(entry.getValue().target.getMass());
-            missile.dir.set(tgt.dir);
-            missile.pos.set(tgt.pos);
-            missile.vel.set(tgt.vel);
-            missile.acc.set(tgt.acc);
-
-
-            for (int i = 0; i <  iterationCount; i++) {
-
-
-                // calculate gravitation force from planet
-                GameScreen.applyPlanetGravForce(ship, planet);
-                GameScreen.applyPlanetGravForce(missile, planet);
-
-                // update aceleration, velocity, position
-                ship.update(dt);
-                missile.update(dt);
-
-                // check collision ship to planet
-                tmp0.set(planet.pos).sub(ship.pos);
-                if (tmp0.len() <= planet.getRadius() + ship.getRadius()) {
-                    break;
+                if (o == owner || o.owner == owner || o.readyToDispose) {
+                    continue;
                 }
 
-                // check collision missile to planet
-                tmp0.set(planet.pos).sub(missile.pos);
-                if (tmp0.len() <= planet.getRadius() + missile.getRadius()) {
-                    break;
+                if ((!o.type.contains(ObjectType.MISSILE) &&
+                        !o.type.contains(ObjectType.SHIP))) {
+
+                    continue;
                 }
 
-                // check collision missile to ship  (-50%)
-                tmp0.set(ship.pos).sub(missile.pos);
-                if (tmp0.len() <= (ship.getRadius() + missile.getRadius())*1.5f) {
+                //tmp1.set(o.pos).sub(owner.pos);
 
-                    impactTimesCalculated.put(i*dt, tgt);
-                    break;
+                if (owner != null && !owner.readyToDispose) {
+                    float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+                    pbu.guideGun(owner, o, maxPrjVel, dt);
                 }
+                // get results
+
+                Float impactTime = (float) pbu.guideResult.impactTime;
+
+                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxTime) {
+
+                    impactTimes.put(impactTime, pbu.guideResult.clone());
+                }
+            }
 
 
+            // calculating in simulator
+
+
+            DummyObject ship = new DummyObject(owner);
+            Planet planet = GameScreen.INSTANCE.planet;
+
+
+            int iterationCount = 300;
+
+            for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
+
+                ship.setRadius(owner.getRadius());
+                ship.setMass(owner.getMass());
+                ship.dir.set(owner.dir);
+                ship.pos.set(owner.pos);
+                ship.vel.set(owner.vel);
+                ship.acc.set(owner.acc);
+
+                GameObject tgt = entry.getValue().target;
+                DummyObject missile = new DummyObject(tgt);
+                missile.setMass(entry.getValue().target.getMass());
+                missile.dir.set(tgt.dir);
+                missile.pos.set(tgt.pos);
+                missile.vel.set(tgt.vel);
+                missile.acc.set(tgt.acc);
+
+
+                for (int i = 0; i < iterationCount; i++) {
+
+
+                    // calculate gravitation force from planet
+                    GameScreen.applyPlanetGravForce(ship, planet);
+                    GameScreen.applyPlanetGravForce(missile, planet);
+
+                    // update aceleration, velocity, position
+                    ship.update(dt);
+                    missile.update(dt);
+
+                    // check collision ship to planet
+                    tmp0.set(planet.pos).sub(ship.pos);
+                    if (tmp0.len() <= planet.getRadius() + ship.getRadius()) {
+                        break;
+                    }
+
+                    // check collision missile to planet
+                    tmp0.set(planet.pos).sub(missile.pos);
+                    if (tmp0.len() <= planet.getRadius() + missile.getRadius()) {
+                        break;
+                    }
+
+                    // check collision missile to ship  (-50%)
+                    tmp0.set(ship.pos).sub(missile.pos);
+                    if (tmp0.len() <= (ship.getRadius() + missile.getRadius()) * 1.5f) {
+
+                        impactTimesCalculated.put(i * dt, tgt);
+                        break;
+                    }
+
+
+                }
             }
         }
 

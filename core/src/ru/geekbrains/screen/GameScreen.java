@@ -208,7 +208,9 @@ public class GameScreen extends BaseScreen {
 
 
         //String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3";
-        String musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
+        //String musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
+
+        String musicFile = "FOR THE EMPEROR.mp3";
 
 
 
@@ -233,7 +235,7 @@ public class GameScreen extends BaseScreen {
                     aud.delete();
                 }
             }
-            
+
 
 
         } catch (Exception e) {
@@ -285,8 +287,9 @@ public class GameScreen extends BaseScreen {
         // Duration.Formatter.ofPattern("hh:mm:ss").format(dur);
 
 
-        Duration current = musicDuration.minus((long)music.getPosition(),ChronoUnit.SECONDS);
-        msgEST.text =  "EST: " + DurationFormatUtils.formatDuration(current.toMillis(), "mm:ss", true);
+        Duration current = musicDuration.minus((long) music.getPosition(), ChronoUnit.SECONDS);
+        msgEST.text = "EST: " + DurationFormatUtils.formatDuration(current.toMillis(), "mm:ss", true);
+
 
 
 
@@ -692,7 +695,7 @@ public class GameScreen extends BaseScreen {
 
 
                         (tmp1.dot(tmp4) < 0  || playerShip.shield.targetSet.contains(prj))
-                        //(prj.owner != tgt || prj.type.contains(ObjectType.FRAG))
+                    //(prj.owner != tgt || prj.type.contains(ObjectType.FRAG))
 
 
                 ) {     // щит не влияет на свои снаряды
@@ -921,7 +924,7 @@ public class GameScreen extends BaseScreen {
             for (int i = 0; i < list.size(); i++) {
 
                 if (list.get(i).type.contains(ObjectType.DRIVEN_OBJECT) ||
-                    list.get(i).type.contains(ObjectType.PLANET)) {
+                        list.get(i).type.contains(ObjectType.PLANET)) {
 
                     nearCount = 1;
                     break;
@@ -1140,7 +1143,7 @@ public class GameScreen extends BaseScreen {
 
             Message msg = new Message("You win", 0);
             particleObjects.add(msg);
-            music = null;
+            //music = null;
 
             // haaaack - make player ship invincible while warp jumping
             gameObjects.remove(playerShip);
