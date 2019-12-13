@@ -49,7 +49,7 @@ Difficulty levels
 
 Set one that fit you skill in config.ini (app.rank=N)
 
-1 - NEVER PLAYED (try this first, to learn orbital maneuvering if not played KSP before) 
+1 - NEVER PLAYED (try this first, to learn orbital maneuvering if not played KSP before)  
 2 - NOVICE  
 3 - EXPERIENCED  
 4 - SPECIALIST  
