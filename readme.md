@@ -35,14 +35,12 @@ Doesn’t shoot at your missiles. (So launch missiles safely.)
 Anti-missile system also help against inbound missiles on long range.  
 Doesn’t shoot at your missiles, but can unintentionally shoot them down.  
 
-Force shield can repulse several (~6) tangent hit or ~3 direct hit (fired from enemy ship flying towards you) by shell.  
-It's slowly regenerating to full charge, changing self colour.  
-Doesn’t repulse you shells so be careful.  
-
+Force shield can repulse many (~7) tangent hit or ~2-3 direct hit (fired from enemy ship flying towards you) by shell.  
+It's slowly regenerating to full charge, changing self colour.
+Also it repulse missiles (~1) but ineffective on counter course inbound.  
+  
 Green curve - you trajectory in planet gravity force.  
 Blue curve - you shell trajectory in planet gravity force.
-
-Experimental: now shield can repulse tangent  missile hit (~1) then need recharging. 
 
 // -------------------------------------------------------------------------------------------------
 
@@ -51,7 +49,7 @@ Difficulty levels
 
 Set one that fit you skill in config.ini (app.rank=N)
 
-1 - NEVER PLAYED  
+1 - NEVER PLAYED (try this first, to learn orbital maneuvering if not played KSP before) 
 2 - NOVICE  
 3 - EXPERIENCED  
 4 - SPECIALIST  
@@ -63,6 +61,6 @@ Set one that fit you skill in config.ini (app.rank=N)
 
 
 Code need refactoring, etc., but better if it was written in C++ to avoid using buffer objects for Vector2, 
-GC related things, so i give up to do this. 
+GC related things, so i give up to do this.   
 
 Demo: https://www.youtube.com/watch?v=yvjAXCUgGY8
