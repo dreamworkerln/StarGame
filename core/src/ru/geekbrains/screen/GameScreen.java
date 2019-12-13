@@ -208,9 +208,9 @@ public class GameScreen extends BaseScreen {
 
 
         //String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3";
-        //String musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
+        String musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
 
-        String musicFile = "FOR THE EMPEROR.mp3";
+        //String musicFile = "FOR THE EMPEROR.mp3";
 
 
 
@@ -1033,7 +1033,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.left;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.4f);
+            obj.vel.scl(0.2f);
             obj.pos.x = 2 * leftBound + 2*obj.getRadius() - obj.pos.x;
         }
 
@@ -1050,7 +1050,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.right;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.4f);
+            obj.vel.scl(0.2f);
             obj.pos.x = 2 * rightBound - 2*obj.getRadius() - obj.pos.x;
         }
 
@@ -1067,7 +1067,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.down;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.4f);
+            obj.vel.scl(0.2f);
             obj.pos.y = 2 * downBound + 2*obj.getRadius() - obj.pos.y;
 
         }
@@ -1085,7 +1085,7 @@ public class GameScreen extends BaseScreen {
             n = borderNormals.up;
             obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
             obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.4f);
+            obj.vel.scl(0.2f);
             obj.pos.y = 2 * upBound - 2 *obj.getRadius() - obj.pos.y;
         }
 
