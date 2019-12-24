@@ -14,6 +14,11 @@ public abstract class Ship extends DrivenObject {
     public Ship(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
+        setMaxFuel(150f);
+        fuel = 100;
+
+        fuelConsumption = 10f;
+
         this.type.add(ObjectType.SHIP);
 
         gun = new Gun(radius * 0.3f, this);
@@ -27,6 +32,10 @@ public abstract class Ship extends DrivenObject {
     public void update(float dt) {
 
         super.update(dt);
+
+        if (fuel < maxFuel) {
+            fuel += 0.05;
+        }
 
     }
 

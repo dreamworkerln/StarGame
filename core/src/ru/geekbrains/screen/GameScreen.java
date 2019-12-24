@@ -128,6 +128,7 @@ public class GameScreen extends BaseScreen {
     private Sound forTheEmperor;
 
     private Message msgEST;
+    private Message msgFuel;
     private Duration musicDuration;
 
     private boolean forTheEmperorPlayed = false;
@@ -137,6 +138,7 @@ public class GameScreen extends BaseScreen {
 
     private int ENEMY_RESPAWN_TIME;
     private int ENEMIES_COUNT_IN_WAVE;
+    private boolean ENEMIES_COUNT_IN_WAVE_HAD_INCREASED = false;
 
     @Override
     public void show() {
@@ -180,7 +182,9 @@ public class GameScreen extends BaseScreen {
         particleObjects.add(msg);
 
         msgEST = new Message("EST: ", 1);
+        msgFuel = new Message("FUEL: ", 2);
         particleObjects.add(msgEST);
+        particleObjects.add(msgFuel);
 
 //        Тесты для CIWS minigun
 
@@ -207,8 +211,8 @@ public class GameScreen extends BaseScreen {
 
 
 
-        //String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3";
-        String musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
+        String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3";
+        //String musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
 
         //String musicFile = "FOR THE EMPEROR.mp3";
 
@@ -289,6 +293,12 @@ public class GameScreen extends BaseScreen {
 
         Duration current = musicDuration.minus((long) music.getPosition(), ChronoUnit.SECONDS);
         msgEST.text = "EST: " + DurationFormatUtils.formatDuration(current.toMillis(), "mm:ss", true);
+        msgFuel.text = "FUEL: " + (long)playerShip.fuel;
+
+        if (current.getSeconds() < 60 && !ENEMIES_COUNT_IN_WAVE_HAD_INCREASED ) {
+            ENEMIES_COUNT_IN_WAVE += 1;
+            ENEMIES_COUNT_IN_WAVE_HAD_INCREASED = true;
+        }
 
 
 

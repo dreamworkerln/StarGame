@@ -34,6 +34,8 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     public float throttle = 0;                   // current throttle
 
     public float fuel = maxFuel;                   // current fuel level
+    public float  fuelConsumption = 1;
+
 
     protected Vector2 enginePos = new Vector2();         // tail position
     public Vector2 engineTrailPos = new Vector2();    // tail position
@@ -94,7 +96,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             throttle = 0;
         } else {
             // update fuel
-            fuel -= (throttle / maxThrottle * dt);
+            fuel -= (throttle / maxThrottle * fuelConsumption * dt);
         }
 
         // apply throttle
@@ -192,6 +194,11 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     public void setMaxThrottle(float value) {
         maxThrottle = value;
         throttle = maxThrottle;
+    }
+
+    public void setMaxFuel(float value) {
+        maxFuel = value;
+        fuel = value;
     }
 
     @Override

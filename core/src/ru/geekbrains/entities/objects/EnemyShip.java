@@ -46,6 +46,8 @@ public class EnemyShip extends Ship {
     public EnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
+        setMaxFuel(300f);
+
         type.add(ObjectType.ENEMY_SHIP);
 
         //guideSystem = new GuideSystem(this);
