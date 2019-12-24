@@ -129,7 +129,7 @@ public class GameScreen extends BaseScreen {
 
     private Message msgEST;
     private Message msgFuel;
-    private Duration musicDuration;
+    private int musicLength;
 
     private boolean forTheEmperorPlayed = false;
 
@@ -138,7 +138,7 @@ public class GameScreen extends BaseScreen {
 
     private int ENEMY_RESPAWN_TIME;
     private int ENEMIES_COUNT_IN_WAVE;
-    private boolean ENEMIES_COUNT_IN_WAVE_HAD_INCREASED = false;
+    private int ENEMIES_COUNT_IN_WAVE_PREVOIUS;
 
     @Override
     public void show() {
@@ -212,6 +212,8 @@ public class GameScreen extends BaseScreen {
 
 
         String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3";
+
+        //String musicFile = "304665_SOUNDDOGS__ca.mp3";
         //String musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
 
         //String musicFile = "FOR THE EMPEROR.mp3";
@@ -219,39 +221,9 @@ public class GameScreen extends BaseScreen {
 
 
         music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
-        try {
-            FileHandle tmp = Gdx.files.absolute("test.mp3");
-            FileHandle aud = Gdx.files.absolute("aud.nfo");
+        musicLength = 60*5 - 27;
 
-            if (!aud.exists()) {
-                Gdx.files.internal(musicFile).copyTo(tmp);
-                Mp3File mp3file = new Mp3File("test.mp3");
-                tmp.delete();
-                musicDuration =  Duration.of(mp3file.getLengthInSeconds(), ChronoUnit.SECONDS);
-                aud.writeString(Long.toString(musicDuration.getSeconds()), false);
-            }
-            else {
-                try {
-
-                    musicDuration = Duration.ofSeconds(Long.parseLong(aud.readString()));
-                }
-                catch (Exception e) {
-                    aud.delete();
-                }
-            }
-
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-
-
-
-
-
+        //musicLength = 68;
 
         forTheEmperor = Gdx.audio.newSound(Gdx.files.internal("FOR THE EMPEROR.mp3"));
 
@@ -291,13 +263,19 @@ public class GameScreen extends BaseScreen {
         // Duration.Formatter.ofPattern("hh:mm:ss").format(dur);
 
 
-        Duration current = musicDuration.minus((long) music.getPosition(), ChronoUnit.SECONDS);
+
+        Duration current = Duration.ofSeconds(musicLength - (long)music.getPosition());
+
+        //Duration current =   musicDuration.minus( music.getPosition(), ChronoUnit.SECONDS);
         msgEST.text = "EST: " + DurationFormatUtils.formatDuration(current.toMillis(), "mm:ss", true);
         msgFuel.text = "FUEL: " + (long)playerShip.fuel;
 
-        if (current.getSeconds() < 60 && !ENEMIES_COUNT_IN_WAVE_HAD_INCREASED ) {
+        if (current.getSeconds() < 60 && ENEMIES_COUNT_IN_WAVE_PREVOIUS == ENEMIES_COUNT_IN_WAVE) {
             ENEMIES_COUNT_IN_WAVE += 1;
-            ENEMIES_COUNT_IN_WAVE_HAD_INCREASED = true;
+        }
+   
+        if (current.getSeconds() < 30 && ENEMIES_COUNT_IN_WAVE_PREVOIUS == ENEMIES_COUNT_IN_WAVE -1) {
+            ENEMIES_COUNT_IN_WAVE += 1;
         }
 
 
@@ -1349,6 +1327,8 @@ public class GameScreen extends BaseScreen {
 
         //ENEMY_RESPAWN_TIME = 1;
         //ENEMIES_COUNT_IN_WAVE = 0;
+
+        ENEMIES_COUNT_IN_WAVE_PREVOIUS = ENEMIES_COUNT_IN_WAVE;
     }
 
 
