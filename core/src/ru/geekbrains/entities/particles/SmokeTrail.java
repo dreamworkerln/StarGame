@@ -185,9 +185,13 @@ public class SmokeTrail extends GameObject{
 
             this.throttlePercent = throttlePercent;
 
-            this.pos.set(owner.pos);
+            //this.pos.set(owner.pos);
+            tmp3.set(owner.dir).scl(throttlePercent * owner.getRadius()*1.5f);
+            tmp1.set(owner.pos).add(tmp3);
+            this.pos.set(tmp1);
+
             this.dir.set(owner.dir);
-            this.radius = owner.getRadius();
+            this.radius = owner.getRadius() * throttlePercent;
 
             tmp0.set(owner.dir).scl(speed*throttlePercent);
             //this.vel.set(tmp0);
