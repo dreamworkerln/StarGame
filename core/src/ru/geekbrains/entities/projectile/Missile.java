@@ -72,7 +72,7 @@ public class Missile extends DrivenObject {
 
         mass = 0.04f;
         //maxRotationSpeed = 0.02f;
-        fuel = 8;
+        fuel = 12;
 
         boost = 300f;
 
