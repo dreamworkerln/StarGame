@@ -221,7 +221,7 @@ public class GameScreen extends BaseScreen {
 
 
         music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
-        musicLength = 60*5 - 27;
+        musicLength = 60*5 - 30;
 
         //musicLength = 68;
 
@@ -264,18 +264,20 @@ public class GameScreen extends BaseScreen {
 
 
 
-        Duration current = Duration.ofSeconds(musicLength - (long)music.getPosition());
+        Duration remaining = Duration.ofSeconds(musicLength - (long)music.getPosition());
 
         //Duration current =   musicDuration.minus( music.getPosition(), ChronoUnit.SECONDS);
-        msgEST.text = "EST: " + DurationFormatUtils.formatDuration(current.toMillis(), "mm:ss", true);
+        msgEST.text = "EST: " + DurationFormatUtils.formatDuration(remaining.toMillis(), "mm:ss", true);
         msgFuel.text = "FUEL: " + (long)playerShip.fuel;
 
-        if (current.getSeconds() < 60 && ENEMIES_COUNT_IN_WAVE_PREVOIUS == ENEMIES_COUNT_IN_WAVE) {
-            ENEMIES_COUNT_IN_WAVE += 1;
+        if (remaining.getSeconds() <= ENEMY_RESPAWN_TIME/60 * 3 && ENEMIES_COUNT_IN_WAVE_PREVOIUS == ENEMIES_COUNT_IN_WAVE) {
+            ENEMIES_COUNT_IN_WAVE++;
         }
-   
-        if (current.getSeconds() < 30 && ENEMIES_COUNT_IN_WAVE_PREVOIUS == ENEMIES_COUNT_IN_WAVE -1) {
-            ENEMIES_COUNT_IN_WAVE += 1;
+        if (remaining.getSeconds() <= ENEMY_RESPAWN_TIME/60 * 2 && ENEMIES_COUNT_IN_WAVE_PREVOIUS == ENEMIES_COUNT_IN_WAVE - 1) {
+            ENEMIES_COUNT_IN_WAVE++;
+        }
+        if (remaining.getSeconds() <= ENEMY_RESPAWN_TIME/60 && ENEMIES_COUNT_IN_WAVE_PREVOIUS == ENEMIES_COUNT_IN_WAVE - 2) {
+            ENEMIES_COUNT_IN_WAVE++;
         }
 
 
