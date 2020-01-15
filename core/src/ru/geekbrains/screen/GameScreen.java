@@ -211,7 +211,9 @@ public class GameScreen extends BaseScreen {
 
 
 
-        String musicFile = "Valves (remix) - Tiberian Sun soundtrack.mp3";
+        //String musicFile = "26. Lullaby.ogg";
+
+        String musicFile = "Valves (remix) - Tiberian Sun soundtrack.ogg";
 
         //String musicFile = "304665_SOUNDDOGS__ca.mp3";
         //String musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
@@ -221,7 +223,9 @@ public class GameScreen extends BaseScreen {
 
 
         music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
-        musicLength = 60*5 - 30;
+        
+        //dmusicLength = 60*4 + 33;
+        musicLength = 60*5 + 1;
 
         //musicLength = 68;
 
@@ -928,7 +932,7 @@ public class GameScreen extends BaseScreen {
                 break;
             }
         }
-        while (tmp2.len() < 700 || nearCount > 0); // 500  - расстояние до корабля игрока
+        while (tmp2.len() < 500 || nearCount > 0); // 500  - расстояние до корабля игрока
 
 
 
@@ -1280,13 +1284,13 @@ public class GameScreen extends BaseScreen {
 
             case 2:
                 // NOVICE
-                ENEMY_RESPAWN_TIME = 600;
+                ENEMY_RESPAWN_TIME = 800;
                 ENEMIES_COUNT_IN_WAVE = 2;
                 break;
 
             case 3:
                 // EXPERIENCED
-                ENEMY_RESPAWN_TIME = 800;
+                ENEMY_RESPAWN_TIME = 1000;
                 ENEMIES_COUNT_IN_WAVE = 3;
                 break;
 
@@ -1316,13 +1320,13 @@ public class GameScreen extends BaseScreen {
 
             case 8:
                 // IMPERIAL NAVY COMMANDER
-                ENEMY_RESPAWN_TIME = 2100;
+                ENEMY_RESPAWN_TIME = 2000;
                 ENEMIES_COUNT_IN_WAVE = 8;
                 break;
 
             case 9:
                 // IMPERIAL NAVY CAPITAN
-                ENEMY_RESPAWN_TIME = 2200;
+                ENEMY_RESPAWN_TIME = 2100;
                 ENEMIES_COUNT_IN_WAVE = 9;
                 break;
         }
