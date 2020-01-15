@@ -76,8 +76,7 @@ project(":core") {
         compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
         compile "com.mpatric:mp3agic:0.9.1"
         // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
-
+        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
     }
 
 
