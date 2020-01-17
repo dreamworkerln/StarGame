@@ -211,7 +211,7 @@ public class GameScreen extends BaseScreen {
 
 
 
-        //String musicFile = "26. Lullaby.ogg";
+        //String musicFile = "Lullaby.ogg";
 
         String musicFile = "Valves (remix) - Tiberian Sun soundtrack.ogg";
 
@@ -224,7 +224,7 @@ public class GameScreen extends BaseScreen {
 
         music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
         
-        //dmusicLength = 60*4 + 33;
+        //musicLength = 60*3 + 31;
         musicLength = 60*5 + 1;
 
         //musicLength = 68;
