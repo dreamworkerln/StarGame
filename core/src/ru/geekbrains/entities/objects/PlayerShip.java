@@ -183,39 +183,39 @@ public class PlayerShip extends Ship {
 
     public void aimHelp(float dt) {
 
-        impactTimes.clear();
-        targetList.clear();
-
-        // getting target
-        if (!this.readyToDispose) {
-            targetList = GameScreen.getCloseObjects(this, maxAimRange);
-        }
-
-
-
-        for (GameObject o : targetList) {
-
-            if (o == this || o.owner == this || o.readyToDispose) {
-                continue;
-            }
-
-            if (!o.type.contains(ObjectType.SHIP)) {
-                continue;
-            }
-
-
-            if (!this.readyToDispose) {
-                float maxPrjVel = gun.power / gun.firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
-                pbu.guideGun(this, o, maxPrjVel, dt);
-            }
-            // get results
-
-            Float impactTime = (float)pbu.guideResult.impactTime;
-
-            if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= 3f) {
-                impactTimes.put(impactTime, pbu.guideResult.clone());
-            }
-        }
+//        impactTimes.clear();
+//        targetList.clear();
+//
+//        // getting target
+//        if (!this.readyToDispose) {
+//            targetList = GameScreen.getCloseObjects(this, maxAimRange);
+//        }
+//
+//
+//
+//        for (GameObject o : targetList) {
+//
+//            if (o == this || o.owner == this || o.readyToDispose) {
+//                continue;
+//            }
+//
+//            if (!o.type.contains(ObjectType.SHIP)) {
+//                continue;
+//            }
+//
+//
+//            if (!this.readyToDispose) {
+//                float maxPrjVel = gun.power / gun.firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+//                pbu.guideGun(this, o, maxPrjVel, dt);
+//            }
+//            // get results
+//
+//            Float impactTime = (float)pbu.guideResult.impactTime;
+//
+//            if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= 3f) {
+//                impactTimes.put(impactTime, pbu.guideResult.clone());
+//            }
+//        }
 
 
 

@@ -173,8 +173,8 @@ public class FragMissile extends Missile{
 
 
             float r = (float) ThreadLocalRandom.current().nextDouble(power - power*0.1f, power);
-            //float r = (float) ThreadLocalRandom.current().nextGaussian()*power*0.05f + power;
-            //float r = power;
+            //float r = (float) ThreadLocalRandom.current().nextGaussian()*explosionPower*0.05f + explosionPower;
+            //float r = explosionPower;
             float fi;
 
             try {

@@ -7,7 +7,9 @@ public enum ObjectType {
     PROJECTILE,
     SHELL,
     FLAK_SHELL,
+    PLASMA_FLAK_SHELL,
     FRAG,
+    EMP_FRAG,
     BULLET,
     SHIP,
     MISSILE,
@@ -16,5 +18,6 @@ public enum ObjectType {
     FORCE_SHIELD,
     ENEMY_SHIP,
     PLAYER_SHIP,
-    PLANET
+    PLANET,
+
 }

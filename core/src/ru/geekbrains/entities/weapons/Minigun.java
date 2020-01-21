@@ -183,7 +183,7 @@ public class Minigun extends Gun {
 
                     // check collision missile to ship  (-50%)
                     tmp0.set(ship.pos).sub(missile.pos);
-                    if (tmp0.len() <= (ship.getRadius() + missile.getRadius()) * 1.5f) {
+                    if (tmp0.len() <= (ship.getRadius() + missile.getRadius()) * 2.1f) {  // include ship force shield radius
 
                         impactTimesCalculated.put(i * dt, tgt);
                         break;

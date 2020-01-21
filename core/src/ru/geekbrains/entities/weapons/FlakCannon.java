@@ -13,6 +13,8 @@ import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.FlakShell;
+import ru.geekbrains.entities.projectile.Fragment;
+import ru.geekbrains.entities.projectile.PlasmaFlakShell;
 import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
 
@@ -20,6 +22,8 @@ public class FlakCannon extends Gun {
 
     float maxRange;
     float maxTime;
+
+    ShellType shellType;
 
     private static Sound cannonFire;
 
@@ -70,7 +74,7 @@ public class FlakCannon extends Gun {
             targetList = GameScreen.getCloseObjects(owner, maxRange);
 
             targetList.removeIf( o -> o == owner || o.owner == owner || o.readyToDispose ||
-                                 !o.type.contains(ObjectType.MISSILE)/* && !o.type.contains(ObjectType.SHIP)*/);
+                                 !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
 
 
             for (GameObject o : targetList) {
@@ -102,6 +106,16 @@ public class FlakCannon extends Gun {
             target = gRes.target;
             guideVector.set(gRes.guideVector);
             currentFuse = (long) (gRes.impactTime * 1/dt - gRes.impactTime * 1/dt*0.3f);
+
+
+            if (target.type.contains(ObjectType.SHIP)) {
+                shellType = ShellType.PLASMA;
+                power = 450;
+            }
+            else {
+                shellType = ShellType.FRAG;
+                power = 300;
+            }
         }
 
 
@@ -143,8 +157,20 @@ public class FlakCannon extends Gun {
     @Override
     protected Projectile createProjectile() {
 
-        Projectile result = new FlakShell(calibre, 1, new Color(0.5f, 0.2f, 0.2f, 1),  owner);
+        Projectile result;
 
+        //shellType = ShellType.PLASMA;
+
+        if (shellType== ShellType.FRAG) {
+
+            result = new FlakShell(calibre, 1, Color.RED, owner);
+        }
+        else {
+            result = new PlasmaFlakShell(calibre, 1, Color.GOLD, owner);
+            currentFuse*=0.9;
+        }
+
+        //  предохранитель от самоподрыва
         if (currentFuse > 0) {
             result.setTTL(currentFuse);
         }
@@ -162,6 +188,18 @@ public class FlakCannon extends Gun {
     }
 
 
+
+    private enum ShellType {
+
+        FRAG(FlakShell.class),
+        PLASMA(PlasmaFlakShell.class);
+
+        Class type;
+
+        ShellType(Class type) {
+            this.type = type;
+        }
+    }
 
 
 }
