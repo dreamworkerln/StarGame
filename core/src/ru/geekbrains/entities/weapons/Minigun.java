@@ -44,8 +44,8 @@ public class Minigun extends Gun {
     // Цели, отсортированные по времени попадания в корабль
     //private NavigableMap<Float, GameObject> distances = new TreeMap<>();
 
-    public float maxRange = 500;
-    public float maxTime = 1.5f;
+    public float maxRange;
+    public float maxTime;
 
     static {
         minigunFire = Gdx.audio.newSound(Gdx.files.internal("vulcan.mp3"));
@@ -57,7 +57,7 @@ public class Minigun extends Gun {
 
         isModule = true;
 
-        maxRotationSpeed = 0.1f;
+        //maxRotationSpeed = 0.1f;
         maxRotationSpeed = 1f;
 
         radius = 50;
@@ -67,8 +67,10 @@ public class Minigun extends Gun {
         coolingGunDelta = 2;
         maxGunHeat = 200;
         power = 20;
-
         maxBlastRadius = 2;
+
+        maxRange = 500;
+        maxTime = 1.5f;
 
 
 //        final double relativeAccuracy = 1.0e-12;
@@ -443,7 +445,8 @@ public class Minigun extends Gun {
         return new Bullet(calibre,   owner);
     }
 
-
+    @Override
+    protected void playFireSound() {}
 
 
     @Override

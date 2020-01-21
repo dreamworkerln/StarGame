@@ -25,23 +25,39 @@ public abstract class Projectile extends GameObject implements SmokeTrailList {
 
         type.add(ObjectType.PROJECTILE);
         TTL = 10000;
+
+        postConstruct();
     }
 
     public Projectile(float height, float trailRadius, GameObject owner) {
         this(height, owner);
 
-        //this.trail = trail;
+        addTrace(trailRadius, new Color(0.5f, 0.2f, 0.7f, 1));
+    }
 
-        if (trailRadius!=0) {
-            SmokeTrail smoke = new SmokeTrail(trailRadius, new Color(0.5f, 0.2f, 0.7f, 1), this);
-            //SmokeTrail smoke = new SmokeTrail(1, new Color(0.7f, 0.2f, 0.5f, 1), this);
-            smoke.pos.set(pos);
-            smoke.vel.set(vel);
-            smoke.speed = 0;
-            smoke.setTTL(25);
-            smoke.isStatic = true;
-            smokeTrailList.add(smoke);
-        }
+
+    public Projectile(float height, float trailRadius, Color traceColor, GameObject owner) {
+        this(height, owner);
+
+        addTrace(trailRadius, traceColor);
+    }
+
+    protected abstract void postConstruct();
+
+
+
+    private void addTrace(float trailRadius, Color traceColor) {
+
+        SmokeTrail smoke = new SmokeTrail(trailRadius, traceColor, this);
+
+        //SmokeTrail smoke = new SmokeTrail(1, new Color(0.7f, 0.2f, 0.5f, 1), this);
+        smoke.pos.set(pos);
+        smoke.vel.set(vel);
+        smoke.speed = 0;
+        smoke.setTTL(25);
+        smoke.isStatic = true;
+        smokeTrailList.add(smoke);
+
     }
 
 
@@ -56,11 +72,14 @@ public abstract class Projectile extends GameObject implements SmokeTrailList {
 
         for (SmokeTrail trail : smokeTrailList) {
 
-            // engine burst pos
+
             tmp1.set(vel).nor().scl(-5f);
             tmp2.set(pos).add(tmp1);
-
             trail.setTrailPos(tmp2);
+
+
+            //trail.setTrailPos(pos);
+
             trail.add(1);
             trail.update(dt);
         }
@@ -72,15 +91,21 @@ public abstract class Projectile extends GameObject implements SmokeTrailList {
 
         super.draw(renderer);
 
-        if (renderer.rendererType!=RendererType.SHAPE) {
+        if (renderer.rendererType != RendererType.SHAPE) {
             return;
         }
 
         ShapeRenderer shape = renderer.shape;
 
-        //shape.begin();
-        shape.setColor(Color.WHITE);
         Gdx.gl.glLineWidth(1);
+
+
+        shape.setColor(Color.WHITE);
+        if (type.contains(ObjectType.FLAK_SHELL)) {
+            shape.setColor(Color.RED);
+        }
+
+
 
         if (type.contains(ObjectType.BULLET)) {
 

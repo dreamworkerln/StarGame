@@ -1,12 +1,15 @@
 package ru.geekbrains.entities.projectile;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.equipment.BPU;
+import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.particles.SmokeTrail;
@@ -17,21 +20,26 @@ public class FragMissile extends Missile{
     private final int fragCount;
     protected boolean shapedExplosion = true;
 
+    static Texture missileTexture = new Texture("M-45_missile2.png");
+
+
+
     public FragMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
         //mass = 0.03f;
+        mass = 0.08f;
 
-        fuel = 12;
+        fuel = 24;
 
         damage = 1f;
-        setMaxHealth(0.05f);
-        boost = 700;
+        setMaxHealth(0.02f);
+        boost = 700f;
 
-        maxThrottle = 15f;
+        maxThrottle = 9f;
         throttle = maxThrottle;
 
-        fragCount = 500;
+        fragCount = 25;
 
         selfdOnTargetDestroyed = true;
         selfdOnNoFuel = true;
@@ -121,7 +129,7 @@ public class FragMissile extends Missile{
 
         float power = 10f;
 
-        Fragment trash = new Fragment(4f, 2, owner);
+        Fragment trash = new Fragment(6f, 1.5f, new Color(0.3f, 0.7f, 0.3f, 1), owner);
         trash.setMass(fragCount*trash.getMass()); // намного больше изначальной массы ракеты
         trash.pos.set(pos);
         trash.vel.set(vel);
@@ -135,8 +143,9 @@ public class FragMissile extends Missile{
         // create fragments
         for (int i = 0; i < fragCount; i++) {
 
+            Projectile frag = new PlasmaFragment(4f, 1,new Color(1f, 0.84f, 0f, 1f),  owner);
 
-            Projectile frag = new Fragment(2f, owner);
+
 
             //frag.setTTL(200);
 
@@ -150,8 +159,8 @@ public class FragMissile extends Missile{
 
 
             if (shapedExplosion) {
-                fromAn = Math.PI / 6;
-                toAn = Math.PI / 6;
+                fromAn = Math.PI / 4;
+                toAn = Math.PI / 4;
             } else {
                 fromAn = 0;
                 toAn = 2 * Math.PI;

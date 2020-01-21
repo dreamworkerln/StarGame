@@ -35,6 +35,8 @@ public class AntiMissile extends Missile {
 
         //maxRotationSpeed = 0.01f;
 
+        penetration = 0.1f;
+
     }
 
     @Override

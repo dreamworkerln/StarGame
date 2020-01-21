@@ -17,7 +17,7 @@ import ru.geekbrains.screen.RendererType;
 
 public class Gun extends ParticleObject {
 
-    public static Sound cannonFire01;
+    private static Sound cannonFire;
 
     protected float calibre = 6;
     public float power = 230;     // force length, applied to shell
@@ -53,10 +53,8 @@ public class Gun extends ParticleObject {
     protected BPU pbu = new BPU();
 
     static {
-
-        cannonFire01 = Gdx.audio.newSound(Gdx.files.internal("Light Naval Cannon Blast 15.mp3"));
+        cannonFire = Gdx.audio.newSound(Gdx.files.internal("Light Naval Cannon Blast 15.mp3"));
     }
-
 
 
     //ToDo: make abstract gun than fire abstract Projectile
@@ -222,7 +220,6 @@ public class Gun extends ParticleObject {
 
 
         GameScreen.addObject(proj);
-
      }
 
 
@@ -237,7 +234,7 @@ public class Gun extends ParticleObject {
 
         if (this.getClass() !=  Gun.class &&
             this.getClass() !=  Minigun.class &&
-            !this.getClass().getName().equals("ru.geekbrains.entities.objects.Planet$1")) {
+            this.getClass() !=  FlakCannon.class) {
             return;
         }
 
@@ -257,20 +254,20 @@ public class Gun extends ParticleObject {
 //        shape.setColor(1f, 1f, 1f, 1);
 //        shape.circle(nozzlePos.x, nozzlePos.y, 3);
 
+        if (this.getClass() ==  Minigun.class) {
 
-        tmp0.set(pos).add(guideVector);
+            tmp0.set(pos).add(guideVector);
 
-        //Gdx.gl.glLineWidth(1);
+            //Gdx.gl.glLineWidth(1);
 
-        shape.set(ShapeRenderer.ShapeType.Line);
-        // reticle
+            shape.set(ShapeRenderer.ShapeType.Line);
+            // reticle
 //        shape.setColor(0f, 1f, 0f, 1);
 //        shape.circle(tmp0.x, tmp0.y, 3);
-        shape.setColor(1f, 0f, 0f, 0.5f);
-        shape.line(pos, tmp0);
-
-
-        Gdx.gl.glLineWidth(2);
+            shape.setColor(1f, 0f, 0f, 0.5f);
+            shape.line(pos, tmp0);
+            Gdx.gl.glLineWidth(2);
+        }
         //shape.end();
     }
 
@@ -295,18 +292,10 @@ public class Gun extends ParticleObject {
 
     // костыли, нарушение подстановки Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher
     // в абстрактный  метод playLaunchSound()
-    private void playFireSound() {
 
-        if (this.getClass() == Gun.class) {
-            cannonFire01.play(0.4f);
-        }
 
-        if (this.getClass().getName().equals("ru.geekbrains.entities.objects.Planet$1")) {
-            cannonFire01.play(0.7f);
-            cannonFire01.play(0.7f);
-            cannonFire01.play(0.7f);
-
-        }
+    protected void playFireSound() {
+        cannonFire.play(0.4f);
     }
 
 

@@ -25,14 +25,13 @@ public class AntiMissileLauncher extends MissileLauncher {
 
     private static Texture missileTexture;
 
-    public float maxRange = 1000;
+    public float maxRange;
 
-    protected float maxPrjVel = 400;
-    //protected float maxPrjVel = 200;
+    protected float maxPrjVel;
 
-    protected float maxTargets = 10;
+    protected float maxTargets;
 
-    protected float maxImpactTime = 1.5f;
+    protected float maxImpactTime;
 
     // Список целей, по которым идет огонь
     // (По которым запущены противо-ракеты и идет поражение)
@@ -60,10 +59,16 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         fireRate = 0.05f;
         gunHeatingDelta = 50;
-        coolingGunDelta = 1.2f; //1.4
+        coolingGunDelta = 1f; //1.4
         //coolingGunDelta = 90;
         maxGunHeat = 200;
         power = 200;
+
+        maxRange = 900;
+        maxPrjVel = 400;
+
+        maxTargets = 10;
+        maxImpactTime = 1.5f;
 
     }
 
@@ -239,7 +244,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         targets.removeIf(o ->
                 o.readyToDispose || o == owner || o.owner == owner ||
-                (!o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP)));
+                (!o.type.contains(ObjectType.MISSILE)/* && !o.type.contains(ObjectType.SHIP)*/));
 
         for (GameObject trg : targets) {
 

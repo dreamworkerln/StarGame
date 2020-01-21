@@ -10,6 +10,8 @@ public abstract class Ship extends DrivenObject {
 
     public Gun gun;
 
+    public float fuelGeneration;
+
 
     public Ship(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
@@ -17,7 +19,8 @@ public abstract class Ship extends DrivenObject {
         setMaxFuel(150f);
         fuel = 100;
 
-        fuelConsumption = 10f;
+        fuelConsumption = 8f;
+        fuelGeneration = 0.05f;
 
         this.type.add(ObjectType.SHIP);
 
@@ -26,6 +29,9 @@ public abstract class Ship extends DrivenObject {
         setMaxHealth(3f);
         
         damage = 4f;
+
+        armour = 1;
+        penetration = 1;
     }
 
     @Override
@@ -34,7 +40,7 @@ public abstract class Ship extends DrivenObject {
         super.update(dt);
 
         if (fuel < maxFuel) {
-            fuel += 0.05;
+            fuel += fuelGeneration;
         }
 
     }

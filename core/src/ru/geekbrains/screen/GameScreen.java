@@ -19,16 +19,20 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.EnemyShip;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.entities.particles.Explosion;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.Planet;
@@ -89,7 +93,10 @@ public class GameScreen extends BaseScreen {
     private int enemyShipsToSpawn = 0;
 
     private PlayerShip playerShip;
-    private Texture enemyShipTexture = new Texture("ship_enemy.png");
+    private static Texture enemyShipTexture = new Texture("ship_enemy.png");
+
+
+    private Map<String, Integer>  missileHitType = new HashMap<>();
 
 
 
@@ -124,6 +131,7 @@ public class GameScreen extends BaseScreen {
     private Sound expl02;
     private Sound bigExpl;
     private Sound flak;
+    private Sound flak_exp;
     private Sound metalHit;
     private Sound forTheEmperor;
 
@@ -223,7 +231,7 @@ public class GameScreen extends BaseScreen {
 
 
         music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
-        
+
         //musicLength = 60*3 + 31;
         musicLength = 60*5 + 1;
 
@@ -238,6 +246,9 @@ public class GameScreen extends BaseScreen {
         expl01 = Gdx.audio.newSound(Gdx.files.internal("expl01.mp3"));
         expl02 = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
         flak = Gdx.audio.newSound(Gdx.files.internal("flak.mp3"));
+        flak_exp = Gdx.audio.newSound(Gdx.files.internal("flak_explosion2.ogg"));
+
+
         bigExpl = Gdx.audio.newSound(Gdx.files.internal("big_expl2.mp3"));
         metalHit = Gdx.audio.newSound(Gdx.files.internal("IMPACT CAN METAL HIT RING 01.mp3"));
 
@@ -776,16 +787,27 @@ public class GameScreen extends BaseScreen {
                     }
                     else {
 
-                        hitLogger(tgt, prj);
-                        hitLogger(prj, tgt);
+                        float efectiveArmor;// armour effectiveness
+                        float amount;// damage amount
 
 
                         // повреждаем цель
-                        tgt.doDamage(prj.damage);
+                        efectiveArmor =   tgt.armour *(1 - prj.penetration);
+                        amount = prj.damage * (1 - efectiveArmor);
+                        tgt.doDamage(amount);
+
+
                         // повреждаем снаряд
-                        prj.doDamage(tgt.damage);
+                        efectiveArmor =   prj.armour *(1 - tgt.penetration);
+                        amount = tgt.damage * (1 - efectiveArmor);
+                        prj.doDamage(amount);
+
+
 
                         playExplosionSound(prj, tgt);
+
+                        hitLogger(tgt, prj);
+                        hitLogger(prj, tgt);
 
                     }
 
@@ -864,11 +886,23 @@ public class GameScreen extends BaseScreen {
             obj.dispose();
         }
 
+
+        System.out.println("\nAA missiles down stats: ----------");
+
+        for (Map.Entry<String, Integer> entry : missileHitType.entrySet()) {
+
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+        System.out.println("---------");
+
+
         super.dispose();
     }
 
 
     private void spawnEnemyShip() {
+
+
 
         if (playerShip.readyToDispose) {
             tmp0.set(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
@@ -912,18 +946,23 @@ public class GameScreen extends BaseScreen {
             List<GameObject> list = getCloseObjects(dummy, 200);
 
 
+            list = list.stream().filter(o ->
+                    o.type.contains(ObjectType.DRIVEN_OBJECT) ||
+                            o.type.contains(ObjectType.PLANET)).collect(Collectors.toList());
 
-
-
-            for (int i = 0; i < list.size(); i++) {
-
-                if (list.get(i).type.contains(ObjectType.DRIVEN_OBJECT) ||
-                        list.get(i).type.contains(ObjectType.PLANET)) {
-
-                    nearCount = 1;
-                    break;
-                }
+            if (list.size() > 0) {
+                nearCount ++;
             }
+
+//            for (int i = 0; i < list.size(); i++) {
+//
+//                if (list.get(i).type.contains(ObjectType.DRIVEN_OBJECT) ||
+//                        list.get(i).type.contains(ObjectType.PLANET)) {
+//
+//                    nearCount = 1;
+//                    break;
+//                }
+//            }
 
 
 
@@ -936,16 +975,33 @@ public class GameScreen extends BaseScreen {
 
 
 
+
+
+
+
         if (foundPlace) {
 
             enemyShipsToSpawn--;
 
+            //Instant tt = Instant.now();
+
             EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50, null);
+
+
+            //Duration dd = Duration.between(tt, Instant.now());
+            //System.out.println(dd.toMillis());
+
             enemyShip.pos = tmp1.cpy();
             enemyShip.name = "enemyship";
 
             addObject(enemyShip);
+
         }
+
+
+
+
+
     }
 
 
@@ -1115,6 +1171,10 @@ public class GameScreen extends BaseScreen {
                 target.type.contains(ObjectType.SHIP)) {
 
             metalHit.play();
+        }
+        else if (obj.type.contains(ObjectType.FLAK_SHELL)) {
+            flak_exp.play(0.5f);
+
         }
 
 
@@ -1345,14 +1405,24 @@ public class GameScreen extends BaseScreen {
 
             System.out.println("Player hitted by: " + prj.getClass().getSimpleName());
 
-            if (prj.getClass() == Missile.class &&
+            if (prj.type.contains(ObjectType.MISSILE) &&
                     prj.owner!= null &&
                     prj.owner.getClass() == PlayerShip.class) {
 
-                System.out.println("Committed suicide");
+                System.out.println("COMMITTED SUICIDE");
             }
 
         }
+
+
+        if (tgt.getClass() == Missile.class &&
+            tgt.readyToDispose &&
+                prj.owner == playerShip) {
+
+            int val = missileHitType.getOrDefault(prj.getClass().getSimpleName(), 0) + 1;
+            missileHitType.put(prj.getClass().getSimpleName(), val);
+        }
+
     }
 
 

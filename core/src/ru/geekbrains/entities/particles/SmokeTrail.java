@@ -112,7 +112,7 @@ public class SmokeTrail extends GameObject{
 
             bufColor.set(color);
 
-            bufColor.a = 1 - 1f*((el.getAge())/(float)el.getTTL());
+            bufColor.a = color.a - 1f*((el.getAge())/(float)el.getTTL());
 
             if (bufColor.a < 0 || bufColor.a > 1) {
                 bufColor.a = 0;
@@ -185,10 +185,17 @@ public class SmokeTrail extends GameObject{
 
             this.throttlePercent = throttlePercent;
 
-            //this.pos.set(owner.pos);
-            tmp3.set(owner.dir).scl(throttlePercent * owner.getRadius()*1.5f);
-            tmp1.set(owner.pos).add(tmp3);
-            this.pos.set(tmp1);
+
+            if (isStatic) {
+                this.pos.set(owner.pos);
+            }
+            else {
+                tmp3.set(owner.dir).scl(throttlePercent * owner.getRadius() * 1.5f);
+                tmp1.set(owner.pos).add(tmp3);
+                this.pos.set(tmp1);
+            }
+
+
 
             this.dir.set(owner.dir);
             this.radius = owner.getRadius() * throttlePercent;

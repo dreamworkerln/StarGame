@@ -31,6 +31,9 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     public Set<ObjectType> type = new HashSet<>();
 
+    public float armour = 0;
+    public float penetration = 0;
+
     protected Sprite sprite = null;                 // displaying sprite (if have one)
 
     public Vector2 dir = new Vector2();             // direction
@@ -47,6 +50,8 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected float radius;                         // object radius (== halfHeight)
     protected float mass = 1;                          // mass
     //public float momentInertia = 1;               // moment of inertia
+
+    protected float explosionRadius;
 
 
     public boolean readyToDispose = false;            // object ready to dispose
@@ -76,6 +81,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         this.radius = radius;
         rendererType.add(renderType);
         isModule = false;
+        explosionRadius = 2 *radius;
     }
 
     /**
@@ -221,7 +227,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 //    }
 
 
-    protected void rotateObject() {}
+    protected void rotateObject(){}
 
 
     // ---------------------------------------------------------------------------------------------
@@ -317,5 +323,9 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     public long getAge() {
         return age;
+    }
+
+    public float getExplosionRadius() {
+        return explosionRadius;
     }
 }

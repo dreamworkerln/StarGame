@@ -19,6 +19,7 @@ import ru.geekbrains.entities.objects.PlayerShip;
 import ru.geekbrains.entities.projectile.FragMissile;
 import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -91,7 +92,7 @@ public class MissileLauncher extends Gun {
             return;
         }
 
-        // костыли, нарушение подстановкиa Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher
+        // костыли, нарушение подстановки Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher
         if (this.getClass() ==  MissileLauncher.class) {
 
 
@@ -380,7 +381,10 @@ public class MissileLauncher extends Gun {
             //result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
         }
         else {
+
             result = new Missile(new TextureRegion(missileTexture), 2, owner);
+
+            //result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
 
         }
 

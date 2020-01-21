@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import java.util.List;
 
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.FlakShell;
+import ru.geekbrains.entities.projectile.Fragment;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -22,26 +25,33 @@ public class Explosion extends ParticleObject {
     private List<SmokeTrail> smokeTrailList = null;
 
 
-    public static float calculateNewRadius(GameObject owner) {
-
-        float newRadius = owner.getRadius() * 4;
-//        if (owner.type.contains(ObjectType.MISSILE)) {
-//            newRadius *= 10;
-//        }
-
-        return newRadius;
-    }
+//    public static float calculateNewRadius(GameObject owner) {
+//
+////        float newRadius = owner.getRadius() * 4;
+////        if (owner.type.contains(ObjectType.FLAK_SHELL)) {
+////            newRadius *= 3;
+////        }
+////
+////        if (owner.getClass() == Fragment.class) {
+////            newRadius = 1;
+////        }
+//
+//        return newRadius;
+//    }
 
 
     public Explosion (GameObject owner) {
 
-        super(Explosion.calculateNewRadius(owner), owner);
+        super(2* owner.getExplosionRadius(), owner);
+
+        //super(Explosion.calculateNewRadius(owner), owner);
 
         this.mass = owner.getMass();
         this.pos = owner.pos.cpy();
         this.vel = owner.vel.cpy();
         this.start = GameScreen.INSTANCE.getTick();
         this.maxRadius = this.radius;
+
 
         // move SmokeTrail fom owner to this
         if (owner instanceof SmokeTrailList /*owner.type.contains(ObjectType.DRIVEN_OBJECT)*/) {

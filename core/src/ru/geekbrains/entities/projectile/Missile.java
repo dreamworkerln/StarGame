@@ -70,6 +70,7 @@ public class Missile extends DrivenObject {
 
         setRadius(radius * 5); // fix issued by image aspect ratio
 
+
         mass = 0.04f;
         //maxRotationSpeed = 0.02f;
         fuel = 12;
@@ -85,15 +86,17 @@ public class Missile extends DrivenObject {
         selfdOnTargetDestroyed = true;
         selfdOnNoFuel = false;
         selfdOnProximityMiss = false;
-
-
         aspectRatio = 1;
+
+        penetration = 1;
 
 //        final double relativeAccuracy = 1.0e-10;
 //        final double absoluteAccuracy = 1.0e-8;
 //
 //        af =  new AimFunction();
 //        nonBracketing = new BrentSolver(relativeAccuracy, absoluteAccuracy);
+
+
 
 
     }

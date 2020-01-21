@@ -15,6 +15,7 @@ import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.ForceShield;
 import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.entities.weapons.AntiMissileLauncher;
+import ru.geekbrains.entities.weapons.FlakCannon;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.GameScreen;
@@ -34,6 +35,8 @@ public class PlayerShip extends Ship {
     public ForceShield shield;
     public MissileLauncher launcher;
     public AntiMissileLauncher antiLauncher;
+
+    public FlakCannon flakCannon;
 
     public BPU pbu = new BPU();
     public float maxAimRange = 1000;
@@ -59,6 +62,8 @@ public class PlayerShip extends Ship {
 
         antiLauncher = new AntiMissileLauncher(10, this);
 
+        flakCannon = new FlakCannon(10, this);
+
         maxThrottle = 70f;
 
         //setMaxHealth(100);
@@ -78,11 +83,13 @@ public class PlayerShip extends Ship {
         if (KeyDown.A) {
             dir.rotateRad(rot);
             minigun.dir.rotateRad(rot);
+            flakCannon.dir.rotateRad(rot);
 
         }
         if (KeyDown.D) {
             dir.rotateRad(-rot);
             minigun.dir.rotateRad(-rot);
+            flakCannon.dir.rotateRad(-rot);
         }
 
         if (KeyDown.W) {
@@ -142,6 +149,7 @@ public class PlayerShip extends Ship {
 
             dir.rotateRad(rot);
             minigun.dir.rotateRad(rot);
+            flakCannon.dir.rotateRad(rot);
 
             KeyDown.SCROLLED = 0;
         }
@@ -166,6 +174,8 @@ public class PlayerShip extends Ship {
         launcher.update(dt);
 
         antiLauncher.update(dt);
+
+        flakCannon.update(dt);
 
         aimHelp(dt);
     }
@@ -231,6 +241,7 @@ public class PlayerShip extends Ship {
 
         antiLauncher.draw(renderer);
 
+        flakCannon.draw(renderer);
 
 
 //        if (renderer.rendererType!= RendererType.SHAPE) {
@@ -292,6 +303,7 @@ public class PlayerShip extends Ship {
 
         launcher.dispose();
         antiLauncher.dispose();
+        flakCannon.dispose();
         shield.dispose();
 
         minigun.dispose();

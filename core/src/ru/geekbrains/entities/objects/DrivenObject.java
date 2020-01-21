@@ -65,6 +65,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
         rendererType.add(RendererType.TEXTURE);
         rendererType.add(RendererType.SHAPE);
+
     }
 
 
@@ -178,6 +179,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     @Override
     public void setRadius(float radius) {
         this.radius = radius;
+        this.explosionRadius = radius * 2;
 
         for (SmokeTrail st : smokeTrailList) {
 

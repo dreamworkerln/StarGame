@@ -1,5 +1,7 @@
 package ru.geekbrains.entities.projectile;
 
+import com.badlogic.gdx.graphics.Color;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.objects.GameObject;
@@ -11,18 +13,19 @@ public class Shell extends Projectile {
 
     public Shell(float height, GameObject owner) {
         super(height, owner);
-
-        postConstruct();
     }
 
 
     public Shell(float height, float trailRadius, GameObject owner) {
         super(height,trailRadius, owner);
-
-        postConstruct();
     }
 
-    private void postConstruct() {
+    public Shell(float height, float trailRadius, Color color, GameObject owner) {
+        super(height,trailRadius, color, owner);
+    }
+
+    @Override
+    protected void postConstruct() {
 
         type.add(ObjectType.SHELL);
         mass = 0.016f;
@@ -31,6 +34,7 @@ public class Shell extends Projectile {
         setMaxHealth(1.1f);
         damage = 1f;
 
+        penetration = 1;
     }
 
 
