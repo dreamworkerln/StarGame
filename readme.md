@@ -37,7 +37,7 @@ Doesn’t shoot at your missiles, but can unintentionally shoot them down.
 Anti-missile system also help against inbound missiles on long range.  
 Doesn’t shoot at your missiles, but can unintentionally shoot them down.
   
-AA cannon fire fragmentation shell on inbound missiles and plasma shell on enemy ships.  
+AA cannon fire fragmentation shell on inbound missiles and fragmentation plasma shell on enemy ships.  
   
 Force shield can repulse many (~7) tangent hit, very many chase hit or ~2-3 direct hit  
 (fired from enemy ship flying towards you) by shell.  
