@@ -26,19 +26,24 @@ RMB - launch self-guided missiles (position mouse cursor on top to fire at desir
 Ship hull will be destroyed in 3 shell hit, but slowly auto-repairing so 4 hits are needed to be sure.  
 
 Missile kills ship in one hit.  
+EMP missile bring you shield down.  
 
-Mini-gun is auto-firing at closest target (act as close-in weapon system (point-defence))  
+Mini-gun is auto-firing at closest target (act as close-in weapon system (CIWS, point-defence))  
 Most time it bringing targets down but may miss on simultaneous incoming missiles from different directions.  
-(Or when attacked by missile launched from close enemy ship.)  
-Doesn’t shoot at your missiles. (So launch missiles safely.)  
-
-Anti-missile system also help against inbound missiles on long range.  
+(Or when attacked by missile launched from close enemy ship)  
 Doesn’t shoot at your missiles, but can unintentionally shoot them down.  
-
-Force shield can repulse many (~7) tangent hit or ~2-3 direct hit (fired from enemy ship flying towards you) by shell.  
+(So launch missiles safely)  
+  
+Anti-missile system also help against inbound missiles on long range.  
+Doesn’t shoot at your missiles, but can unintentionally shoot them down.
+  
+AA cannon fire fragmentation shell on inbound missiles and plasma shell on enemy ships.  
+  
+Force shield can repulse many (~7) tangent hit, very many chase hit or ~2-3 direct hit  
+(fired from enemy ship flying towards you) by shell.  
 It's slowly regenerating to full charge, changing self colour.
 Also it repulse missiles (~1) but ineffective on counter course inbound.  
-  
+
 Green curve - you trajectory in planet gravity force.  
 Blue curve - you shell trajectory in planet gravity force.
 
@@ -63,4 +68,4 @@ Set one that fit you skill in config.ini (app.rank=N)
 Code need refactoring, etc., but better if it was written in C++ to avoid using buffer objects for Vector2, 
 GC related things, so i give up to do this.   
 
-Demo: https://www.youtube.com/watch?v=yvjAXCUgGY8
+Old demo: https://www.youtube.com/watch?v=yvjAXCUgGY8
