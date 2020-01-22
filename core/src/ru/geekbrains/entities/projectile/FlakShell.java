@@ -38,7 +38,7 @@ public class FlakShell extends Shell {
 
         mass = 0.02f;
         //mass = 1;
-        explosionRadius = radius * 3;
+        explosionRadius = radius * 6;
 
         setMaxHealth(2.1f);
         fragCount = 100;
@@ -75,9 +75,13 @@ public class FlakShell extends Shell {
             double toAn;
 
 
+            fromAn = Math.PI/2;
+            toAn =   Math.PI/2;
 
-            fromAn = 0;
-            toAn = 2 * Math.PI;
+
+
+            //fromAn = 0;
+            //toAn = 2 * Math.PI;
 
 
             float fi_min = (float) (dir.angleRad() - fromAn);

@@ -13,7 +13,6 @@ import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.FlakShell;
-import ru.geekbrains.entities.projectile.Fragment;
 import ru.geekbrains.entities.projectile.PlasmaFlakShell;
 import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
@@ -21,7 +20,7 @@ import ru.geekbrains.screen.GameScreen;
 public class FlakCannon extends Gun {
 
     float maxRange;
-    float maxTime;
+    float maxImpactTime;
 
     ShellType shellType;
 
@@ -50,8 +49,8 @@ public class FlakCannon extends Gun {
         power = 300;
         maxBlastRadius = 5;
 
-        maxRange = 2000f;
-        maxTime = 4f;
+        maxRange = 1400f;
+        maxImpactTime = 4f;
 
         maxRotationSpeed = 0.2f;
 
@@ -87,7 +86,7 @@ public class FlakCannon extends Gun {
 
                 Float impactTime = (float) pbu.guideResult.impactTime;
 
-                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxTime) {
+                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxImpactTime) {
 
                     impactTimes.put(impactTime, pbu.guideResult.clone());
                 }
@@ -105,16 +104,14 @@ public class FlakCannon extends Gun {
             BPU.GuideResult gRes = impactTimes.firstEntry().getValue();
             target = gRes.target;
             guideVector.set(gRes.guideVector);
-            currentFuse = (long) (gRes.impactTime * 1/dt - gRes.impactTime * 1/dt*0.3f);
+            currentFuse = (long) (gRes.impactTime * 1/dt * 0.6f);
 
 
             if (target.type.contains(ObjectType.SHIP)) {
                 shellType = ShellType.PLASMA;
-                power = 450;
             }
             else {
                 shellType = ShellType.FRAG;
-                power = 300;
             }
         }
 
@@ -167,7 +164,7 @@ public class FlakCannon extends Gun {
         }
         else {
             result = new PlasmaFlakShell(calibre, 1, Color.GOLD, owner);
-            currentFuse*=0.9;
+            currentFuse*=0.8;
         }
 
         //  предохранитель от самоподрыва

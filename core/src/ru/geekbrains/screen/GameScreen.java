@@ -39,6 +39,7 @@ import ru.geekbrains.entities.objects.Planet;
 import ru.geekbrains.entities.objects.PlayerShip;
 import ru.geekbrains.entities.particles.Message;
 import ru.geekbrains.entities.particles.SmokeTrailList;
+import ru.geekbrains.entities.projectile.EmpMissile;
 import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
@@ -1415,8 +1416,9 @@ public class GameScreen extends BaseScreen {
         }
 
 
-        if (tgt.getClass() == Missile.class &&
-            tgt.readyToDispose &&
+        if ((tgt.getClass() == Missile.class ||
+                tgt.getClass() == EmpMissile.class)&&
+                tgt.readyToDispose &&
                 prj.owner == playerShip) {
 
             int val = missileHitType.getOrDefault(prj.getClass().getSimpleName(), 0) + 1;
