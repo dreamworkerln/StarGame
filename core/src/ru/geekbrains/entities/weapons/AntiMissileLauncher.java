@@ -59,13 +59,13 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         fireRate = 0.05f;
         gunHeatingDelta = 50;
-        coolingGunDelta = 1.1f; //1.4
+        coolingGunDelta = 1.0f; //1.4
         //coolingGunDelta = 90;
         maxGunHeat = 200;
         power = 200;
 
         maxRange = 1400;
-        maxImpactTime = 1.7f;
+        maxImpactTime = 2f;
 
         maxPrjVel = 400;
 

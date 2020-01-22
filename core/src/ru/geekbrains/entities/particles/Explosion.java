@@ -155,7 +155,7 @@ public class Explosion extends ParticleObject {
         if(objType.contains(ObjectType.EMP_FRAG)) {
 
             float a = shape.getColor().a;
-            shape.setColor(new Color(66, 145, 255, a));
+            shape.setColor(new Color(0.25f, 0.57f, 1, a));
         }
 
         shape.circle(pos.x, pos.y, radius);

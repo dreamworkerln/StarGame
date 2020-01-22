@@ -13,6 +13,7 @@ public class FlakShell extends Shell {
     protected int fragCount;
     float explosionPower;
     long fragTTL;
+    float fuseMultiplier;
 
     public FlakShell(float height, GameObject owner) {
         super(height, owner);
@@ -42,7 +43,8 @@ public class FlakShell extends Shell {
 
         setMaxHealth(2.1f);
         fragCount = 100;
-        fragTTL = 100;
+        fragTTL = 150;
+        fuseMultiplier = 0.5f;
         explosionPower = 3;
 
         damage = 0.5f;
@@ -75,8 +77,8 @@ public class FlakShell extends Shell {
             double toAn;
 
 
-            fromAn = Math.PI/2;
-            toAn =   Math.PI/2;
+            fromAn = Math.PI/3;
+            toAn =   Math.PI/3;
 
 
 

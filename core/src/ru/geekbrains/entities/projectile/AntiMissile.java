@@ -10,6 +10,8 @@ import ru.geekbrains.screen.GameScreen;
 
 public class AntiMissile extends Missile {
 
+    float maxRotationSpeedOld;
+
     public AntiMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
@@ -33,9 +35,9 @@ public class AntiMissile extends Missile {
         proximityMissMinGateDistance = 500;
         proximityMissMaxSelfdDistance = 10;
 
-        //maxRotationSpeed = 0.01f;
-
         penetration = 0.1f;
+
+        maxRotationSpeedOld = maxRotationSpeed;
 
     }
 
@@ -47,6 +49,33 @@ public class AntiMissile extends Missile {
     @Override
     protected void guide(float dt) {
         super.guide(dt);
+
+
+
+        if (pbu.guideResult != null) {
+
+
+            // включаем режим маневрирования маневровыми движками
+            if (pbu.guideResult.impactTime < 0.5f) {
+//                // angle between direction and guideVector
+//                float guideAngle = dir.angleRad(guideVector);
+//                float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
+
+
+                maxRotationSpeed = (float) (2 * Math.PI);
+                throttle = maxThrottle/4;
+
+
+
+            }
+            else {
+
+                maxRotationSpeed = maxRotationSpeedOld;
+                throttle = maxThrottle;
+            }
+
+        }
+
 
 
         /*

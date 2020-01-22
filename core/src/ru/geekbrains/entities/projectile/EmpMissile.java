@@ -12,7 +12,7 @@ public class EmpMissile extends Missile {
     public EmpMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
-        engineTrail.color = new Color(0.2f, 0.2f, 1f, 1);
+        engineTrail.color = new Color(0.65f, 0.87f, 1, 1);
         damage = 0.5f;
     }
 

@@ -101,11 +101,12 @@ public class FlakCannon extends Gun {
 
         if(impactTimes.size() > 0) {
 
+            float fuseMultiplier = 0.5f;
+
+
             BPU.GuideResult gRes = impactTimes.firstEntry().getValue();
             target = gRes.target;
             guideVector.set(gRes.guideVector);
-            currentFuse = (long) (gRes.impactTime * 1/dt * 0.6f);
-
 
             if (target.type.contains(ObjectType.SHIP)) {
                 shellType = ShellType.PLASMA;
@@ -113,6 +114,7 @@ public class FlakCannon extends Gun {
             else {
                 shellType = ShellType.FRAG;
             }
+            currentFuse = (long) (gRes.impactTime * 1/dt * fuseMultiplier);
         }
 
 
@@ -164,7 +166,6 @@ public class FlakCannon extends Gun {
         }
         else {
             result = new PlasmaFlakShell(calibre, 1, Color.GOLD, owner);
-            currentFuse*=0.8;
         }
 
         //  предохранитель от самоподрыва
