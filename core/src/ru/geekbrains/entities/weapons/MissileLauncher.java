@@ -11,11 +11,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.PlayerShip;
+import ru.geekbrains.entities.projectile.EmpMissile;
 import ru.geekbrains.entities.projectile.FragMissile;
 import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -382,7 +384,13 @@ public class MissileLauncher extends Gun {
         }
         else {
 
-            result = new Missile(new TextureRegion(missileTexture), 2, owner);
+            if (ThreadLocalRandom.current().nextFloat() > 0.7) {
+
+                result = new EmpMissile(new TextureRegion(missileTexture), 2, owner);
+            }
+            else {
+                result = new Missile(new TextureRegion(missileTexture), 2, owner);
+            }
 
             //result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
 

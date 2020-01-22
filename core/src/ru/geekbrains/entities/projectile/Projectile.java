@@ -101,9 +101,19 @@ public abstract class Projectile extends GameObject implements SmokeTrailList {
 
 
         shape.setColor(Color.WHITE);
+
         if (type.contains(ObjectType.FLAK_SHELL)) {
             shape.setColor(Color.RED);
         }
+        if (type.contains(ObjectType.PLASMA_FLAK_SHELL)) {
+            shape.setColor(Color.GOLD);
+        }
+
+        if (type.contains(ObjectType.EMP_FRAG)) {
+            shape.setColor(Color.BLUE);
+        }
+
+
 
 
 

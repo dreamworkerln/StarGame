@@ -328,4 +328,8 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     public float getExplosionRadius() {
         return explosionRadius;
     }
+
+    public void setExplosionRadius(float explosionRadius) {
+        this.explosionRadius = explosionRadius;
+    }
 }

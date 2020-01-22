@@ -1,10 +1,12 @@
 package ru.geekbrains.entities.particles;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.List;
+import java.util.Set;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -19,6 +21,8 @@ public class Explosion extends ParticleObject {
     private float maxRadius;
     private long start;
     //long frame;
+
+    private Set<ObjectType> objType;
 
     private boolean trailReadyToDispose = false;
 
@@ -44,6 +48,9 @@ public class Explosion extends ParticleObject {
 
         super(2* owner.getExplosionRadius(), owner);
 
+
+
+
         //super(Explosion.calculateNewRadius(owner), owner);
 
         this.mass = owner.getMass();
@@ -51,6 +58,7 @@ public class Explosion extends ParticleObject {
         this.vel = owner.vel.cpy();
         this.start = GameScreen.INSTANCE.getTick();
         this.maxRadius = this.radius;
+        this.objType = owner.type;
 
 
         // move SmokeTrail fom owner to this
@@ -142,6 +150,12 @@ public class Explosion extends ParticleObject {
         }
         else {
             shape.setColor(1f, 1f, 0.2f, 1 - (age - 15) / 15f);
+        }
+
+        if(objType.contains(ObjectType.EMP_FRAG)) {
+
+            float a = shape.getColor().a;
+            shape.setColor(new Color(0.25f, 0.57f, 1, a));
         }
 
         shape.circle(pos.x, pos.y, radius);

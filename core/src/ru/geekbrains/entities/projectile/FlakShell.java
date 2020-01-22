@@ -10,18 +10,23 @@ import ru.geekbrains.screen.GameScreen;
 
 public class FlakShell extends Shell {
 
-    private int fragCount;
+    protected int fragCount;
+    float explosionPower;
+    long fragTTL;
+    float fuseMultiplier;
 
     public FlakShell(float height, GameObject owner) {
         super(height, owner);
     }
 
-    public FlakShell(float height, float trailRadius, GameObject owner) {
-        super(height, trailRadius, owner);
-    }
-
     public FlakShell(float height, float trailRadius, Color color, GameObject owner) {
         super(height,trailRadius, color, owner);
+    }
+
+    protected  Projectile createFragment() {
+
+        return  new Fragment(2,  owner);
+
     }
 
 
@@ -29,17 +34,23 @@ public class FlakShell extends Shell {
     protected void postConstruct() {
 
         super.postConstruct();
+
         type.add(ObjectType.FLAK_SHELL);
 
         mass = 0.02f;
         //mass = 1;
-        explosionRadius = radius * 3;
+        explosionRadius = radius * 6;
 
         setMaxHealth(2.1f);
         fragCount = 100;
+        fragTTL = 150;
+        fuseMultiplier = 0.5f;
+        explosionPower = 3;
 
         damage = 0.5f;
         penetration = 0.1f;
+
+
     }
 
 
@@ -49,13 +60,11 @@ public class FlakShell extends Shell {
 
 
 
-        float power = 3f;
-
         // create fragments
         for (int i = 0; i < fragCount; i++) {
 
 
-            Projectile frag = new Fragment(2,  owner);
+            Projectile frag = createFragment();
 
             //frag.setTTL(200);
 
@@ -68,9 +77,13 @@ public class FlakShell extends Shell {
             double toAn;
 
 
+            fromAn = Math.PI/3;
+            toAn =   Math.PI/3;
 
-            fromAn = 0;
-            toAn = 2 * Math.PI;
+
+
+            //fromAn = 0;
+            //toAn = 2 * Math.PI;
 
 
             float fi_min = (float) (dir.angleRad() - fromAn);
@@ -79,10 +92,10 @@ public class FlakShell extends Shell {
 
 
 
-            float r = (float) ThreadLocalRandom.current().nextDouble(power - power*0.2f, power);
-            //float r = (float) ThreadLocalRandom.current().nextDouble(0, power);
-            //float r = (float) ThreadLocalRandom.current().nextGaussian()*power*1.0f /*+ power*/;
-            //float r = power;
+            float r = (float) ThreadLocalRandom.current().nextDouble(explosionPower - explosionPower *0.2f, explosionPower);
+            //float r = (float) ThreadLocalRandom.current().nextDouble(0, explosionPower);
+            //float r = (float) ThreadLocalRandom.current().nextGaussian()*explosionPower*1.0f /*+ explosionPower*/;
+            //float r = explosionPower;
             float fi;
 
             try {
@@ -105,7 +118,7 @@ public class FlakShell extends Shell {
             tmp0.set(x, y); // force
             frag.applyForce(tmp0);          // apply force applied to frag
 
-            frag.setTTL(ThreadLocalRandom.current().nextLong(100,150));
+            frag.setTTL(ThreadLocalRandom.current().nextLong(fragTTL,fragTTL + fragTTL/2));
             GameScreen.addObject(frag);
         }
 

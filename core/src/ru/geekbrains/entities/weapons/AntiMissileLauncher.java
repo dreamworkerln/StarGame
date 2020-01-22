@@ -59,16 +59,18 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         fireRate = 0.05f;
         gunHeatingDelta = 50;
-        coolingGunDelta = 1f; //1.4
+        coolingGunDelta = 1.0f; //1.4
         //coolingGunDelta = 90;
         maxGunHeat = 200;
         power = 200;
 
-        maxRange = 900;
+        maxRange = 1400;
+        maxImpactTime = 2f;
+
         maxPrjVel = 400;
 
         maxTargets = 10;
-        maxImpactTime = 1.5f;
+
 
     }
 
@@ -247,6 +249,16 @@ public class AntiMissileLauncher extends MissileLauncher {
                 (!o.type.contains(ObjectType.MISSILE)/* && !o.type.contains(ObjectType.SHIP)*/));
 
         for (GameObject trg : targets) {
+
+            tmp1.set(trg.pos).sub(owner.pos);
+            tmp4.set(trg.vel).sub(owner.vel);
+
+            if ( tmp1.dot(tmp4) > 0 ) {
+                continue;
+            }
+
+
+
 
             pbu.guideGun(this, trg, /*maxPrjVel - 100*/maxPrjVel, dt);
 

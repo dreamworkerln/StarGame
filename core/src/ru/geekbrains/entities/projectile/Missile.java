@@ -399,7 +399,7 @@ public class Missile extends DrivenObject {
     @Override
     public void dispose() {
 
-        float power = 5f;
+        float explosionPower = 5f;
 
         float fragCount = 10;
 
@@ -431,7 +431,7 @@ public class Missile extends DrivenObject {
             float fi_min = (float) (dir.angleRad() - fromAn);
             float fi_max = (float) (dir.angleRad() + toAn);
 
-            float r = (float) ThreadLocalRandom.current().nextDouble(0, power);
+            float r = (float) ThreadLocalRandom.current().nextDouble(0, explosionPower);
             float fi;
 
             try {
