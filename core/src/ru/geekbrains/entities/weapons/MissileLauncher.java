@@ -21,6 +21,7 @@ import ru.geekbrains.entities.projectile.EmpMissile;
 import ru.geekbrains.entities.projectile.FragMissile;
 import ru.geekbrains.entities.projectile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.NewtonMissile;
 import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
@@ -151,7 +152,7 @@ public class MissileLauncher extends Gun {
 
         targets = GameScreen.getCloseObjects(dummy, 2000);
 
-        targets.removeIf(t -> !t.type.contains(ObjectType.SHIP));
+        targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)));
         targets.removeIf(t -> t == this.owner);
         targets.removeIf(t -> t.owner == this.owner);
         targets.removeIf(t -> t.readyToDispose);
@@ -280,6 +281,11 @@ public class MissileLauncher extends Gun {
         if (reverseLaunch) {
             tmp0.scl(0.75f);
         }
+
+        if (missile.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            tmp0.scl(3);
+        }
+
         //tmp0.rotate(60 * sideLaunch);
         missile.applyForce(tmp0);
 
@@ -378,14 +384,17 @@ public class MissileLauncher extends Gun {
 
         if (owner.getClass() == PlayerShip.class) {
 
-            result = new Missile(new TextureRegion(missileTexture), 2, owner);
+            //result = new Missile(new TextureRegion(missileTexture), 2, owner);
+
+            result =  new NewtonMissile(new TextureRegion(missileTexture), 5, owner);
 
             //result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
         }
         else {
+            
+            float rnd =  ThreadLocalRandom.current().nextFloat();
 
-            if (ThreadLocalRandom.current().nextFloat() > 0.7) {
-
+            if (rnd >= 0.7){
                 result = new EmpMissile(new TextureRegion(missileTexture), 2, owner);
             }
             else {

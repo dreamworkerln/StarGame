@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import ru.geekbrains.entities.objects.DummyObject;
@@ -41,6 +42,7 @@ import ru.geekbrains.entities.particles.Message;
 import ru.geekbrains.entities.particles.SmokeTrailList;
 import ru.geekbrains.entities.projectile.EmpMissile;
 import ru.geekbrains.entities.projectile.Missile;
+import ru.geekbrains.entities.projectile.NewtonMissile;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;
@@ -58,6 +60,7 @@ public class GameScreen extends BaseScreen {
 
     public static GameScreen INSTANCE = null;
 
+    private static Texture missileTexture;
     private long tick = 0;
 
     /**
@@ -149,6 +152,10 @@ public class GameScreen extends BaseScreen {
     private int ENEMIES_COUNT_IN_WAVE;
     private int ENEMIES_COUNT_IN_WAVE_PREVOIUS;
 
+    static {
+        missileTexture = new Texture("M-45_missile2.png");
+    }
+
     @Override
     public void show() {
         super.show();
@@ -158,7 +165,7 @@ public class GameScreen extends BaseScreen {
         }
 
 
-        quadTree = new QuadTree<>(-5000,-5000,5000,5000);
+        quadTree = new QuadTree<>(-6000,-6000,6000,6000);
 
         background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
         background.setHeightAndResize(BACKGROUND_SIZE);
@@ -324,7 +331,7 @@ public class GameScreen extends BaseScreen {
         // quadTree
         // -----------------------------------------------------------------------------------------
 
-        quadTree.clear();
+        quadTree.clear();       // NOT SO efficient
         hittableObjects.clear();
 
         // add planet to quadTree
@@ -374,7 +381,7 @@ public class GameScreen extends BaseScreen {
         for (GameObject obj : gameObjects) {
             // removing player ship
             if (!obj.readyToDispose &&
-                    obj.pos.len() > GameScreen.INSTANCE.worldBounds.getWidth()*2) {
+                    obj.pos.len() > GameScreen.INSTANCE.worldBounds.getWidth()*3) {
 
                 obj.readyToDispose = true;
             }
@@ -694,7 +701,7 @@ public class GameScreen extends BaseScreen {
                 tmp4.set(prj.vel).sub(playerShip.vel);
 
 
-                // FORCE SHIELD REPULSING
+                // FORCE SHIELD REPULSING ---------------------------------------------------
                 if (tgt.type.contains(ObjectType.PLAYER_SHIP) &&
                         (prj.type.contains(ObjectType.PROJECTILE)
                                 || prj.type.contains(ObjectType.MISSILE)) &&
@@ -704,14 +711,22 @@ public class GameScreen extends BaseScreen {
                     //(prj.owner != tgt || prj.type.contains(ObjectType.FRAG))
 
 
-                ) {     // щит не влияет на свои снаряды
+                ) {
 
                     PlayerShip plsp = (PlayerShip) tgt;
 
 
                     if (tmp1.len() <= plsp.shield.getRadius() + prj.getRadius()) {
 
-                        plsp.shield.targetSet.add(prj);
+
+                        // EMP ordinance BLAST
+                        if (prj.isEmpOrdinance) {
+                            prj.setMass(0.1f);
+                            prj.readyToDispose = true;
+                        }
+
+
+                        //plsp.shield.targetSet.add(prj);
 
                         Vector2 n = tmp3; // vector from target to projectile, normalized
                         n.set(prj.pos).sub(tgt.pos).nor();
@@ -763,11 +778,14 @@ public class GameScreen extends BaseScreen {
                         // affect impact on target ship
                         // tmp2.set(prj.vel).scl(prj.getMass() / dt);
                         // plsp.applyForce(tmp2);
+
                     }
                     else {
-                        plsp.shield.targetSet.remove(prj);
+                        //plsp.shield.targetSet.remove(prj);
                     }
                 }
+
+                // END FORCE SHIELD ---------------------------------------------------------------
 
 
 
@@ -788,19 +806,19 @@ public class GameScreen extends BaseScreen {
                     }
                     else {
 
-                        float efectiveArmor;// armour effectiveness
+                        float effectiveArmor;// armour effectiveness
                         float amount;// damage amount
 
 
                         // повреждаем цель
-                        efectiveArmor =   tgt.armour *(1 - prj.penetration);
-                        amount = prj.damage * (1 - efectiveArmor);
+                        effectiveArmor =   tgt.armour *(1 - prj.penetration);
+                        amount = prj.damage * (1 - effectiveArmor);
                         tgt.doDamage(amount);
 
 
                         // повреждаем снаряд
-                        efectiveArmor =   prj.armour *(1 - tgt.penetration);
-                        amount = tgt.damage * (1 - efectiveArmor);
+                        effectiveArmor =   prj.armour *(1 - tgt.penetration);
+                        amount = tgt.damage * (1 - effectiveArmor);
                         prj.doDamage(amount);
 
 
@@ -875,17 +893,17 @@ public class GameScreen extends BaseScreen {
         planet.dispose();
         reticle.dispose();
 
-        for (GameObject obj : gameObjects) {
-            obj.dispose();
-        }
-
-        for (GameObject obj : hittableObjects) {
-            obj.dispose();
-        }
-
-        for (GameObject obj : spawningObjects) {
-            obj.dispose();
-        }
+//        for (GameObject obj : gameObjects) {
+//            obj.dispose();
+//        }
+//
+//        for (GameObject obj : hittableObjects) {
+//            obj.dispose();
+//        }
+//
+//        for (GameObject obj : spawningObjects) {
+//            obj.dispose();
+//        }
 
 
         System.out.println("\nAA missiles down stats: ----------");
@@ -984,18 +1002,32 @@ public class GameScreen extends BaseScreen {
 
             enemyShipsToSpawn--;
 
-            //Instant tt = Instant.now();
+            if (ThreadLocalRandom.current().nextFloat() > 0.7) {
 
-            EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50, null);
+                //new NewtonMissile(new TextureRegion(missileTexture), 5, null);
+
+                //Missile missile = new NewtonMissile(new TextureRegion(missileTexture), 5, null);
+                Missile missile = new NewtonMissile(new TextureRegion(missileTexture), 5, playerShip);
+                missile.pos = tmp1.cpy();
+                missile.target = null;
+                addObject(missile);
+
+            }
+            else {
+
+                //Instant tt = Instant.now();
+
+                EnemyShip enemyShip = new EnemyShip(new TextureRegion(enemyShipTexture), 50, null);
 
 
-            //Duration dd = Duration.between(tt, Instant.now());
-            //System.out.println(dd.toMillis());
+                //Duration dd = Duration.between(tt, Instant.now());
+                //System.out.println(dd.toMillis());
 
-            enemyShip.pos = tmp1.cpy();
-            enemyShip.name = "enemyship";
+                enemyShip.pos = tmp1.cpy();
+                enemyShip.name = "enemyship";
 
-            addObject(enemyShip);
+                addObject(enemyShip);
+            }
 
         }
 
@@ -1031,15 +1063,15 @@ public class GameScreen extends BaseScreen {
                         if (!tmp.readyToDispose &&
                                 tmp != planet &&
                                 tmp != ship && // self
-                                tmp.type.contains(ObjectType.SHIP)) {
+                                tmp.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
 
                             ship.target = tmp;
                         }
 
-                        // Switch target to player ship only
-                        if (!playerShip.readyToDispose) {
-                            ship.target = playerShip;
-                        }
+//                        // Switch target to player ship only
+//                        if (playerShip != null && !playerShip.readyToDispose) {
+//                            ship.target = playerShip;
+//                        }
 
 
                         if (cnt++ >= 100)
@@ -1058,86 +1090,88 @@ public class GameScreen extends BaseScreen {
 
     private void borderBounce(GameObject obj) {
 
-        // wall bouncing ----------------------------------------
-        //https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
+        if (obj.type.contains(ObjectType.SHIP) ||
+                obj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
 
-        Vector2 n;
 
-        // Подстраиваем левую и правую стенки игрового мира(world) под соотношенире сторон устройства
-        float leftBound = worldBounds.getLeft() * aspect;
-        float rightBound = worldBounds.getRight() * aspect;
+            // wall bouncing ----------------------------------------
+            //https://math.stackexchange.com/questions/13261/how-to-get-a-reflection-vector
 
-        float upBound = worldBounds.getTop();
-        float downBound = worldBounds.getBottom();
+            Vector2 n;
 
-        // -----------------------------------------------------------------------------------------
+            // Подстраиваем левую и правую стенки игрового мира(world) под соотношенире сторон устройства
+            float leftBound = worldBounds.getLeft() * aspect;
+            float rightBound = worldBounds.getRight() * aspect;
 
-        if (obj.pos.x - obj.getRadius() < 2f * leftBound) {
-            obj.readyToDispose = true;
-            return;
-        }
+            float upBound = worldBounds.getTop();
+            float downBound = worldBounds.getBottom();
 
-        // reflected_vel=vel−2(vel⋅n)n, where n - unit normal vector
-        if (obj.pos.x - obj.getRadius() < leftBound &&
-                obj.type.contains(ObjectType.SHIP)) {
+            // -----------------------------------------------------------------------------------------
 
-            n = borderNormals.left;
-            obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
-            obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.2f);
-            obj.pos.x = 2 * leftBound + 2*obj.getRadius() - obj.pos.x;
-        }
+            if (obj.pos.x - obj.getRadius() < 2f * leftBound) {
+                obj.readyToDispose = true;
+                return;
+            }
 
-        // -----------------------------------------------------------------------------------------
+            // reflected_vel=vel−2(vel⋅n)n, where n - unit normal vector
+            if (obj.pos.x - obj.getRadius() < leftBound) {
 
-        if (obj.pos.x + obj.getRadius() > 2f * rightBound) {
-            obj.readyToDispose = true;
-            return;
-        }
+                n = borderNormals.left;
+                obj.vel.x = obj.vel.x - 2 * n.x * obj.vel.dot(n);
+                obj.vel.y = obj.vel.y - 2 * n.y * obj.vel.dot(n);
+                obj.vel.scl(0.2f);
+                obj.pos.x = 2 * leftBound + 2 * obj.getRadius() - obj.pos.x;
+            }
 
-        if (obj.pos.x + obj.getRadius() > rightBound &&
-                obj.type.contains(ObjectType.SHIP)) {
+            // -----------------------------------------------------------------------------------------
 
-            n = borderNormals.right;
-            obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
-            obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.2f);
-            obj.pos.x = 2 * rightBound - 2*obj.getRadius() - obj.pos.x;
-        }
+            if (obj.pos.x + obj.getRadius() > 2f * rightBound) {
+                obj.readyToDispose = true;
+                return;
+            }
 
-        // -----------------------------------------------------------------------------------------
+            if (obj.pos.x + obj.getRadius() > rightBound) {
 
-        if (obj.pos.y - obj.getRadius() < 2f * downBound) {
-            obj.readyToDispose = true;
-            return;
-        }
+                n = borderNormals.right;
+                obj.vel.x = obj.vel.x - 2 * n.x * obj.vel.dot(n);
+                obj.vel.y = obj.vel.y - 2 * n.y * obj.vel.dot(n);
+                obj.vel.scl(0.2f);
+                obj.pos.x = 2 * rightBound - 2 * obj.getRadius() - obj.pos.x;
+            }
 
-        if (obj.pos.y - obj.getRadius() < downBound &&
-                obj.type.contains(ObjectType.SHIP)) {
+            // -----------------------------------------------------------------------------------------
 
-            n = borderNormals.down;
-            obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
-            obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.2f);
-            obj.pos.y = 2 * downBound + 2*obj.getRadius() - obj.pos.y;
+            if (obj.pos.y - obj.getRadius() < 2f * downBound) {
+                obj.readyToDispose = true;
+                return;
+            }
 
-        }
+            if (obj.pos.y - obj.getRadius() < downBound) {
 
-        // -----------------------------------------------------------------------------------------
+                n = borderNormals.down;
+                obj.vel.x = obj.vel.x - 2 * n.x * obj.vel.dot(n);
+                obj.vel.y = obj.vel.y - 2 * n.y * obj.vel.dot(n);
+                obj.vel.scl(0.2f);
+                obj.pos.y = 2 * downBound + 2 * obj.getRadius() - obj.pos.y;
 
-        if (obj.pos.y + obj.getRadius() > 2f * upBound) {
-            obj.readyToDispose = true;
-            return;
-        }
+            }
 
-        if (obj.pos.y + obj.getRadius() > upBound &&
-                obj.type.contains(ObjectType.SHIP)) {
+            // -----------------------------------------------------------------------------------------
 
-            n = borderNormals.up;
-            obj.vel.x = obj.vel.x - 2 *n.x * obj.vel.dot(n);
-            obj.vel.y = obj.vel.y - 2 *n.y * obj.vel.dot(n);
-            obj.vel.scl(0.2f);
-            obj.pos.y = 2 * upBound - 2 *obj.getRadius() - obj.pos.y;
+            if (obj.pos.y + obj.getRadius() > 2f * upBound) {
+                obj.readyToDispose = true;
+                return;
+            }
+
+            if (obj.pos.y + obj.getRadius() > upBound) {
+
+                n = borderNormals.up;
+                obj.vel.x = obj.vel.x - 2 * n.x * obj.vel.dot(n);
+                obj.vel.y = obj.vel.y - 2 * n.y * obj.vel.dot(n);
+                obj.vel.scl(0.2f);
+                obj.pos.y = 2 * upBound - 2 * obj.getRadius() - obj.pos.y;
+            }
+
         }
 
 
@@ -1167,8 +1201,8 @@ public class GameScreen extends BaseScreen {
             flak.play(0.3f);
         }
         else if (target != null &&
-                (obj.type.contains(ObjectType.SHELL)/*||
-                 obj.type.contains(ObjectType.FRAG)*/) &&
+                (obj.type.contains(ObjectType.SHELL)||
+                 obj.type.contains(ObjectType.PLASMA_FRAG)) &&
                 target.type.contains(ObjectType.SHIP)) {
 
             metalHit.play();
@@ -1176,6 +1210,12 @@ public class GameScreen extends BaseScreen {
         else if (obj.type.contains(ObjectType.FLAK_SHELL)) {
             flak_exp.play(0.5f);
 
+        }
+
+        if (obj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+
+            bigExpl.play(1f);
+            bigExpl.play(1f);
         }
 
 
@@ -1387,8 +1427,8 @@ public class GameScreen extends BaseScreen {
 
             case 9:
                 // IMPERIAL NAVY CAPITAN
-                ENEMY_RESPAWN_TIME = 2100;
-                ENEMIES_COUNT_IN_WAVE = 9;
+                ENEMY_RESPAWN_TIME = 1000;  // 2100
+                ENEMIES_COUNT_IN_WAVE = 20;    // 9
                 break;
         }
 

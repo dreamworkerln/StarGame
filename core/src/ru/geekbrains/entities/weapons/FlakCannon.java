@@ -52,7 +52,7 @@ public class FlakCannon extends Gun {
         maxRange = 1400f;
         maxImpactTime = 4f;
 
-        maxRotationSpeed = 0.2f;
+        maxRotationSpeed = 0.1f;
 
         //maxRotationSpeed = 1f;
 
@@ -73,7 +73,9 @@ public class FlakCannon extends Gun {
             targetList = GameScreen.getCloseObjects(owner, maxRange);
 
             targetList.removeIf( o -> o == owner || o.owner == owner || o.readyToDispose ||
-                                 !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
+                                 !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP)
+
+            );
 
 
             for (GameObject o : targetList) {
@@ -108,7 +110,7 @@ public class FlakCannon extends Gun {
             target = gRes.target;
             guideVector.set(gRes.guideVector);
 
-            if (target.type.contains(ObjectType.SHIP)) {
+            if (target.type.contains(ObjectType.SHIP) || target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
                 shellType = ShellType.PLASMA;
             }
             else {

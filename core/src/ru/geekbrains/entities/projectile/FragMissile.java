@@ -40,8 +40,8 @@ public class FragMissile extends Missile{
         throttle = maxThrottle;
 
         fragCount = 25;
-
-        selfdOnTargetDestroyed = true;
+        selfdOnTargetDestroyed = false;
+        canRetarget = true;
         selfdOnNoFuel = true;
         selfdOnProximityMiss = false;
 

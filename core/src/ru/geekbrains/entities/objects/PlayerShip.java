@@ -66,6 +66,9 @@ public class PlayerShip extends Ship {
 
         maxThrottle = 70f;
 
+        launcher.fireRate = 0.02f;
+
+
         //setMaxHealth(100);
     }
 

@@ -158,6 +158,13 @@ public class Explosion extends ParticleObject {
             shape.setColor(new Color(0.25f, 0.57f, 1, a));
         }
 
+        if(objType.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+
+            float a = shape.getColor().a;
+            shape.setColor(new Color(0.3f, 0.3f, 0.7f, a/2));
+        }
+
+
         shape.circle(pos.x, pos.y, radius);
 
         Gdx.gl.glLineWidth(1);

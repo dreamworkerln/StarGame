@@ -2,6 +2,8 @@ package ru.geekbrains.entities.projectile;
 
 import com.badlogic.gdx.graphics.Color;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 
@@ -27,7 +29,19 @@ public class PlasmaFlakShell extends FlakShell {
 
     protected  Projectile createFragment() {
 
-        return  new PlasmaFragment(2, 0.5f, Color.GOLD,  owner);
+        PlasmaFragment result;
 
+
+        boolean isEmp = false;
+        Color color = Color.GOLD;
+
+        if (isEmpOrdinance && ThreadLocalRandom.current().nextFloat() > 0.7) {
+            isEmp = true;
+            color = new Color(0.65f, 0.87f, 1, 1);
+        }
+
+        result =  new PlasmaFragment(2, 0.3f, color,  owner);
+        result.isEmpOrdinance = isEmp;
+        return  result;
     }
 }

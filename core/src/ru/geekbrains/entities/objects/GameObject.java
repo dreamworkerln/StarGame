@@ -23,6 +23,9 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected long birth;  // object birth date in ticks
     protected long age;    // object ages in game ticks
 
+
+    public boolean isEmpOrdinance = false;
+
     public String name = "";
 
     public GameObject owner;
@@ -47,7 +50,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     //protected Vector2 tmpForce = new Vector2();     // tmp force
     protected Vector2 force = new Vector2();          // resulting force (sum of all forces)
-    protected float radius;                         // object radius (== halfHeight)
+    public float radius;                         // object radius (== halfHeight)
     protected float mass = 1;                          // mass
     //public float momentInertia = 1;               // moment of inertia
 

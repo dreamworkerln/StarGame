@@ -3,6 +3,7 @@ package ru.geekbrains.entities.projectile;
 import com.badlogic.gdx.graphics.Color;
 
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectType;
 
 public class PlasmaFragment extends Fragment {
 
@@ -18,6 +19,8 @@ public class PlasmaFragment extends Fragment {
     protected void postConstruct() {
 
         super.postConstruct();
+
+        type.add(ObjectType.PLASMA_FRAG);
 
         explosionRadius = radius * 4;
 

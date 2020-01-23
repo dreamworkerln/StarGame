@@ -26,6 +26,7 @@ public class Missile extends DrivenObject {
 
     //AimFunction af;
     protected boolean selfdOnTargetDestroyed;
+    protected boolean canRetarget;
     protected boolean selfdOnNoFuel;
     protected boolean selfdOnProximityMiss;
 
@@ -83,7 +84,8 @@ public class Missile extends DrivenObject {
         setMaxHealth(0.02f);
         damage = 4f;
 
-        selfdOnTargetDestroyed = true;
+        selfdOnTargetDestroyed = false;
+        canRetarget = true;
         selfdOnNoFuel = false;
         selfdOnProximityMiss = false;
         aspectRatio = 1;
@@ -115,9 +117,8 @@ public class Missile extends DrivenObject {
 
         // EXPERIMENTAL RETARGETING
         if (target == null &&
-                (this.getClass() == Missile.class ||
-                        this.getClass() == FragMissile.class) &&
-                retargetCount < 10) {
+            canRetarget &&
+            retargetCount < Integer.MAX_VALUE) {
 
             retargetCount ++;
 
@@ -128,7 +129,10 @@ public class Missile extends DrivenObject {
             // leave only ENEMY_SHIP in targets;
             //ToDO: implement friend or foe radar recognition system
             // Or all will fire to enemy ships only
-            targets.removeIf(t -> !t.type.contains(ObjectType.SHIP) || t.readyToDispose || t == owner);
+            targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) /*&& !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)*/) ||
+                    t.readyToDispose ||
+                    t == this ||
+                    owner!=null && (t == owner || t.owner == owner));
 
 
 
@@ -245,9 +249,6 @@ public class Missile extends DrivenObject {
                 distToTarget < proximityMinDistance &&
                 distToCarrier > proximitySafeDistance) {
 
-
-
-
             float maxVel = proximityMinDistanceVel;
             pbu.guideGun(this, target, maxVel, dt);
 
@@ -276,6 +277,8 @@ public class Missile extends DrivenObject {
 
         if(target != null && !this.readyToDispose) {
 
+            throttle = maxThrottle;
+
             // Максимальное возможное ускорение ракеты своим движком
             float maxAcc = maxThrottle / mass;
 
@@ -292,12 +295,16 @@ public class Missile extends DrivenObject {
             // Самонаведение не сгидродоминировало, наводимся по прямой
             else {
                 // (только для больших ракет)
-                if (this.getClass() == Missile.class /*&& age < 10000*/ ) {
+                if (this.getClass() == NewtonMissile.class ) {
                     guideVector.set(target.pos).sub(pos).nor();
                     //System.out.println(this + "   " + age);
                 }
             }
         }
+        else {
+            throttle = 0;
+        }
+
     }
 
 /*

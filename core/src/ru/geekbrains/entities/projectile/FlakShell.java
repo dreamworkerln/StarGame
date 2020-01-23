@@ -14,6 +14,7 @@ public class FlakShell extends Shell {
     float explosionPower;
     long fragTTL;
     float fuseMultiplier;
+    boolean shapedExplosion;
 
     public FlakShell(float height, GameObject owner) {
         super(height, owner);
@@ -46,9 +47,12 @@ public class FlakShell extends Shell {
         fragTTL = 150;
         fuseMultiplier = 0.5f;
         explosionPower = 3;
+        shapedExplosion = true;
 
         damage = 0.5f;
         penetration = 0.1f;
+
+
 
 
     }
@@ -77,8 +81,17 @@ public class FlakShell extends Shell {
             double toAn;
 
 
-            fromAn = Math.PI/3;
-            toAn =   Math.PI/3;
+            if (shapedExplosion) {
+
+                fromAn = Math.PI / 3;
+                toAn = Math.PI / 3;
+            }
+            else {
+
+                fromAn = 0;
+                toAn = Math.PI * 2;
+
+            }
 
 
 
@@ -119,6 +132,11 @@ public class FlakShell extends Shell {
             frag.applyForce(tmp0);          // apply force applied to frag
 
             frag.setTTL(ThreadLocalRandom.current().nextLong(fragTTL,fragTTL + fragTTL/2));
+//            if (frag.isEmpOrdinance) {
+//                frag.setTTL(frag.getTTL()/4);
+//            }
+
+
             GameScreen.addObject(frag);
         }
 
