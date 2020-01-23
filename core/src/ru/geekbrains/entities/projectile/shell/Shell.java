@@ -1,12 +1,10 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.shell;
 
 import com.badlogic.gdx.graphics.Color;
 
-import java.util.concurrent.ThreadLocalRandom;
-
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.entities.projectile.Projectile;
 
 public class Shell extends Projectile {
 

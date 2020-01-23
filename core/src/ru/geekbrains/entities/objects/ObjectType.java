@@ -6,6 +6,7 @@ public enum ObjectType {
     DRIVEN_OBJECT,
     PROJECTILE,
     SHELL,
+    BLACKHOLE_SHELL,
     FLAK_SHELL,
     PLASMA_FLAK_SHELL,
     FRAG,
@@ -21,6 +22,6 @@ public enum ObjectType {
     FORCE_SHIELD,
     ENEMY_SHIP,
     PLAYER_SHIP,
-    PLANET,
+    PLANET, MISSILE_LAUNCHER, MISSILE_MINIGUN,
 
 }

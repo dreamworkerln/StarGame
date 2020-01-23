@@ -1,4 +1,4 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.missile;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -9,29 +9,52 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.shell.BlackHoleShell;
+import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
 import ru.geekbrains.screen.GameScreen;
 
 public class NewtonMissile extends Missile {
+
+    protected float newMaxThrottle;
+
     public NewtonMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
         this.type.add(ObjectType.GRAVITY_REPULSE_MISSILE);
 
-        engineTrail.color = new Color(0.6f, 0.6f, 0f, 1);
-        damage = 0.5f;
+        explosionColor = new Color(0.3f, 0.3f, 0.7f, 0.4f);
         explosionRadius = radius * 10;
+        engineTrail.color = Color.GREEN;
+
+
+        damage = 0.5f;
 
         setMass(0.1f);
-        setMaxThrottle(maxThrottle * 1.7f*2);
+        setMaxThrottle(6f);
         //maxRotationSpeed = 0.02f;
-        setMaxHealth(10*2);
-        //setMaxThrottle(3);
-        fuel = 1000;
+        setMaxHealth(20f);
+        fuel = 100;
 
         engineTrail.setRadius(2);
         damageBurnTrail.setRadius(5);
 
-        damage = 10;
+        damage = 10f;
+    }
+
+
+    @Override
+    public void update(float dt) {
+        super.update(dt);
+
+        if (health < maxHealth/4) {
+
+
+            damageBurnTrail.color = Color.RED;
+
+            throttle = maxThrottle / 2;
+
+        }
+
     }
 
     @Override
@@ -88,12 +111,12 @@ public class NewtonMissile extends Missile {
 
                 // Acceleration
 
-//                if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
-//                    throttle = maxThrottle;
-//                }
-//                else {
-//                    throttle = 0;
-//                }
+                if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
+                    throttle = maxThrottle;
+                }
+                else {
+                    throttle = 0;
+                }
 
             }
         }
@@ -107,31 +130,25 @@ public class NewtonMissile extends Missile {
     @Override
     public void dispose() {
 
-        List<GameObject> targets = GameScreen.getCloseObjects(this, 400);
-
-        targets.forEach(o -> {
-
-            tmp1.set(o.pos).sub(pos);
-            //tmp2.set(tmp1).nor().scl(o.getMass());
-            tmp2.set(tmp1).nor().scl(2500000f * o.getMass() * 1/tmp1.len());
-            if (ThreadLocalRandom.current().nextBoolean()) {
-                tmp2.scl(-1);
-            }
-
-            o.applyForce(tmp2);
-        });
-
 
         PlasmaFlakShell flakShell =  new PlasmaFlakShell(5, 1, Color.GOLD, null);
-        flakShell.fragCount = 50;
-        flakShell.shapedExplosion = false;
         flakShell.pos.set(pos);
         flakShell.vel.set(vel);
-        flakShell.readyToDispose = true;
+        flakShell.fragCount = 100;
+        flakShell.shapedExplosion = false;
         flakShell.isEmpOrdinance = true;
-
-
+        flakShell.explosionPower = 10;
+        flakShell.empDamage = 100;
+        flakShell.setTTL(1);
         GameScreen.addObject(flakShell);
+
+
+
+        BlackHoleShell shell =  new BlackHoleShell(10,  null);
+        shell.pos.set(pos);
+        shell.vel.set(vel);
+        GameScreen.addObject(shell);
+
 
         super.dispose();
     }

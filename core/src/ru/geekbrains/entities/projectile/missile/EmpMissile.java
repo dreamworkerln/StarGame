@@ -1,11 +1,10 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.missile;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.screen.GameScreen;
 
 public class EmpMissile extends Missile {
 
@@ -13,11 +12,17 @@ public class EmpMissile extends Missile {
         super(textureRegion, height, owner);
 
         this.type.add(ObjectType.EMP_MISSILE);
-        this.isEmpOrdinance = true;
 
 
         engineTrail.color = new Color(0.65f, 0.87f, 1, 1);
+        explosionColor = new Color(0.25f, 0.57f, 1, 1);
+
+        explosionRadius = radius * 4;
+
         damage = 0.5f;
+
+        isEmpOrdinance = true;
+        empDamage = 2000;
     }
 
 //    @Override

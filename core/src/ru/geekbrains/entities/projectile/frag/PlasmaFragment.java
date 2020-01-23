@@ -1,4 +1,4 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.frag;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -11,6 +11,10 @@ public class PlasmaFragment extends Fragment {
         super(height, owner);
     }
 
+    public PlasmaFragment(float height, float trailRadius, GameObject owner) {
+        super(height, trailRadius, Color.GOLD, owner);
+    }
+
     public PlasmaFragment(float height, float trailRadius, Color color, GameObject owner) {
         super(height, trailRadius, color, owner);
     }
@@ -21,6 +25,8 @@ public class PlasmaFragment extends Fragment {
         super.postConstruct();
 
         type.add(ObjectType.PLASMA_FRAG);
+
+        //color = Color.GOLD;
 
         explosionRadius = radius * 4;
 

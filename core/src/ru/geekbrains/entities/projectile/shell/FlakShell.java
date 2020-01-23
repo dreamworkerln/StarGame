@@ -1,4 +1,4 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.shell;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -6,15 +6,17 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.frag.Fragment;
+import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
 
 public class FlakShell extends Shell {
 
-    protected int fragCount;
-    float explosionPower;
+    public int fragCount;
+    public float explosionPower;
     long fragTTL;
     float fuseMultiplier;
-    boolean shapedExplosion;
+    public boolean shapedExplosion;
 
     public FlakShell(float height, GameObject owner) {
         super(height, owner);
@@ -24,7 +26,7 @@ public class FlakShell extends Shell {
         super(height,trailRadius, color, owner);
     }
 
-    protected  Projectile createFragment() {
+    protected Projectile createFragment() {
 
         return  new Fragment(2,  owner);
 
@@ -51,6 +53,7 @@ public class FlakShell extends Shell {
 
         damage = 0.5f;
         penetration = 0.1f;
+        color = Color.RED;
 
 
 

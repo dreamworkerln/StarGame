@@ -17,17 +17,13 @@ import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.PlayerShip;
-import ru.geekbrains.entities.projectile.EmpMissile;
-import ru.geekbrains.entities.projectile.FragMissile;
-import ru.geekbrains.entities.projectile.Missile;
+import ru.geekbrains.entities.projectile.missile.EmpMissile;
+import ru.geekbrains.entities.projectile.missile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.projectile.NewtonMissile;
-import ru.geekbrains.entities.projectile.Projectile;
+import ru.geekbrains.entities.projectile.missile.NewtonMissile;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
-
-import static ru.geekbrains.screen.GameScreen.getPlanet;
 
 public class MissileLauncher extends Gun {
 
@@ -72,6 +68,8 @@ public class MissileLauncher extends Gun {
     public MissileLauncher(float height, GameObject owner) {
 
         super(height, owner);
+
+        type.add(ObjectType.MISSILE_LAUNCHER);
 
         isModule = true;
 
@@ -384,9 +382,9 @@ public class MissileLauncher extends Gun {
 
         if (owner.getClass() == PlayerShip.class) {
 
-            //result = new Missile(new TextureRegion(missileTexture), 2, owner);
+            result = new Missile(new TextureRegion(missileTexture), 2, owner);
 
-            result =  new NewtonMissile(new TextureRegion(missileTexture), 5, owner);
+            //result =  new NewtonMissile(new TextureRegion(missileTexture), 5, owner);
 
             //result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
         }
@@ -394,7 +392,7 @@ public class MissileLauncher extends Gun {
             
             float rnd =  ThreadLocalRandom.current().nextFloat();
 
-            if (rnd >= 0.7){
+            if (rnd >= 0.5){
                 result = new EmpMissile(new TextureRegion(missileTexture), 2, owner);
             }
             else {

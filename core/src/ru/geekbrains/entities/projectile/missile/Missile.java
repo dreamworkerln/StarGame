@@ -1,4 +1,4 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.missile;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -78,8 +78,9 @@ public class Missile extends DrivenObject {
 
         boost = 300f;
 
-        maxThrottle = 4f;
-        throttle = maxThrottle;
+        explosionRadius = radius * 3;
+
+        setMaxThrottle(4f);
 
         setMaxHealth(0.02f);
         damage = 4f;
@@ -129,7 +130,7 @@ public class Missile extends DrivenObject {
             // leave only ENEMY_SHIP in targets;
             //ToDO: implement friend or foe radar recognition system
             // Or all will fire to enemy ships only
-            targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) /*&& !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)*/) ||
+            targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) ||
                     t.readyToDispose ||
                     t == this ||
                     owner!=null && (t == owner || t.owner == owner));
@@ -295,9 +296,8 @@ public class Missile extends DrivenObject {
             // Самонаведение не сгидродоминировало, наводимся по прямой
             else {
                 // (только для больших ракет)
-                if (this.getClass() == NewtonMissile.class ) {
+                if (this.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) ) {
                     guideVector.set(target.pos).sub(pos).nor();
-                    //System.out.println(this + "   " + age);
                 }
             }
         }

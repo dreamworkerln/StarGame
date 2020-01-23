@@ -1,5 +1,6 @@
 package ru.geekbrains.entities.objects;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
@@ -54,7 +55,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected float mass = 1;                          // mass
     //public float momentInertia = 1;               // moment of inertia
 
-    protected float explosionRadius;
+    public float explosionRadius;
 
 
     public boolean readyToDispose = false;            // object ready to dispose
@@ -67,10 +68,14 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected Vector2 tmp5 = new Vector2();           // buffer
     protected Vector2 tmp6 = new Vector2();           // buffer
 
+    public Color color = Color.WHITE;
+    public Color explosionColor = new Color(1f, 1f, 0.2f, 1);
+
     protected float health;                       // текущий запас прочности корпуса(health)
     protected float maxHealth = 0;               // максимальный запас прочности корпуса(health)
 
     public float damage = 0;
+    public float empDamage = 0;
 
 
 

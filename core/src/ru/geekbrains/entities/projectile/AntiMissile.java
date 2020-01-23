@@ -2,11 +2,9 @@ package ru.geekbrains.entities.projectile;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import java.util.List;
-
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.entities.projectile.missile.Missile;
 
 public class AntiMissile extends Missile {
 
@@ -16,6 +14,8 @@ public class AntiMissile extends Missile {
         super(textureRegion, height, owner);
 
         this.type.add(ObjectType.ANTIMISSILE);
+
+        explosionRadius = radius * 2;
 
         mass = 0.01f;
         fuel = 4f;

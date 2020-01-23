@@ -12,9 +12,9 @@ import java.util.TreeMap;
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.projectile.FlakShell;
-import ru.geekbrains.entities.projectile.PlasmaFlakShell;
 import ru.geekbrains.entities.projectile.Projectile;
+import ru.geekbrains.entities.projectile.shell.FlakShell;
+import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
 import ru.geekbrains.screen.GameScreen;
 
 public class FlakCannon extends Gun {
@@ -171,7 +171,7 @@ public class FlakCannon extends Gun {
         }
 
         //  предохранитель от самоподрыва
-        if (currentFuse > 0) {
+        if (currentFuse > 100) {
             result.setTTL(currentFuse);
         }
         else {

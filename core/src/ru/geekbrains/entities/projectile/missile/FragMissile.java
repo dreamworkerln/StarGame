@@ -1,18 +1,16 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.missile;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import ru.geekbrains.entities.equipment.BPU;
-import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.particles.SmokeTrail;
+import ru.geekbrains.entities.projectile.Projectile;
+import ru.geekbrains.entities.projectile.frag.Fragment;
+import ru.geekbrains.entities.projectile.frag.PlasmaFragment;
 import ru.geekbrains.screen.GameScreen;
 
 public class FragMissile extends Missile{
@@ -129,7 +127,7 @@ public class FragMissile extends Missile{
 
         float power = 10f;
 
-        Fragment trash = new Fragment(6f, 1.5f, new Color(0.3f, 0.7f, 0.3f, 1), owner);
+        ru.geekbrains.entities.projectile.frag.Fragment trash = new Fragment(6f, 1.5f, new Color(0.3f, 0.7f, 0.3f, 1), owner);
         trash.setMass(fragCount*trash.getMass()); // намного больше изначальной массы ракеты
         trash.pos.set(pos);
         trash.vel.set(vel);
@@ -143,7 +141,7 @@ public class FragMissile extends Missile{
         // create fragments
         for (int i = 0; i < fragCount; i++) {
 
-            Projectile frag = new PlasmaFragment(4f, 1,new Color(1f, 0.84f, 0f, 1f),  owner);
+            Projectile frag = new PlasmaFragment(4f, 1,  owner);
 
 
 

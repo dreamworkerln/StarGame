@@ -1,4 +1,4 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.shell;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -6,6 +6,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.frag.EmpFragment;
+import ru.geekbrains.entities.projectile.frag.Fragment;
+import ru.geekbrains.entities.projectile.frag.PlasmaFragment;
+import ru.geekbrains.entities.projectile.Projectile;
 
 public class PlasmaFlakShell extends FlakShell {
     public PlasmaFlakShell(float height, GameObject owner) {
@@ -25,23 +29,19 @@ public class PlasmaFlakShell extends FlakShell {
         fragCount = 6;
         fragTTL = 400;
         explosionPower = 5;
+        color = Color.GOLD;
     }
 
-    protected  Projectile createFragment() {
+    protected Projectile createFragment() {
 
-        PlasmaFragment result;
+       Fragment result;
 
-
-        boolean isEmp = false;
-        Color color = Color.GOLD;
-
-        if (isEmpOrdinance && ThreadLocalRandom.current().nextFloat() > 0.7) {
-            isEmp = true;
-            color = new Color(0.65f, 0.87f, 1, 1);
+        if (isEmpOrdinance && ThreadLocalRandom.current().nextFloat() > 0.5) {
+            result =  new EmpFragment(2, 0.3f,  owner);
         }
-
-        result =  new PlasmaFragment(2, 0.3f, color,  owner);
-        result.isEmpOrdinance = isEmp;
-        return  result;
+        else {
+            result =  new PlasmaFragment(2, 0.3f, owner);
+        }
+        return result;
     }
 }

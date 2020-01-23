@@ -28,12 +28,10 @@ public class ForceShield extends ParticleObject {
     public Set<GameObject> targetSet = new HashSet<>();
 
 
-    public float forceValue = 10000f*50f;
-
-    //public float forceValue = 30f;
+    public float forceValue = 10000f*20f;
 
     public float power;
-    public float maxPower = 1700*100f; // ~5 hits
+    public float maxPower = 1700f;
 
     public float powerIncrementDelta =  maxPower * 0.0000005f;
 

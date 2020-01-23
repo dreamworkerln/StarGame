@@ -8,9 +8,10 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.Projectile;
-import ru.geekbrains.entities.projectile.Shell;
 import ru.geekbrains.entities.particles.ParticleObject;
+import ru.geekbrains.entities.projectile.shell.Shell;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -49,6 +50,8 @@ public class Gun extends ParticleObject {
 
     public GameObject firingAmmoType;
     //protected Float maxProjectileVel = null;
+
+    protected boolean displayTargetingVector = false;
 
     protected BPU pbu = new BPU();
 
@@ -232,9 +235,9 @@ public class Gun extends ParticleObject {
             return;
         }
 
-        if (this.getClass() !=  Gun.class &&
-            this.getClass() !=  Minigun.class &&
-            this.getClass() !=  FlakCannon.class) {
+
+        // Ракетные установки без анимации
+        if(this.type.contains(ObjectType.MISSILE_LAUNCHER)) {
             return;
         }
 
@@ -254,7 +257,7 @@ public class Gun extends ParticleObject {
 //        shape.setColor(1f, 1f, 1f, 1);
 //        shape.circle(nozzlePos.x, nozzlePos.y, 3);
 
-        if (this.getClass() ==  Minigun.class) {
+        if (displayTargetingVector) {
 
             tmp0.set(pos).add(guideVector);
 
