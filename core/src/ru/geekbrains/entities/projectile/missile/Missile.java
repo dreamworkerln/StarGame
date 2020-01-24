@@ -26,6 +26,7 @@ public class Missile extends DrivenObject {
 
     //AimFunction af;
     protected boolean selfdOnTargetDestroyed;
+    protected boolean selfdOnNoTargetAvailable;
     protected boolean canRetarget;
     protected boolean selfdOnNoFuel;
     protected boolean selfdOnProximityMiss;
@@ -86,8 +87,9 @@ public class Missile extends DrivenObject {
         damage = 4f;
 
         selfdOnTargetDestroyed = false;
+        selfdOnNoTargetAvailable = true;
         canRetarget = true;
-        selfdOnNoFuel = false;
+        selfdOnNoFuel = true;
         selfdOnProximityMiss = false;
         aspectRatio = 1;
 
@@ -164,6 +166,13 @@ public class Missile extends DrivenObject {
                 target = targets.get(0);
 
             }
+        }
+
+        // END RETARGETING -------------------------
+
+        // self -d no targets available
+        if (selfdOnNoTargetAvailable && target == null) {
+            readyToDispose = true;
         }
 
 

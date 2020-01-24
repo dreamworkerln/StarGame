@@ -60,7 +60,7 @@ public class PlayerShip extends Ship {
 
         flakCannon = new FlakCannon(10, this);
 
-        maxThrottle = 70f;
+        maxThrottle = 80f;
 
         //launcher.fireRate = 0.02f;
 

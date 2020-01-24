@@ -13,7 +13,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import ru.geekbrains.entities.equipment.BPU;
-import ru.geekbrains.entities.projectile.AntiMissile;
+import ru.geekbrains.entities.projectile.missile.AntiMissile;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.GameScreen;
@@ -246,7 +246,10 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         targets.removeIf(o ->
                 o.readyToDispose || o == owner || o.owner == owner ||
-                (!o.type.contains(ObjectType.MISSILE)/* && !o.type.contains(ObjectType.SHIP)*/));
+                (!o.type.contains(ObjectType.MISSILE)/* && !o.type.contains(ObjectType.SHIP)*/) ||
+                        o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)
+
+        );
 
         for (GameObject trg : targets) {
 

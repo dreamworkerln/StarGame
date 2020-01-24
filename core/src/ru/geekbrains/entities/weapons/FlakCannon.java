@@ -46,11 +46,11 @@ public class FlakCannon extends Gun {
         gunHeatingDelta = 30;
         coolingGunDelta = 2;
         maxGunHeat = 100;
-        power = 300;
+        power = 150;
         maxBlastRadius = 5;
 
-        maxRange = 1400f;
-        maxImpactTime = 4f;
+        maxRange = 1500f;
+        maxImpactTime = 5f;
 
         maxRotationSpeed = 0.1f;
 
@@ -73,7 +73,7 @@ public class FlakCannon extends Gun {
             targetList = GameScreen.getCloseObjects(owner, maxRange);
 
             targetList.removeIf( o -> o == owner || o.owner == owner || o.readyToDispose ||
-                                 !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP)
+                                 /*!o.type.contains(ObjectType.MISSILE) &&*/!o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHIP)
 
             );
 

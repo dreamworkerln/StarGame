@@ -22,16 +22,18 @@ public class NewtonMissile extends Missile {
 
         this.type.add(ObjectType.GRAVITY_REPULSE_MISSILE);
 
+        selfdOnNoTargetAvailable = false;
+
         explosionColor = new Color(0.3f, 0.3f, 0.7f, 0.4f);
         explosionRadius = radius * 10;
         engineTrail.color = Color.GREEN;
 
+        armour = 1;
 
         damage = 0.5f;
 
         setMass(0.1f);
         setMaxThrottle(6f);
-        //maxRotationSpeed = 0.02f;
         setMaxHealth(20f);
         fuel = 100;
 
@@ -88,7 +90,7 @@ public class NewtonMissile extends Missile {
 
             // Если минимальное сближение меньше диаметра планеты и время сближения (меньше n)
             if (minConvergence < 2 *planet.radius &&
-                    impactTime < 5 * (vel.len()/40f) &&      //6
+                    impactTime < 6 * (vel.len()/40f) &&      //6
                     distToPlanet  < 400f + planet.radius) {
                 //distToPlanet  < 40f + planet.radius) {
 
@@ -134,7 +136,7 @@ public class NewtonMissile extends Missile {
         PlasmaFlakShell flakShell =  new PlasmaFlakShell(5, 1, Color.GOLD, null);
         flakShell.pos.set(pos);
         flakShell.vel.set(vel);
-        flakShell.fragCount = 100;
+        flakShell.fragCount = 50;
         flakShell.shapedExplosion = false;
         flakShell.isEmpOrdinance = true;
         flakShell.explosionPower = 10;

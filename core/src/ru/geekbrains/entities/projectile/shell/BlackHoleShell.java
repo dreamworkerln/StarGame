@@ -49,11 +49,27 @@ public class BlackHoleShell extends Shell {
     public void update(float dt) {
         super.update(dt);
 
-        if(age < 50) {
-            return;
-        }
 
         List<GameObject> targets = GameScreen.getCloseObjects(this, 400);
+
+
+        if(age < 10) {
+            targets.forEach(o -> {
+
+                if (o == this) return;
+
+
+                if (o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+
+                    tmp1.set(o.pos).sub(pos);
+                    if (tmp1.len() < 1) {
+                        tmp1.setLength(1f);
+                    }
+                    tmp2.set(tmp1).nor().scl(130000f * o.getMass() * 1 / tmp1.len());
+                    o.applyForce(tmp2);
+                }
+            });
+        }
 
 
 
@@ -66,13 +82,24 @@ public class BlackHoleShell extends Shell {
                 if (o == this) return;
 
                 tmp1.set(o.pos).sub(pos);
+
+                if (tmp1.len() < 1) {
+                    tmp1.setLength(1f);
+                }
+
                 //tmp2.set(tmp1).nor().scl(o.getMass());
                 tmp2.set(tmp1).nor().scl(-100000f * o.getMass() * 1 / tmp1.len());
+
+
+                
                 o.applyForce(tmp2);
 
                 tmp3.set(o.pos).sub(pos);
                 tmp4.set(tmp3).rotateRad(clockwise).nor().scl((float) Math.sqrt(tmp3.len()) * 0.03f);   //tmp4.set(tmp3).rotateRad((float) Math.PI / 2f).nor().scl((float) Math.sqrt(tmp3.len()) * 0.04f);
                 o.applyForce(tmp4);
+
+                float angle = (float) ((float) Math.sqrt((1/tmp1.len())*5)*clockwise/Math.PI);
+                o.dir.rotateRad(angle);
 
 
             });

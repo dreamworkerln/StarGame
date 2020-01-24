@@ -15,7 +15,7 @@ public class EmpMissile extends Missile {
 
 
         engineTrail.color = new Color(0.65f, 0.87f, 1, 1);
-        explosionColor = new Color(0.25f, 0.57f, 1, 1);
+        explosionColor = new Color(0.65f, 0.87f, 1, 0.5f);//new Color(0.25f, 0.57f, 1, 0.5f);
 
         explosionRadius = radius * 4;
 

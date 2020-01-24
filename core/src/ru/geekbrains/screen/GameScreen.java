@@ -273,19 +273,24 @@ public class GameScreen extends BaseScreen {
             enemyShipsToSpawn += ENEMIES_COUNT_IN_WAVE;
         }
 
-        if (enemyShipsToSpawn> 0)  {
+        if (enemyShipsToSpawn > 0)  {
             spawnEnemyShip();
         }
 
-        if (getTick() >= 0 &&
-            getTick() % 2000 == 0) {
+        if (getTick() > 0 &&
+                getTick() % 3000 == 0) {
 
-            Missile missile = new NewtonMissile(new TextureRegion(missileTexture), 6, playerShip);
+            Missile missile = new NewtonMissile(new TextureRegion(missileTexture), 7, playerShip);
             missile.pos.set(worldBounds.getHalfWidth() * aspect, worldBounds.getHalfHeight());
             missile.engineTrail.color = new Color(0.6f, 0.6f, 0.8f, 1);
-            //missile.setMaxHealth(missile.getMaxHealth()*2);
+            missile.setMaxHealth(missile.getMaxHealth()*3);
             missile.setMaxThrottle(missile.throttle*1.5f);
+            missile.maxRotationSpeed *= 2;
+
             addObject(missile);
+
+            Message msg = new Message("Reinforcements have arrived.", 0);
+            particleObjects.add(msg);
         }
 
 
@@ -391,7 +396,7 @@ public class GameScreen extends BaseScreen {
         for (GameObject obj : gameObjects) {
             // removing player ship
             if (!obj.readyToDispose &&
-                    obj.pos.len() > GameScreen.INSTANCE.worldBounds.getWidth()*3) {
+                    obj.pos.len() > GameScreen.INSTANCE.worldBounds.getWidth()*2) {
 
                 obj.readyToDispose = true;
             }
@@ -1013,7 +1018,7 @@ public class GameScreen extends BaseScreen {
 
             enemyShipsToSpawn--;
 
-            if (ThreadLocalRandom.current().nextFloat() > 0.99) {
+            if (ThreadLocalRandom.current().nextFloat() > 0.8) {
 
                 //new NewtonMissile(new TextureRegion(missileTexture), 5, null);
 
@@ -1021,6 +1026,7 @@ public class GameScreen extends BaseScreen {
                 Missile missile = new NewtonMissile(new TextureRegion(missileTexture), 6, null);
                 missile.pos = tmp1.cpy();
                 missile.target = playerShip;
+                missile.maxRotationSpeed *= 1.5f;
                 addObject(missile);
 
             }
@@ -1062,38 +1068,61 @@ public class GameScreen extends BaseScreen {
 
                 if (ship.target == null) {
 
-                    int cnt = 0;
-                    do {
+                    List<GameObject> targets = GameScreen.getCloseObjects(ship, 2000);
 
-                        GameObject tmp;
+                    targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) ||
+                            t.readyToDispose ||
+                            t == ship ||
+                            t.owner !=null && t.owner == ship);
 
-                        int rnd = MathUtils.random(0, hittableObjects.size() - 1);
-                        tmp = hittableObjects.get(rnd);
-
-
-                        if (!tmp.readyToDispose &&
-                                tmp != planet &&
-                                tmp != ship && // self
-                                tmp.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
-
-                            ship.target = tmp;
-                        }
-
-                        // Switch target to player ship only
-                        if (playerShip != null && !playerShip.readyToDispose &&
-
-                                !ship.target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) &&
-                                ship.target.owner != null &&
-                                ship.target.owner !=playerShip) {
-
-                            ship.target = playerShip;
-                        }
-
-
-                        if (cnt++ >= 100)
-                            break;
+                    if(targets.size() > 0) {
+                        ship.target = targets.get(0);
                     }
-                    while (ship.target == null);
+
+                    // Switch target to player ship only
+                    if (playerShip != null && !playerShip.readyToDispose && ship.target!= null && (
+
+                             ship.target.type.contains(ObjectType.ENEMY_SHIP) ||
+
+                            ship.target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && ship.target.owner == null)) {
+
+                        ship.target = playerShip;
+                    }
+
+
+
+//                    int cnt = 0;
+//                    do {
+//
+//                        GameObject tmp;
+//
+//                        int rnd = MathUtils.random(0, hittableObjects.size() - 1);
+//                        tmp = hittableObjects.get(rnd);
+//
+//
+//                        if (!tmp.readyToDispose &&
+//                                tmp != planet &&
+//                                tmp != ship && // self
+//                                tmp.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+//
+//                            ship.target = tmp;
+//                        }
+//
+//                        // Switch target to player ship only
+//                        if (playerShip != null && !playerShip.readyToDispose &&
+//
+//                                !ship.target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) &&
+//                                ship.target.owner != null &&
+//                                ship.target.owner !=playerShip) {
+//
+//                            ship.target = playerShip;
+//                        }
+//
+//
+//                        if (cnt++ >= 100)
+//                            break;
+//                    }
+//                    while (ship.target == null);
 
                 }
             }

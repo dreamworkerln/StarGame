@@ -1,4 +1,4 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.missile;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -57,14 +57,14 @@ public class AntiMissile extends Missile {
 
 
             // включаем режим маневрирования маневровыми движками
-            if (pbu.guideResult.impactTime < 0.5f) {
+            if (pbu.guideResult.impactTime < 0.6f) {
 //                // angle between direction and guideVector
 //                float guideAngle = dir.angleRad(guideVector);
 //                float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
 
 
                 maxRotationSpeed = (float) (2 * Math.PI);
-                throttle = maxThrottle/4;
+                throttle = maxThrottle/6;
 
 
 

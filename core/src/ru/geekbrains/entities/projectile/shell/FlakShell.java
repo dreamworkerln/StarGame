@@ -40,7 +40,7 @@ public class FlakShell extends Shell {
 
         type.add(ObjectType.FLAK_SHELL);
 
-        mass = 0.02f;
+        mass = 0.01f;
         //mass = 1;
         explosionRadius = radius * 6;
 
@@ -115,6 +115,12 @@ public class FlakShell extends Shell {
             float fi;
 
             try {
+
+
+
+                //System.out.println("dir: " + dir);
+                //System.out.println("fi_min: " + fi_min + "fi_max: " + fi_max);
+                
 
                 fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
             }

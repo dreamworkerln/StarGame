@@ -30,7 +30,7 @@ public class EmpFragment extends Fragment{
 
         explosionRadius = radius * 4;
         //color = new Color(0.25f, 0.57f, 1, 1);
-        explosionColor = new Color(0.25f, 0.57f, 1, 1);
+        explosionColor = new Color(0.65f, 0.87f, 1, 0.5f);// new Color(0.25f, 0.57f, 1, 0.5f);
 
         penetration = 0.1f;
         damage = 0.5f;

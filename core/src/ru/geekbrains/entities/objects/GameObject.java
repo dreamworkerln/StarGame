@@ -242,6 +242,14 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     public void draw(Renderer renderer) {
 
+        // Do not draw out of screen
+        float dx = GameScreen.INSTANCE.worldBounds.getHalfWidth()* GameScreen.INSTANCE.aspect;
+        float dy = GameScreen.INSTANCE.worldBounds.getHalfHeight();
+
+        if(Math.abs(pos.x) >  dx + dx * 0.3 || Math.abs(pos.y) >  dy + dy * 0.3) {
+            return;
+        }
+
         if (renderer.rendererType == RendererType.TEXTURE &&
             rendererType.contains(RendererType.TEXTURE)) {
             
