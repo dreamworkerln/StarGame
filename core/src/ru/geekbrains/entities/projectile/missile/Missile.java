@@ -67,7 +67,11 @@ public class Missile extends DrivenObject {
     public Missile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
-        this.type.add(ObjectType.MISSILE);
+        type.add(ObjectType.MISSILE);
+
+        if (this.getClass() == Missile.class) {
+            type.add(ObjectType.BASIC_MISSILE);
+        }
 
 
         setRadius(radius * 5); // fix issued by image aspect ratio
@@ -75,7 +79,7 @@ public class Missile extends DrivenObject {
 
         mass = 0.04f;
         //maxRotationSpeed = 0.02f;
-        fuel = 12;
+        fuel = 15;
 
         boost = 300f;
 
@@ -84,7 +88,7 @@ public class Missile extends DrivenObject {
         setMaxThrottle(4f);
 
         setMaxHealth(0.02f);
-        damage = 4f;
+        damage = 5f;
 
         selfdOnTargetDestroyed = false;
         selfdOnNoTargetAvailable = true;

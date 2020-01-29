@@ -26,7 +26,7 @@ public class PlasmaFlakShell extends FlakShell {
         super.postConstruct();
 
         type.add(ObjectType.PLASMA_FLAK_SHELL);
-        fragCount = 6;
+        fragCount = 8;
         fragTTL = 400;
         explosionPower = 5;
         color = Color.GOLD;

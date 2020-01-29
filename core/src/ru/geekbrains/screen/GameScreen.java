@@ -1018,7 +1018,7 @@ public class GameScreen extends BaseScreen {
 
             enemyShipsToSpawn--;
 
-            if (ThreadLocalRandom.current().nextFloat() > 0.8) {
+            if (ThreadLocalRandom.current().nextFloat() > 0.7) {
 
                 //new NewtonMissile(new TextureRegion(missileTexture), 5, null);
 

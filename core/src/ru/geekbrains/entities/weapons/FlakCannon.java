@@ -6,8 +6,11 @@ import com.badlogic.gdx.graphics.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
@@ -19,17 +22,26 @@ import ru.geekbrains.screen.GameScreen;
 
 public class FlakCannon extends Gun {
 
+    private static Sound cannonFire;
+
     float maxRange;
     float maxImpactTime;
 
     ShellType shellType;
 
-    private static Sound cannonFire;
+    FiringMode firingMode;
+    FiringMode firingModeOld;
+
+    protected float oldFireRate;
+
+
 
     // Цели, отсортированные по времени попадания в корабль
     private NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
 
     private List<GameObject> targetList = new ArrayList<>();
+
+    private List<GameObject> missilesList = new ArrayList<>();
 
     private long currentFuse = 1;
 
@@ -54,9 +66,33 @@ public class FlakCannon extends Gun {
 
         maxRotationSpeed = 0.1f;
 
+        firingMode = FiringMode.AUTOMATIC;
+        firingModeOld = FiringMode.AUTOMATIC;
+
         //maxRotationSpeed = 1f;
 
+        oldFireRate = fireRate;
+
     }
+
+
+    public void setFiringMode(FiringMode firingMode) {
+        this.firingMode = firingMode;
+        firingModeOld = firingMode;
+    }
+
+    public FiringMode getFiringMode() {
+        return firingMode;
+    }
+
+
+
+
+
+
+
+
+
 
     @Override
     public void update(float dt) {
@@ -72,10 +108,45 @@ public class FlakCannon extends Gun {
 
             targetList = GameScreen.getCloseObjects(owner, maxRange);
 
-            targetList.removeIf( o -> o == owner || o.owner == owner || o.readyToDispose ||
-                                 /*!o.type.contains(ObjectType.MISSILE) &&*/!o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHIP)
+            // leave only ships and missiles
+            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose ||
+                !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
 
-            );
+
+//            // Определение скопление целей (ракет) в одной точке - если есть - стрелять только туда
+//
+//            for(GameObject o : targetList) {
+//
+//                if(o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+//
+//                    missilesList = GameScreen.getCloseObjects(o, 100);
+//
+//                    // collect only missiles nearby my missile
+//                    missilesList.removeIf( g -> g == owner || g.owner == owner || g.readyToDispose);
+//
+//                    missilesList = missilesList.stream().filter(g -> g.type.contains(ObjectType.MISSILE) &&
+//                        !g.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)).collect(Collectors.toList());
+//
+//                    if (missilesList.size() >=2) {
+//
+//                        targetList.clear();
+//                        targetList.add(o);
+//                        break;
+//                    }
+//
+//                }
+//            }
+
+
+
+            targetList = targetList.stream().filter(o ->
+
+                o.type.contains(ObjectType.BASIC_MISSILE) && (firingMode == FiringMode.AUTOMATIC || firingMode == FiringMode.FLAK_ONLY) ||
+
+                    (o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) || o.type.contains(ObjectType.SHIP))
+                        && (firingMode == FiringMode.AUTOMATIC || firingMode == FiringMode.PLASMA_ONLY)
+
+            ).collect(Collectors.toList());
 
 
             for (GameObject o : targetList) {
@@ -101,12 +172,90 @@ public class FlakCannon extends Gun {
         guideVector.setZero();
         currentFuse = 0;
 
+
+
+
+
+        // Если много входящих ракет - стреляем только по ракетам
+
+        if (impactTimes.size() > 0) {
+
+            AtomicInteger missileCount = new AtomicInteger();
+
+            for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
+
+                GameObject o = entry.getValue().target;
+
+                tmp1.set(o.pos).sub(pos);
+
+                if (entry.getValue().impactTime < maxImpactTime/2f &&
+                    o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+
+                    missileCount.incrementAndGet();
+                }
+
+            }
+
+            if (missileCount.get() >= 4) {
+                firingMode = FiringMode.FLAK_ONLY;
+            } else {
+                firingMode = firingModeOld;
+            }
+        }
+
+
+        // Определение скопление целей (ракет) в одной точке - если есть - стрелять только туда
+
+        if (impactTimes.size() > 0) {
+
+            boolean groupMissilesFound = false;
+            for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
+
+                GameObject o = entry.getValue().target;
+
+                if (o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+
+                    missilesList = GameScreen.getCloseObjects(o, 150);
+
+                    // collect only missiles nearby my missile
+                    missilesList.removeIf(g -> g == owner || g.owner == owner || g.readyToDispose);
+
+                    missilesList = missilesList.stream().filter(g -> g.type.contains(ObjectType.MISSILE) &&
+                        !g.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)).collect(Collectors.toList());
+
+                    if (missilesList.size() >= 2) {
+
+                        groupMissilesFound = true;
+                        impactTimes.clear();
+                        impactTimes.put(entry.getKey(), entry.getValue());
+                        break;
+                    }
+
+                }
+
+            }
+
+            //  убрать все маленькие ракеты
+            if (!groupMissilesFound && firingMode != FiringMode.FLAK_ONLY) {
+
+                impactTimes.entrySet().removeIf(ge -> ge.getValue().target.type.contains(ObjectType.MISSILE) &&
+                    !ge.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE));
+            }
+        }
+
+//        impactTimes.entrySet().removeIf(fg ->
+//
+//            (fg.getValue().target.type.contains(ObjectType.SHIP) || fg.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) &&
+//                fg.getKey() > 5
+//        );
+
+
         if(impactTimes.size() > 0) {
 
             float fuseMultiplier = 0.5f;
-
-
             BPU.GuideResult gRes = impactTimes.firstEntry().getValue();
+
+
             target = gRes.target;
             guideVector.set(gRes.guideVector);
 
@@ -115,14 +264,23 @@ public class FlakCannon extends Gun {
             }
             else {
                 shellType = ShellType.FRAG;
+                fuseMultiplier = 0.5f;
             }
+
+            if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+
+                fuseMultiplier = 1f;
+            }
+
+
+
             currentFuse = (long) (gRes.impactTime * 1/dt * fuseMultiplier);
         }
 
 
         // Auto fire control
         if (target != null && !target.readyToDispose &&
-                Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
+            Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
 
             startFire();
 
@@ -165,17 +323,22 @@ public class FlakCannon extends Gun {
         if (shellType== ShellType.FRAG) {
 
             result = new FlakShell(calibre, 1, Color.RED, owner);
+
+            //fireRate = oldFireRate*1.5f;
+            //gunHeat = 0;
+
         }
         else {
             result = new PlasmaFlakShell(calibre, 1, Color.GOLD, owner);
+            //fireRate = oldFireRate;
         }
 
         //  предохранитель от самоподрыва
-        if (currentFuse > 100) {
+        if (currentFuse > 10) {
             result.setTTL(currentFuse);
         }
         else {
-            result.setTTL(100);
+            result.setTTL(10);
         }
 
         return result;
@@ -199,6 +362,18 @@ public class FlakCannon extends Gun {
         ShellType(Class type) {
             this.type = type;
         }
+    }
+
+
+
+
+
+
+    public enum FiringMode {
+
+        FLAK_ONLY,
+        PLASMA_ONLY,
+        AUTOMATIC;
     }
 
 

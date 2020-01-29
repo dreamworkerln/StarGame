@@ -15,7 +15,9 @@ import ru.geekbrains.screen.GameScreen;
 
 public class NewtonMissile extends Missile {
 
-    protected float newMaxThrottle;
+
+
+    public int fragCount;
 
     public NewtonMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
@@ -41,6 +43,8 @@ public class NewtonMissile extends Missile {
         damageBurnTrail.setRadius(5);
 
         damage = 10f;
+
+        fragCount = 100;
     }
 
 
@@ -136,7 +140,7 @@ public class NewtonMissile extends Missile {
         PlasmaFlakShell flakShell =  new PlasmaFlakShell(5, 1, Color.GOLD, null);
         flakShell.pos.set(pos);
         flakShell.vel.set(vel);
-        flakShell.fragCount = 50;
+        flakShell.fragCount = fragCount;
         flakShell.shapedExplosion = false;
         flakShell.isEmpOrdinance = true;
         flakShell.explosionPower = 10;

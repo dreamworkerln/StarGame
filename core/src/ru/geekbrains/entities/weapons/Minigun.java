@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DummyObject;
@@ -55,7 +54,7 @@ public class Minigun extends Gun {
 
         super(height, owner);
 
-        type.add(ObjectType.MISSILE_MINIGUN);
+        type.add(ObjectType.MINIGUN);
 
         isModule = true;
 

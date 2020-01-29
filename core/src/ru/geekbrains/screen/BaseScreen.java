@@ -141,9 +141,13 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
+
         //System.out.println("keyDown keycode = " + keycode);
 
+
         switch (keycode) {
+
+
 
             case 51:
                 KeyDown.W = true;
@@ -175,6 +179,20 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
             case 131:
                 dispose();
+                break;
+
+            case 34:
+                KeyDown.F = true;
+
+                KeyToggle.F = true;
+                KeyToggle.G = false;
+                break;
+
+            case 35:
+                KeyDown.G = true;
+
+                KeyToggle.F = false;
+                KeyToggle.G = true;
                 break;
         }
 
@@ -214,6 +232,14 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
             case 129:
                 KeyDown.CTRL = false;
+                break;
+
+            case 54:
+                KeyDown.F = false;
+                break;
+
+            case 35:
+                KeyDown.G = false;
                 break;
 
         }
@@ -307,7 +333,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
     public boolean mouseMoved(int screenX, int screenY) {
 
         if (screenX != oldScreenX ||
-            screenY != oldScreenY) {
+                screenY != oldScreenY) {
 
             touch.set(screenX, screenY, 1).mul(screenToWorld);
             target.set(touch.x, touch.y);

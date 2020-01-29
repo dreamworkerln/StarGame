@@ -17,6 +17,7 @@ import ru.geekbrains.entities.weapons.FlakCannon;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.KeyDown;
+import ru.geekbrains.screen.KeyToggle;
 import ru.geekbrains.screen.Renderer;
 
 public class PlayerShip extends Ship {
@@ -152,6 +153,15 @@ public class PlayerShip extends Ship {
 
             KeyDown.SCROLLED = 0;
         }
+
+        if (KeyToggle.F) {
+            flakCannon.setFiringMode(FlakCannon.FiringMode.FLAK_ONLY);
+        }
+        if (KeyToggle.G)  {
+            flakCannon.setFiringMode(FlakCannon.FiringMode.AUTOMATIC);
+        }
+
+        //System.out.println(flakCannon.getFiringMode());
 
     }
 

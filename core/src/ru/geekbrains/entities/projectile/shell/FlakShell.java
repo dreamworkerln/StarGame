@@ -45,10 +45,10 @@ public class FlakShell extends Shell {
         explosionRadius = radius * 6;
 
         setMaxHealth(2.1f);
-        fragCount = 100;
-        fragTTL = 150;
+        fragCount = 200;
+        fragTTL = 100;
         fuseMultiplier = 0.5f;
-        explosionPower = 3;
+        explosionPower = 4;
         shapedExplosion = true;
 
         damage = 0.5f;

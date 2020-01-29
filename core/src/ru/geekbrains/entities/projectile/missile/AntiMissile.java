@@ -57,14 +57,14 @@ public class AntiMissile extends Missile {
 
 
             // включаем режим маневрирования маневровыми движками
-            if (pbu.guideResult.impactTime < 0.6f) {
+            if (pbu.guideResult.impactTime < 0.4f) {
 //                // angle between direction and guideVector
 //                float guideAngle = dir.angleRad(guideVector);
 //                float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
 
 
                 maxRotationSpeed = (float) (2 * Math.PI);
-                throttle = maxThrottle/6;
+                throttle = maxThrottle/5;
 
 
 

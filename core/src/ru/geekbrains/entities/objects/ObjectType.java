@@ -14,7 +14,8 @@ public enum ObjectType {
     EMP_FRAG,
     BULLET,
     SHIP,
-    MISSILE,
+    MISSILE, // base type
+    BASIC_MISSILE,
     EMP_MISSILE,
     GRAVITY_REPULSE_MISSILE,
     ANTIMISSILE,
@@ -22,6 +23,8 @@ public enum ObjectType {
     FORCE_SHIELD,
     ENEMY_SHIP,
     PLAYER_SHIP,
-    PLANET, MISSILE_LAUNCHER, MISSILE_MINIGUN,
+    PLANET,
+    MISSILE_LAUNCHER,
+    MINIGUN,
 
 }

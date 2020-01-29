@@ -174,7 +174,7 @@ public class MissileLauncher extends Gun {
             }
         }
 
-        return  result;
+        return result;
     }
 
 
@@ -214,7 +214,7 @@ public class MissileLauncher extends Gun {
         tmp1.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
                 .rotate(-90*sideLaunch).add(owner.pos);
 
-        if (targetList.size() >=  2 && lounchCnt < 2) {
+        if (targetList.size() >= 2 && lounchCnt < 2) {
 
             tmp2.set(targetList.get(0).pos).sub(tmp0);
             tmp3.set(targetList.get(1).pos).sub(tmp0);
@@ -244,15 +244,6 @@ public class MissileLauncher extends Gun {
             target = targetList.get(0);
             targetSet.add(target);
         }
-
-
-
-
-
-
-
-
-
 
 //        if (tmp3.len() < tmp2.len()) {
 //            tmp0 = tmp1;
@@ -320,6 +311,7 @@ public class MissileLauncher extends Gun {
 
                 // Рисуем перекрестье на цели
                 if (o != null && !o.readyToDispose) {
+
 
                     ShapeRenderer shape = renderer.shape;
 
