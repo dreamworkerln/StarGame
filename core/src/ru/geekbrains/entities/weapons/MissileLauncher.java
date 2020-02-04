@@ -49,7 +49,7 @@ public class MissileLauncher extends Gun {
 
     public GameObject target = null;
 
-    private Set<GameObject> targetSet = new HashSet<>();
+    private List<GameObject> targetFiring = new ArrayList<>();
     private List<GameObject> targetList = new ArrayList<>();
     private int lounchCnt = 0;
 
@@ -162,7 +162,7 @@ public class MissileLauncher extends Gun {
 
             for (GameObject o : targets) {
 
-                if (!targetSet.contains(o)) {
+                if (!targetFiring.contains(o)) {
 
                     //target = o;
                     result.add(o);
@@ -190,10 +190,8 @@ public class MissileLauncher extends Gun {
                 this.getClass() ==  MissileLauncher.class) {
 
 
-
-            if (lounchCnt >= sideLaunchCount) {
-                //targetList.clear();
-                targetSet.clear();
+           if (lounchCnt >= sideLaunchCount) {
+                targetFiring.clear();
                 lounchCnt = 0;
             }
 
@@ -202,6 +200,32 @@ public class MissileLauncher extends Gun {
                 return;
             }
             lounchCnt++;
+
+
+
+            // треш-алгоритмы. targetSet, targetList, навен еще нужен к-то targetMap, targetSet и targetDeQueue
+            if (targetFiring.size() > 0 &&
+                targetFiring.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+
+                targetList.clear();
+                target = targetFiring.get(0);
+            }
+
+            if (targetList.size() >= 2) {
+
+                if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+                    targetList.remove(1);
+                }
+            }
+
+
+            if(targetFiring.size() == 0) {
+
+                for (GameObject o : targetList) {
+                    targetFiring.add(o);
+                }
+            }
+
         }
 
 
@@ -213,6 +237,11 @@ public class MissileLauncher extends Gun {
 
         tmp1.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
                 .rotate(-90*sideLaunch).add(owner.pos);
+
+
+
+
+
 
         if (targetList.size() >= 2 && lounchCnt < 2) {
 
@@ -237,18 +266,21 @@ public class MissileLauncher extends Gun {
             else {
                 target = targetList.get(1);
             }
-            targetSet.add(target);
+
+
+            target = targetList.get(0);
 
         }
         else if (targetList.size() > 0) {
             target = targetList.get(0);
-            targetSet.add(target);
         }
 
 //        if (tmp3.len() < tmp2.len()) {
 //            tmp0 = tmp1;
 //            sideLaunch2 = -1;
 //        }
+
+        // Fire both missiles to gravity torpedo
 
 
         missile.pos.set(tmp0);
@@ -307,7 +339,7 @@ public class MissileLauncher extends Gun {
                 this.owner.getClass() == PlayerShip.class) {
 
 
-            for (GameObject o : targetSet) {
+            for (GameObject o : targetFiring) {
 
                 // Рисуем перекрестье на цели
                 if (o != null && !o.readyToDispose) {
