@@ -50,7 +50,7 @@ public class BlackHoleShell extends Shell {
         super.update(dt);
 
 
-        List<GameObject> targets = GameScreen.getCloseObjects(this, 400);
+        List<GameObject> targets = GameScreen.getCloseObjects(this, 350);
 
 
         if(age < 10) {

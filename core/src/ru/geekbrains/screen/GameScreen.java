@@ -278,7 +278,7 @@ public class GameScreen extends BaseScreen {
         }
 
         if (getTick() > 0 &&
-                getTick() % 3000 == 0) {
+                getTick() % 4000 == 0) {
 
             Missile missile = new NewtonMissile(new TextureRegion(missileTexture), 7, playerShip);
             missile.pos.set(worldBounds.getHalfWidth() * aspect, worldBounds.getHalfHeight());
@@ -1018,7 +1018,7 @@ public class GameScreen extends BaseScreen {
 
             enemyShipsToSpawn--;
 
-            if (ThreadLocalRandom.current().nextFloat() > 0.7) {
+            if (ThreadLocalRandom.current().nextFloat() > 0.8) {
 
                 //new NewtonMissile(new TextureRegion(missileTexture), 5, null);
 
