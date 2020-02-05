@@ -161,7 +161,7 @@ public class GameScreen extends BaseScreen {
         }
 
 
-        quadTree = new QuadTree<>(-6000,-6000,6000,6000);
+        quadTree = new QuadTree<>(-8000,-8000,8000,8000);
 
         background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
         background.setHeightAndResize(BACKGROUND_SIZE);
