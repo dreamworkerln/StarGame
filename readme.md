@@ -1,3 +1,5 @@
+# StarGame - gravity game, CIWS simulator
+
 ![alt text](https://i.ibb.co/mqDpWS4/StarGame.png)
 
 download release from  
@@ -35,17 +37,18 @@ Doesn’t shoot at your missiles, but can unintentionally shoot them down.
 (So launch missiles safely)  
   
 Anti-missile system also help against inbound missiles on long range.  
-Doesn’t shoot at your missiles, but can unintentionally shoot them down.
+Doesn’t shoot at your missiles, but can unintentionally shoot them down.  
   
 AA cannon fire fragmentation shell on inbound missiles and fragmentation plasma shell on enemy ships.  
+(Experimental F - stop firing at incoming kinetic kill vehicle, G - resume)  
   
 Force shield can repulse many (~7) tangent hit, very many chase hit or ~2-3 direct hit  
 (fired from enemy ship flying towards you) by shell.  
 It's slowly regenerating to full charge, changing self colour.
 Also it repulse missiles (~1) but ineffective on counter course inbound.  
-
+  
 Green curve - you trajectory in planet gravity force.  
-Blue curve - you shell trajectory in planet gravity force.
+Blue curve - you shell trajectory in planet gravity force.  
 
 // -------------------------------------------------------------------------------------------------
 
@@ -68,4 +71,5 @@ Set one that fit you skill in config.ini (app.rank=N)
 Code need refactoring, etc., but better if it was written in C++ to avoid using buffer objects for Vector2, 
 GC related things, so i give up to do this.   
 
-Old demo: https://www.youtube.com/watch?v=yvjAXCUgGY8
+Old demo: https://www.youtube.com/watch?v=yvjAXCUgGY8  
+New demo: https://youtu.be/QloDxACsnNY  
