@@ -1,4 +1,4 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.shell;
 
 import com.badlogic.gdx.graphics.Color;
 
@@ -6,14 +6,17 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.frag.Fragment;
+import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
 
 public class FlakShell extends Shell {
 
-    protected int fragCount;
-    float explosionPower;
+    public int fragCount;
+    public float explosionPower;
     long fragTTL;
     float fuseMultiplier;
+    public boolean shapedExplosion;
 
     public FlakShell(float height, GameObject owner) {
         super(height, owner);
@@ -23,7 +26,7 @@ public class FlakShell extends Shell {
         super(height,trailRadius, color, owner);
     }
 
-    protected  Projectile createFragment() {
+    protected Projectile createFragment() {
 
         return  new Fragment(2,  owner);
 
@@ -37,18 +40,22 @@ public class FlakShell extends Shell {
 
         type.add(ObjectType.FLAK_SHELL);
 
-        mass = 0.02f;
+        mass = 0.01f;
         //mass = 1;
         explosionRadius = radius * 6;
 
         setMaxHealth(2.1f);
-        fragCount = 100;
-        fragTTL = 150;
+        fragCount = 200;
+        fragTTL = 100;
         fuseMultiplier = 0.5f;
-        explosionPower = 3;
+        explosionPower = 4;
+        shapedExplosion = true;
 
         damage = 0.5f;
         penetration = 0.1f;
+        color = Color.RED;
+
+
 
 
     }
@@ -77,8 +84,17 @@ public class FlakShell extends Shell {
             double toAn;
 
 
-            fromAn = Math.PI/3;
-            toAn =   Math.PI/3;
+            if (shapedExplosion) {
+
+                fromAn = Math.PI / 3;
+                toAn = Math.PI / 3;
+            }
+            else {
+
+                fromAn = 0;
+                toAn = Math.PI * 2;
+
+            }
 
 
 
@@ -100,6 +116,12 @@ public class FlakShell extends Shell {
 
             try {
 
+
+
+                //System.out.println("dir: " + dir);
+                //System.out.println("fi_min: " + fi_min + "fi_max: " + fi_max);
+                
+
                 fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
             }
             catch(Exception e) {
@@ -119,6 +141,11 @@ public class FlakShell extends Shell {
             frag.applyForce(tmp0);          // apply force applied to frag
 
             frag.setTTL(ThreadLocalRandom.current().nextLong(fragTTL,fragTTL + fragTTL/2));
+//            if (frag.isEmpOrdinance) {
+//                frag.setTTL(frag.getTTL()/4);
+//            }
+
+
             GameScreen.addObject(frag);
         }
 

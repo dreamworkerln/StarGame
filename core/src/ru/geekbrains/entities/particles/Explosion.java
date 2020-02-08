@@ -10,8 +10,6 @@ import java.util.Set;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.projectile.FlakShell;
-import ru.geekbrains.entities.projectile.Fragment;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -20,6 +18,7 @@ public class Explosion extends ParticleObject {
 
     private float maxRadius;
     private long start;
+    private Color color;
     //long frame;
 
     private Set<ObjectType> objType;
@@ -59,6 +58,7 @@ public class Explosion extends ParticleObject {
         this.start = GameScreen.INSTANCE.getTick();
         this.maxRadius = this.radius;
         this.objType = owner.type;
+        this.color = owner.explosionColor;
 
 
         // move SmokeTrail fom owner to this
@@ -141,22 +141,36 @@ public class Explosion extends ParticleObject {
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shape.set(ShapeRenderer.ShapeType.Filled);
 
+        shape.setColor(color);
+
 
         if (age < 10) {
-            shape.setColor(1f, 1f, 0.2f, 1);
+            //shape.setColor(1f, 1f, 0.2f, 1);
         }
         else if (age < 15) {
-            shape.setColor(1f, 1f, 0.2f, 1);
+            //shape.setColor(1f, 1f, 0.2f, 1);
         }
         else {
-            shape.setColor(1f, 1f, 0.2f, 1 - (age - 15) / 15f);
+
+            shape.getColor().a = 1 - (age - 15) / 15f;
+            //shape.setColor(1f, 1f, 0.2f, 1 - (age - 15) / 15f);
         }
 
-        if(objType.contains(ObjectType.EMP_FRAG)) {
+
+        /*
+        if(objType.contains(ObjectType.EMP_MISSILE)) {
 
             float a = shape.getColor().a;
-            shape.setColor(new Color(0.25f, 0.57f, 1, a));
+            shape.setColor();
         }
+
+        if(objType.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+
+            float a = shape.getColor().a;
+            shape.setColor();
+        }
+        */
+
 
         shape.circle(pos.x, pos.y, radius);
 

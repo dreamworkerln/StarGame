@@ -99,23 +99,7 @@ public abstract class Projectile extends GameObject implements SmokeTrailList {
 
         Gdx.gl.glLineWidth(1);
 
-
-        shape.setColor(Color.WHITE);
-
-        if (type.contains(ObjectType.FLAK_SHELL)) {
-            shape.setColor(Color.RED);
-        }
-        if (type.contains(ObjectType.PLASMA_FLAK_SHELL)) {
-            shape.setColor(Color.GOLD);
-        }
-
-        if (type.contains(ObjectType.EMP_FRAG)) {
-            shape.setColor(Color.BLUE);
-        }
-
-
-
-
+        shape.setColor(color);
 
         if (type.contains(ObjectType.BULLET)) {
 
@@ -158,4 +142,11 @@ public abstract class Projectile extends GameObject implements SmokeTrailList {
         }
     }
 
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
 }

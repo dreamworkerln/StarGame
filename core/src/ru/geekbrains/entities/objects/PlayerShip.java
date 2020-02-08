@@ -1,9 +1,7 @@
 package ru.geekbrains.entities.objects;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,15 +11,14 @@ import java.util.TreeMap;
 import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.ForceShield;
-import ru.geekbrains.entities.projectile.Shell;
+import ru.geekbrains.entities.projectile.shell.Shell;
 import ru.geekbrains.entities.weapons.AntiMissileLauncher;
 import ru.geekbrains.entities.weapons.FlakCannon;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
-import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.KeyDown;
+import ru.geekbrains.screen.KeyToggle;
 import ru.geekbrains.screen.Renderer;
-import ru.geekbrains.screen.RendererType;
 
 public class PlayerShip extends Ship {
 
@@ -64,7 +61,10 @@ public class PlayerShip extends Ship {
 
         flakCannon = new FlakCannon(10, this);
 
-        maxThrottle = 70f;
+        maxThrottle = 80f;
+
+        //launcher.fireRate = 0.02f;
+
 
         //setMaxHealth(100);
     }
@@ -153,6 +153,15 @@ public class PlayerShip extends Ship {
 
             KeyDown.SCROLLED = 0;
         }
+
+        if (KeyToggle.F) {
+            flakCannon.setFiringMode(FlakCannon.FiringMode.FLAK_ONLY);
+        }
+        if (KeyToggle.G)  {
+            flakCannon.setFiringMode(FlakCannon.FiringMode.AUTOMATIC);
+        }
+
+        //System.out.println(flakCannon.getFiringMode());
 
     }
 

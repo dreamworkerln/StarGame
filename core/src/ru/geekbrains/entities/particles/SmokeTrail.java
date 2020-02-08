@@ -10,12 +10,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import ru.geekbrains.entities.objects.GameObject;
-import ru.geekbrains.entities.projectile.FragMissile;
-import ru.geekbrains.entities.projectile.Fragment;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
-import ru.geekbrains.storage.Game;
 
 public class SmokeTrail extends GameObject{
 

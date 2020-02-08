@@ -1,13 +1,12 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.frag;
 
 import com.badlogic.gdx.graphics.Color;
 
-import java.util.ArrayList;
-
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.Projectile;
 
-public class Fragment extends Projectile  {
+public class Fragment extends Projectile {
 
 
     public Fragment(float height, GameObject owner) {

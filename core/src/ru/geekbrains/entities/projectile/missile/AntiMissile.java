@@ -1,12 +1,10 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.missile;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import java.util.List;
-
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.entities.projectile.missile.Missile;
 
 public class AntiMissile extends Missile {
 
@@ -16,6 +14,8 @@ public class AntiMissile extends Missile {
         super(textureRegion, height, owner);
 
         this.type.add(ObjectType.ANTIMISSILE);
+
+        explosionRadius = radius * 2;
 
         mass = 0.01f;
         fuel = 4f;
@@ -29,6 +29,7 @@ public class AntiMissile extends Missile {
 
 
         selfdOnTargetDestroyed = true;
+        canRetarget = false;
         selfdOnNoFuel = true;
         selfdOnProximityMiss = true;
 
@@ -56,14 +57,14 @@ public class AntiMissile extends Missile {
 
 
             // включаем режим маневрирования маневровыми движками
-            if (pbu.guideResult.impactTime < 0.5f) {
+            if (pbu.guideResult.impactTime < 0.4f) {
 //                // angle between direction and guideVector
 //                float guideAngle = dir.angleRad(guideVector);
 //                float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
 
 
                 maxRotationSpeed = (float) (2 * Math.PI);
-                throttle = maxThrottle/4;
+                throttle = maxThrottle/5;
 
 
 

@@ -161,7 +161,7 @@ public class GameScreen extends BaseScreen {
         }
 
 
-        quadTree = new QuadTree<>(-8000,-8000,8000,8000);
+        quadTree = new QuadTree<>(-6000,-6000,6000,6000);
 
         background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
         background.setHeightAndResize(BACKGROUND_SIZE);
@@ -1018,7 +1018,11 @@ public class GameScreen extends BaseScreen {
 
             enemyShipsToSpawn--;
 
+<<<<<<< HEAD
             if (ThreadLocalRandom.current().nextFloat() > 0.8) {
+=======
+            if (ThreadLocalRandom.current().nextFloat() > 0.75) {
+>>>>>>> ccb7186cb1fc2052e06a32bf6ae104882b3819f0
 
                 //new NewtonMissile(new TextureRegion(missileTexture), 5, null);
 

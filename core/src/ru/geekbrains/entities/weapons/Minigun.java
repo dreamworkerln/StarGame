@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DummyObject;
@@ -55,6 +54,8 @@ public class Minigun extends Gun {
 
         super(height, owner);
 
+        type.add(ObjectType.MINIGUN);
+
         isModule = true;
 
         //maxRotationSpeed = 0.1f;
@@ -71,6 +72,8 @@ public class Minigun extends Gun {
 
         maxRange = 500;
         maxTime = 1.5f;
+
+        displayTargetingVector = true;
 
 
 //        final double relativeAccuracy = 1.0e-12;
@@ -422,7 +425,7 @@ public class Minigun extends Gun {
 //        }
 
 
-        if (this.getClass() == Minigun.class && !minigunPlaying) {
+        if (/*this.getClass() == Minigun.class &&*/ !minigunPlaying) {
             minigunPlaying = true;
             minigunFire.loop(0.3f);
         }
@@ -434,7 +437,7 @@ public class Minigun extends Gun {
 
         super.stopFire();
 
-        if (this.getClass() == Minigun.class && minigunPlaying) {
+        if (/*this.getClass() == Minigun.class &&*/ minigunPlaying) {
             minigunPlaying = false;
             minigunFire.stop();
         }

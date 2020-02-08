@@ -1,5 +1,6 @@
 package ru.geekbrains.entities.objects;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
@@ -22,6 +23,9 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected long TTL;
     protected long birth;  // object birth date in ticks
     protected long age;    // object ages in game ticks
+
+
+    public boolean isEmpOrdinance = false;
 
     public String name = "";
 
@@ -47,11 +51,11 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     //protected Vector2 tmpForce = new Vector2();     // tmp force
     protected Vector2 force = new Vector2();          // resulting force (sum of all forces)
-    protected float radius;                         // object radius (== halfHeight)
+    public float radius;                         // object radius (== halfHeight)
     protected float mass = 1;                          // mass
     //public float momentInertia = 1;               // moment of inertia
 
-    protected float explosionRadius;
+    public float explosionRadius;
 
 
     public boolean readyToDispose = false;            // object ready to dispose
@@ -64,10 +68,14 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected Vector2 tmp5 = new Vector2();           // buffer
     protected Vector2 tmp6 = new Vector2();           // buffer
 
+    public Color color = Color.WHITE;
+    public Color explosionColor = new Color(1f, 1f, 0.2f, 1);
+
     protected float health;                       // текущий запас прочности корпуса(health)
     protected float maxHealth = 0;               // максимальный запас прочности корпуса(health)
 
     public float damage = 0;
+    public float empDamage = 0;
 
 
 
@@ -233,6 +241,14 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     // ---------------------------------------------------------------------------------------------
 
     public void draw(Renderer renderer) {
+
+        // Do not draw out of screen
+        float dx = GameScreen.INSTANCE.worldBounds.getHalfWidth()* GameScreen.INSTANCE.aspect;
+        float dy = GameScreen.INSTANCE.worldBounds.getHalfHeight();
+
+        if(Math.abs(pos.x) >  dx + dx * 0.3 || Math.abs(pos.y) >  dy + dy * 0.3) {
+            return;
+        }
 
         if (renderer.rendererType == RendererType.TEXTURE &&
             rendererType.contains(RendererType.TEXTURE)) {

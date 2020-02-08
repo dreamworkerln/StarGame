@@ -20,7 +20,7 @@ public abstract class Ship extends DrivenObject {
         fuel = 100;
 
         fuelConsumption = 8f;
-        fuelGeneration = 0.05f;
+        fuelGeneration = 0.06f;
 
         this.type.add(ObjectType.SHIP);
 

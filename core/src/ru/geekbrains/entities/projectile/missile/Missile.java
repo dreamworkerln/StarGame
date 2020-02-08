@@ -1,4 +1,4 @@
-package ru.geekbrains.entities.projectile;
+package ru.geekbrains.entities.projectile.missile;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -26,6 +26,8 @@ public class Missile extends DrivenObject {
 
     //AimFunction af;
     protected boolean selfdOnTargetDestroyed;
+    protected boolean selfdOnNoTargetAvailable;
+    protected boolean canRetarget;
     protected boolean selfdOnNoFuel;
     protected boolean selfdOnProximityMiss;
 
@@ -65,7 +67,11 @@ public class Missile extends DrivenObject {
     public Missile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
-        this.type.add(ObjectType.MISSILE);
+        type.add(ObjectType.MISSILE);
+
+        if (this.getClass() == Missile.class) {
+            type.add(ObjectType.BASIC_MISSILE);
+        }
 
 
         setRadius(radius * 5); // fix issued by image aspect ratio
@@ -73,18 +79,21 @@ public class Missile extends DrivenObject {
 
         mass = 0.04f;
         //maxRotationSpeed = 0.02f;
-        fuel = 12;
+        fuel = 15;
 
         boost = 300f;
 
-        maxThrottle = 4f;
-        throttle = maxThrottle;
+        explosionRadius = radius * 3;
+
+        setMaxThrottle(4f);
 
         setMaxHealth(0.02f);
-        damage = 4f;
+        damage = 5f;
 
-        selfdOnTargetDestroyed = true;
-        selfdOnNoFuel = false;
+        selfdOnTargetDestroyed = false;
+        selfdOnNoTargetAvailable = true;
+        canRetarget = true;
+        selfdOnNoFuel = true;
         selfdOnProximityMiss = false;
         aspectRatio = 1;
 
@@ -115,9 +124,8 @@ public class Missile extends DrivenObject {
 
         // EXPERIMENTAL RETARGETING
         if (target == null &&
-                (this.getClass() == Missile.class ||
-                        this.getClass() == FragMissile.class) &&
-                retargetCount < 10) {
+            canRetarget &&
+            retargetCount < Integer.MAX_VALUE) {
 
             retargetCount ++;
 
@@ -128,7 +136,10 @@ public class Missile extends DrivenObject {
             // leave only ENEMY_SHIP in targets;
             //ToDO: implement friend or foe radar recognition system
             // Or all will fire to enemy ships only
-            targets.removeIf(t -> !t.type.contains(ObjectType.SHIP) || t.readyToDispose || t == owner);
+            targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) ||
+                    t.readyToDispose ||
+                    t == this ||
+                    owner!=null && (t == owner || t.owner == owner));
 
 
 
@@ -159,6 +170,13 @@ public class Missile extends DrivenObject {
                 target = targets.get(0);
 
             }
+        }
+
+        // END RETARGETING -------------------------
+
+        // self -d no targets available
+        if (selfdOnNoTargetAvailable && target == null) {
+            readyToDispose = true;
         }
 
 
@@ -245,9 +263,6 @@ public class Missile extends DrivenObject {
                 distToTarget < proximityMinDistance &&
                 distToCarrier > proximitySafeDistance) {
 
-
-
-
             float maxVel = proximityMinDistanceVel;
             pbu.guideGun(this, target, maxVel, dt);
 
@@ -276,6 +291,8 @@ public class Missile extends DrivenObject {
 
         if(target != null && !this.readyToDispose) {
 
+            throttle = maxThrottle;
+
             // Максимальное возможное ускорение ракеты своим движком
             float maxAcc = maxThrottle / mass;
 
@@ -292,12 +309,15 @@ public class Missile extends DrivenObject {
             // Самонаведение не сгидродоминировало, наводимся по прямой
             else {
                 // (только для больших ракет)
-                if (this.getClass() == Missile.class /*&& age < 10000*/ ) {
+                if (this.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) ) {
                     guideVector.set(target.pos).sub(pos).nor();
-                    //System.out.println(this + "   " + age);
                 }
             }
         }
+        else {
+            throttle = 0;
+        }
+
     }
 
 /*
