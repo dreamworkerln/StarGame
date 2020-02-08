@@ -162,7 +162,7 @@ public class MissileLauncher extends Gun {
 
             for (GameObject o : targets) {
 
-                if (!targetFiring.contains(o)) {
+                if (/*!targetFiring.contains(o)*/true) {
 
                     //target = o;
                     result.add(o);
@@ -189,17 +189,25 @@ public class MissileLauncher extends Gun {
         if (owner.type.contains(ObjectType.PLAYER_SHIP) &&
                 this.getClass() ==  MissileLauncher.class) {
 
+           if(lounchCnt == 0) {
+               targetFiring.clear();
+               targetList = getTarget();
+           }
 
-           if (lounchCnt >= sideLaunchCount) {
+
+
+            if (targetList.size() == 0) {
+                lounchCnt = 0;
                 targetFiring.clear();
+                return;
+
+            }
+
+            lounchCnt++;
+
+            if (lounchCnt >= sideLaunchCount) {
                 lounchCnt = 0;
             }
-
-            targetList = getTarget();
-            if (targetList.size() == 0) {
-                return;
-            }
-            lounchCnt++;
 
 
 
@@ -211,7 +219,7 @@ public class MissileLauncher extends Gun {
                 target = targetFiring.get(0);
             }
 
-            if (targetList.size() >= 2) {
+            if (targetList.size() == 2) {
 
                 if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
                     targetList.remove(1);
@@ -220,10 +228,7 @@ public class MissileLauncher extends Gun {
 
 
             if(targetFiring.size() == 0) {
-
-                for (GameObject o : targetList) {
-                    targetFiring.add(o);
-                }
+                targetFiring.addAll(targetList);
             }
 
         }
@@ -243,7 +248,7 @@ public class MissileLauncher extends Gun {
 
 
 
-        if (targetList.size() >= 2 && lounchCnt < 2) {
+        if (targetList.size() >= 2) {
 
             tmp2.set(targetList.get(0).pos).sub(tmp0);
             tmp3.set(targetList.get(1).pos).sub(tmp0);
@@ -266,10 +271,6 @@ public class MissileLauncher extends Gun {
             else {
                 target = targetList.get(1);
             }
-
-
-            target = targetList.get(0);
-
         }
         else if (targetList.size() > 0) {
             target = targetList.get(0);
@@ -287,6 +288,10 @@ public class MissileLauncher extends Gun {
         missile.vel.set(owner.vel);
         missile.dir.set(tmp6);
         missile.target = target;
+
+//        if(owner.getClass()==PlayerShip.class) {
+//            System.out.println("MISSILE TARGET: " + target.getClass().getSimpleName() + " " + System.identityHashCode(target));
+//        }
 
 
 

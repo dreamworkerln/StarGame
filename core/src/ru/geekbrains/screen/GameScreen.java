@@ -1462,7 +1462,7 @@ public class GameScreen extends BaseScreen {
         if ((tgt.getClass() == Missile.class ||
                 tgt.getClass() == EmpMissile.class)&&
                 tgt.readyToDispose &&
-                prj.owner == playerShip) {
+                prj.owner == playerShip && prj.getClass() != NewtonMissile.class) {
 
             int val = missileHitType.getOrDefault(prj.getClass().getSimpleName(), 0) + 1;
             missileHitType.put(prj.getClass().getSimpleName(), val);
