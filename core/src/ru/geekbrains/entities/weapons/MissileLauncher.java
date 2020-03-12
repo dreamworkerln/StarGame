@@ -8,9 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.objects.DrivenObject;
@@ -20,7 +18,6 @@ import ru.geekbrains.entities.objects.PlayerShip;
 import ru.geekbrains.entities.projectile.missile.EmpMissile;
 import ru.geekbrains.entities.projectile.missile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.projectile.missile.NewtonMissile;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -49,8 +46,10 @@ public class MissileLauncher extends Gun {
 
     public GameObject target = null;
 
-    private List<GameObject> targetFiring = new ArrayList<>();
     private List<GameObject> targetList = new ArrayList<>();
+    private List<GameObject> visualTargets = new ArrayList<>();
+
+
     private int lounchCnt = 0;
 
     protected int TTL = 10;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
@@ -116,22 +115,6 @@ public class MissileLauncher extends Gun {
     @Override
     protected void fire(float dt) {
 
-
-
-        List<GameObject> targets;
-
-
-
-        if (!owner.type.contains(ObjectType.PLAYER_SHIP)) {
-
-            target = ((DrivenObject)owner).target;
-
-            if (target== null || target.readyToDispose){
-
-                return;
-            }
-        }
-
         repeatFire();
 
         // запуск двух ракет с задержкой
@@ -181,56 +164,68 @@ public class MissileLauncher extends Gun {
     protected void repeatFire() {
 
 
+        // ???
         tmp6.set(dir);
         if (reverseLaunch) {
             tmp6.scl(-1);
         }
 
+
+
         if (owner.type.contains(ObjectType.PLAYER_SHIP) &&
-                this.getClass() ==  MissileLauncher.class) {
+            this.getClass() ==  MissileLauncher.class) {
 
-           if(lounchCnt == 0) {
-               targetFiring.clear();
-               targetList = getTarget();
-           }
+            if(lounchCnt == 0) {
+                targetList = getTarget();
 
+                visualTargets.clear();
+            }
+
+            if (lounchCnt == 1) {
+                targetList.removeIf(o-> o.readyToDispose);
+            }
 
 
             if (targetList.size() == 0) {
                 lounchCnt = 0;
-                targetFiring.clear();
                 return;
 
             }
 
             lounchCnt++;
-
             if (lounchCnt >= sideLaunchCount) {
                 lounchCnt = 0;
             }
 
+            // if first target is NewtonMissile - remove other targets
+            if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
 
-
-            // треш-алгоритмы. targetSet, targetList, навен еще нужен к-то targetMap, targetSet и targetDeQueue
-            if (targetFiring.size() > 0 &&
-                targetFiring.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
-
+                GameObject tmp = targetList.get(0);
                 targetList.clear();
-                target = targetFiring.get(0);
-            }
-
-            if (targetList.size() == 2) {
-
-                if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
-                    targetList.remove(1);
-                }
+                targetList.add(tmp);
             }
 
 
-            if(targetFiring.size() == 0) {
-                targetFiring.addAll(targetList);
+            if (lounchCnt == 1) {
+                visualTargets.addAll(targetList);
             }
 
+        }
+        else if (!owner.type.contains(ObjectType.PLAYER_SHIP)) {
+
+            GameObject tmp = ((DrivenObject)owner).target;
+            targetList.add(tmp);
+
+            if (tmp== null || tmp.readyToDispose){
+                return;
+            }
+        }
+
+
+
+        // Duplicate first target - will get 2 shot on it
+        if(targetList.size() == 1) {
+            targetList.add(targetList.get(0));
         }
 
 
@@ -238,50 +233,40 @@ public class MissileLauncher extends Gun {
         playLaunchSound();
 
         tmp0.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
-                .rotate(90*sideLaunch).add(owner.pos);
+            .rotate(90*sideLaunch).add(owner.pos);
 
         tmp1.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
-                .rotate(-90*sideLaunch).add(owner.pos);
+            .rotate(-90*sideLaunch).add(owner.pos);
 
 
 
 
 
 
-        if (targetList.size() >= 2) {
 
-            tmp2.set(targetList.get(0).pos).sub(tmp0);
-            tmp3.set(targetList.get(1).pos).sub(tmp0);
 
-            tmp4.set(targetList.get(0).pos).sub(tmp1);
-            tmp5.set(targetList.get(1).pos).sub(tmp1);
+        tmp2.set(targetList.get(0).pos).sub(tmp0);
+        tmp3.set(targetList.get(1).pos).sub(tmp0);
 
-            //System.out.println(tmp2.len() + " " + tmp4.len());
-            //System.out.println(tmp3.len() + " " + tmp5.len());
+        tmp4.set(targetList.get(0).pos).sub(tmp1);
+        tmp5.set(targetList.get(1).pos).sub(tmp1);
 
-            // OK
-            if (tmp2.len() < tmp4.len() &&
-                    tmp5.len() < tmp3.len()) {
+        //System.out.println(tmp2.len() + " " + tmp4.len());
+        //System.out.println(tmp3.len() + " " + tmp5.len());
 
-                //sideLaunch = -sideLaunch;
-                //tmp0.set(tmp1);
-                target = targetList.get(0);
-                //
-            }
-            else {
-                target = targetList.get(1);
-            }
+        // OK
+        if (tmp2.len() < tmp4.len() &&
+            tmp5.len() < tmp3.len()) {
+
+            //sideLaunch = -sideLaunch;
+            //tmp0.set(tmp1);
+            target = targetList.remove(0);
+
+            //
         }
-        else if (targetList.size() > 0) {
-            target = targetList.get(0);
+        else {
+            target = targetList.remove(1);
         }
-
-//        if (tmp3.len() < tmp2.len()) {
-//            tmp0 = tmp1;
-//            sideLaunch2 = -1;
-//        }
-
-        // Fire both missiles to gravity torpedo
 
 
         missile.pos.set(tmp0);
@@ -341,10 +326,10 @@ public class MissileLauncher extends Gun {
 
         // костыли, нарушение Лискова, нужно выделить в  класс abstract BaseMissileLauncher
         if (this.getClass() ==  MissileLauncher.class &&
-                this.owner.getClass() == PlayerShip.class) {
+            this.owner.getClass() == PlayerShip.class) {
 
 
-            for (GameObject o : targetFiring) {
+            for (GameObject o : visualTargets) {
 
                 // Рисуем перекрестье на цели
                 if (o != null && !o.readyToDispose) {
@@ -418,7 +403,7 @@ public class MissileLauncher extends Gun {
             //result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
         }
         else {
-            
+
             float rnd =  ThreadLocalRandom.current().nextFloat();
 
             if (rnd >= 0.5){

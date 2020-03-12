@@ -269,7 +269,7 @@ public class FlakCannon extends Gun {
 
             if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
 
-                fuseMultiplier = 1f;
+                fuseMultiplier = 0.8f;
             }
 
 
@@ -373,7 +373,7 @@ public class FlakCannon extends Gun {
 
         FLAK_ONLY,
         PLASMA_ONLY,
-        AUTOMATIC;
+        AUTOMATIC
     }
 
 
