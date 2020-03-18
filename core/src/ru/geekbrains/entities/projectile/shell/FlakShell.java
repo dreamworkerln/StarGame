@@ -17,6 +17,7 @@ public class FlakShell extends Shell {
     long fragTTL;
     float fuseMultiplier;
     public boolean shapedExplosion;
+    public boolean isReadyElements = false;
 
     public FlakShell(float height, GameObject owner) {
         super(height, owner);
@@ -86,8 +87,8 @@ public class FlakShell extends Shell {
 
             if (shapedExplosion) {
 
-                fromAn = Math.PI / 3;
-                toAn = Math.PI / 3;
+                fromAn = Math.PI / 2.5;
+                toAn = Math.PI / 2.5;
             }
             else {
 
@@ -108,21 +109,28 @@ public class FlakShell extends Shell {
 
 
 
-            float r = (float) ThreadLocalRandom.current().nextDouble(explosionPower - explosionPower *0.2f, explosionPower);
             //float r = (float) ThreadLocalRandom.current().nextDouble(0, explosionPower);
             //float r = (float) ThreadLocalRandom.current().nextGaussian()*explosionPower*1.0f /*+ explosionPower*/;
             //float r = explosionPower;
             float fi;
+            float r;
 
             try {
-
-
-
                 //System.out.println("dir: " + dir);
                 //System.out.println("fi_min: " + fi_min + "fi_max: " + fi_max);
                 
+                float coefR;
+                if (isReadyElements) {
+                    coefR = 0.02f;
+                    fi = dir.angleRad() + (float) ((toAn + fromAn) * (i-fragCount/2) / fragCount);
+                }
+                else {
+                    fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
+                    coefR = 0.2f;
 
-                fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
+                }
+                r = (float) ThreadLocalRandom.current().nextDouble(explosionPower - explosionPower * coefR, explosionPower);
+
             }
             catch(Exception e) {
                 System.out.println(dir);

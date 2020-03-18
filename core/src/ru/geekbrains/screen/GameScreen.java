@@ -1433,6 +1433,12 @@ public class GameScreen extends BaseScreen {
                 ENEMY_RESPAWN_TIME = 2100;
                 ENEMIES_COUNT_IN_WAVE = 9;
                 break;
+
+            case 99:
+                // DEBUG
+                ENEMY_RESPAWN_TIME = 300;
+                ENEMIES_COUNT_IN_WAVE = 15;
+                break;
         }
 
         //ENEMY_RESPAWN_TIME = 1;

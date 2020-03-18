@@ -145,14 +145,9 @@ public class MissileLauncher extends Gun {
 
             for (GameObject o : targets) {
 
-                if (/*!targetFiring.contains(o)*/true) {
-
-                    //target = o;
-                    result.add(o);
-
-                    if (result.size() >= 2) {
-                        break;
-                    }
+                result.add(o);
+                if (result.size() >= 2) {
+                    break;
                 }
             }
         }
@@ -177,6 +172,10 @@ public class MissileLauncher extends Gun {
 
             if(lounchCnt == 0) {
                 targetList = getTarget();
+
+//                for (GameObject o : targetList) {
+//                    if(o == null) {throw new RuntimeException("o == null");}
+//                }
 
                 visualTargets.clear();
             }
@@ -214,11 +213,12 @@ public class MissileLauncher extends Gun {
         else if (!owner.type.contains(ObjectType.PLAYER_SHIP)) {
 
             GameObject tmp = ((DrivenObject)owner).target;
-            targetList.add(tmp);
 
-            if (tmp== null || tmp.readyToDispose){
+            if (tmp == null || tmp.readyToDispose){
                 return;
             }
+
+            targetList.add(tmp);
         }
 
 
@@ -238,18 +238,30 @@ public class MissileLauncher extends Gun {
         tmp1.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
             .rotate(-90*sideLaunch).add(owner.pos);
 
+        try {
 
 
+            tmp2.set(targetList.get(0).pos).sub(tmp0);
+            tmp3.set(targetList.get(1).pos).sub(tmp0);
+
+            tmp4.set(targetList.get(0).pos).sub(tmp1);
+            tmp5.set(targetList.get(1).pos).sub(tmp1);
+
+        }
+        catch (Exception e) {
+
+            System.out.println("Error: " + e.toString());
+
+            System.out.println("tmp3: " + tmp3.toString());
+            System.out.println("tmp0: " + tmp0.toString());
+
+            System.out.println(targetList);
+            System.out.println(targetList.get(1));
+            System.out.println(targetList.get(1).pos);
 
 
+        }
 
-
-
-        tmp2.set(targetList.get(0).pos).sub(tmp0);
-        tmp3.set(targetList.get(1).pos).sub(tmp0);
-
-        tmp4.set(targetList.get(0).pos).sub(tmp1);
-        tmp5.set(targetList.get(1).pos).sub(tmp1);
 
         //System.out.println(tmp2.len() + " " + tmp4.len());
         //System.out.println(tmp3.len() + " " + tmp5.len());

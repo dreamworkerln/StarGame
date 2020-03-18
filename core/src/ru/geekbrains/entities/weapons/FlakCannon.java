@@ -323,6 +323,7 @@ public class FlakCannon extends Gun {
         if (shellType== ShellType.FRAG) {
 
             result = new FlakShell(calibre, 1, Color.RED, owner);
+            ((FlakShell) result).isReadyElements = true;
 
             //fireRate = oldFireRate*1.5f;
             //gunHeat = 0;
