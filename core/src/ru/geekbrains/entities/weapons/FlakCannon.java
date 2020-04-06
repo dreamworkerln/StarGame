@@ -88,12 +88,6 @@ public class FlakCannon extends Gun {
 
 
 
-
-
-
-
-
-
     @Override
     public void update(float dt) {
 
@@ -143,7 +137,7 @@ public class FlakCannon extends Gun {
 
                 o.type.contains(ObjectType.BASIC_MISSILE) && (firingMode == FiringMode.AUTOMATIC || firingMode == FiringMode.FLAK_ONLY) ||
 
-                    (o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) || o.type.contains(ObjectType.SHIP))
+                    (/*o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) ||*/ o.type.contains(ObjectType.SHIP))
                         && (firingMode == FiringMode.AUTOMATIC || firingMode == FiringMode.PLASMA_ONLY)
 
             ).collect(Collectors.toList());
@@ -176,71 +170,97 @@ public class FlakCannon extends Gun {
 
 
 
-        // Если много входящих ракет - стреляем только по ракетам
 
-        if (impactTimes.size() > 0) {
 
-            AtomicInteger missileCount = new AtomicInteger();
-
-            for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
-
-                GameObject o = entry.getValue().target;
-
-                tmp1.set(o.pos).sub(pos);
-
-                if (entry.getValue().impactTime < maxImpactTime/2f &&
-                    o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
-
-                    missileCount.incrementAndGet();
-                }
-
-            }
-
-            if (missileCount.get() >= 4) {
-                firingMode = FiringMode.FLAK_ONLY;
-            } else {
-                firingMode = firingModeOld;
-            }
-        }
+//        if (impactTimes.size() > 0) {
+//
+//            AtomicInteger missileCount = new AtomicInteger();
+//
+//            for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
+//
+//                GameObject o = entry.getValue().target;
+//
+//                tmp1.set(o.pos).sub(pos);
+//
+//                if (entry.getValue().impactTime < maxImpactTime/2f &&
+//                    o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+//
+//                    missileCount.incrementAndGet();
+//                }
+//
+//            }
+//
+//
+//
+//            BPU.GuideResult fgr = impactTimes.firstEntry().getValue();
+//            double fim = fgr.impactTime;
+//            GameObject ftgt = fgr.target;
+//            boolean shootAtFirstShip = fim < 1f && ftgt.type.contains(ObjectType.SHIP);
+//
+//
+//
+//            // Если нет близко корабля
+//            if (!shootAtFirstShip && missileCount.get() >= 3) {
+//                firingMode = FiringMode.FLAK_ONLY;
+//            } else {
+//                firingMode = firingModeOld;
+//            }
+//        }
 
 
         // Определение скопление целей (ракет) в одной точке - если есть - стрелять только туда
 
+
         if (impactTimes.size() > 0) {
 
-            boolean groupMissilesFound = false;
-            for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
+            BPU.GuideResult fgr = impactTimes.firstEntry().getValue();
+            double fim = fgr.impactTime;
+            GameObject ftgt = fgr.target;
+            boolean shootAtClosestShip = fim < 1f && ftgt.type.contains(ObjectType.SHIP);
 
-                GameObject o = entry.getValue().target;
+            // Closest Ship
+            if (shootAtClosestShip) {
 
-                if (o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+                firingMode = FiringMode.PLASMA_ONLY;
+            }
+            else {
 
-                    missilesList = GameScreen.getCloseObjects(o, 150);
+                firingMode = firingModeOld;
 
-                    // collect only missiles nearby my missile
-                    missilesList.removeIf(g -> g == owner || g.owner == owner || g.readyToDispose);
+                // Group of missiles
+                boolean groupMissilesFound = false;
+                for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
 
-                    missilesList = missilesList.stream().filter(g -> g.type.contains(ObjectType.MISSILE) &&
-                        !g.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)).collect(Collectors.toList());
+                    GameObject o = entry.getValue().target;
 
-                    if (missilesList.size() >= 2) {
+                    if (o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
 
-                        groupMissilesFound = true;
-                        impactTimes.clear();
-                        impactTimes.put(entry.getKey(), entry.getValue());
-                        break;
+                        missilesList = GameScreen.getCloseObjects(o, 150);
+
+                        // collect only missiles nearby my missile
+                        missilesList.removeIf(g -> g == owner || g.owner == owner || g.readyToDispose);
+
+                        missilesList = missilesList.stream().filter(g -> g.type.contains(ObjectType.MISSILE) &&
+                            !g.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)).collect(Collectors.toList());
+
+                        if (missilesList.size() >= 2 || firingMode == FiringMode.FLAK_ONLY) {
+
+                            groupMissilesFound = true;
+                            impactTimes.clear();
+                            impactTimes.put(entry.getKey(), entry.getValue());
+                            firingMode = FiringMode.FLAK_ONLY;
+                            break;
+                        }
+
                     }
-
                 }
 
-            }
+                //  Firing on distant ships/newton_missile
+                if (!groupMissilesFound /*&& firingMode != FiringMode.FLAK_ONLY*/) {
 
-            //  убрать все маленькие ракеты
-            if (!groupMissilesFound && firingMode != FiringMode.FLAK_ONLY) {
-
-                impactTimes.entrySet().removeIf(ge -> ge.getValue().target.type.contains(ObjectType.MISSILE) &&
-                    !ge.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE));
-            }
+                    impactTimes.entrySet().removeIf(ge -> ge.getValue().target.type.contains(ObjectType.MISSILE) &&
+                        !ge.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE));
+                }            }
         }
 
 //        impactTimes.entrySet().removeIf(fg ->
@@ -252,24 +272,25 @@ public class FlakCannon extends Gun {
 
         if(impactTimes.size() > 0) {
 
-            float fuseMultiplier = 0.5f;
             BPU.GuideResult gRes = impactTimes.firstEntry().getValue();
 
 
             target = gRes.target;
             guideVector.set(gRes.guideVector);
 
-            if (target.type.contains(ObjectType.SHIP) || target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            float fuseMultiplier = 0.5f;
+            if (target.type.contains(ObjectType.SHIP)) {
                 shellType = ShellType.PLASMA;
             }
-            else {
-                shellType = ShellType.FRAG;
-                fuseMultiplier = 0.5f;
+            else if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+                shellType = ShellType.PLASMA;
+                fuseMultiplier = 0.8f;
             }
 
-            if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            if (target.type.contains(ObjectType.MISSILE) && !target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+                shellType = ShellType.FRAG;
+                fuseMultiplier = 0.3f;
 
-                fuseMultiplier = 0.8f;
             }
 
 
