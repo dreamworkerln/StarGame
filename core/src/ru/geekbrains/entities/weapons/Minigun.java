@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DummyObject;
@@ -445,7 +446,12 @@ public class Minigun extends Gun {
 
     @Override
     protected Projectile createProjectile() {
-        return new Bullet(calibre,   owner);
+
+        Bullet result = new Bullet(calibre,   owner);
+        //result.setTTL(ThreadLocalRandom.current().nextInt(90, 95));
+        return result;
+
+
     }
 
     @Override

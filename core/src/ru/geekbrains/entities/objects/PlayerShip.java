@@ -160,6 +160,9 @@ public class PlayerShip extends Ship {
         if (KeyToggle.G)  {
             flakCannon.setFiringMode(FlakCannon.FiringMode.AUTOMATIC);
         }
+        if (KeyToggle.V)  {
+            flakCannon.setFiringMode(FlakCannon.FiringMode.PLASMA_ONLY);
+        }
 
         //System.out.println(flakCannon.getFiringMode());
 

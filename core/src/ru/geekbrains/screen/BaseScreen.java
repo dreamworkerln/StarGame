@@ -186,6 +186,7 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
                 KeyToggle.F = true;
                 KeyToggle.G = false;
+                KeyToggle.V = false;
                 break;
 
             case 35:
@@ -193,6 +194,15 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
                 KeyToggle.F = false;
                 KeyToggle.G = true;
+                KeyToggle.V = false;
+                break;
+
+            case 50:
+                KeyDown.V = true;
+
+                KeyToggle.F = false;
+                KeyToggle.G = false;
+                KeyToggle.V = true;
                 break;
         }
 
@@ -240,6 +250,10 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
             case 35:
                 KeyDown.G = false;
+                break;
+
+            case 50:
+                KeyDown.V = false;
                 break;
 
         }

@@ -40,7 +40,7 @@ Anti-missile system also help against inbound missiles on long range.
 Doesn’t shoot at your missiles, but can unintentionally shoot them down.  
   
 AA cannon fire fragmentation shell on inbound missiles and fragmentation plasma shell on enemy ships.  
-(Experimental F - stop firing at incoming kinetic kill vehicle, G - resume)  
+(Experimental: F - firing only at incoming missiles(flak mode), G - auto mode (flak and anti-ship), V - anti-ship and anti kinetic kill vehicle mode)  
   
 Force shield can repulse many (~7) tangent hit, very many chase hit or ~2-3 direct hit  
 (fired from enemy ship flying towards you) by shell.  
