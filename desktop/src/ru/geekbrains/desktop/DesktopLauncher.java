@@ -19,6 +19,7 @@ public class DesktopLauncher {
 		float aspect = 10f/16f;
 		config.height = 1920;
 		config.width = (int) (config.height / aspect);
+		config.audioDeviceSimultaneousSources = 64;
 
 
 		//config.forceExit = false;

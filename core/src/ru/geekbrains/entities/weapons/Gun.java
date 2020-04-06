@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -54,6 +56,9 @@ public class Gun extends ParticleObject {
     protected boolean displayTargetingVector = false;
 
     protected BPU pbu = new BPU();
+
+    public float drift = 0;
+    public int burst = 1;
 
     static {
         cannonFire = Gdx.audio.newSound(Gdx.files.internal("Light Naval Cannon Blast 15.mp3"));
@@ -121,21 +126,15 @@ public class Gun extends ParticleObject {
         if (firing && !overHeated && lastFired <= (long)(tick - 1/fireRate)) {
 
             lastFired = GameScreen.INSTANCE.getTick();
-            gunHeat+= gunHeatingDelta;
             fire(dt);
         }
 
-        // gun heating
+        // gun cooling
 
         if (gunHeat > 0) {
             gunHeat -= coolingGunDelta;
         }
 
-
-        // trigger for gun overheating
-        if (gunHeat > maxGunHeat) {
-            overHeated = true;
-        }
         if (overHeated && gunHeat < maxGunHeat * 0.3) {
             overHeated = false;
         }
@@ -176,30 +175,51 @@ public class Gun extends ParticleObject {
 
         //System.out.println(owner.name);
 
-        Projectile proj = (Projectile)createProjectile();
+
+        if (burst == 1) {
+            playFireSound(0.4f);
+        }
+        else {
+            playFireSound(0.4f * burst/2f);
+        }
 
 
-        playFireSound();
+        for (int i = 0; i < burst; i++) {
 
-        proj.pos.set(nozzlePos);
-        proj.vel.set(owner.vel);
-        proj.dir.set(dir);
-        tmp0.set(dir).setLength(power); // force
-        proj.applyForce(tmp0);         // apply force applied to bullet
-
-        //System.out.println("power: " + power);
-        //System.out.println("mass: "    + proj.getMass());
-        //System.out.println("dir: " + proj.dir);
-        //System.out.println("pos: " + proj.pos);
-        //System.out.println("vel: " + proj.vel);
-        //System.out.println("force: " + tmp0);
-
-        // DEBUG UNCOMMENT
-        // recoil applied to ship
-        owner.applyForce(tmp0.scl(-1));
+            
+            Projectile proj = (Projectile) createProjectile();
 
 
 
+
+
+
+            proj.pos.set(nozzlePos);
+            proj.vel.set(owner.vel);
+            proj.dir.set(dir);
+            tmp0.set(dir).setLength(power); // force
+
+
+
+
+            if (drift > 0) {
+                double gs = ThreadLocalRandom.current().nextGaussian()*drift;
+                tmp0.rotateRad((float) gs);
+            }
+
+
+            proj.applyForce(tmp0);         // apply force applied to bullet
+
+            //System.out.println("power: " + power);
+            //System.out.println("mass: "    + proj.getMass());
+            //System.out.println("dir: " + proj.dir);
+            //System.out.println("pos: " + proj.pos);
+            //System.out.println("vel: " + proj.vel);
+            //System.out.println("force: " + tmp0);
+
+            // DEBUG UNCOMMENT
+            // recoil applied to ship
+            owner.applyForce(tmp0.scl(-1));
 
 
 //        // ship line of fire
@@ -220,9 +240,16 @@ public class Gun extends ParticleObject {
 //        shape.end();
 
 
+            GameScreen.addObject(proj);
 
+            gunHeat+= gunHeatingDelta;
 
-        GameScreen.addObject(proj);
+            // trigger for gun overheating
+            if (gunHeat > maxGunHeat) {
+                overHeated = true;
+                break;
+            }
+        }
      }
 
 
@@ -297,8 +324,8 @@ public class Gun extends ParticleObject {
     // в абстрактный  метод playLaunchSound()
 
 
-    protected void playFireSound() {
-        cannonFire.play(0.4f);
+    protected void playFireSound(float vol) {
+        cannonFire.play(vol);
     }
 
 

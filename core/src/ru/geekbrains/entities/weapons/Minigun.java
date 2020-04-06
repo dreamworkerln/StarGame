@@ -455,7 +455,7 @@ public class Minigun extends Gun {
     }
 
     @Override
-    protected void playFireSound() {}
+    protected void playFireSound(float vol) {}
 
 
     @Override

@@ -67,6 +67,11 @@ public class PlayerShip extends Ship {
 
 
         //setMaxHealth(100);
+
+        gun.maxGunHeat = 300;
+        //gun.fireRate = 1f;
+        gun.drift = 0.03f;
+        gun.burst= 6;
     }
 
 
