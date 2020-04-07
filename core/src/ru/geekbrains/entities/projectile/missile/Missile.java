@@ -69,7 +69,7 @@ public class Missile extends DrivenObject {
 
         type.add(ObjectType.MISSILE);
 
-        if (this.getClass() == Missile.class) {
+        if (this.getClass() == Missile.class ||this.getClass() == EmpMissile.class) {
             type.add(ObjectType.BASIC_MISSILE);
         }
 
@@ -79,7 +79,7 @@ public class Missile extends DrivenObject {
 
         mass = 0.04f;
         //maxRotationSpeed = 0.02f;
-        fuel = 15;
+        fuel = 18;
 
         boost = 300f;
 

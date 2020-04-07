@@ -31,13 +31,10 @@ public class NewtonMissile extends Missile {
         engineTrail.color = Color.GREEN;
 
         armour = 1;
-
-        damage = 0.5f;
-
-        setMass(0.1f);
-        setMaxThrottle(6f);
+        setMass(0.3f);
+        setMaxThrottle(18f);
         setMaxHealth(20f);
-        fuel = 100;
+        fuel = 1000;
 
         engineTrail.setRadius(2);
         damageBurnTrail.setRadius(5);

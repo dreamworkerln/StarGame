@@ -64,12 +64,16 @@ public class AntiMissileLauncher extends MissileLauncher {
         maxGunHeat = 200;
         power = 200;
 
+
         maxRange = 1500;
         maxImpactTime = 2f;
 
         maxPrjVel = 400;
 
         maxTargets = 10;
+
+        //DEBUG
+        //maxRange = 15;
 
 
     }
@@ -246,10 +250,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         targets.removeIf(o ->
                 o.readyToDispose || o == owner || o.owner == owner ||
-                (!o.type.contains(ObjectType.MISSILE)/* && !o.type.contains(ObjectType.SHIP)*/) ||
-                        o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)
-
-        );
+                (!o.type.contains(ObjectType.BASIC_MISSILE)));
 
         for (GameObject trg : targets) {
 

@@ -72,6 +72,7 @@ public class PlayerShip extends Ship {
         //gun.fireRate = 1f;
         gun.drift = 0.03f;
         gun.burst= 6;
+
     }
 
 

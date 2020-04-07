@@ -44,16 +44,14 @@ public class FlakShell extends Shell {
         mass = 0.01f;
         //mass = 1;
         explosionRadius = radius * 6;
-
-        setMaxHealth(2.1f);
         fragCount = 200;
         fragTTL = 100;
         fuseMultiplier = 0.5f;
-        explosionPower = 4;
+        explosionPower = 5;//4;
         shapedExplosion = true;
 
         damage = 0.5f;
-        penetration = 0.1f;
+        penetration = 1f;
         color = Color.RED;
 
 

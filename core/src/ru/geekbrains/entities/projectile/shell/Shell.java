@@ -29,7 +29,7 @@ public class Shell extends Projectile {
         mass = 0.016f;
         //mass = 1;
 
-        setMaxHealth(1.1f);
+        setMaxHealth(0.1f);
         damage = 1f;
 
         penetration = 1;

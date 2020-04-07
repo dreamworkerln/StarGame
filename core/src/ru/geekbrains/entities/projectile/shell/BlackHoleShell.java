@@ -53,23 +53,23 @@ public class BlackHoleShell extends Shell {
         List<GameObject> targets = GameScreen.getCloseObjects(this, 350);
 
 
-        if(age < 10) {
-            targets.forEach(o -> {
-
-                if (o == this) return;
-
-
-                if (o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
-
-                    tmp1.set(o.pos).sub(pos);
-                    if (tmp1.len() < 1) {
-                        tmp1.setLength(1f);
-                    }
-                    tmp2.set(tmp1).nor().scl(130000f * o.getMass() * 1 / tmp1.len());
-                    o.applyForce(tmp2);
-                }
-            });
-        }
+//        if(age < 10) {
+//            targets.forEach(o -> {
+//
+//                if (o == this) return;
+//
+//
+//                if (o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+//
+//                    tmp1.set(o.pos).sub(pos);
+//                    if (tmp1.len() < 1) {
+//                        tmp1.setLength(1f);
+//                    }
+//                    tmp2.set(tmp1).nor().scl(130000f * o.getMass() * 1 / tmp1.len());
+//                    o.applyForce(tmp2);
+//                }
+//            });
+//        }
 
 
 

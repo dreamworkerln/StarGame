@@ -104,7 +104,6 @@ public class SmokeTrail extends GameObject{
         //long tick = GameScreen.INSTANCE.getTick();
 
 
-
         for(TraceElement el : list) {
 
             bufColor.set(color);
@@ -129,6 +128,7 @@ public class SmokeTrail extends GameObject{
         }
         Gdx.gl.glLineWidth(1);
         //shape.end();
+
     }
 
     public void stop() {

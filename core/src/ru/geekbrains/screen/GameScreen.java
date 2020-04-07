@@ -839,6 +839,40 @@ public class GameScreen extends BaseScreen {
 
 
 
+                        float expCoef;
+                        float elasticCollision;
+                        expCoef = 0;
+                        elasticCollision = 1;
+
+                        //if (!prj.readyToDispose) {
+                            if (tgt.type.contains(ObjectType.BASIC_MISSILE)) {
+                                expCoef = tgt.damage > 1 ? tgt.damage : 1;
+                            }
+                            if (tgt.type.contains(ObjectType.SHIP)) {
+                                elasticCollision = 0;
+                            }
+                            tmp3.set(tgt.vel);
+                            prj.applyForce(tmp3.scl(tgt.getMass() / dt * elasticCollision + expCoef));
+                        //}
+
+
+
+                        expCoef = 0;
+                        elasticCollision = 1;
+                        //if (!tgt.readyToDispose) {
+                            if (prj.type.contains(ObjectType.BASIC_MISSILE)) {
+                                expCoef = prj.damage > 1 ? prj.damage : 1;
+                            }
+                            if (prj.type.contains(ObjectType.SHIP)) {
+                                elasticCollision = 0;
+                            }
+                            tmp3.set(prj.vel);
+                            tgt.applyForce(tmp3.scl(prj.getMass() / dt * elasticCollision + expCoef));
+                        //}
+
+
+
+
                         playExplosionSound(prj, tgt);
 
                         hitLogger(tgt, prj);
@@ -1082,9 +1116,9 @@ public class GameScreen extends BaseScreen {
                     // Switch target to player ship only
                     if (playerShip != null && !playerShip.readyToDispose && ship.target!= null && (
 
-                             ship.target.type.contains(ObjectType.ENEMY_SHIP) ||
+                            ship.target.type.contains(ObjectType.ENEMY_SHIP) ||
 
-                            ship.target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && ship.target.owner == null)) {
+                                    ship.target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && ship.target.owner == null)) {
 
                         ship.target = playerShip;
                     }
@@ -1436,8 +1470,8 @@ public class GameScreen extends BaseScreen {
 
             case 99:
                 // DEBUG
-                ENEMY_RESPAWN_TIME = 300;
-                ENEMIES_COUNT_IN_WAVE = 15;
+                ENEMY_RESPAWN_TIME = 700;
+                ENEMIES_COUNT_IN_WAVE = 7;
                 break;
         }
 
