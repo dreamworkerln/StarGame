@@ -838,6 +838,7 @@ public class GameScreen extends BaseScreen {
                         prj.doDamage(amount);
 
 
+                        // отталкиваем цель при попадании в нее ракет/снарядов
 
                         float expCoef;
                         float elasticCollision;
