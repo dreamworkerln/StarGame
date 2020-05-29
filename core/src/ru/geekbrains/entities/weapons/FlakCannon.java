@@ -112,7 +112,7 @@ public class FlakCannon extends Gun {
 
             // leave only ships and missiles
             targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose ||
-                !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
+                    !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
 
 
 //            // Определение скопление целей (ракет) в одной точке - если есть - стрелять только туда
@@ -152,9 +152,9 @@ public class FlakCannon extends Gun {
 //            ).collect(Collectors.toList());
 
             targetList = targetList.stream().filter(o ->  o.type.contains(ObjectType.SHIP)  ||
-                o.type.contains(ObjectType.BASIC_MISSILE) ||
-                o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))
-                .collect(Collectors.toList());
+                    o.type.contains(ObjectType.BASIC_MISSILE) ||
+                    o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))
+                    .collect(Collectors.toList());
 
 
             for (GameObject o : targetList) {
@@ -249,7 +249,7 @@ public class FlakCannon extends Gun {
 
                     case AUTOMATIC:
                         impactTimes.entrySet().removeIf(e ->
-                            e.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE));
+                                e.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE));
                         break;
 
                     case PLASMA_ONLY:
@@ -283,21 +283,25 @@ public class FlakCannon extends Gun {
                         missilesList.removeIf(m -> !m.type.contains(ObjectType.BASIC_MISSILE));
 
 
-                        if (firingMode == FiringMode.FLAK_ONLY) {
-                            for (GameObject m : missilesList) {
+                        List<BPU.GuideResult> incomingPlasmaFragMissiles = new ArrayList<>();
+                        for (GameObject m : missilesList) {
 
-                                if (m.type.contains(ObjectType.PPLASMA_FRAG_MISSILE)) {
+                            if (m.type.contains(ObjectType.PPLASMA_FRAG_MISSILE)) {
 
-                                    float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
-                                    pbu.guideGun(owner, m, maxPrjVel, dt);
-                                    Float impactTime = (float) pbu.guideResult.impactTime;
+                                float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+                                pbu.guideGun(owner, m, maxPrjVel, dt);
+                                Double impactTime = pbu.guideResult.impactTime;
 
-                                    if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxImpactTimeFlak) {
+                                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxImpactTimeFlak) {
 
-                                        groupMissilesFound = true;
-                                        impactTimes.clear();
-                                        impactTimes.put(impactTime, pbu.guideResult.clone());
-                                    }
+                                    incomingPlasmaFragMissiles.add(pbu.guideResult);
+                                }
+                                if (incomingPlasmaFragMissiles.size() >=2) {
+
+                                    groupMissilesFound = true;
+                                    impactTimes.clear();
+                                    impactTimes.put((float) incomingPlasmaFragMissiles.get(0).impactTime,
+                                                            incomingPlasmaFragMissiles.get(0));
                                     break outer;
                                 }
                             }
@@ -305,8 +309,9 @@ public class FlakCannon extends Gun {
 
 
 
+
                         if ((firingMode == FiringMode.FLAK_ONLY && missilesList.size() >= 2) ||
-                            (firingMode == FiringMode.AUTOMATIC && missilesList.size() >= 3)) {
+                                (firingMode == FiringMode.AUTOMATIC && missilesList.size() >= 3)) {
 
                             // calc center
                             tmp4.setZero();
@@ -400,7 +405,7 @@ public class FlakCannon extends Gun {
 
         // Auto fire control
         if (target != null && !target.readyToDispose &&
-            Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
+                Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
 
             startFire();
 
