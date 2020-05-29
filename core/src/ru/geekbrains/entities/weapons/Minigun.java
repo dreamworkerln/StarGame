@@ -112,8 +112,9 @@ public class Minigun extends Gun {
                     continue;
                 }
 
-                if ((!o.type.contains(ObjectType.MISSILE) &&
-                        !o.type.contains(ObjectType.SHIP))) {
+                if (!o.type.contains(ObjectType.MISSILE) &&
+                    !o.type.contains(ObjectType.SHIP) ||
+                     o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
 
                     continue;
                 }

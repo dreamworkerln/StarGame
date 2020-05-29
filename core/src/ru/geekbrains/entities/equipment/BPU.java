@@ -169,6 +169,9 @@ public class BPU {
             System.out.println(owner);
             System.out.println(target);
 
+            System.out.println(owner.readyToDispose);
+            System.out.println(target.readyToDispose);
+
             throw new RuntimeException("owner == null || target == null");
         }
 

@@ -11,14 +11,15 @@ import java.util.concurrent.ThreadLocalRandom;
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.objects.ShipComponent;
+import ru.geekbrains.entities.objects.WeaponSystem;
 import ru.geekbrains.entities.projectile.Projectile;
-import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.entities.projectile.shell.Shell;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 
-public class Gun extends ParticleObject {
+public class Gun extends ShipComponent implements WeaponSystem {
 
     private static Sound cannonFire;
 
@@ -50,7 +51,7 @@ public class Gun extends ParticleObject {
 
     public float maxRotationSpeed = 0; // maximum rotation speed
 
-    public GameObject firingAmmoType;
+    protected GameObject firingAmmoType;
     //protected Float maxProjectileVel = null;
 
     protected boolean displayTargetingVector = false;
@@ -89,6 +90,7 @@ public class Gun extends ParticleObject {
 
 
 
+
     public void startFire() {
 
         firing = true;
@@ -98,6 +100,38 @@ public class Gun extends ParticleObject {
 
         firing = false;
     }
+
+    @Override
+    public float getPower() {
+        return power;
+    }
+
+    @Override
+    public GameObject getFiringAmmoType() {
+        return firingAmmoType;
+    }
+
+    @Override
+    public float getFireRate() {
+        return fireRate;
+    }
+
+    @Override
+    public void setFireRate(float rate) {
+        fireRate = rate;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     @Override
@@ -302,6 +336,13 @@ public class Gun extends ParticleObject {
     }
 
 
+
+    @Override
+    public Vector2 getDir() {
+        return dir;
+    }
+
+    @Override
     public float getCalibre() {
         return calibre;
     }

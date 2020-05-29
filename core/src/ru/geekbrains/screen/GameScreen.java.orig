@@ -30,7 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import ru.geekbrains.entities.objects.DummyObject;
-import ru.geekbrains.entities.objects.EnemyShip;
+import ru.geekbrains.entities.objects.enemies.EnemyShip;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.particles.Explosion;
 import ru.geekbrains.entities.objects.GameObject;

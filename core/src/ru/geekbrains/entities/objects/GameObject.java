@@ -25,7 +25,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected long age;    // object ages in game ticks
 
 
-    public boolean isEmpOrdinance = false;
+    public boolean isEmpArmament = false;
 
     public String name = "";
 

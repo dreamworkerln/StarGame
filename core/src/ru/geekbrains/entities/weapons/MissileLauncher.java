@@ -15,7 +15,10 @@ import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.PlayerShip;
+import ru.geekbrains.entities.projectile.missile.AbstractMissile;
 import ru.geekbrains.entities.projectile.missile.EmpMissile;
+import ru.geekbrains.entities.projectile.missile.NewtonMissile;
+import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
 import ru.geekbrains.entities.projectile.missile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.GameScreen;
@@ -82,6 +85,21 @@ public class MissileLauncher extends Gun {
 
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     @Override
@@ -229,7 +247,7 @@ public class MissileLauncher extends Gun {
         }
 
 
-        Missile missile = (Missile)createProjectile();
+        AbstractMissile missile = (AbstractMissile)createProjectile();
         playLaunchSound();
 
         tmp0.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
@@ -299,7 +317,11 @@ public class MissileLauncher extends Gun {
         //tmp1.set(tmp6).scl((missile.boost) * 0.3f);    40
         //tmp0.set(tmp6).setLength((missile.boost)).rotate(30*sideLaunch)/*.add(tmp1)*/; // force
 
-        tmp0.set(tmp6).setLength((missile.boost)).rotate(30*sideLaunch);
+        tmp0.set(tmp6).setLength(missile.boost);
+        if (sideLaunchCount > 1) {
+            tmp0.rotate(30 * sideLaunch);
+        }
+
 
         if (reverseLaunch) {
             tmp0.scl(0.75f);
@@ -365,6 +387,8 @@ public class MissileLauncher extends Gun {
                     tmp0.set(o.pos).sub(0, o.getRadius() * 2);
                     tmp1.set(tmp0).set(o.pos).add(0, o.getRadius() * 2);
                     shape.line(tmp0, tmp1);
+                    Gdx.gl.glLineWidth(1);
+                    shape.flush();
 
 
                     //shape.end();
@@ -404,29 +428,32 @@ public class MissileLauncher extends Gun {
     @Override
     protected GameObject createProjectile() {
 
-        GameObject result;
+        GameObject result = null;
 
-        if (owner.getClass() == PlayerShip.class) {
+        if (owner.type.contains(ObjectType.PLAYER_SHIP)) {
 
             result = new Missile(new TextureRegion(missileTexture), 2, owner);
 
             //result =  new NewtonMissile(new TextureRegion(missileTexture), 5, owner);
 
-            //result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
+            //result =  new PlasmaFragMissile(new TextureRegion(missileTexture), 2.5f, owner);
         }
-        else {
+        else if(owner.type.contains(ObjectType.MAIN_ENEMY_SHIP)) {
 
-            float rnd =  ThreadLocalRandom.current().nextFloat();
+            float rnd = ThreadLocalRandom.current().nextFloat();
 
-            if (rnd >= 0.5){
+            if (rnd >= 0.5) {
                 result = new EmpMissile(new TextureRegion(missileTexture), 2, owner);
-            }
-            else {
+            } else {
                 result = new Missile(new TextureRegion(missileTexture), 2, owner);
             }
+        }
+        else if (owner.type.contains(ObjectType.SMALL_ENEMY_SHIP)) {
+            result = new PlasmaFragMissile(new TextureRegion(missileTexture), 2.5f, owner);
+        }
 
-            //result =  new FragMissile(new TextureRegion(missileTexture), 2.5f, owner);
-
+        if(result == null) {
+            result = new Missile(new TextureRegion(missileTexture), 2, owner);
         }
 
         return result;

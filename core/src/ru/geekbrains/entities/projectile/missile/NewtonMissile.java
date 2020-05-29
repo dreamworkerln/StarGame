@@ -2,10 +2,6 @@ package ru.geekbrains.entities.projectile.missile;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Intersector;
-
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -13,7 +9,7 @@ import ru.geekbrains.entities.projectile.shell.BlackHoleShell;
 import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
 import ru.geekbrains.screen.GameScreen;
 
-public class NewtonMissile extends Missile {
+public class NewtonMissile extends AbstractMissile {
 
 
 
@@ -31,17 +27,18 @@ public class NewtonMissile extends Missile {
         engineTrail.color = Color.GREEN;
 
         armour = 1;
-        setMass(0.3f);
+        mass = 0.3f;
         setMaxThrottle(18f);
         setMaxHealth(20f);
+        maxRotationSpeed =  0.02f;
         fuel = 1000;
 
         engineTrail.setRadius(2);
         damageBurnTrail.setRadius(5);
 
         damage = 10f;
-
         fragCount = 100;
+        penetration = 1f;
     }
 
 
@@ -60,75 +57,6 @@ public class NewtonMissile extends Missile {
 
     }
 
-    @Override
-    protected void guide(float dt) {
-
-        super.guide(dt);
-
-        GameObject planet = GameScreen.INSTANCE.planet;
-
-
-        // Уклонение от падения на планету ---------------------------------------------------------
-
-        // 1. Корабль летит в сторону планеты ?
-
-        tmp0.set(planet.pos).sub(pos); // вектор на планету
-
-        float distToPlanet = tmp0.len();
-
-        if (Math.abs(vel.angle(tmp0)) < 90) {
-
-
-            // Расстояние от прямой, построенной на векторе скорости корабля до планеты
-            // Минимальное сближение с планетой
-            tmp0.set(pos).add(vel).nor(); // вектор прямой
-            float minConvergence = Intersector.distanceLinePoint(pos.x, pos.y, tmp0.x, tmp0.y,
-                    planet.pos.x,
-                    planet.pos.y);
-
-
-            float impactTime = distToPlanet / vel.len();
-
-            // Если минимальное сближение меньше диаметра планеты и время сближения (меньше n)
-            if (minConvergence < 2 *planet.radius &&
-                    impactTime < 6 * (vel.len()/40f) &&      //6
-                    distToPlanet  < 400f + planet.radius) {
-                //distToPlanet  < 40f + planet.radius) {
-
-                // необходимо совершить маневр уклонения
-
-                tmp0.set(planet.pos).sub(pos); // вектор на планету
-
-                // слева или справа планета от вектора скорости
-                float angle = tmp1.set(vel).angle(tmp0);
-
-                // планета слева от вектора скорости
-                if (angle > 0) {
-                    guideVector.set(vel).rotate(-90).nor();
-                } else {
-                    // планета справа от вектора скорости
-                    guideVector.set(vel).rotate(90).nor();
-                }
-
-                throttle = maxThrottle;
-
-                // Acceleration
-
-                if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
-                    throttle = maxThrottle;
-                }
-                else {
-                    throttle = 0;
-                }
-
-            }
-        }
-
-
-
-    }
-
-
 
     @Override
     public void dispose() {
@@ -139,7 +67,7 @@ public class NewtonMissile extends Missile {
         flakShell.vel.set(vel);
         flakShell.fragCount = fragCount;
         flakShell.shapedExplosion = false;
-        flakShell.isEmpOrdinance = true;
+        flakShell.isEmpArmament = true;
         flakShell.explosionPower = 10;
         flakShell.empDamage = 100;
         flakShell.setTTL(1);

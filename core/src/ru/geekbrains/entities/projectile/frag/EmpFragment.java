@@ -35,7 +35,7 @@ public class EmpFragment extends Fragment{
         penetration = 0.1f;
         damage = 0.01f;
 
-        isEmpOrdinance = true;
+        isEmpArmament = true;
         empDamage = 250;
     }
 }

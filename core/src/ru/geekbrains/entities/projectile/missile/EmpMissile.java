@@ -6,24 +6,32 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 
-public class EmpMissile extends Missile {
+public class EmpMissile extends AbstractMissile {
 
     public EmpMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
-        this.type.add(ObjectType.EMP_MISSILE);
+        type.add(ObjectType.BASIC_MISSILE);
+        type.add(ObjectType.EMP_MISSILE);
 
 
         engineTrail.color = new Color(0.65f, 0.87f, 1, 0.7f);
         explosionColor = new Color(0.65f, 0.87f, 1, 0.5f);//new Color(0.25f, 0.57f, 1, 0.5f);
 
+        mass = 0.04f;
+        fuel = 30;
+        boost = 300f;
+        setMaxThrottle(4f);
+        setMaxHealth(0.02f);
+        maxRotationSpeed =  0.05f;
+        damage = 0.5f;
+        penetration = 1;
         explosionRadius = radius * 4;
 
-        damage = 0.5f;
-
-        isEmpOrdinance = true;
+        isEmpArmament = true;
         empDamage = 2000;
     }
+
 
 //    @Override
 //    public void dispose() {

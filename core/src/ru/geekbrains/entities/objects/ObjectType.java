@@ -14,14 +14,17 @@ public enum ObjectType {
     EMP_FRAG,
     BULLET,
     SHIP,
-    MISSILE, // base type
-    BASIC_MISSILE,
+    MISSILE,       // base type
+    BASIC_MISSILE, // base type for medium size missiles
+    HE_MISSILE,
     EMP_MISSILE,
     GRAVITY_REPULSE_MISSILE,
     ANTIMISSILE,
-    FRAGMISSILE,
+    PPLASMA_FRAG_MISSILE,
     FORCE_SHIELD,
     ENEMY_SHIP,
+    MAIN_ENEMY_SHIP,
+    SMALL_ENEMY_SHIP,
     PLAYER_SHIP,
     PLANET,
     MISSILE_LAUNCHER,

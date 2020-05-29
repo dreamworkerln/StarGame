@@ -5,12 +5,15 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.particles.SmokeTrailList;
+import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.entities.particles.SmokeTrail;
 import ru.geekbrains.screen.RendererType;
@@ -20,7 +23,9 @@ import ru.geekbrains.screen.RendererType;
  */
 public abstract class DrivenObject extends GameObject implements SmokeTrailList {
 
+    protected BPU pbu = new BPU();
 
+    public float throttle = 0;                   // current throttle
     public float maxFuel = 100000f;        // maximum fuel tank capacity
     public float maxThrottle = 50f;        // maximum thruster engine force
     public float maxRotationSpeed = 0.05f; // maximum rotation speed
@@ -31,7 +36,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
     protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
 
-    public float throttle = 0;                   // current throttle
+
 
     public float fuel = maxFuel;                   // current fuel level
     public float  fuelConsumption = 1;
@@ -45,6 +50,10 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
     public SmokeTrail engineTrail;                      // trail from thruster burst
     public SmokeTrail damageBurnTrail;                  // trail from burning on damage
+
+    protected long avoidPlanetTick = 0;
+
+    //protected boolean doAvoidPlanet = false;
 
     public DrivenObject(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
@@ -141,7 +150,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
         // auto-repair for ships
         if (health < getMaxHealth() &&
-                type.contains(ObjectType.SHIP)) {
+            type.contains(ObjectType.SHIP)) {
             health += 0.001;
         }
 
@@ -167,10 +176,95 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         }
 
     }
-    
+
 
 
     protected abstract void guide(float dt);
+
+
+    // Уклонение от падения на планету
+    protected void avoidPlanet(float dt) {
+
+        //boolean result = false; // avoid maneuver is required
+
+        if (this.readyToDispose) {
+            return;
+        }
+
+
+        GameObject planet = GameScreen.INSTANCE.planet;
+
+        float maxPrjVel = vel.len();  // Задаем начальную скорость "тестовой" пули
+        pbu.guideGun(this, planet, maxPrjVel, dt);
+
+        // get results
+
+        Float impactTime = (float)pbu.guideResult.impactTime;
+
+        //float maxTime = doAvoidPlanet ? planetAvoidImpactTime * 2f : planetAvoidImpactTime;
+
+        //doAvoidPlanet = !impactTime.isNaN() && impactTime >= 0 && impactTime < maxTime;
+
+        long planetAvoidImpactTickTime = (long)(mass/maxThrottle * 2000);
+
+
+
+        boolean doAvoidPlanet = !impactTime.isNaN() && impactTime >= 0 && impactTime < 2f;
+
+        // set trigger on
+        if (doAvoidPlanet && avoidPlanetTick == 0) {
+            avoidPlanetTick = GameScreen.INSTANCE.getTick() + planetAvoidImpactTickTime;
+        }
+
+        if (avoidPlanetTick > GameScreen.INSTANCE.getTick()) {
+            doAvoidPlanet = true;
+        }
+        else {// set trigger off
+            avoidPlanetTick = 0;
+        }
+        
+
+        if (doAvoidPlanet) {
+
+            // 1. Корабль летит в сторону планеты ?
+
+            tmp0.set(planet.pos).sub(pos); // вектор на планету
+
+            //if (Math.abs(vel.angle(tmp0)) < 90) {
+
+            // необходимо совершить маневр уклонения
+
+            tmp0.set(planet.pos).sub(pos); // вектор на планету
+
+            // слева или справа планета от вектора скорости
+            float angle = tmp1.set(vel).angle(tmp0);
+
+            // планета слева от вектора скорости
+            if (angle > 0) {
+                guideVector.set(vel).rotate(-90).nor();
+            } else {
+                // планета справа от вектора скорости
+                guideVector.set(vel).rotate(90).nor();
+            }
+
+            throttle = maxThrottle;
+
+            if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
+                throttle = maxThrottle;
+            }
+            else {
+                throttle = 0;
+            }
+            //result = true;
+            //}
+        }
+
+
+
+
+        //return result;
+    }
+
 
     // ---------------------------------------------------------------------------------------------
 
@@ -245,7 +339,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
         renderer.shape.setColor(1f, 0.8f, 0.2f, 1);
         renderer.shape.circle(enginePos.x, enginePos.y,
-                radius * aspectRatio * 0.3f * (throttle/maxThrottle));
+            radius * aspectRatio * 0.3f * (throttle/maxThrottle));
 
         Gdx.gl.glLineWidth(1);
         //renderer.shape.end();
@@ -280,6 +374,6 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
 
 
-    
+
 
 }

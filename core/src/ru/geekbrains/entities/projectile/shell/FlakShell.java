@@ -147,7 +147,7 @@ public class FlakShell extends Shell {
             frag.applyForce(tmp0);          // apply force applied to frag
 
             frag.setTTL(ThreadLocalRandom.current().nextLong(fragTTL,fragTTL + fragTTL/2));
-//            if (frag.isEmpOrdinance) {
+//            if (frag.isEmpArmament) {
 //                frag.setTTL(frag.getTTL()/4);
 //            }
 

@@ -1,7 +1,6 @@
 package ru.geekbrains.entities.projectile.missile;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -13,49 +12,58 @@ import ru.geekbrains.entities.projectile.frag.Fragment;
 import ru.geekbrains.entities.projectile.frag.PlasmaFragment;
 import ru.geekbrains.screen.GameScreen;
 
-public class FragMissile extends Missile{
+public class PlasmaFragMissile extends AbstractMissile{
 
     private final int fragCount;
     protected boolean shapedExplosion = true;
 
-    static Texture missileTexture = new Texture("M-45_missile2.png");
+    //static Texture missileTexture = new Texture("M-45_missile2.png");
+
+    protected float defaultproximityMinDistance;
 
 
 
-    public FragMissile(TextureRegion textureRegion, float height, GameObject owner) {
+    public PlasmaFragMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
-        //mass = 0.03f;
+        type.add(ObjectType.BASIC_MISSILE);
+        type.add(ObjectType.ANTIMISSILE);
+
         mass = 0.08f;
 
         fuel = 24;
 
-        damage = 1f;
+        damage = 4f;
+        
         setMaxHealth(0.02f);
+        setMaxThrottle(9f);
         boost = 700f;
 
-        maxThrottle = 9f;
-        throttle = maxThrottle;
+        fragCount = 12;
 
-        fragCount = 25;
         selfdOnTargetDestroyed = false;
         canRetarget = true;
         selfdOnNoFuel = true;
         selfdOnProximityMiss = false;
 
 
-        proximityMissMinGateDistance = 200;
+
         proximityMinDistance = 200;
         proximitySafeDistance = 150;
-        proximityMissMaxSelfdDistance = 100;
+        //proximityMissMinGateDistance = 200;
+        //proximityMissMaxSelfdDistance = 100;
 
-        type.add(ObjectType.FRAGMISSILE);
+        defaultproximityMinDistance = proximityMinDistance;
 
-        maxRotationSpeed = 0.1f;
+        type.add(ObjectType.PPLASMA_FRAG_MISSILE);
+
+        maxRotationSpeed =  0.05f;
+
+        proximityMinDistanceTime = 0.3f;
 
 
-
-        this.engineTrail.color = new Color(0.7f, 0.2f, 0.2f, 1);
+        engineTrail.color = new Color(0.9f, 0.9f, 0.3f, 1);
+        engineTrail.setRadius(0.8f);
     }
 
 
@@ -64,6 +72,18 @@ public class FragMissile extends Missile{
 
         // стандартное наведение
         super.guide(dt);
+
+        if (this.readyToDispose) {
+            return;
+        }
+
+
+        if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            proximityMinDistance = 0;
+        }
+        else {
+            proximityMinDistance = defaultproximityMinDistance;
+        }
 
         
         if (target == null || target.readyToDispose) {
@@ -100,21 +120,16 @@ public class FragMissile extends Missile{
 //            }
 
 
-
-
-
-            
-
         }
-        // отключено
-        // взвод направленного подрыва
-        // находимся от носителя дальше безопасного расстояния
-        else if (distToTarget < proximityMinDistance &&
-                 distToCarrier > proximitySafeDistance) {
-
-            //shapedExplosion = true;
-            //readyToDispose = true;
-        }
+//        // отключено
+//        // взвод направленного подрыва
+//        // находимся от носителя дальше безопасного расстояния
+//        else if (distToTarget < proximityMinDistance &&
+//                 distToCarrier > proximitySafeDistance) {
+//
+//            //shapedExplosion = true;
+//            //readyToDispose = true;
+//        }
 
     }
 
@@ -125,23 +140,23 @@ public class FragMissile extends Missile{
 
         
 
-        float power = 10f;
+        float power = 10f*5f;
 
-        ru.geekbrains.entities.projectile.frag.Fragment trash = new Fragment(6f, 1.5f, new Color(0.3f, 0.7f, 0.3f, 1), owner);
-        trash.setMass(fragCount*trash.getMass()); // намного больше изначальной массы ракеты
-        trash.pos.set(pos);
-        trash.vel.set(vel);
-        trash.dir.set(dir);
-        trash.damage = 1;
-        trash.owner = owner;
+        //PlasmaFragment trash = new PlasmaFragment(6f, 1.5f, new Color(0.3f, 0.7f, 0.3f, 1), owner);
+        //trash.setMass(fragCount*trash.getMass()*5*2f); // намного больше изначальной массы ракеты
+        //trash.pos.set(pos);
+        //trash.vel.set(vel);
+        //trash.dir.set(dir);
+        //trash.damage = 1;
+        //trash.owner = owner;
 
 
-        GameScreen.addObject(trash);
+        //GameScreen.addObject(trash);
 
         // create fragments
         for (int i = 0; i < fragCount; i++) {
 
-            Projectile frag = new PlasmaFragment(4f, 1,  owner);
+            Projectile frag = new PlasmaFragment(2f, 0.8f, new Color(0.9f, 0.5f, 0.8f, 1), owner);
 
 
 
@@ -151,6 +166,7 @@ public class FragMissile extends Missile{
             frag.vel.set(vel);
             frag.dir.set(dir);
             frag.owner = owner;
+            frag.setMass(frag.getMass()*5f);
 
             double fromAn;
             double toAn;
@@ -194,7 +210,7 @@ public class FragMissile extends Missile{
 
             tmp0.set(x, y); // force
             frag.applyForce(tmp0);          // apply force applied to frag
-            trash.applyForce(tmp0.scl(-1));
+            //trash.applyForce(tmp0.scl(-1));
 
             frag.setTTL(ThreadLocalRandom.current().nextLong(400,600));
             GameScreen.addObject(frag);

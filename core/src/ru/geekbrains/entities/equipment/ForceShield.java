@@ -12,11 +12,12 @@ import java.util.List;
 import java.util.Set;
 
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ShipComponent;
 import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 
-public class ForceShield extends ParticleObject {
+public class ForceShield extends ShipComponent {
 
 
 
@@ -69,7 +70,8 @@ public class ForceShield extends ParticleObject {
 
         ShapeRenderer shape = renderer.shape;
 
-        Gdx.gl.glLineWidth(radius);
+        Gdx.gl.glLineWidth(1);
+        //Gdx.gl.glLineWidth(radius);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
@@ -99,6 +101,7 @@ public class ForceShield extends ParticleObject {
         shape.setColor(bufColor);
         shape.circle(pos.x, pos.y, radius);
         Gdx.gl.glLineWidth(1);
+        shape.flush();
         //shape.end();
     }
 }

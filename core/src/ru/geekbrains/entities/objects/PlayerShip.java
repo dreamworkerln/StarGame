@@ -10,10 +10,12 @@ import java.util.TreeMap;
 
 import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
 import ru.geekbrains.entities.equipment.BPU;
+import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.equipment.ForceShield;
 import ru.geekbrains.entities.projectile.shell.Shell;
 import ru.geekbrains.entities.weapons.AntiMissileLauncher;
 import ru.geekbrains.entities.weapons.FlakCannon;
+import ru.geekbrains.entities.weapons.Gun;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.KeyDown;
@@ -22,20 +24,6 @@ import ru.geekbrains.screen.Renderer;
 
 public class PlayerShip extends Ship {
 
-
-
-
-    public TrajectorySimulator trajectorySim;
-    public TrajectorySimulator gunSim;
-
-    public Minigun minigun;
-    public ForceShield shield;
-    public MissileLauncher launcher;
-    public AntiMissileLauncher antiLauncher;
-
-    public FlakCannon flakCannon;
-
-    public BPU pbu = new BPU();
     public float maxAimRange = 1000;
     private NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
     private List<GameObject> targetList = new ArrayList<>();
@@ -47,37 +35,59 @@ public class PlayerShip extends Ship {
 
         this.type.add(ObjectType.PLAYER_SHIP);
 
-        trajectorySim = new TrajectorySimulator(this, this);
 
-        gunSim = new TrajectorySimulator(this, new Shell(gun.getCalibre(), owner));
+        TrajectorySimulator trajectorySim;
+        TrajectorySimulator gunSim;
 
-        shield = new ForceShield(this, new Color(0.1f , 0.5f, 1f, 1f));
+        Minigun minigun;
+        ForceShield shield;
+        MissileLauncher launcher;
+        AntiMissileLauncher antiLauncher;
+        FlakCannon flakCannon;
 
-        minigun = new Minigun(4, this);
-
-        launcher = new MissileLauncher(10, this);
-
-        antiLauncher = new AntiMissileLauncher(10, this);
-
-        flakCannon = new FlakCannon(10, this);
-
-        maxThrottle = 80f;
-
-        //launcher.fireRate = 0.02f;
-
-
-        //setMaxHealth(100);
-
+        // tuning gun
+        Gun gun = (Gun)componentList.get(CompNames.GUN);
         gun.maxGunHeat = 300;
-        //gun.fireRate = 1f;
         gun.drift = 0.03f;
         gun.burst= 6;
 
+
+        trajectorySim = new TrajectorySimulator(this, this);
+        gunSim = new TrajectorySimulator(this, new Shell(gun.getCalibre(), owner));
+        shield = new ForceShield(this, new Color(0.1f , 0.5f, 1f, 1f));
+        minigun = new Minigun(4, this);
+        launcher = new MissileLauncher(10, this);
+        antiLauncher = new AntiMissileLauncher(10, this);
+        flakCannon = new FlakCannon(10, this);
+
+        addComponent(CompNames.SIM_TRAJECTORY, trajectorySim);
+        addComponent(CompNames.SIM_GUN, gunSim);
+        addComponent(CompNames.FORCESHIELD,shield);
+        addComponent(CompNames.MINIGUN,minigun);
+        addComponent(CompNames.LAUNCHER,launcher);
+        addComponent(CompNames.ANTI_LAUNCHER,antiLauncher);
+        addComponent(CompNames.FLACK_CANNON,flakCannon);
+
+        // -----------------------------------------------------------------------------------------
+
+        maxThrottle = 80f;
+
+    }
+
+
+    public ForceShield getShield() {
+        return (ForceShield)componentList.get(CompNames.FORCESHIELD);
     }
 
 
     @Override
     protected void guide(float dt) {
+
+        WeaponSystem gun = weaponList.get(CompNames.GUN);
+        WeaponSystem minigun = weaponList.get(CompNames.MINIGUN);
+        FlakCannon flakCannon = (FlakCannon)componentList.get(CompNames.FLACK_CANNON);
+        MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
+
 
         float rot = maxRotationSpeed;
 
@@ -88,14 +98,14 @@ public class PlayerShip extends Ship {
 
         if (KeyDown.A) {
             dir.rotateRad(rot);
-            minigun.dir.rotateRad(rot);
-            flakCannon.dir.rotateRad(rot);
+            minigun.getDir().rotateRad(rot);
+            flakCannon.getDir().rotateRad(rot);
 
         }
         if (KeyDown.D) {
             dir.rotateRad(-rot);
-            minigun.dir.rotateRad(-rot);
-            flakCannon.dir.rotateRad(-rot);
+            minigun.getDir().rotateRad(-rot);
+            flakCannon.getDir().rotateRad(-rot);
         }
 
         if (KeyDown.W) {
@@ -154,8 +164,8 @@ public class PlayerShip extends Ship {
             rot = maxRotationSpeed/2 * KeyDown.SCROLLED;
 
             dir.rotateRad(rot);
-            minigun.dir.rotateRad(rot);
-            flakCannon.dir.rotateRad(rot);
+            minigun.getDir().rotateRad(rot);
+            flakCannon.getDir().rotateRad(rot);
 
             KeyDown.SCROLLED = 0;
         }
@@ -175,31 +185,15 @@ public class PlayerShip extends Ship {
     }
 
 
-    @Override
-    public void update(float dt) {
-        super.update(dt);
+
+//    @Override
+//    public void update(float dt) {
+//        super.update(dt);
+//        aimHelp(dt);
+//    }
 
 
-        trajectorySim.update(dt);
-        gunSim.update(dt);
-
-        shield.update(dt);
-
-        gun.update(dt);
-
-        minigun.update(dt);
-
-        launcher.update(dt);
-
-        antiLauncher.update(dt);
-
-        flakCannon.update(dt);
-
-        aimHelp(dt);
-    }
-
-
-    public void aimHelp(float dt) {
+//    public void aimHelp(float dt) {
 
 //        impactTimes.clear();
 //        targetList.clear();
@@ -237,29 +231,30 @@ public class PlayerShip extends Ship {
 
 
 
-    }
+//    }
 
-    @Override
-    public void draw(Renderer renderer) {
 
-        super.draw(renderer);
-
-        // trajectory sim
-        trajectorySim.draw(renderer);
-
-        gunSim.draw(renderer);
-
-        shield.draw(renderer);
-
-        gun.draw(renderer);
-
-        minigun.draw(renderer);
-
-        launcher.draw(renderer);
-
-        antiLauncher.draw(renderer);
-
-        flakCannon.draw(renderer);
+//    @Override
+//    public void draw(Renderer renderer) {
+//
+//        super.draw(renderer);
+//
+//        // trajectory sim
+//        trajectorySim.draw(renderer);
+//
+//        gunSim.draw(renderer);
+//
+//        shield.draw(renderer);
+//
+//        gun.draw(renderer);
+//
+//        minigun.draw(renderer);
+//
+//        launcher.draw(renderer);
+//
+//        antiLauncher.draw(renderer);
+//
+//        flakCannon.draw(renderer);
 
 
 //        if (renderer.rendererType!= RendererType.SHAPE) {
@@ -309,24 +304,24 @@ public class PlayerShip extends Ship {
 
 
 
-        super.draw(renderer);
-    }
+//        super.draw(renderer);
+//    }
 
 
-    @Override
-    public void dispose() {
-
-        trajectorySim.dispose();
-        gunSim.dispose();
-
-        launcher.dispose();
-        antiLauncher.dispose();
-        flakCannon.dispose();
-        shield.dispose();
-
-        minigun.dispose();
-        gun.dispose();
-
-        super.dispose();
-    }
+//    @Override
+//    public void dispose() {
+//
+//        trajectorySim.dispose();
+//        gunSim.dispose();
+//
+//        launcher.dispose();
+//        antiLauncher.dispose();
+//        flakCannon.dispose();
+//        shield.dispose();
+//
+//        minigun.dispose();
+//        gun.dispose();
+//
+//        super.dispose();
+//    }
 }

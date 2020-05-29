@@ -4,22 +4,22 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.projectile.missile.Missile;
 
-public class AntiMissile extends Missile {
+public class AntiMissile extends AbstractMissile {
 
-    float maxRotationSpeedOld;
+    float currentMaxRotationSpeed;
 
     public AntiMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
-        this.type.add(ObjectType.ANTIMISSILE);
+        type.add(ObjectType.ANTIMISSILE);
 
         explosionRadius = radius * 2;
 
         mass = 0.01f;
         fuel = 4f;
 
+        setMaxThrottle(3f);
         maxThrottle = 3f;
         throttle = maxThrottle;
 
@@ -27,18 +27,22 @@ public class AntiMissile extends Missile {
         damage = 0.5f;
         boost = 600f;
 
+        maxRotationSpeed = 0.05f;
+        currentMaxRotationSpeed = maxRotationSpeed;
+
 
         selfdOnTargetDestroyed = true;
         canRetarget = false;
         selfdOnNoFuel = true;
         selfdOnProximityMiss = true;
+        avoidPlanet = false;
 
         proximityMissMinGateDistance = 500;
         proximityMissMaxSelfdDistance = 10;
 
         penetration = 0.1f;
 
-        maxRotationSpeedOld = maxRotationSpeed;
+        directGuiding = false;
 
     }
 
@@ -66,12 +70,10 @@ public class AntiMissile extends Missile {
                 maxRotationSpeed = (float) (2 * Math.PI);
                 throttle = maxThrottle/5;
 
-
-
             }
             else {
 
-                maxRotationSpeed = maxRotationSpeedOld;
+                maxRotationSpeed = currentMaxRotationSpeed;
                 throttle = maxThrottle;
             }
 

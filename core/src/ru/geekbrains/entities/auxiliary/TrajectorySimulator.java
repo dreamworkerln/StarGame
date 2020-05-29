@@ -15,11 +15,13 @@ import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.Planet;
 import ru.geekbrains.entities.objects.Ship;
+import ru.geekbrains.entities.objects.ShipComponent;
+import ru.geekbrains.entities.weapons.Gun;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 
-public class TrajectorySimulator implements Disposable {
+public class TrajectorySimulator extends ShipComponent {
 
     protected GameObject target;
 
@@ -44,6 +46,8 @@ public class TrajectorySimulator implements Disposable {
 
 
     public TrajectorySimulator(Ship owner, GameObject simType) {
+
+        super(owner);
 
         this.target = owner;
         this.model = simType;
@@ -75,11 +79,15 @@ public class TrajectorySimulator implements Disposable {
 
         if (model.type.contains(ObjectType.SHELL)) {
 
-            tracer.pos.set(((Ship)target).gun.nozzlePos);
-            tracer.dir.set(((Ship)target).gun.dir);
+            Ship ship = (Ship)target;
+            Gun gun = (Gun)ship.getGun();
 
-            tmp0.set(target.dir).setLength(((Ship)target).gun.power); // dummy shell speed
-            tracer.applyForce(tmp0);             // dummy force applied to shell
+
+            tracer.pos.set(gun.nozzlePos);
+            tracer.dir.set(gun.dir);
+
+            tmp0.set(target.dir).setLength(gun.power); // dummy shell speed
+            tracer.applyForce(tmp0);                   // dummy force applied to shell
 
             color.set(0f,0.76f,0.9f,0.5f);
 
@@ -156,9 +164,4 @@ public class TrajectorySimulator implements Disposable {
         //shape.end();
     }
 
-
-    @Override
-    public void dispose() {
-
-    }
 }

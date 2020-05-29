@@ -14,7 +14,11 @@ public class DesktopLauncher {
 
 		Graphics.DisplayMode displayMode = LwjglApplicationConfiguration.getDesktopDisplayMode();
 		Graphics.DisplayMode[] modes = LwjglApplicationConfiguration.getDisplayModes();
-		config.setFromDisplayMode(modes[1]);
+
+		try {
+			config.setFromDisplayMode(modes[1]);
+		}
+		catch (Exception ignored) {}
 
 		float aspect = 10f/16f;
 		config.height = 1920;

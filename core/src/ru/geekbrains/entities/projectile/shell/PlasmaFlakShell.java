@@ -37,7 +37,7 @@ public class PlasmaFlakShell extends FlakShell {
 
        Fragment result;
 
-        if (isEmpOrdinance && ThreadLocalRandom.current().nextFloat() > 0.5) {
+        if (isEmpArmament && ThreadLocalRandom.current().nextFloat() > 0.5) {
             result =  new EmpFragment(2, 0.3f,  owner);
         }
         else {
