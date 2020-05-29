@@ -1060,7 +1060,7 @@ public class GameScreen extends BaseScreen {
 
             enemyShipsToSpawn--;
 
-            if (ThreadLocalRandom.current().nextFloat() > 0.85) {
+            if (ThreadLocalRandom.current().nextFloat() > 0.87) {
 
                 //new NewtonMissile(new TextureRegion(missileTexture), 5, null);
 
@@ -1529,11 +1529,11 @@ public class GameScreen extends BaseScreen {
         }
         else if (obj.type.contains(ObjectType.MISSILE) &&
             !obj.type.contains(ObjectType.ANTIMISSILE)&&
-            !obj.type.contains(ObjectType.PPLASMA_FRAG_MISSILE)) {
+            !obj.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
 
             expl02.play(0.6f);
         }
-        else if (obj.type.contains(ObjectType.PPLASMA_FRAG_MISSILE)) {
+        else if (obj.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
             bigExpl.play(1f);
         }
         else if (obj.type.contains(ObjectType.ANTIMISSILE)) {

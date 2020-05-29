@@ -35,7 +35,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
     // Список целей, по которым идет огонь
     // (По которым запущены противо-ракеты и идет поражение)
-    protected Map<GameObject, AntiMissile> targetMissile = new HashMap<>(); // Назначение антиракет по целям
+    protected Map<GameObject, List<AntiMissile>> targetMissile = new HashMap<>(); // Назначение антиракет по целям
 
     private List<GameObject> inboundMissiles = new ArrayList<>();
 
@@ -61,11 +61,11 @@ public class AntiMissileLauncher extends MissileLauncher {
         gunHeatingDelta = 50;
         coolingGunDelta = 1.0f; //1.4
         //coolingGunDelta = 90;
-        maxGunHeat = 200;
+        maxGunHeat = 300;
         power = 200;
 
 
-        maxRange = 1500;
+        maxRange = 1700;
         maxImpactTime = 2f;
 
         maxPrjVel = 400;
@@ -98,7 +98,12 @@ public class AntiMissileLauncher extends MissileLauncher {
 
 
         AntiMissile missile = (AntiMissile)createProjectile();
-        targetMissile.put(target, missile);
+
+        targetMissile.computeIfAbsent(target, o -> new ArrayList<>());
+        targetMissile.get(target).add(missile);
+
+
+        //targetMissile.put(target, missile);
 
 
 
@@ -200,18 +205,19 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         target = null;
 
-        // Убираем из списка целей, по которым идет огонь
-        // уничтоженные цели
+        // Убираем из списка целей, по которым идет огонь уничтоженные цели
         // Или цели, находящиеся за пределами работы системы
         // Или цели, по которым не ведется огонь противоракетами (противоракеты сбиты)
-        // Сейчас по одной цели запускается ровно 1 противоракета
-        Iterator<Map.Entry<GameObject, AntiMissile>> it = targetMissile.entrySet().iterator();
+        // -- Сейчас по одной цели запускается ровно 1 противоракета
+
+
+        Iterator<Map.Entry<GameObject, List<AntiMissile>>> it = targetMissile.entrySet().iterator();
 
         while (it.hasNext()) {
-            Map.Entry<GameObject, AntiMissile> pair = it.next();
+            Map.Entry<GameObject, List<AntiMissile>> pair = it.next();
 
             GameObject  o  = pair.getKey();
-            AntiMissile m = pair.getValue();
+            List<AntiMissile> mList = pair.getValue();
 
             // цель уничтожена
             if (o.readyToDispose) {
@@ -227,11 +233,10 @@ public class AntiMissileLauncher extends MissileLauncher {
                 continue;
             }
 
-            // цель жива, но ракета-перехватчик уничтожена
-            if (m.readyToDispose) {
+            mList.removeIf(m -> m.readyToDispose);
+            if (mList.size() == 0) {
                 it.remove();
             }
-
         }
 
 
@@ -250,7 +255,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
         targets.removeIf(o ->
                 o.readyToDispose || o == owner || o.owner == owner ||
-                (!o.type.contains(ObjectType.BASIC_MISSILE)));
+                        (!o.type.contains(ObjectType.BASIC_MISSILE)));
 
         for (GameObject trg : targets) {
 
@@ -264,13 +269,21 @@ public class AntiMissileLauncher extends MissileLauncher {
 
 
 
-            pbu.guideGun(this, trg, /*maxPrjVel - 100*/maxPrjVel, dt);
+            pbu.guideGun(this, trg, maxPrjVel, dt);
 
             // get results
 
             Float impactTime = (float)pbu.guideResult.impactTime;
 
-            if (!impactTime.isNaN() && impactTime >= 0 && impactTime < maxImpactTime) {
+
+            boolean isPlasmaFragMissile = trg.type.contains(ObjectType.PLASMA_FRAG_MISSILE);
+
+            float localMaxImpactTime = maxImpactTime;
+            if(isPlasmaFragMissile) {
+                localMaxImpactTime *=2f;
+            }
+
+            if (!impactTime.isNaN() && impactTime >= 0 && impactTime < localMaxImpactTime) {
                 impactTimes.put(impactTime, pbu.guideResult.clone());
             }
 
@@ -281,16 +294,12 @@ public class AntiMissileLauncher extends MissileLauncher {
         for (BPU.GuideResult guideResult : impactTimes.values()) {
 
             GameObject o = guideResult.target;
-//            if (o != owner &&
-//                    o.owner != owner &&
-//                    !o.readyToDispose && (o.type.contains(ObjectType.MISSILE) ||
-//                    o.type.contains(ObjectType.SHIP))) {
 
-                // Умеет сопровождать не более 10 целей одновременно
-                if (inboundMissiles.size() > maxTargets) {
-                    break;
-                }
-                inboundMissiles.add(o);
+            // Умеет сопровождать не более 10 целей одновременно
+            if (inboundMissiles.size() > maxTargets) {
+                break;
+            }
+            inboundMissiles.add(o);
             //}
 
         }
@@ -313,23 +322,52 @@ public class AntiMissileLauncher extends MissileLauncher {
         // В inboundMissiles лежит не более 6 целей,
         // отсортированных в порядке удаления
 
+        // sorting inbound missiles
 
+        inboundMissiles.sort((o1, o2) -> {
 
+            int res;
+            if (o1.type.contains(ObjectType.PLASMA_FRAG_MISSILE) &&
+                    !o2.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
+
+                res = -1;
+            }
+            else if (!o1.type.contains(ObjectType.PLASMA_FRAG_MISSILE) &&
+                    o2.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
+
+                res = 1;
+
+            }
+            else {
+                res = 0;
+            }
+            return res;
+        });
 
 
         // Умеет сопровождать не более 10 целей одновременно
         if(targetMissile.size() <= maxTargets) {
 
+
+
             for (GameObject o : inboundMissiles) {
 
+                boolean isPlasmaFragMissile = o.type.contains(ObjectType.PLASMA_FRAG_MISSILE);
+
                 // Если цели нет в списке targetMissile
-                // То стрелять по этой цели
+                // То выпустить ракету по этой цели
                 if (!targetMissile.containsKey(o)) {
 
                     target = o;
                     break;
                 }
+                // либо это PLASMA_FRAG_MISSILE и по ней выпустить две противоракеты
+                else if (isPlasmaFragMissile &&
+                        targetMissile.get(o).size() < 2) {
 
+                    target = o;
+                    break;
+                }
             }
         }
 

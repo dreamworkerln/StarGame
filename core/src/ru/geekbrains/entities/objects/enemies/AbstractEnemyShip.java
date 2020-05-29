@@ -2,6 +2,8 @@ package ru.geekbrains.entities.objects.enemies;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import java.util.List;
+
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -9,6 +11,7 @@ import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.entities.objects.WeaponSystem;
 import ru.geekbrains.entities.weapons.Gun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
+import ru.geekbrains.screen.GameScreen;
 
 
 public abstract class AbstractEnemyShip extends Ship {
@@ -51,6 +54,9 @@ public abstract class AbstractEnemyShip extends Ship {
         // Уклонение от падения на планету
         avoidPlanet(dt);
 
+        // Уклонение от столкновения
+        avoidCollision(dt);
+
         // ЛИБО Наведение на цель ------------------------------------------------------------------------
 
         // Если есть цель и мы не уклоняемся от планеты (если уклоняемся, то guideVector не Zero)
@@ -87,6 +93,41 @@ public abstract class AbstractEnemyShip extends Ship {
                 gun.stopFire();
                 launcher.stopFire();
             }
+        }
+    }
+
+
+
+    protected void avoidCollision(float dt) {
+
+        if (this.readyToDispose) {
+            return;
+        }
+
+        List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 50);
+
+        // leave only ships and missiles
+        targetList.removeIf(o -> o == this || o.readyToDispose ||
+                o.type.contains(ObjectType.PLAYER_SHIP) ||
+                !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHIP));
+
+        if(targetList.size() == 0) {
+            return;
+        }
+
+        pbu.guideGun(this, targetList.get(0), this.vel.len(), dt);
+
+        Float impactTime = (float)pbu.guideResult.impactTime;
+
+        if (!impactTime.isNaN() && impactTime > 0 && impactTime < 2) {
+            guideVector.set(targetList.get(0).pos).sub(pos).nor().scl(-1);
+        }
+
+        if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
+            throttle = maxThrottle;
+        }
+        else {
+            throttle = 0;
         }
     }
 

@@ -8,7 +8,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.Projectile;
-import ru.geekbrains.entities.projectile.frag.Fragment;
 import ru.geekbrains.entities.projectile.frag.PlasmaFragment;
 import ru.geekbrains.screen.GameScreen;
 
@@ -36,7 +35,7 @@ public class PlasmaFragMissile extends AbstractMissile{
         damage = 4f;
         
         setMaxHealth(0.02f);
-        setMaxThrottle(9f);
+        setMaxThrottle(8f);
         boost = 700f;
 
         fragCount = 12;
@@ -55,14 +54,14 @@ public class PlasmaFragMissile extends AbstractMissile{
 
         defaultproximityMinDistance = proximityMinDistance;
 
-        type.add(ObjectType.PPLASMA_FRAG_MISSILE);
+        type.add(ObjectType.PLASMA_FRAG_MISSILE);
 
         maxRotationSpeed =  0.05f;
 
         proximityMinDistanceTime = 0.3f;
 
 
-        engineTrail.color = new Color(0.9f, 0.9f, 0.3f, 1);
+        engineTrail.color = new Color(1f, 0.8f, 0.2f, 1);
         engineTrail.setRadius(0.8f);
     }
 
@@ -77,6 +76,15 @@ public class PlasmaFragMissile extends AbstractMissile{
             return;
         }
 
+        if (target == null || target.readyToDispose) {
+
+            // перед самоликвидацией отворачиваемся от носителя, чтоб не подоравть его случайно
+            if(owner!=null && !owner.readyToDispose) {
+                guideVector.set(owner.pos).sub(pos).scl(-1).nor().rotate(45);
+            }
+            return;
+        }
+
 
         if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
             proximityMinDistance = 0;
@@ -86,15 +94,7 @@ public class PlasmaFragMissile extends AbstractMissile{
         }
 
         
-        if (target == null || target.readyToDispose) {
 
-            // перед самоликвидацией отворачиваемся от носителя, чтоб не подоравть его случайно
-            if(owner!=null && !owner.readyToDispose) {
-                guideVector.set(owner.pos).sub(pos).scl(-1).nor().rotate(45);
-            }
-
-            return;
-        }
 
         // перед подрывом разворот в сторону цели
         if (distToTarget <  proximityMinDistance*2.5  &&
@@ -156,7 +156,7 @@ public class PlasmaFragMissile extends AbstractMissile{
         // create fragments
         for (int i = 0; i < fragCount; i++) {
 
-            Projectile frag = new PlasmaFragment(2f, 0.8f, new Color(0.9f, 0.5f, 0.8f, 1), owner);
+            Projectile frag = new PlasmaFragment(2f, 0.8f, new Color(1f, 0.8f, 0.2f, 1), owner);
 
 
 

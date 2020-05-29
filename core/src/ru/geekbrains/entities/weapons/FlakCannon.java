@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import ru.geekbrains.entities.equipment.BPU;
@@ -286,7 +285,7 @@ public class FlakCannon extends Gun {
                         List<BPU.GuideResult> incomingPlasmaFragMissiles = new ArrayList<>();
                         for (GameObject m : missilesList) {
 
-                            if (m.type.contains(ObjectType.PPLASMA_FRAG_MISSILE)) {
+                            if (m.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
 
                                 float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
                                 pbu.guideGun(owner, m, maxPrjVel, dt);
@@ -296,7 +295,13 @@ public class FlakCannon extends Gun {
 
                                     incomingPlasmaFragMissiles.add(pbu.guideResult);
                                 }
-                                if (incomingPlasmaFragMissiles.size() >=2) {
+
+                                int maxCnt =2;
+                                if (firingMode == FiringMode.FLAK_ONLY) {
+                                    maxCnt = 1;
+                                }
+
+                                if (incomingPlasmaFragMissiles.size() >= maxCnt) {
 
                                     groupMissilesFound = true;
                                     impactTimes.clear();

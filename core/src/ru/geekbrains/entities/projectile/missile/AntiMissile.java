@@ -17,15 +17,13 @@ public class AntiMissile extends AbstractMissile {
         explosionRadius = radius * 2;
 
         mass = 0.01f;
-        fuel = 4f;
+        fuel = 5f;
 
-        setMaxThrottle(3f);
-        maxThrottle = 3f;
-        throttle = maxThrottle;
+        setMaxThrottle(3.3f);
 
         setMaxHealth(0.01f);
         damage = 0.5f;
-        boost = 600f;
+        boost = 700f;
 
         maxRotationSpeed = 0.05f;
         currentMaxRotationSpeed = maxRotationSpeed;

@@ -208,8 +208,12 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         long planetAvoidImpactTickTime = (long)(mass/maxThrottle * 2000);
 
 
+        float minImpactTime = 2f;
+        if(this.type.contains(ObjectType.BASIC_MISSILE)) {
+            minImpactTime = 1.5f;
+        }
 
-        boolean doAvoidPlanet = !impactTime.isNaN() && impactTime >= 0 && impactTime < 2f;
+        boolean doAvoidPlanet = !impactTime.isNaN() && impactTime >= 0 && impactTime < minImpactTime;
 
         // set trigger on
         if (doAvoidPlanet && avoidPlanetTick == 0) {
@@ -247,7 +251,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
                 guideVector.set(vel).rotate(90).nor();
             }
 
-            throttle = maxThrottle;
+            //throttle = maxThrottle;
 
             if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
                 throttle = maxThrottle;

@@ -61,6 +61,9 @@ public class SmallEnemyShip extends AbstractEnemyShip {
         // Уклонение от падения на планету
         avoidPlanet(dt);
 
+        avoidCollision(dt);
+
+
         // ЛИБО Наведение на цель ------------------------------------------------------------------------
 
         // Если есть цель и мы не уклоняемся от планеты (если уклоняемся, то guideVector не Zero)
@@ -88,16 +91,6 @@ public class SmallEnemyShip extends AbstractEnemyShip {
 
             throttle = maxThrottle;
 
-            tmp0.set(pos).add(dir);
-            tmp1.set(pos).sub(dir);
-
-            float lenFront = tmp2.set(target.pos).sub(tmp0).len();
-            float lenBack =  tmp2.set(target.pos).sub(tmp1).len();
-
-            launcher.reverse(lenBack < lenFront);
-
-            launcher.startFire();
-
 
 //            tmp0.set(dir).scl(-1);
 //            if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed ||
@@ -111,5 +104,23 @@ public class SmallEnemyShip extends AbstractEnemyShip {
 //                launcher.stopFire();
 //            }
         }
+
+
+        // fire anyway
+
+        //tmp3.set(dir).scl(5);
+
+        if(target != null && !target.readyToDispose) {
+
+            tmp0.set(pos).add(dir);
+            tmp1.set(pos).sub(dir);
+
+            float lenFront = tmp2.set(target.pos).sub(tmp0).len();
+            float lenBack = tmp2.set(target.pos).sub(tmp1).len();
+
+            launcher.reverse(lenBack < lenFront);
+            launcher.startFire();
+        }
+
     }
 }

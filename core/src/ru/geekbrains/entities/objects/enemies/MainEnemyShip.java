@@ -19,6 +19,7 @@ public class MainEnemyShip extends AbstractEnemyShip {
         super(textureRegion, height, owner);
 
         setMaxFuel(300f);
+        setMaxHealth(4f);
 
         type.add(ObjectType.MAIN_ENEMY_SHIP);
 

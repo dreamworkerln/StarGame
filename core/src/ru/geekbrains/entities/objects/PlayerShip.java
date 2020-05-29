@@ -72,6 +72,8 @@ public class PlayerShip extends Ship {
 
         maxThrottle = 80f;
 
+        //setMaxHealth(1000);
+
     }
 
 
