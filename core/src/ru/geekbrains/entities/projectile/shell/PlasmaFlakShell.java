@@ -26,6 +26,8 @@ public class PlasmaFlakShell extends FlakShell {
         super.postConstruct();
 
         type.add(ObjectType.PLASMA_FLAK_SHELL);
+
+        damage = 1f;
         penetration = 1f;
         fragCount = 6;
         fragTTL = 400;

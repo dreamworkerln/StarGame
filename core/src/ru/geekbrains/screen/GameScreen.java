@@ -34,7 +34,7 @@ import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.enemies.AbstractEnemyShip;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.enemies.MainEnemyShip;
-import ru.geekbrains.entities.objects.enemies.SmallEnemyShip;
+import ru.geekbrains.entities.objects.enemies.MissileEnemyShip;
 import ru.geekbrains.entities.particles.Explosion;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.Planet;
@@ -1081,7 +1081,7 @@ public class GameScreen extends BaseScreen {
                     enemyShip = new MainEnemyShip(new TextureRegion(mainEnemyShipTexture), 50, null);
                 }
                 else {
-                    enemyShip = new SmallEnemyShip(new TextureRegion(smallEnemyShipTexture), 40, null);
+                    enemyShip = new MissileEnemyShip(new TextureRegion(smallEnemyShipTexture), 40, null);
                 }
                 
                 enemyShip.pos = tmp1.cpy();

@@ -282,6 +282,7 @@ public class FlakCannon extends Gun {
                         missilesList.removeIf(m -> !m.type.contains(ObjectType.BASIC_MISSILE));
 
 
+                        // Inbound PLASMA_FRAG_MISSILE
                         List<BPU.GuideResult> incomingPlasmaFragMissiles = new ArrayList<>();
                         for (GameObject m : missilesList) {
 
@@ -296,17 +297,13 @@ public class FlakCannon extends Gun {
                                     incomingPlasmaFragMissiles.add(pbu.guideResult);
                                 }
 
-                                int maxCnt =2;
-                                if (firingMode == FiringMode.FLAK_ONLY) {
-                                    maxCnt = 1;
-                                }
-
-                                if (incomingPlasmaFragMissiles.size() >= maxCnt) {
+                                if (incomingPlasmaFragMissiles.size() > 0 &&
+                                        (firingMode == FiringMode.FLAK_ONLY || impactTime < maxImpactTimeFlak/1.3f)) {
 
                                     groupMissilesFound = true;
                                     impactTimes.clear();
                                     impactTimes.put((float) incomingPlasmaFragMissiles.get(0).impactTime,
-                                                            incomingPlasmaFragMissiles.get(0));
+                                            incomingPlasmaFragMissiles.get(0));
                                     break outer;
                                 }
                             }

@@ -145,17 +145,6 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         if (health < getMaxHealth()) {
             damageBurnTrail.add((getMaxHealth() - health) / maxHealth);
         }
-
-
-
-        // auto-repair for ships
-        if (health < getMaxHealth() &&
-            type.contains(ObjectType.SHIP)) {
-            health += 0.001;
-        }
-
-
-
     }
 
     // rotation dynamics --------------------------------
@@ -205,7 +194,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
         //doAvoidPlanet = !impactTime.isNaN() && impactTime >= 0 && impactTime < maxTime;
 
-        long planetAvoidImpactTickTime = (long)(mass/maxThrottle * 2000);
+        long planetAvoidImpactTickTime = (long)(mass/maxThrottle * 2500);
 
 
         float minImpactTime = 2f;
@@ -232,7 +221,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
             // 1. Корабль летит в сторону планеты ?
 
-            tmp0.set(planet.pos).sub(pos); // вектор на планету
+            //tmp0.set(planet.pos).sub(pos); // вектор на планету
 
             //if (Math.abs(vel.angle(tmp0)) < 90) {
 

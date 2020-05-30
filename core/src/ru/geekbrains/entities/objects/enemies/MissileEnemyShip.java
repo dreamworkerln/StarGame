@@ -7,26 +7,26 @@ import java.util.concurrent.ThreadLocalRandom;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.objects.WeaponSystem;
-import ru.geekbrains.entities.objects.enemies.AbstractEnemyShip;
 import ru.geekbrains.entities.weapons.Gun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 
-public class SmallEnemyShip extends AbstractEnemyShip {
+public class MissileEnemyShip extends AbstractEnemyShip {
 
     float tmp  = (float) ThreadLocalRandom.current().nextDouble(1, 2);
 
 
-    public SmallEnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
+    public MissileEnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
         fuelConsumption = 4f;
-        setMaxThrottle(20f);
+        //setMaxThrottle(20f);
         setMaxFuel(100f);
         setMaxHealth(2f);
+        healthGeneration *=10;
+
         mass = 0.5f;
 
-        type.add(ObjectType.SMALL_ENEMY_SHIP);
+        type.add(ObjectType.MISSILE_ENEMY_SHIP);
 
         // tuning gun
         Gun gun = (Gun)componentList.get(CompNames.GUN);
@@ -89,7 +89,7 @@ public class SmallEnemyShip extends AbstractEnemyShip {
             guideVector.set(target.pos).sub(pos).sub(tmp0).nor();
 
 
-            throttle = maxThrottle;
+            throttle = maxThrottle/2;
 
 
 //            tmp0.set(dir).scl(-1);

@@ -17,7 +17,6 @@ import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.PlayerShip;
 import ru.geekbrains.entities.projectile.missile.AbstractMissile;
 import ru.geekbrains.entities.projectile.missile.EmpMissile;
-import ru.geekbrains.entities.projectile.missile.NewtonMissile;
 import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
 import ru.geekbrains.entities.projectile.missile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -448,7 +447,7 @@ public class MissileLauncher extends Gun {
                 result = new Missile(new TextureRegion(missileTexture), 2, owner);
             }
         }
-        else if (owner.type.contains(ObjectType.SMALL_ENEMY_SHIP)) {
+        else if (owner.type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
             result = new PlasmaFragMissile(new TextureRegion(missileTexture), 2.5f, owner);
         }
 

@@ -12,6 +12,7 @@ import ru.geekbrains.screen.Renderer;
 public abstract class Ship extends DrivenObject {
 
     public float fuelGeneration;
+    public float healthGeneration;
 
     protected Map<CompNames,ShipComponent> componentList = new HashMap<>();
     protected Map<CompNames,WeaponSystem> weaponList = new HashMap<>();
@@ -29,6 +30,7 @@ public abstract class Ship extends DrivenObject {
         fuelConsumption = 8f;
         fuelGeneration = 0.06f;
 
+        healthGeneration = maxHealth * 0.0003f;
         setMaxHealth(3f);
         
         damage = 4f;
@@ -52,6 +54,12 @@ public abstract class Ship extends DrivenObject {
         if (fuel < maxFuel) {
             fuel += fuelGeneration;
         }
+
+        // regenerating health
+        if (health < maxHealth) {
+            health += healthGeneration;
+        }
+
     }
 
     @Override
