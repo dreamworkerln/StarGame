@@ -3,7 +3,7 @@
 ![alt text](https://i.ibb.co/mqDpWS4/StarGame.png)
 
 download release from  
-https://github.com/dreamworkerln/StarGame/releases/tag/1.0
+https://github.com/dreamworkerln/StarGame/releases
 
 unzip
 release.zip 
