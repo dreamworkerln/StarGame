@@ -1068,7 +1068,7 @@ public class GameScreen extends BaseScreen {
 
                 AbstractEnemyShip enemyShip;
 
-                if (ThreadLocalRandom.current().nextFloat() > 0.4) {
+                if (ThreadLocalRandom.current().nextFloat() > 0.04) {
                     enemyShip = new MainEnemyShip(new TextureRegion(mainEnemyShipTexture), 50, null);
                 }
                 else {
