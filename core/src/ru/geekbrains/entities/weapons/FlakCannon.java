@@ -316,6 +316,14 @@ public class FlakCannon extends Gun {
 
                             if (m.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
 
+                                // если входящая PlasmaFragMissile улетает от носителя, то не стрелять по ней
+                                tmp1.set(m.pos).sub(owner.pos);
+                                tmp4.set(m.vel).sub(owner.vel);
+
+                                if ( tmp1.dot(tmp4) > 0 ) {
+                                    continue;
+                                }
+
                                 float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
                                 BPU.GuideResult gr = pbu.guideGun(owner, m, maxPrjVel, dt);
                                 Float impactTime = (float) gr.impactTime;

@@ -234,6 +234,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
                 continue;
             }
 
+            // убрать уничтоженные ракеты-перехватчики
             mList.removeIf(m -> m.readyToDispose);
             if (mList.size() == 0) {
                 it.remove();
@@ -260,6 +261,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
 
         for (GameObject trg : targets) {
 
+            // если входящая ракета улетает от носителя, то не стрелять по ней
             tmp1.set(trg.pos).sub(owner.pos);
             tmp4.set(trg.vel).sub(owner.vel);
 

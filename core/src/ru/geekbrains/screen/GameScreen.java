@@ -1518,8 +1518,7 @@ public class GameScreen extends BaseScreen {
         }
 
         // AA system targets down statistic
-        if ((tgt.getClass() == Missile.class ||
-            tgt.getClass() == EmpMissile.class)&&
+        if (tgt.type.contains(ObjectType.BASIC_MISSILE) &&
             tgt.readyToDispose &&
             prj.owner == playerShip && prj.getClass() != NewtonMissile.class) {
 
