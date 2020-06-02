@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.shell.BlackHoleBlastShell;
 import ru.geekbrains.entities.projectile.shell.BlackHoleShell;
-import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
 import ru.geekbrains.screen.GameScreen;
 
 public class NewtonMissile extends AbstractMissile {
@@ -62,7 +62,7 @@ public class NewtonMissile extends AbstractMissile {
     public void dispose() {
 
 
-        PlasmaFlakShell flakShell =  new PlasmaFlakShell(5, 1, Color.GOLD, null);
+        BlackHoleBlastShell flakShell =  new BlackHoleBlastShell(5, 1, Color.GOLD, null);
         flakShell.pos.set(pos);
         flakShell.vel.set(vel);
         flakShell.fragCount = fragCount;

@@ -114,7 +114,7 @@ public class Minigun extends Gun {
 
                 if (!o.type.contains(ObjectType.MISSILE) &&
                     !o.type.contains(ObjectType.SHIP) ||
-                     o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+                    o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
 
                     continue;
                 }
@@ -123,15 +123,15 @@ public class Minigun extends Gun {
 
                 if (owner != null && !owner.readyToDispose) {
                     float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
-                    pbu.guideGun(owner, o, maxPrjVel, dt);
-                }
-                // get results
 
-                Float impactTime = (float) pbu.guideResult.impactTime;
+                    BPU.GuideResult gr = pbu.guideGun(owner, o, maxPrjVel, dt);
 
-                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxTime) {
+                    Float impactTime = (float) gr.impactTime;
 
-                    impactTimes.put(impactTime, pbu.guideResult.clone());
+                    if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxTime) {
+
+                        impactTimes.put(impactTime, gr);
+                    }
                 }
             }
 
@@ -223,8 +223,8 @@ public class Minigun extends Gun {
         if (target != null && !target.readyToDispose) {
 
             float maxPrjVel = power / firingAmmoType.getMass() * dt;
-            pbu.guideGun(owner, target, maxPrjVel, dt);
-            guideVector.set(pbu.guideResult.guideVector);
+            BPU.GuideResult gr = pbu.guideGun(owner, target, maxPrjVel, dt);
+            guideVector.set(gr.guideVector);
 
             // Делаем разбросd a
             // -----------------------------------------------------------
@@ -380,7 +380,7 @@ public class Minigun extends Gun {
 
         // Auto fire control
         if (target != null && !target.readyToDispose &&
-                Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
+            Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
 
             startFire();
 

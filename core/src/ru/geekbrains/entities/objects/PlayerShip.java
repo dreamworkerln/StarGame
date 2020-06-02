@@ -12,6 +12,7 @@ import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.equipment.ForceShield;
+import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
 import ru.geekbrains.entities.projectile.shell.Shell;
 import ru.geekbrains.entities.weapons.AntiMissileLauncher;
 import ru.geekbrains.entities.weapons.FlakCannon;
@@ -20,7 +21,6 @@ import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.KeyDown;
 import ru.geekbrains.screen.KeyToggle;
-import ru.geekbrains.screen.Renderer;
 
 public class PlayerShip extends Ship {
 

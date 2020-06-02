@@ -9,17 +9,17 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.equipment.BPU;
+import ru.geekbrains.entities.equipment.interfaces.GunSystem;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.ShipComponent;
-import ru.geekbrains.entities.objects.WeaponSystem;
 import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.entities.projectile.shell.Shell;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 
-public class Gun extends ShipComponent implements WeaponSystem {
+public class Gun extends ShipComponent implements GunSystem {
 
     private static Sound cannonFire;
 

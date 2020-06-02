@@ -17,8 +17,6 @@ public class BPU {
     private AimFunctionMissile mf;
     private UnivariateSolver nonBracketing;
 
-   public GuideResult guideResult = new GuideResult();
-
     public BPU() {
 
 
@@ -59,7 +57,7 @@ public class BPU {
         }
     }
 
-    public void guideGun(GameObject owner, GameObject target, float maxVel, float dt) {
+    public GuideResult guideGun(GameObject owner, GameObject target, float maxVel, float dt) {
 
         // Система наведения для  minigun  (пушки)
         // https://gamedev.stackexchange.com/questions/149327/projectile-aim-prediction-with-acceleration
@@ -75,6 +73,8 @@ public class BPU {
 
             throw new RuntimeException("owner == null || target == null");
         }
+
+        GuideResult result = new GuideResult();
 
         // F = m*a
         // a = f / m;
@@ -116,10 +116,10 @@ public class BPU {
 
 
 
-        guideResult.impactTime = Double.NaN;
-        guideResult.target = null;
-        guideResult.guideVector.setZero();
-        guideResult.impactVector.setZero();
+        result.impactTime = Double.NaN;
+        result.target = null;
+        result.guideVector.setZero();
+        result.impactVector.setZero();
 
 
         // Гидра доминатус !!!!
@@ -147,10 +147,10 @@ public class BPU {
                     double rs_x = gf.rx + vs_x * t + 0.5 * gf.ax * t*t;
                     double rs_y = gf.ry + vs_y * t + 0.5 * gf.ay * t*t;
 
-                    guideResult.guideVector.set((float) vs_x, (float) vs_y);
-                    guideResult.impactVector.set((float) rs_x, (float) rs_y);
-                    guideResult.impactTime = t;
-                    guideResult.target = target;
+                    result.guideVector.set((float) vs_x, (float) vs_y);
+                    result.impactVector.set((float) rs_x, (float) rs_y);
+                    result.impactTime = t;
+                    result.target = target;
 
                     break;
                 }
@@ -158,10 +158,10 @@ public class BPU {
 
         }
 
-
+        return result;
     }
 
-    public void guideMissile(GameObject owner, GameObject target, float maxAcc, float dt) {
+    public GuideResult guideMissile(GameObject owner, GameObject target, float maxAcc, float dt) {
 
         if (owner == null || owner.readyToDispose ||
                 target == null || target.readyToDispose) {
@@ -174,6 +174,10 @@ public class BPU {
 
             throw new RuntimeException("owner == null || target == null");
         }
+
+        GuideResult result = new GuideResult();
+
+
 
         mf.ACC = maxAcc;
 
@@ -202,10 +206,10 @@ public class BPU {
         mf.ax = target.acc.x /*- owner.acc.x*/;
         mf.ay = target.acc.y /*- owner.acc.y*/;
 
-        guideResult.impactTime = Double.NaN;
-        guideResult.target = null;
-        guideResult.guideVector.setZero();
-        guideResult.impactVector.setZero();
+        result.impactTime = Double.NaN;
+        result.target = null;
+        result.guideVector.setZero();
+        result.impactVector.setZero();
 
         // i = 100 -> max_t =16
         for (int i = 0; i< 70; i++) {
@@ -232,10 +236,10 @@ public class BPU {
                     double rs_x = mf.rx + vs_x * t + 0.5 * mf.ax * t*t;
                     double rs_y = mf.ry + vs_y * t + 0.5 * mf.ay * t*t;
 
-                    guideResult.guideVector.set((float) as_x, (float) as_y);
-                    guideResult.impactVector.set((float) rs_x, (float) rs_y);
-                    guideResult.impactTime = t;
-                    guideResult.target = target;
+                    result.guideVector.set((float) as_x, (float) as_y);
+                    result.impactVector.set((float) rs_x, (float) rs_y);
+                    result.impactTime = t;
+                    result.target = target;
 
                     break;
                 }
@@ -244,7 +248,7 @@ public class BPU {
 
         }
 
-
+        return result;
     }
 
 
@@ -265,16 +269,27 @@ public class BPU {
 
         public GameObject target = null;
 
-        public GuideResult clone() {
+//        public GuideResult clone() {
+//
+////            GuideResult result = new GuideResult();
+////
+////            result.impactTime = impactTime;
+////            result.guideVector = guideVector.cpy();
+////            result.impactVector = impactVector.cpy();
+////            result.target = target;
+////
+////            return result;
+//            return this;
+//        }
 
-            GuideResult result = new GuideResult();
-
-            result.impactTime = impactTime;
-            result.guideVector = guideVector.cpy();
-            result.impactVector = impactVector.cpy();
-            result.target = target;
-            
-            return result;
+        @Override
+        public String toString() {
+            return "GuideResult{" +
+                "impactTime=" + impactTime +
+                ", guideVector=" + guideVector +
+                ", impactVector=" + impactVector +
+                ", target=" + target +
+                '}';
         }
     }
 

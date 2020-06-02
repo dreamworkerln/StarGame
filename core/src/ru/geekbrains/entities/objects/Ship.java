@@ -6,16 +6,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.geekbrains.entities.equipment.CompNames;
+import ru.geekbrains.entities.equipment.interfaces.AntiLauncherSystem;
+import ru.geekbrains.entities.equipment.interfaces.GunSystem;
+import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
 import ru.geekbrains.entities.weapons.Gun;
 import ru.geekbrains.screen.Renderer;
 
 public abstract class Ship extends DrivenObject {
 
     public float fuelGeneration;
-    public float healthGeneration;
 
     protected Map<CompNames,ShipComponent> componentList = new HashMap<>();
-    protected Map<CompNames,WeaponSystem> weaponList = new HashMap<>();
+    protected Map<CompNames, WeaponSystem> weaponList = new HashMap<>();
 
 
     public Ship(TextureRegion textureRegion, float height, GameObject owner) {
@@ -29,8 +31,7 @@ public abstract class Ship extends DrivenObject {
 
         fuelConsumption = 8f;
         fuelGeneration = 0.06f;
-
-        healthGeneration = maxHealth * 0.0003f;
+        healthRegenerationCoefficient = 0.0003f;
         setMaxHealth(3f);
         
         damage = 4f;
@@ -95,10 +96,19 @@ public abstract class Ship extends DrivenObject {
         }
     }
 
-    public WeaponSystem getGun() {
-
-        return weaponList.get(CompNames.GUN);
+    public GunSystem getGun() {
+        return (GunSystem) weaponList.get(CompNames.GUN);
     }
+
+    public WeaponSystem getLauncher() {
+        return weaponList.get(CompNames.LAUNCHER);
+    }
+
+    public AntiLauncherSystem getAntiLauncher() {
+        return (AntiLauncherSystem)weaponList.get(CompNames.ANTI_LAUNCHER);
+    }
+
+
 
 
 }

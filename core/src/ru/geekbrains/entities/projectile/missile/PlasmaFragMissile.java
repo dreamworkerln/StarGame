@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.Projectile;
@@ -101,9 +102,9 @@ public class PlasmaFragMissile extends AbstractMissile{
                 distToTarget > proximityMinDistance) {
 
             float maxPrjVel = 500;  // Задаем начальную скорость "тестовой" пули
-            pbu.guideMissile(this, target, maxPrjVel, dt);
+            BPU.GuideResult gr = pbu.guideMissile(this, target, maxPrjVel, dt);
 
-            tmp0 = pbu.guideResult.guideVector.nor();
+            tmp0 = gr.guideVector.nor();
 
             if (tmp0.isZero()) {
                 tmp0.set(target.pos).sub(pos).nor();
@@ -140,7 +141,7 @@ public class PlasmaFragMissile extends AbstractMissile{
 
         
 
-        float power = 10f*5f;
+        float power = 10f * 5;
 
         //PlasmaFragment trash = new PlasmaFragment(6f, 1.5f, new Color(0.3f, 0.7f, 0.3f, 1), owner);
         //trash.setMass(fragCount*trash.getMass()*5*2f); // намного больше изначальной массы ракеты
@@ -157,6 +158,7 @@ public class PlasmaFragMissile extends AbstractMissile{
         for (int i = 0; i < fragCount; i++) {
 
             Projectile frag = new PlasmaFragment(2f, 0.8f, new Color(1f, 0.8f, 0.2f, 1), owner);
+            frag.setMass(frag.getMass()*5);
 
 
 
@@ -166,7 +168,6 @@ public class PlasmaFragMissile extends AbstractMissile{
             frag.vel.set(vel);
             frag.dir.set(dir);
             frag.owner = owner;
-            frag.setMass(frag.getMass()*5f);
 
             double fromAn;
             double toAn;

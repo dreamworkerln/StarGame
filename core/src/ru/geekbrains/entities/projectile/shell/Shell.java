@@ -13,7 +13,6 @@ public class Shell extends Projectile {
         super(height, owner);
     }
 
-
     public Shell(float height, float trailRadius, GameObject owner) {
         super(height,trailRadius, owner);
     }
@@ -21,6 +20,7 @@ public class Shell extends Projectile {
     public Shell(float height, float trailRadius, Color color, GameObject owner) {
         super(height,trailRadius, color, owner);
     }
+
 
     @Override
     protected void postConstruct() {

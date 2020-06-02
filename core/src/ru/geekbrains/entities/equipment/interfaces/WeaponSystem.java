@@ -1,6 +1,8 @@
-package ru.geekbrains.entities.objects;
+package ru.geekbrains.entities.equipment.interfaces;
 
 import com.badlogic.gdx.math.Vector2;
+
+import ru.geekbrains.entities.objects.GameObject;
 
 public interface WeaponSystem {
 

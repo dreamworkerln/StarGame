@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -21,11 +22,10 @@ public class MissileEnemyShip extends AbstractEnemyShip {
         fuelConsumption = 4f;
         //setMaxThrottle(20f);
         setMaxFuel(100f);
+
+        healthRegenerationCoefficient = 0.003f;
         setMaxHealth(2f);
-        healthGeneration *=10;
-
         mass = 0.5f;
-
         type.add(ObjectType.MISSILE_ENEMY_SHIP);
 
         // tuning gun
@@ -73,10 +73,10 @@ public class MissileEnemyShip extends AbstractEnemyShip {
 
             // скорость снаряда
             float maxVel = gun.getPower() / gun.getFiringAmmoType().getMass() * dt;
-            pbu.guideGun(this, target, maxVel, dt);
+            BPU.GuideResult gr = pbu.guideGun(this, target, maxVel, dt);
 
-            if (!pbu.guideResult.guideVector.isZero()) {
-                guideVector.set(pbu.guideResult.guideVector.nor());
+            if (!gr.guideVector.isZero()) {
+                guideVector.set(gr.guideVector.nor());
             }
 
             // Самонаведение не сгидродоминировало

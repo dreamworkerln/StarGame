@@ -13,6 +13,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import ru.geekbrains.entities.equipment.BPU;
+import ru.geekbrains.entities.equipment.interfaces.AntiLauncherSystem;
 import ru.geekbrains.entities.projectile.missile.AntiMissile;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -20,7 +21,7 @@ import ru.geekbrains.screen.GameScreen;
 
 
 // система наведения и сопровождения целей - треш технологии, надо переписать
-public class AntiMissileLauncher extends MissileLauncher {
+public class AntiMissileLauncher extends MissileLauncher implements AntiLauncherSystem {
 
 
     private static Texture missileTexture;
@@ -66,7 +67,7 @@ public class AntiMissileLauncher extends MissileLauncher {
 
 
         maxRange = 1700;
-        maxImpactTime = 2f;
+        maxImpactTime = 2.5f;
 
         maxPrjVel = 400;
 
@@ -88,9 +89,9 @@ public class AntiMissileLauncher extends MissileLauncher {
             return;
         }
 
-        pbu.guideGun(owner, target, maxPrjVel, dt);
-        if (!pbu.guideResult.guideVector.isZero()) {
-            guideVector.set(pbu.guideResult.guideVector.nor());
+        BPU.GuideResult gr = pbu.guideGun(owner, target, maxPrjVel, dt);
+        if (!gr.guideVector.isZero()) {
+            guideVector.set(gr.guideVector.nor());
         }
         else {
             return;
@@ -269,11 +270,8 @@ public class AntiMissileLauncher extends MissileLauncher {
 
 
 
-            pbu.guideGun(this, trg, maxPrjVel, dt);
-
-            // get results
-
-            Float impactTime = (float)pbu.guideResult.impactTime;
+            BPU.GuideResult gr = pbu.guideGun(this, trg, maxPrjVel, dt);
+            Float impactTime = (float)gr.impactTime;
 
 
             boolean isPlasmaFragMissile = trg.type.contains(ObjectType.PLASMA_FRAG_MISSILE);
@@ -284,7 +282,7 @@ public class AntiMissileLauncher extends MissileLauncher {
             }
 
             if (!impactTime.isNaN() && impactTime >= 0 && impactTime < localMaxImpactTime) {
-                impactTimes.put(impactTime, pbu.guideResult.clone());
+                impactTimes.put(impactTime, gr);
             }
 
 
@@ -339,8 +337,13 @@ public class AntiMissileLauncher extends MissileLauncher {
 
             }
             else {
-                res = 0;
+
+                float l1 = tmp5.set(o1.pos).sub(owner.pos).len();
+                float l2 =  tmp6.set(o2.pos).sub(owner.pos).len();
+
+                res = Float.compare(l1, l2);
             }
+
             return res;
         });
 
@@ -381,6 +384,11 @@ public class AntiMissileLauncher extends MissileLauncher {
         }
 
         super.update(dt);
+    }
+
+
+    public Map<GameObject, List<AntiMissile>> getTargetMissile() {
+        return targetMissile;
     }
 
 

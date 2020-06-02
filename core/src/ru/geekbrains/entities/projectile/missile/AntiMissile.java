@@ -55,11 +55,11 @@ public class AntiMissile extends AbstractMissile {
 
 
 
-        if (pbu.guideResult != null) {
+        if (guideResult != null) {
 
 
             // включаем режим маневрирования маневровыми движками
-            if (pbu.guideResult.impactTime < 0.4f) {
+            if (guideResult.impactTime < 0.4f) {
 //                // angle between direction and guideVector
 //                float guideAngle = dir.angleRad(guideVector);
 //                float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);

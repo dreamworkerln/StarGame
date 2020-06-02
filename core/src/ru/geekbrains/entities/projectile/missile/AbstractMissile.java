@@ -67,7 +67,11 @@ public class AbstractMissile extends DrivenObject {
     // rocket launching boost thrust
     public float boost;
 
+    // список целей для перенацеливания
     NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
+
+    // текущий результат наведения ракеты на цель
+    BPU.GuideResult guideResult;
 
 
     public AbstractMissile(TextureRegion textureRegion, float height, GameObject owner) {
@@ -136,14 +140,14 @@ public class AbstractMissile extends DrivenObject {
             for (GameObject trg : targets) {
 
                 float maxPrjVel = proximityMinDistanceVel;  // Задаем начальную скорость "тестовой" пули
-                pbu.guideGun(this, trg, maxPrjVel, dt);
+                BPU.GuideResult gr = pbu.guideGun(this, trg, maxPrjVel, dt);
 
                 // get results
 
-                Float impactTime = (float)pbu.guideResult.impactTime;
+                Float impactTime = (float)gr.impactTime;
 
                 if (!impactTime.isNaN() && impactTime >= 0) {
-                    impactTimes.put(impactTime, pbu.guideResult.clone());
+                    impactTimes.put(impactTime, gr);
                 }
 
 
@@ -253,11 +257,9 @@ public class AbstractMissile extends DrivenObject {
             distToCarrier > proximitySafeDistance) {
 
             float maxVel = proximityMinDistanceVel;
-            pbu.guideGun(this, target, maxVel, dt);
+            BPU.GuideResult gr = pbu.guideGun(this, target, maxVel, dt);
 
-            double t = pbu.guideResult.impactTime;
-
-            if (t < proximityMinDistanceTime)  {
+            if (gr.impactTime < proximityMinDistanceTime)  {
                 this.readyToDispose = true;
             }
 
@@ -285,14 +287,13 @@ public class AbstractMissile extends DrivenObject {
             // Максимальное возможное ускорение ракеты своим движком
             float maxAcc = maxThrottle / mass;
 
-
-            pbu.guideMissile(this, target, maxAcc, dt);
+            guideResult = pbu.guideMissile(this, target, maxAcc, dt);
 
             //selfGuiding(dt);
 
-            if (!pbu.guideResult.guideVector.isZero()) {
+            if (!guideResult.guideVector.isZero()) {
                 //tmp0.set(pbu.guideResult.guideVector.nor());
-                guideVector.set(pbu.guideResult.guideVector.nor());
+                guideVector.set(guideResult.guideVector.nor());
             }
             else if (directGuiding) {
                 guideVector.set(target.pos).sub(pos).nor();

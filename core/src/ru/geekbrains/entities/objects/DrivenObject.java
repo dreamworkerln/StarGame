@@ -184,11 +184,8 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         GameObject planet = GameScreen.INSTANCE.planet;
 
         float maxPrjVel = vel.len();  // Задаем начальную скорость "тестовой" пули
-        pbu.guideGun(this, planet, maxPrjVel, dt);
-
-        // get results
-
-        Float impactTime = (float)pbu.guideResult.impactTime;
+        BPU.GuideResult gr =  pbu.guideGun(this, planet, maxPrjVel, dt);
+        Float impactTime = (float)gr.impactTime;
 
         //float maxTime = doAvoidPlanet ? planetAvoidImpactTime * 2f : planetAvoidImpactTime;
 

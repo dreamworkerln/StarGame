@@ -12,10 +12,13 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import ru.geekbrains.entities.equipment.BPU;
+import ru.geekbrains.entities.equipment.interfaces.AntiLauncherSystem;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.entities.projectile.Projectile;
+import ru.geekbrains.entities.projectile.missile.AntiMissile;
 import ru.geekbrains.entities.projectile.shell.FlakShell;
 import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
 import ru.geekbrains.screen.GameScreen;
@@ -26,7 +29,7 @@ public class FlakCannon extends Gun {
 
     float maxRange;
     float maxImpactTime;
-    float maxImpactTimeFlak;
+    float maxImpactTimeCurrent;
 
     ShellType shellType;
 
@@ -69,8 +72,6 @@ public class FlakCannon extends Gun {
 
         maxRange = 1500f;
         maxImpactTime = 5f;
-        maxImpactTimeFlak = 3f;
-
         maxRotationSpeed = 0.1f;
 
         firingMode = FiringMode.AUTOMATIC;
@@ -100,9 +101,24 @@ public class FlakCannon extends Gun {
 
         super.update(dt);
 
+        if (owner == null || owner.readyToDispose) {
+            return;
+        }
+
         nozzlePos.set(dir).setLength(10).add(pos);
 
         impactTimes.clear();
+        maxImpactTimeCurrent = maxImpactTime;
+
+        // костыль, нужен центральный компьютер управления огнем и сопровождения целей
+        AntiLauncherSystem antiLauncherSystem = null;
+        Ship ownerShip =  (Ship)owner;
+
+        if (ownerShip.getAntiLauncher() != null) {
+            antiLauncherSystem = ownerShip.getAntiLauncher();
+        }
+
+
 
         // getting target
         if (owner != null && !owner.readyToDispose) {
@@ -111,7 +127,7 @@ public class FlakCannon extends Gun {
 
             // leave only ships and missiles
             targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose ||
-                    !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
+                !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
 
 
 //            // Определение скопление целей (ракет) в одной точке - если есть - стрелять только туда
@@ -151,25 +167,27 @@ public class FlakCannon extends Gun {
 //            ).collect(Collectors.toList());
 
             targetList = targetList.stream().filter(o ->  o.type.contains(ObjectType.SHIP)  ||
-                    o.type.contains(ObjectType.BASIC_MISSILE) ||
-                    o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))
-                    .collect(Collectors.toList());
+                o.type.contains(ObjectType.BASIC_MISSILE) ||
+                o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))
+                .collect(Collectors.toList());
 
 
             for (GameObject o : targetList) {
 
-                if (owner != null && !owner.readyToDispose) {
-                    float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
-                    pbu.guideGun(owner, o, maxPrjVel, dt);
-                }
+                float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+                BPU.GuideResult gr = pbu.guideGun(owner, o, maxPrjVel, dt);
+
                 // get results
 
-                Float impactTime = (float) pbu.guideResult.impactTime;
+                Float impactTime = (float) gr.impactTime;
 
-                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxImpactTime) {
+                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxImpactTimeCurrent) {
 
-                    impactTimes.put(impactTime, pbu.guideResult.clone());
+                    impactTimes.put(impactTime, gr);
                 }
+
+
+
             }
 
         }
@@ -224,7 +242,16 @@ public class FlakCannon extends Gun {
         // Определение скопление целей (ракет) в одной точке - если есть - стрелять только туда
 
 
+
+
         if (impactTimes.size() > 0) {
+
+
+            if(impactTimes.firstEntry().getValue().target == null) {
+                System.out.println(impactTimes.firstEntry().getValue());
+            }
+
+
 
             BPU.GuideResult fgr = impactTimes.firstEntry().getValue();
             double fim = fgr.impactTime;
@@ -248,7 +275,7 @@ public class FlakCannon extends Gun {
 
                     case AUTOMATIC:
                         impactTimes.entrySet().removeIf(e ->
-                                e.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE));
+                            e.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE));
                         break;
 
                     case PLASMA_ONLY:
@@ -283,37 +310,55 @@ public class FlakCannon extends Gun {
 
 
                         // Inbound PLASMA_FRAG_MISSILE
+
                         List<BPU.GuideResult> incomingPlasmaFragMissiles = new ArrayList<>();
                         for (GameObject m : missilesList) {
 
                             if (m.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
 
                                 float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
-                                pbu.guideGun(owner, m, maxPrjVel, dt);
-                                Double impactTime = pbu.guideResult.impactTime;
+                                BPU.GuideResult gr = pbu.guideGun(owner, m, maxPrjVel, dt);
+                                Float impactTime = (float) gr.impactTime;
 
-                                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxImpactTimeFlak) {
+                                maxImpactTimeCurrent = maxImpactTime / 1.3f;
+                                if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxImpactTimeCurrent) {
 
-                                    incomingPlasmaFragMissiles.add(pbu.guideResult);
+                                    incomingPlasmaFragMissiles.add(gr);
                                 }
 
+
+                                boolean targetedByAntimissiles = false;
+                                if (antiLauncherSystem != null) {
+                                    Map<GameObject, List<AntiMissile>> antiList = antiLauncherSystem.getTargetMissile();
+
+                                    // По m (PlasmaFragMissile) ведется огонь противоракетами
+                                    // и противоракеты не сбиты
+                                    if (antiList.containsKey(m) && antiList.get(m).size() > 0) {
+                                        targetedByAntimissiles = true;
+                                    }
+                                }
+
+                                // есди есть входящие PlasmaFragMissile и по ним не ведется огонь противоракетами
+                                // или включен режим FLAK_ONLY
+                                // или передоз входящих PlasmaFragMissile
                                 if (incomingPlasmaFragMissiles.size() > 0 &&
-                                        (firingMode == FiringMode.FLAK_ONLY || impactTime < maxImpactTimeFlak/1.3f)) {
+                                    (!targetedByAntimissiles || firingMode==FiringMode.FLAK_ONLY) ||
+                                    incomingPlasmaFragMissiles.size() >=3) {
 
                                     groupMissilesFound = true;
                                     impactTimes.clear();
                                     impactTimes.put((float) incomingPlasmaFragMissiles.get(0).impactTime,
-                                            incomingPlasmaFragMissiles.get(0));
+                                        incomingPlasmaFragMissiles.get(0));
+
                                     break outer;
                                 }
                             }
                         }
 
 
-
-
                         if ((firingMode == FiringMode.FLAK_ONLY && missilesList.size() >= 2) ||
-                                (firingMode == FiringMode.AUTOMATIC && missilesList.size() >= 3)) {
+                            incomingPlasmaFragMissiles.size() >= 2 ||
+                            (firingMode == FiringMode.AUTOMATIC && missilesList.size() >= 3)) {
 
                             // calc center
                             tmp4.setZero();
@@ -329,8 +374,6 @@ public class FlakCannon extends Gun {
                             tmp6.scl(1f/missilesList.size());
 
 
-//                          impactTimes.put(entry.getKey(), entry.getValue());
-
 
                             DummyObject dummy = new DummyObject(o);
                             dummy.pos.set(tmp4);
@@ -339,15 +382,17 @@ public class FlakCannon extends Gun {
                             dummy.type.addAll(o.type);
 
                             float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
-                            pbu.guideGun(owner, dummy, maxPrjVel, dt);
-                            Float impactTime = (float) pbu.guideResult.impactTime;
+                            BPU.GuideResult gr = pbu.guideGun(owner, dummy, maxPrjVel, dt);
+                            Float impactTime = (float) gr.impactTime;
 
-
-                            if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxImpactTimeFlak) {
+                            // reduce maxImpactTimeCurrent to fire on ordinary missile
+                            maxImpactTimeCurrent = maxImpactTime / 1.67f;
+                            if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxImpactTimeCurrent) {
 
                                 groupMissilesFound = true;
                                 impactTimes.clear();
-                                impactTimes.put(impactTime, pbu.guideResult.clone());
+                                impactTimes.put(impactTime, gr);
+
                             }
                             break;
                         }
@@ -375,21 +420,31 @@ public class FlakCannon extends Gun {
 
 
             target = gRes.target;
+
+            if (target == null) {
+                System.out.println("target == null");
+                System.out.println(gRes);
+                System.exit(-1);
+            }
+
+
+
+            //if(target != null && !target.readyToDispose) {
+
             guideVector.set(gRes.guideVector);
 
             float fuseMultiplier = 0.9f;
             if (target.type.contains(ObjectType.SHIP)) {
                 shellType = ShellType.PLASMA;
-            }
-            else if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            } else if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
                 shellType = ShellType.PLASMA;
                 fuseMultiplier = 0.8f; // 0.8
             }
 
-            if (target.type.contains(ObjectType.BASIC_MISSILE) ) {
+            if (target.type.contains(ObjectType.BASIC_MISSILE)) {
                 shellType = ShellType.FRAG;
 
-                fuseMultiplier = (float) (gRes.impactTime/7f);
+                fuseMultiplier = (float) (gRes.impactTime / 7f);
 
                 //fuseMultiplier = 0.3f;
 
@@ -399,15 +454,14 @@ public class FlakCannon extends Gun {
 
             }
 
-
-
-            currentFuse = (long) (gRes.impactTime * 1/dt * fuseMultiplier);
+            currentFuse = (long) (gRes.impactTime * 1 / dt * fuseMultiplier);
+            //}
         }
 
 
         // Auto fire control
         if (target != null && !target.readyToDispose &&
-                Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
+            Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
 
             startFire();
 

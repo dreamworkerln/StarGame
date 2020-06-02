@@ -134,6 +134,7 @@ public class GameScreen extends BaseScreen {
     private Music music;
     private Sound expl01;
     private Sound expl02;
+    private Sound expl04;
     private Sound bigExpl;
     private Sound flak;
     private Sound flak_exp;
@@ -254,6 +255,7 @@ public class GameScreen extends BaseScreen {
 
         expl01 = Gdx.audio.newSound(Gdx.files.internal("expl01.mp3"));
         expl02 = Gdx.audio.newSound(Gdx.files.internal("expl02.mp3"));
+        expl04 = Gdx.audio.newSound(Gdx.files.internal("expl04.mp3"));
         flak = Gdx.audio.newSound(Gdx.files.internal("flak.mp3"));
         flak_exp = Gdx.audio.newSound(Gdx.files.internal("flak_explosion2.ogg"));
 
@@ -282,21 +284,9 @@ public class GameScreen extends BaseScreen {
             spawnEnemyShip();
         }
 
-        if (getTick() > 0 &&
-            getTick() % 4000 == 0) {
+        spawnAllyShip();
 
-            AbstractMissile missile = new NewtonMissile(new TextureRegion(missileTexture), 7, playerShip);
-            missile.pos.set(worldBounds.getHalfWidth() * aspect, worldBounds.getHalfHeight());
-            missile.engineTrail.color = new Color(0.6f, 0.6f, 0.8f, 1);
-            missile.setMaxHealth(missile.getMaxHealth()*3);
-            missile.setMaxThrottle(missile.throttle*1.5f);
-            missile.maxRotationSpeed *= 2;
 
-            addObject(missile);
-
-            Message msg = new Message("Reinforcements have arrived.", 0);
-            particleObjects.add(msg);
-        }
 
 
 
@@ -502,6 +492,7 @@ public class GameScreen extends BaseScreen {
 
         checkWin();
     }
+
 
 
     @Override
@@ -859,7 +850,7 @@ public class GameScreen extends BaseScreen {
                         if (tgt.type.contains(ObjectType.SHIP)) {
                             elasticCollision = 0.5f;
                         }
-                        tmp3.set(tgt.vel);
+                        tmp3.set(tgt.vel).sub(prj.vel);
                         prj.applyForce(tmp3.scl(tgt.getMass() / dt * elasticCollision + expCoef));
                         //}
 
@@ -874,7 +865,7 @@ public class GameScreen extends BaseScreen {
                         if (prj.type.contains(ObjectType.SHIP)) {
                             elasticCollision = 0.5f;
                         }
-                        tmp3.set(prj.vel);
+                        tmp3.set(prj.vel).sub(tgt.vel);
                         tgt.applyForce(tmp3.scl(prj.getMass() / dt * elasticCollision + expCoef));
                         //}
 
@@ -1092,6 +1083,26 @@ public class GameScreen extends BaseScreen {
 
         }
 
+    }
+
+
+
+    private void spawnAllyShip() {
+        if (getTick() > 0 &&
+            getTick() % 4000 == 0) {
+
+            AbstractMissile missile = new NewtonMissile(new TextureRegion(missileTexture), 7, playerShip);
+            missile.pos.set(worldBounds.getHalfWidth() * aspect, worldBounds.getHalfHeight());
+            missile.engineTrail.color = new Color(0.6f, 0.6f, 0.8f, 1);
+            missile.setMaxHealth(missile.getMaxHealth()*3);
+            missile.setMaxThrottle(missile.throttle*1.5f);
+            missile.maxRotationSpeed *= 2;
+
+            addObject(missile);
+
+            Message msg = new Message("Reinforcements have arrived.", 0);
+            particleObjects.add(msg);
+        }
     }
 
 
@@ -1430,7 +1441,7 @@ public class GameScreen extends BaseScreen {
 
             case 2:
                 // NOVICE
-                ENEMY_RESPAWN_TIME = 800;
+                ENEMY_RESPAWN_TIME = 1000;
                 ENEMIES_COUNT_IN_WAVE = 2;
                 break;
 
@@ -1448,7 +1459,7 @@ public class GameScreen extends BaseScreen {
 
             case 5:
                 // IMPERIAL NAVY ENSIGN
-                ENEMY_RESPAWN_TIME = 1500;
+                ENEMY_RESPAWN_TIME = 1400;
                 ENEMIES_COUNT_IN_WAVE = 5;
                 break;
 
@@ -1460,26 +1471,26 @@ public class GameScreen extends BaseScreen {
 
             case 7:
                 // IMPERIAL NAVY LORD-LIEUTENANT
-                ENEMY_RESPAWN_TIME = 1900;
+                ENEMY_RESPAWN_TIME = 2000;
                 ENEMIES_COUNT_IN_WAVE = 7;
                 break;
 
             case 8:
                 // IMPERIAL NAVY COMMANDER
-                ENEMY_RESPAWN_TIME = 2000;
+                ENEMY_RESPAWN_TIME = 2200;
                 ENEMIES_COUNT_IN_WAVE = 8;
                 break;
 
             case 9:
                 // IMPERIAL NAVY CAPITAN
-                ENEMY_RESPAWN_TIME = 2100;
+                ENEMY_RESPAWN_TIME = 2400;
                 ENEMIES_COUNT_IN_WAVE = 9;
                 break;
 
             case 99:
                 // DEBUG
                 ENEMY_RESPAWN_TIME = 700;
-                ENEMIES_COUNT_IN_WAVE = 7;
+                ENEMIES_COUNT_IN_WAVE = 20;
                 break;
         }
 
@@ -1534,7 +1545,7 @@ public class GameScreen extends BaseScreen {
             expl02.play(0.6f);
         }
         else if (obj.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
-            bigExpl.play(1f);
+            expl04.play(1f);
         }
         else if (obj.type.contains(ObjectType.ANTIMISSILE)) {
             flak.play(0.3f);

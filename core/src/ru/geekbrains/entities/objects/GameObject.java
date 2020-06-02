@@ -73,10 +73,11 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     protected float health;                       // текущий запас прочности корпуса(health)
     protected float maxHealth = 0;               // максимальный запас прочности корпуса(health)
+    protected float healthGeneration = 0;               // регенерация здоровья
+    protected float healthRegenerationCoefficient = 0;  // коэффициент регенерации
 
     public float damage = 0;
     public float empDamage = 0;
-
 
 
 
@@ -317,6 +318,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
         this.maxHealth = maxHealth;
         health = maxHealth;
+        healthGeneration = maxHealth * healthRegenerationCoefficient;
     }
 
     public long getTTL() {

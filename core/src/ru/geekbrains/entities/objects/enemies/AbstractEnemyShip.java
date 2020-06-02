@@ -4,12 +4,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.List;
 
+import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.Ship;
-import ru.geekbrains.entities.objects.WeaponSystem;
-import ru.geekbrains.entities.weapons.Gun;
+import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
 import ru.geekbrains.entities.weapons.MissileLauncher;
 import ru.geekbrains.screen.GameScreen;
 
@@ -66,10 +66,10 @@ public abstract class AbstractEnemyShip extends Ship {
 
             // скорость снаряда
             float maxVel = gun.getPower() / gun.getFiringAmmoType().getMass() * dt;
-            pbu.guideGun(this, target, maxVel, dt);
+            BPU.GuideResult gr = pbu.guideGun(this, target, maxVel, dt);
 
-            if (!pbu.guideResult.guideVector.isZero()) {
-                guideVector.set(pbu.guideResult.guideVector.nor());
+            if (!gr.guideVector.isZero()) {
+                guideVector.set(gr.guideVector.nor());
             }
 
             // Самонаведение не сгидродоминировало
@@ -115,9 +115,9 @@ public abstract class AbstractEnemyShip extends Ship {
             return;
         }
 
-        pbu.guideGun(this, targetList.get(0), this.vel.len(), dt);
+        BPU.GuideResult gr = pbu.guideGun(this, targetList.get(0), this.vel.len(), dt);
 
-        Float impactTime = (float)pbu.guideResult.impactTime;
+        Float impactTime = (float)gr.impactTime;
 
         if (!impactTime.isNaN() && impactTime > 0 && impactTime < 2) {
             guideVector.set(targetList.get(0).pos).sub(pos).nor().scl(-1);
