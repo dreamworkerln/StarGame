@@ -31,15 +31,9 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     public float throttleStep = 10;
     public float requiredThrottle;
 
-    public float maxRotationSpeed = 0.05f; // maximum rotation speed
-
     //public Guidance guidance = Guidance.AUTO;
 
     public GameObject target;                       // цель
-
-    protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
-
-
 
     public float fuel = maxFuel;                   // current fuel level
     public float  fuelConsumption = 1;
@@ -73,7 +67,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         damageBurnTrail.isStatic = true;
         smokeTrailList.add(damageBurnTrail);
 
-        guideVector.setZero();
+        maxRotationSpeed = 0.05f;
 
         rendererType.add(RendererType.TEXTURE);
         rendererType.add(RendererType.SHAPE);
@@ -104,11 +98,16 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
         // apply thruster --------------------------------------------------------------------------
 
-        if (throttle < requiredThrottle/* - maxThrottle/throttleStep*/) {
-            throttle += maxThrottle/throttleStep;
+        // filter bounds
+        requiredThrottle = requiredThrottle > maxThrottle ? maxThrottle : requiredThrottle;
+        requiredThrottle = requiredThrottle < 0 ? 0 : requiredThrottle;
+
+
+        if (throttle < requiredThrottle) {
+            throttle += Math.min(maxThrottle/throttleStep, requiredThrottle - throttle);
         }
-        else if (throttle > requiredThrottle/* + maxThrottle/throttleStep*/) {
-            throttle -= maxThrottle/throttleStep;
+        else if (throttle > requiredThrottle) {
+            throttle -= Math.min(maxThrottle/throttleStep, throttle - requiredThrottle);
         }
 
         // гасим движок
@@ -163,24 +162,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         }
     }
 
-    // rotation dynamics --------------------------------
-    @Override
-    protected void rotateObject() {
 
-        if(!guideVector.isZero()){
-
-            // angle between direction and guideVector
-            float guideAngle = dir.angleRad(guideVector);
-
-            float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
-
-            if (guideAngle < 0) {
-                doAngle = -doAngle;
-            }
-            dir.rotateRad(doAngle);
-        }
-
-    }
 
 
 

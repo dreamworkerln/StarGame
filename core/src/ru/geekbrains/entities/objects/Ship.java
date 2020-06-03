@@ -60,6 +60,17 @@ public abstract class Ship extends DrivenObject {
     }
 
     @Override
+    public void rotate() {
+        super.rotate();
+
+        //rotate weapons(turrets, cannons in towers) with ship
+        for (WeaponSystem ws : weaponList.values()) {
+            ws.rotate();
+        }
+    }
+
+
+    @Override
     public void draw(Renderer renderer) {
         super.draw(renderer);
 
@@ -81,6 +92,8 @@ public abstract class Ship extends DrivenObject {
 
 
     // ------------------------------------------------
+
+
 
 
     protected void addComponent(CompNames name, ShipComponent component) {

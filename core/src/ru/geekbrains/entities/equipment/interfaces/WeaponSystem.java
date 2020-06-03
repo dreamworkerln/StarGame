@@ -1,7 +1,5 @@
 package ru.geekbrains.entities.equipment.interfaces;
 
-import com.badlogic.gdx.math.Vector2;
-
 import ru.geekbrains.entities.objects.GameObject;
 
 public interface WeaponSystem {
@@ -18,6 +16,8 @@ public interface WeaponSystem {
     float getCalibre();
     void setCalibre(float calibre);
 
-    Vector2 getDir();
+    //Vector2 getDir();
+    //void setDir(Vector2 dir);
 
+    void rotate();
 }

@@ -20,8 +20,8 @@ import ru.geekbrains.screen.GameScreen;
 
 public abstract class AbstractEnemyShip extends Ship {
 
-    float avoidCollisionImpactTime = 1;
-    float avoidCollisionAngle = (float) ThreadLocalRandom.current().nextDouble(25, 75);
+    float avoidCollisionImpactTime = 1f;
+    float avoidCollisionAngle = (float) ThreadLocalRandom.current().nextDouble(25, 60);
     Predicate<GameObject> avoidCollisionObjectTypes;
 
 
@@ -117,7 +117,7 @@ public abstract class AbstractEnemyShip extends Ship {
             return;
         }
 
-        List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 50);
+        List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 25);
 
         // leave only ships and missiles
         targetList.removeIf(avoidCollisionObjectTypes);
@@ -129,23 +129,23 @@ public abstract class AbstractEnemyShip extends Ship {
         tmp1.setZero();
 
         for (GameObject o : targetList) {
-            BPU.GuideResult gr = pbu.guideGun(this, o, 500, dt);
+            BPU.GuideResult gr = pbu.guideGun(this, o, this.vel.len(), dt);
 
             Float impactTime = (float)gr.impactTime;
 
-            float maxScale;
 
             if (!impactTime.isNaN() && impactTime > 0 && impactTime < avoidCollisionImpactTime) {
-
-                maxScale = 1/impactTime > 100 ? 100: 100/impactTime;
-                tmp2.set(gr.guideVector).nor().scl(-maxScale);
+                // normalize to 1
+                tmp2.set(gr.guideVector).nor().scl(-(avoidCollisionImpactTime-impactTime)/avoidCollisionImpactTime);
                 tmp1.add(tmp2);
             }
 
-            tmp2.set(o.pos).sub(pos);
-            maxScale = (o.radius + this.radius) * 10 / tmp2.len();
-            if (maxScale >= 1) {
-                tmp1.add(tmp2.nor().scl(-maxScale*100));
+            float distance = tmp2.set(o.pos).sub(pos).len() - o.radius - this.radius;
+            float minSafeDistance = (o.radius + this.radius)*3;
+            if (distance < minSafeDistance) {
+
+                // normalize to 1
+                tmp1.add(tmp2.nor().scl(-(minSafeDistance - distance)/minSafeDistance));
 
             }
 
@@ -159,17 +159,17 @@ public abstract class AbstractEnemyShip extends Ship {
         float upBound = GameScreen.getInstance().worldBounds.getTop();
         float downBound = GameScreen.getInstance().worldBounds.getBottom();
 
-        if (pos.x <= leftBound + 4*radius) {
-            tmp1.add(tmp4.set(1, 0).scl(1000));
+        if (pos.x <= leftBound + 2*radius) {
+            tmp1.add(tmp4.set(1, 0).scl(1));
         }
-        if (pos.x >= rightBound - 4*radius) {
-            tmp1.add(tmp4.set(-1, 0).scl(1000));
+        if (pos.x >= rightBound - 2*radius) {
+            tmp1.add(tmp4.set(-1, 0).scl(1));
         }
-        if (pos.y >= upBound - 4*radius) {
-            tmp1.add(tmp4.set(0, -1).scl(1000));
+        if (pos.y >= upBound - 2*radius) {
+            tmp1.add(tmp4.set(0, -1).scl(1));
         }
-        if (pos.y <= downBound + 4*radius) {
-            tmp1.add(tmp4.set(0, 1).scl(1000));
+        if (pos.y <= downBound + 2*radius) {
+            tmp1.add(tmp4.set(0, 1).scl(1));
         }
 
 

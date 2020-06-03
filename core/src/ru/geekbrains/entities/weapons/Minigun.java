@@ -21,7 +21,7 @@ import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
 
 
-public class Minigun extends Gun {
+public class Minigun extends TurretGun {
 
     private static Sound minigunFire;
     private static boolean minigunPlaying = false;
@@ -319,7 +319,7 @@ public class Minigun extends Gun {
             //System.out.println(guideVector);
 
 
-            guideVector.add(tmp0);
+            guideVector.add(tmp0).nor();
 
 
 //            // Если самонаведение не осилиось
@@ -392,25 +392,25 @@ public class Minigun extends Gun {
 
 
 
-    @Override
-    protected void rotateObject() {
-
-        // ToDo: перенести в GameObject.update()
-        // rotation dynamics --------------------------------
-        // Aiming
-        if (!guideVector.isZero()) {
-
-            // angle between direction and guideVector
-            float guideAngle = dir.angleRad(guideVector);
-
-            float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
-
-            if (guideAngle < 0) {
-                doAngle = -doAngle;
-            }
-            dir.rotateRad(doAngle);
-        }
-    }
+//    @Override
+//    protected void rotate() {
+//
+//        // ToDo: перенести в GameObject.update()
+//        // rotation dynamics --------------------------------
+//        // Aiming
+//        if (!guideVector.isZero()) {
+//
+//            // angle between direction and guideVector
+//            float guideAngle = dir.angleRad(guideVector);
+//
+//            float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
+//
+//            if (guideAngle < 0) {
+//                doAngle = -doAngle;
+//            }
+//            dir.rotateRad(doAngle);
+//        }
+//    }
 
 
     @Override
@@ -429,7 +429,7 @@ public class Minigun extends Gun {
 
         if (/*this.getClass() == Minigun.class &&*/ !minigunPlaying) {
             minigunPlaying = true;
-            minigunFire.loop(0.3f);
+            minigunFire.loop(0.33f);
         }
     }
 
@@ -451,8 +451,6 @@ public class Minigun extends Gun {
         Bullet result = new Bullet(calibre,   owner);
         //result.setTTL(ThreadLocalRandom.current().nextInt(90, 95));
         return result;
-
-
     }
 
     @Override

@@ -23,9 +23,9 @@ import ru.geekbrains.entities.projectile.shell.FlakShell;
 import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
 import ru.geekbrains.screen.GameScreen;
 
-public class FlakCannon extends Gun {
+public class FlakCannon extends TurretGun {
 
-    private static Sound cannonFire;
+    private static Sound cannonFireStatic;
 
     float maxRange;
     float maxImpactTime;
@@ -50,11 +50,12 @@ public class FlakCannon extends Gun {
     private long currentFuse = 1;
 
     static {
-        cannonFire = Gdx.audio.newSound(Gdx.files.internal("flak_fire.ogg"));
+        cannonFireStatic = Gdx.audio.newSound(Gdx.files.internal("flak_fire.ogg"));
     }
 
     public FlakCannon(float height, GameObject owner) {
         super(height, owner);
+        cannonFire = cannonFireStatic;
 
 
         setCalibre(6);
@@ -80,7 +81,6 @@ public class FlakCannon extends Gun {
         //maxRotationSpeed = 1f;
 
         oldFireRate = fireRate;
-
     }
 
 
@@ -350,8 +350,8 @@ public class FlakCannon extends Gun {
                                 // или включен режим FLAK_ONLY
                                 // или передоз входящих PlasmaFragMissile
                                 if (incomingPlasmaFragMissiles.size() > 0 &&
-                                    (!targetedByAntimissiles || firingMode==FiringMode.FLAK_ONLY) ||
-                                    incomingPlasmaFragMissiles.size() >=3) {
+                                    (!targetedByAntimissiles || firingMode == FiringMode.FLAK_ONLY) ||
+                                    incomingPlasmaFragMissiles.size() >= 2) {
 
                                     groupMissilesFound = true;
                                     impactTimes.clear();
@@ -481,25 +481,25 @@ public class FlakCannon extends Gun {
     }
 
 
-    @Override
-    protected void rotateObject() {
-
-        // ToDo: перенести в GameObject.update()
-        // rotation dynamics --------------------------------
-        // Aiming
-        if (!guideVector.isZero()) {
-
-            // angle between direction and guideVector
-            float guideAngle = dir.angleRad(guideVector);
-
-            float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
-
-            if (guideAngle < 0) {
-                doAngle = -doAngle;
-            }
-            dir.rotateRad(doAngle);
-        }
-    }
+//    @Override
+//    public void rotate() {
+//
+//        // ToDo: перенести в GameObject.update()
+//        // rotation dynamics --------------------------------
+//        // Aiming
+//        if (!guideVector.isZero()) {
+//
+//            // angle between direction and guideVector
+//            float guideAngle = dir.angleRad(guideVector);
+//
+//            float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
+//
+//            if (guideAngle < 0) {
+//                doAngle = -doAngle;
+//            }
+//            dir.rotateRad(doAngle);
+//        }
+//    }
 
 
     @Override
@@ -536,9 +536,9 @@ public class FlakCannon extends Gun {
     }
 
 
-    protected void playFireSound() {
-        cannonFire.play(0.4f);
-    }
+//    protected void playFireSound() {
+//        cannonFire.play(0.4f);
+//    }
 
 
 

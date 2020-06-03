@@ -418,6 +418,8 @@ public class GameScreen extends BaseScreen {
                 // update velocity, position, self-guiding, prepare animation, etc
                 obj.update(dt);
 
+                obj.rotate();
+
                 // check wall bouncing
                 borderBounce(obj);
             }
@@ -1068,7 +1070,7 @@ public class GameScreen extends BaseScreen {
 
                 AbstractEnemyShip enemyShip;
 
-                if (ThreadLocalRandom.current().nextFloat() > 0.994) {
+                if (ThreadLocalRandom.current().nextFloat() > 0.4) {
                     enemyShip = new MainEnemyShip(new TextureRegion(mainEnemyShipTexture), 50, null);
                 }
                 else {
@@ -1089,7 +1091,7 @@ public class GameScreen extends BaseScreen {
 
     private void spawnAllyShip() {
         if (getTick() > 0 &&
-            getTick() % 4000 == 0) {
+            getTick() % 3700 == 0) {
 
             AbstractMissile missile = new NewtonMissile(new TextureRegion(missileTexture), 7, playerShip);
             missile.pos.set(worldBounds.getHalfWidth() * aspect, worldBounds.getHalfHeight());

@@ -72,6 +72,8 @@ public class PlayerShip extends Ship {
 
         maxThrottle = 80f;
 
+        guideVector.set(dir);
+
         //setMaxHealth(1000);
 
     }
@@ -86,7 +88,7 @@ public class PlayerShip extends Ship {
     protected void guide(float dt) {
 
         WeaponSystem gun = weaponList.get(CompNames.GUN);
-        WeaponSystem minigun = weaponList.get(CompNames.MINIGUN);
+        //WeaponSystem minigun = weaponList.get(CompNames.MINIGUN);
         FlakCannon flakCannon = (FlakCannon)componentList.get(CompNames.FLACK_CANNON);
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
 
@@ -99,39 +101,29 @@ public class PlayerShip extends Ship {
         }
 
         if (KeyDown.A) {
-            dir.rotateRad(rot);
-            minigun.getDir().rotateRad(rot);
-            flakCannon.getDir().rotateRad(rot);
+            guideVector.rotateRad(rot);
 
         }
         if (KeyDown.D) {
-            dir.rotateRad(-rot);
-            minigun.getDir().rotateRad(-rot);
-            flakCannon.getDir().rotateRad(-rot);
+            guideVector.rotateRad(-rot);
         }
 
         if (KeyDown.W) {
-            throttle += maxThrottle * 0.05f;
-            if (throttle >= maxThrottle) {
-                throttle = maxThrottle;
-            }
+            requiredThrottle = throttle + maxThrottle * 0.05f;
         }
 
         if (KeyDown.S) {
-            throttle -= maxThrottle * 0.05f;
-            if (throttle < 0) {
-                throttle = 0;
-            }
+            requiredThrottle = throttle - maxThrottle * 0.05f;
         }
 
         // full throttle ------------------------
         if (KeyDown.SPACE) {
-            throttle = maxThrottle * 1.f;
+            requiredThrottle = maxThrottle;
             KeyDown.SPACE_TRIGGER_ON = true;
         }
 
         if (!KeyDown.SPACE && KeyDown.SPACE_TRIGGER_ON) {
-            throttle = 0;
+            requiredThrottle = 0;
             KeyDown.SPACE_TRIGGER_ON = false;
         }
 
@@ -165,10 +157,7 @@ public class PlayerShip extends Ship {
 
             rot = maxRotationSpeed/2 * KeyDown.SCROLLED;
 
-            dir.rotateRad(rot);
-            minigun.getDir().rotateRad(rot);
-            flakCannon.getDir().rotateRad(rot);
-
+            guideVector.rotateRad(rot);
             KeyDown.SCROLLED = 0;
         }
 

@@ -55,6 +55,9 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected float mass = 1;                          // mass
     //public float momentInertia = 1;               // moment of inertia
 
+    protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
+    public float maxRotationSpeed = 0; // maximum rotation speed
+
     public float explosionRadius;
 
 
@@ -81,12 +84,15 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
 
 
+
+
     private GameObject(GameObject owner, float radius, RendererType renderType) {
 
         birth = GameScreen.INSTANCE.getTick();
         this.type.add(ObjectType.OBJECT);
         this.owner = owner;
         dir.set(1, 0);
+        guideVector.setZero();
         this.radius = radius;
         rendererType.add(renderType);
         isModule = false;
@@ -200,20 +206,6 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
         }
 
-        // -----------------------------------------------------------------------------------------
-        // rotation
-        rotateObject();
-
-
-        // -----------------------------------------------------------------------------------------
-
-
-        // update sprite position and angle
-        if (rendererType.contains(RendererType.TEXTURE)) {
-
-            sprite.setPos(pos);
-            sprite.setAngle(dir.angle());
-        }
     }
 
 
@@ -236,7 +228,23 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 //    }
 
 
-    protected void rotateObject(){}
+    // rotation dynamics --------------------------------
+    public void rotate() {
+
+
+        if(!guideVector.isZero()){
+
+            // angle between direction and guideVector
+            float guideAngle = dir.angleRad(guideVector);
+
+            float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
+
+            if (guideAngle < 0) {
+                doAngle = -doAngle;
+            }
+            dir.rotateRad(doAngle);
+        }
+    }
 
 
     // ---------------------------------------------------------------------------------------------
@@ -253,9 +261,22 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
         if (renderer.rendererType == RendererType.TEXTURE &&
             rendererType.contains(RendererType.TEXTURE)) {
+
+            // update sprite position and angle
+            sprite.setPos(pos);
+            sprite.setAngle(dir.angle());
             
             sprite.draw(renderer);
         }
+
+//        // update sprite position and angle
+//        if (rendererType.contains(RendererType.TEXTURE)) {
+//
+//            sprite.setPos(pos);
+//            sprite.setAngle(dir.angle());
+//
+//
+//        }
     }
 
 
