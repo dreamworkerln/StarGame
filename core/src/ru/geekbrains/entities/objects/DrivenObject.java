@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
@@ -27,7 +26,11 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
     public float throttle = 0;                   // current throttle
     public float maxFuel = 100000f;        // maximum fuel tank capacity
+    public float fuelGeneration;
     public float maxThrottle = 50f;        // maximum thruster engine force
+    public float throttleStep = 10;
+    public float requiredThrottle;
+
     public float maxRotationSpeed = 0.05f; // maximum rotation speed
 
     //public Guidance guidance = Guidance.AUTO;
@@ -100,6 +103,19 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         guide(dt);
 
         // apply thruster --------------------------------------------------------------------------
+
+        if (throttle < requiredThrottle/* - maxThrottle/throttleStep*/) {
+            throttle += maxThrottle/throttleStep;
+        }
+        else if (throttle > requiredThrottle/* + maxThrottle/throttleStep*/) {
+            throttle -= maxThrottle/throttleStep;
+        }
+
+        // гасим движок
+        if (requiredThrottle == 0 && throttle <= throttleStep*1.5f) {
+            throttle = 0;
+        }
+
 
         // check fuel
         if (fuel <= 0) {
@@ -239,12 +255,14 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
             //throttle = maxThrottle;
 
-            if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
-                throttle = maxThrottle;
-            }
-            else {
-                throttle = 0;
-            }
+            acquireThrottle(maxThrottle);
+
+//            if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed*1.5f) {
+//                acquireThrottle(maxThrottle);
+//            }
+//            else {
+//                acquireThrottle(0);
+//            }
             //result = true;
             //}
         }
@@ -285,7 +303,14 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     public void setMaxFuel(float value) {
         maxFuel = value;
         fuel = value;
+        fuelGeneration =  maxFuel/2500;
+        fuelConsumption = maxFuel/19;
     }
+
+    protected void acquireThrottle(float value) {
+        requiredThrottle = value;
+    }
+
 
     @Override
     public List<SmokeTrail> removeSmokeTrailList() {

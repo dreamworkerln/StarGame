@@ -844,7 +844,7 @@ public class GameScreen extends BaseScreen {
                         elasticCollision = 1;
 
                         //if (!prj.readyToDispose) {
-                        if (tgt.type.contains(ObjectType.BASIC_MISSILE)) {
+                        if (tgt.type.contains(ObjectType.BASIC_MISSILE) && !prj.isEmpArmament) {
                             expCoef = tgt.damage > 1 ? tgt.damage : 1;
                         }
                         if (tgt.type.contains(ObjectType.SHIP)) {
@@ -859,7 +859,7 @@ public class GameScreen extends BaseScreen {
                         expCoef = 0;
                         elasticCollision = 1;
                         //if (!tgt.readyToDispose) {
-                        if (prj.type.contains(ObjectType.BASIC_MISSILE)) {
+                        if (prj.type.contains(ObjectType.BASIC_MISSILE) && !prj.isEmpArmament) {
                             expCoef = prj.damage > 1 ? prj.damage : 1;
                         }
                         if (prj.type.contains(ObjectType.SHIP)) {
@@ -1068,7 +1068,7 @@ public class GameScreen extends BaseScreen {
 
                 AbstractEnemyShip enemyShip;
 
-                if (ThreadLocalRandom.current().nextFloat() > 0.4) {
+                if (ThreadLocalRandom.current().nextFloat() > 0.994) {
                     enemyShip = new MainEnemyShip(new TextureRegion(mainEnemyShipTexture), 50, null);
                 }
                 else {
@@ -1349,10 +1349,13 @@ public class GameScreen extends BaseScreen {
         return INSTANCE.hittableObjects;
     }
 
+    public static GameScreen getInstance() {
+        return INSTANCE;
+    }
+
     public static GameObject getPlanet() {
 
         return INSTANCE.planet;
-
     }
 
 

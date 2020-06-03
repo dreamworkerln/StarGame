@@ -13,29 +13,37 @@ import ru.geekbrains.entities.weapons.MissileLauncher;
 
 public class MissileEnemyShip extends AbstractEnemyShip {
 
-    float tmp  = (float) ThreadLocalRandom.current().nextDouble(1, 2);
+    float aimingShift = (float) ThreadLocalRandom.current().nextDouble(1, 2);
 
 
     public MissileEnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
-        fuelConsumption = 4f;
-        //setMaxThrottle(20f);
-        setMaxFuel(100f);
+        type.add(ObjectType.MISSILE_ENEMY_SHIP);
+
+        fuelConsumption = 0.1f;
+        setMaxThrottle(50f);
+        setMaxFuel(1000f);
 
         healthRegenerationCoefficient = 0.003f;
         setMaxHealth(2f);
-        mass = 0.5f;
-        type.add(ObjectType.MISSILE_ENEMY_SHIP);
+        mass = 0.1f;
 
         // tuning gun
         Gun gun = (Gun)componentList.get(CompNames.GUN);
         gun.maxGunHeat = 0;
-        //maxRotationSpeed = 1;
+        maxRotationSpeed = 0.1065f;
 
         // tuning launcher
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
         launcher.sideLaunchCount = 1;
+
+
+        if(true/*ThreadLocalRandom.current().nextFloat() > 0.7*/) {
+            avoidCollisionObjectTypes = o -> o == this || o.readyToDispose || o.owner == this || !o.type.contains(ObjectType.SHELL) &&
+                    !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.MISSILE);
+        }
+
     }
 
     @Override
@@ -51,17 +59,18 @@ public class MissileEnemyShip extends AbstractEnemyShip {
 
         // Никуда не целимся
         guideVector.setZero();
-        launcher.stopFire();
+        //launcher.stopFire();
 
         // Останавливаем движок
-        //throttle = 0;
+        acquireThrottle(0);
 
-
+        // Уклонение от столкновения
+        avoidCollision(dt);
 
         // Уклонение от падения на планету
         avoidPlanet(dt);
 
-        avoidCollision(dt);
+
 
 
         // ЛИБО Наведение на цель ------------------------------------------------------------------------
@@ -85,11 +94,11 @@ public class MissileEnemyShip extends AbstractEnemyShip {
             }
 
 
-            tmp0.set(target.vel).scl(tmp);
+            tmp0.set(target.vel).scl(aimingShift);
             guideVector.set(target.pos).sub(pos).sub(tmp0).nor();
 
 
-            throttle = maxThrottle/2;
+            acquireThrottle(maxThrottle/2);
 
 
 //            tmp0.set(dir).scl(-1);

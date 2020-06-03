@@ -66,13 +66,13 @@ public class AntiMissile extends AbstractMissile {
 
 
                 maxRotationSpeed = (float) (2 * Math.PI);
-                throttle = maxThrottle/5;
+                acquireThrottle(maxThrottle/5);
 
             }
             else {
 
                 maxRotationSpeed = currentMaxRotationSpeed;
-                throttle = maxThrottle;
+                acquireThrottle(maxThrottle);
             }
 
         }

@@ -14,8 +14,6 @@ import ru.geekbrains.screen.Renderer;
 
 public abstract class Ship extends DrivenObject {
 
-    public float fuelGeneration;
-
     protected Map<CompNames,ShipComponent> componentList = new HashMap<>();
     protected Map<CompNames, WeaponSystem> weaponList = new HashMap<>();
 
@@ -29,8 +27,6 @@ public abstract class Ship extends DrivenObject {
         fuel = 100;
         mass = 1;
 
-        fuelConsumption = 8f;
-        fuelGeneration = 0.06f;
         healthRegenerationCoefficient = 0.0003f;
         setMaxHealth(3f);
         

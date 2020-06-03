@@ -3,6 +3,10 @@ package ru.geekbrains.entities.objects.enemies;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
@@ -15,6 +19,10 @@ import ru.geekbrains.screen.GameScreen;
 
 
 public abstract class AbstractEnemyShip extends Ship {
+
+    float avoidCollisionImpactTime = 1;
+    float avoidCollisionAngle = (float) ThreadLocalRandom.current().nextDouble(25, 75);
+    Predicate<GameObject> avoidCollisionObjectTypes;
 
 
     protected WeaponSystem launcher;
@@ -30,6 +38,9 @@ public abstract class AbstractEnemyShip extends Ship {
         addComponent(CompNames.LAUNCHER, missileLauncher);
 
         launcher = weaponList.get(CompNames.LAUNCHER);
+
+        avoidCollisionObjectTypes = o -> o == this || o.readyToDispose || o.type.contains(ObjectType.PLAYER_SHIP) ||
+                !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHIP);
     }
 
     @Override
@@ -46,16 +57,18 @@ public abstract class AbstractEnemyShip extends Ship {
         guideVector.setZero();
 
         // Останавливаем движок
-        throttle = 0;
+        acquireThrottle(0);
 
         // Никуда не стреляем
         gun.stopFire();
 
+        // Уклонение от столкновения
+        avoidCollision(dt);
+
         // Уклонение от падения на планету
         avoidPlanet(dt);
 
-        // Уклонение от столкновения
-        avoidCollision(dt);
+
 
         // ЛИБО Наведение на цель ------------------------------------------------------------------------
 
@@ -79,12 +92,12 @@ public abstract class AbstractEnemyShip extends Ship {
 
             // Acceleration
 
-            throttle = maxThrottle;
+            acquireThrottle(maxThrottle);
 
             // Gun control
 
             if (target != null &&
-                Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
+                    Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed*1.5f) {
 
                 gun.startFire();
                 launcher.startFire();
@@ -107,28 +120,79 @@ public abstract class AbstractEnemyShip extends Ship {
         List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 50);
 
         // leave only ships and missiles
-        targetList.removeIf(o -> o == this || o.readyToDispose ||
-                o.type.contains(ObjectType.PLAYER_SHIP) ||
-                !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHIP));
+        targetList.removeIf(avoidCollisionObjectTypes);
 
-        if(targetList.size() == 0) {
-            return;
+//        if(targetList.size() == 0) {
+//            return;
+//        }
+
+        tmp1.setZero();
+
+        for (GameObject o : targetList) {
+            BPU.GuideResult gr = pbu.guideGun(this, o, 500, dt);
+
+            Float impactTime = (float)gr.impactTime;
+
+            float maxScale;
+
+            if (!impactTime.isNaN() && impactTime > 0 && impactTime < avoidCollisionImpactTime) {
+
+                maxScale = 1/impactTime > 100 ? 100: 100/impactTime;
+                tmp2.set(gr.guideVector).nor().scl(-maxScale);
+                tmp1.add(tmp2);
+            }
+
+            tmp2.set(o.pos).sub(pos);
+            maxScale = (o.radius + this.radius) * 10 / tmp2.len();
+            if (maxScale >= 1) {
+                tmp1.add(tmp2.nor().scl(-maxScale*100));
+
+            }
+
         }
 
-        BPU.GuideResult gr = pbu.guideGun(this, targetList.get(0), this.vel.len(), dt);
+        // стены
 
-        Float impactTime = (float)gr.impactTime;
+        float leftBound = GameScreen.getInstance().worldBounds.getLeft() * GameScreen.getInstance().aspect;
+        float rightBound = GameScreen.getInstance().worldBounds.getRight() * GameScreen.getInstance().aspect;
 
-        if (!impactTime.isNaN() && impactTime > 0 && impactTime < 2) {
-            guideVector.set(targetList.get(0).pos).sub(pos).nor().scl(-1);
+        float upBound = GameScreen.getInstance().worldBounds.getTop();
+        float downBound = GameScreen.getInstance().worldBounds.getBottom();
+
+        if (pos.x <= leftBound + 4*radius) {
+            tmp1.add(tmp4.set(1, 0).scl(1000));
+        }
+        if (pos.x >= rightBound - 4*radius) {
+            tmp1.add(tmp4.set(-1, 0).scl(1000));
+        }
+        if (pos.y >= upBound - 4*radius) {
+            tmp1.add(tmp4.set(0, -1).scl(1000));
+        }
+        if (pos.y <= downBound + 4*radius) {
+            tmp1.add(tmp4.set(0, 1).scl(1000));
         }
 
-        if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
-            throttle = maxThrottle;
+
+        if (!tmp1.isZero()) {
+            guideVector.set(tmp1).nor();
+
+
+            // слева или справа
+            //tmp1.set(vel).nor();
+            //tmp2.set(tmp1).sub(guideVector);
+
+            float angle = vel.angle(guideVector);
+            if (angle > 0) {
+                guideVector.rotate(-avoidCollisionAngle);
+            } else {
+                // планета справа от вектора скорости
+                guideVector.rotate(avoidCollisionAngle);
+            }
+            acquireThrottle(maxThrottle);
         }
-        else {
-            throttle = 0;
-        }
+
+
     }
+
 
 }

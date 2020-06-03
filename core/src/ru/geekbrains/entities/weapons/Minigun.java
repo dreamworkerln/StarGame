@@ -380,7 +380,7 @@ public class Minigun extends Gun {
 
         // Auto fire control
         if (target != null && !target.readyToDispose &&
-            Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed) {
+            Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed*1.5f) {
 
             startFire();
 

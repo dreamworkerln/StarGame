@@ -81,6 +81,7 @@ public class AbstractMissile extends DrivenObject {
 
         setRadius(radius * 5); // fix issued by image aspect ratio
         aspectRatio = 1;
+        throttleStep = 5;
 
 
         //mass = 0.04f;
@@ -195,7 +196,7 @@ public class AbstractMissile extends DrivenObject {
         // self -d no targets available
         if (selfdOnNoTargetAvailable && target == null) {
 
-            throttle = 0;
+            acquireThrottle(0);
             if (distToCarrier > proximitySafeDistance) {
                 this.readyToDispose = true;
             }
@@ -206,7 +207,7 @@ public class AbstractMissile extends DrivenObject {
         // target destroyed - self-d on
         if (selfdOnTargetDestroyed && target == null) {
 
-            throttle = 0;
+            acquireThrottle(0);
             if (distToCarrier > proximitySafeDistance) {
                 this.readyToDispose = true;
             }
@@ -282,7 +283,7 @@ public class AbstractMissile extends DrivenObject {
 
         if(target != null && !this.readyToDispose) {
 
-            throttle = maxThrottle;
+            acquireThrottle(maxThrottle);
 
             // Максимальное возможное ускорение ракеты своим движком
             float maxAcc = maxThrottle / mass;
@@ -301,7 +302,7 @@ public class AbstractMissile extends DrivenObject {
 
         }
         else {
-            throttle = 0;
+            acquireThrottle(0);
         }
 
         if(avoidPlanet) {
