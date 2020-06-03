@@ -17,7 +17,7 @@ A D - rotate ship ( + SHIFT to slow down rotation)
 W S - throttle level controls  
 SPACE  - push-to-max throttle (better use this)  
 
-LMB - shoot cannon shell  
+LMB - shoot cannon shells  
 RMB - launch self-guided missiles (position mouse cursor on top to fire at desired target)  
       (RMB + SHIFT or CTRL launch backwards)  
 
@@ -45,7 +45,7 @@ AA cannon fire fragmentation shell on inbound missiles and fragmentation plasma 
 Force shield can repulse many (~7) tangent hit, very many chase hit or ~2-3 direct hit  
 (fired from enemy ship flying towards you) by shell.  
 It's slowly regenerating to full charge, changing self colour.
-Also it repulse missiles (~1) but ineffective on counter course inbound.  
+Also it can repulse missiles (~1) but ineffective on counter course inbound.  
   
 Green curve - you trajectory in planet gravity force.  
 Blue curve - you shell trajectory in planet gravity force.  
