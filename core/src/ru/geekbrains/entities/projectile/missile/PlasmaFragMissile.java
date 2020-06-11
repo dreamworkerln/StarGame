@@ -194,7 +194,21 @@ public class PlasmaFragMissile extends AbstractMissile{
 
             try {
 
-                fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
+
+
+//                if (drift > 0) {
+//                    double gs = ThreadLocalRandom.current().nextGaussian()*drift;
+//                    tmp0.rotateRad((float) gs);
+//                }
+
+
+
+                if (!shapedExplosion) {
+                    fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
+                }
+                else {
+                    fi = (float) ThreadLocalRandom.current().nextGaussian()*((fi_max - fi_min)/4f) + dir.angleRad();
+                }
             }
             catch(Exception e) {
                 System.out.println(dir);

@@ -107,7 +107,7 @@ public class Minigun extends TurretGun {
 
             // leave only ships and missiles
             targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose || o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) ||
-                !o.type.contains(ObjectType.MISSILE)/* && !o.type.contains(ObjectType.SHIP)*/);
+                !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
 
 
 

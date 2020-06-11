@@ -123,7 +123,18 @@ public class FlakShell extends Shell {
                     fi = dir.angleRad() + (float) ((toAn + fromAn) * (i-fragCount/2) / fragCount);
                 }
                 else {
-                    fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
+
+                    if (!shapedExplosion) {
+                        fi = (float) ThreadLocalRandom.current().nextDouble(fi_min, fi_max);
+                    }
+                    else {
+                        fi = (float) ThreadLocalRandom.current().nextGaussian()*((fi_max - fi_min)/4f) + dir.angleRad();
+                    }
+
+
+
+
+
                     coefR = 0.2f;
 
                 }

@@ -92,6 +92,7 @@ public class GameScreen extends BaseScreen {
     private Vector2 tmp2 = new Vector2();
     private Vector2 tmp3 = new Vector2();
     private Vector2 tmp4 = new Vector2();
+    private Vector2 tmp5 = new Vector2();
     private GameObject dummy;
 
     private int enemyShipsToSpawn = 0;
@@ -807,6 +808,7 @@ public class GameScreen extends BaseScreen {
 
                 if (tmp1.len() <= tgt.getRadius() + prj.getRadius()) {
 
+                    // fall on planet
                     if (tgt == planet) {
                         // stop projectile - fallen on planet
                         prj.vel.setZero();
@@ -854,7 +856,9 @@ public class GameScreen extends BaseScreen {
                         }
                         tmp3.set(tgt.vel).sub(prj.vel);
                         prj.applyForce(tmp3.scl(tgt.getMass() / dt * elasticCollision + expCoef));
-                        //}
+
+
+
 
 
 
@@ -869,7 +873,28 @@ public class GameScreen extends BaseScreen {
                         }
                         tmp3.set(prj.vel).sub(tgt.vel);
                         tgt.applyForce(tmp3.scl(prj.getMass() / dt * elasticCollision + expCoef));
-                        //}
+
+
+                        tmp3.set(tgt.vel).sub(prj.vel);
+                        if(prj.type.contains(ObjectType.BULLET) && (tgt.type.contains(ObjectType.SHIP) || tgt.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
+                            tmp5.set(prj.pos).sub(tgt.pos).nor().setLength(tmp3.len()).scl(0.5f);
+                            prj.vel.set(tmp5);
+                        }
+                        if(prj.type.contains(ObjectType.SHELL) && (tgt.type.contains(ObjectType.SHIP) || tgt.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
+                            prj.vel.set(tgt.vel);
+                        }
+
+                        tmp3.set(prj.vel).sub(tgt.vel);
+                        if(tgt.type.contains(ObjectType.BULLET) && (prj.type.contains(ObjectType.SHIP)|| prj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
+                            tmp5.set(tgt.pos).sub(prj.pos).nor().setLength(tmp3.len()).scl(0.5f);
+                            tgt.vel.set(tmp5);
+                        }
+                        if( tgt.type.contains(ObjectType.SHELL) && (prj.type.contains(ObjectType.SHIP) || prj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
+                            tgt.vel.set(prj.vel);
+                        }
+
+
+
 
 
 
