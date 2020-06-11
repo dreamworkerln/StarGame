@@ -61,6 +61,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     public float explosionRadius;
 
 
+
     public boolean readyToDispose = false;            // object ready to dispose
 
     protected Vector2 tmp0 = new Vector2();           // buffer
@@ -371,4 +372,5 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     public void setExplosionRadius(float explosionRadius) {
         this.explosionRadius = explosionRadius;
     }
+
 }

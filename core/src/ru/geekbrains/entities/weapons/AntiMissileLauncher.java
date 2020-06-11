@@ -14,6 +14,7 @@ import java.util.TreeMap;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.interfaces.AntiLauncherSystem;
+import ru.geekbrains.entities.projectile.missile.AbstractMissile;
 import ru.geekbrains.entities.projectile.missile.AntiMissile;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -28,7 +29,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
 
     public float maxRange;
 
-    protected float maxPrjVel;
+    //protected float maxPrjVel;
 
     protected float maxTargets;
 
@@ -60,7 +61,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
 
         fireRate = 0.05f;
         gunHeatingDelta = 50;
-        coolingGunDelta = 1.0f; //1.4
+        coolingGunDelta = 1.3f; //1.4
         //coolingGunDelta = 90;
         maxGunHeat = 300;
         power = 200;
@@ -69,7 +70,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
         maxRange = 1700;
         maxImpactTime = 2.5f;
 
-        maxPrjVel = 400;
+        //maxPrjVel = 400;
 
         maxTargets = 10;
 
@@ -89,7 +90,8 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
             return;
         }
 
-        BPU.GuideResult gr = pbu.guideGun(owner, target, maxPrjVel, dt);
+        float maxAcc = ((AbstractMissile)firingAmmoType).maxThrottle / firingAmmoType.getMass();
+        BPU.GuideResult gr = pbu.guideMissile(owner, target, maxAcc, dt);
         if (!gr.guideVector.isZero()) {
             guideVector.set(gr.guideVector.nor());
         }
@@ -186,7 +188,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
 
 
         // apply force applied to missile
-        tmp0.set(dir).scl(power * 0.3f); //.add(tmp1); // force
+        tmp0.set(dir).setLength(missile.boost); //.add(tmp1); // force      // power * 0.3f
         missile.applyForce(tmp0);
 
         GameScreen.addObject(missile);
@@ -270,9 +272,9 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
             }
 
 
-
-
-            BPU.GuideResult gr = pbu.guideGun(this, trg, maxPrjVel, dt);
+            float maxAcc = ((AbstractMissile)firingAmmoType).maxThrottle / firingAmmoType.getMass();
+            //BPU.GuideResult gr = pbu.guideGun(this, trg, maxPrjVel, dt);
+            BPU.GuideResult gr = pbu.guideMissile(this, trg, maxAcc, dt);
             Float impactTime = (float)gr.impactTime;
 
 

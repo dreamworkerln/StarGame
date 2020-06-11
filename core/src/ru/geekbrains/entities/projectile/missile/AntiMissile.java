@@ -20,11 +20,11 @@ public class AntiMissile extends AbstractMissile {
         fuel = 5f;
         throttleStep = 1;
 
-        setMaxThrottle(3.5f);
+        setMaxThrottle(4f);
 
         setMaxHealth(0.01f);
         damage = 0.5f;
-        boost = 700f;
+        boost = 100f;
 
         maxRotationSpeed = 0.03f;
         currentMaxRotationSpeed = maxRotationSpeed;

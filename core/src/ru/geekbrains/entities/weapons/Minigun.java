@@ -71,8 +71,8 @@ public class Minigun extends TurretGun {
         power = 20;
         maxBlastRadius = 2;
 
-        maxRange = 500;
-        maxTime = 1.5f;
+        maxRange = 600;  // 500
+        maxTime = 2f;   // 1.5f
 
         displayTargetingVector = true;
 
@@ -105,19 +105,24 @@ public class Minigun extends TurretGun {
             targetList = GameScreen.getCloseObjects(owner, maxRange);
 
 
+            // leave only ships and missiles
+            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose || o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) ||
+                !o.type.contains(ObjectType.MISSILE)/* && !o.type.contains(ObjectType.SHIP)*/);
+
+
 
             for (GameObject o : targetList) {
 
-                if (o == owner || o.owner == owner || o.readyToDispose) {
-                    continue;
-                }
-
-                if (!o.type.contains(ObjectType.MISSILE) &&
-                    !o.type.contains(ObjectType.SHIP) ||
-                    o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
-
-                    continue;
-                }
+//                if (o == owner || o.owner == owner || o.readyToDispose) {
+//                    continue;
+//                }
+//
+//                if (!o.type.contains(ObjectType.MISSILE) &&
+//                    !o.type.contains(ObjectType.SHIP) ||
+//                    o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+//
+//                    continue;
+//                }
 
                 //tmp1.set(o.pos).sub(owner.pos);
 
@@ -143,7 +148,7 @@ public class Minigun extends TurretGun {
             Planet planet = GameScreen.INSTANCE.planet;
 
 
-            int iterationCount = 300;
+            int iterationCount = 400;
 
             for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
 
