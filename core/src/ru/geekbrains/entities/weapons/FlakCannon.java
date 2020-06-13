@@ -328,7 +328,7 @@ public class FlakCannon extends TurretGun {
                                 BPU.GuideResult gr = pbu.guideGun(owner, m, maxPrjVel, dt);
                                 Float impactTime = (float) gr.impactTime;
 
-                                maxImpactTimeCurrent = maxImpactTime / 1.3f;
+                                maxImpactTimeCurrent = maxImpactTime / 1.2f;
                                 if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= maxImpactTimeCurrent) {
 
                                     incomingPlasmaFragMissiles.add(gr);
@@ -351,7 +351,7 @@ public class FlakCannon extends TurretGun {
                                 // или передоз входящих PlasmaFragMissile
                                 if (incomingPlasmaFragMissiles.size() > 0 &&
                                     (!targetedByAntimissiles || firingMode == FiringMode.FLAK_ONLY) ||
-                                    incomingPlasmaFragMissiles.size() >= 2) {
+                                    incomingPlasmaFragMissiles.size() >= 1) {
 
                                     groupMissilesFound = true;
                                     impactTimes.clear();

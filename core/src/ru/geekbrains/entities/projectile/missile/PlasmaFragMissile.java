@@ -1,16 +1,22 @@
 package ru.geekbrains.entities.projectile.missile;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.entities.projectile.frag.PlasmaFragment;
 import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 
 public class PlasmaFragMissile extends AbstractMissile{
 
@@ -21,10 +27,13 @@ public class PlasmaFragMissile extends AbstractMissile{
 
     protected float defaultproximityMinDistance;
 
+    protected WarnReticle warnReticle;
 
 
     public PlasmaFragMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
+
+        warnReticle = new WarnReticle(height, this);
 
         type.add(ObjectType.BASIC_MISSILE);
         type.add(ObjectType.ANTIMISSILE);
@@ -34,7 +43,7 @@ public class PlasmaFragMissile extends AbstractMissile{
         fuel = 24;
 
         damage = 4f;
-        
+
         setMaxHealth(0.02f);
         setMaxThrottle(8f);
         boost = 700f;
@@ -66,6 +75,12 @@ public class PlasmaFragMissile extends AbstractMissile{
         engineTrail.setRadius(0.8f);
     }
 
+    @Override
+    public void update(float dt) {
+        super.update(dt);
+
+        warnReticle.update(dt);
+    }
 
     @Override
     protected void guide(float dt) {
@@ -94,12 +109,12 @@ public class PlasmaFragMissile extends AbstractMissile{
             proximityMinDistance = defaultproximityMinDistance;
         }
 
-        
+
 
 
         // перед подрывом разворот в сторону цели
         if (distToTarget <  proximityMinDistance*2.5  &&
-                distToTarget > proximityMinDistance) {
+            distToTarget > proximityMinDistance) {
 
             float maxPrjVel = 500;  // Задаем начальную скорость "тестовой" пули
             BPU.GuideResult gr = pbu.guideMissile(this, target, maxPrjVel, dt);
@@ -139,9 +154,9 @@ public class PlasmaFragMissile extends AbstractMissile{
     @Override
     public void dispose() {
 
-        
 
-        float power = 10f * 5;
+
+        float power = 10f * 4;
 
         //PlasmaFragment trash = new PlasmaFragment(6f, 1.5f, new Color(0.3f, 0.7f, 0.3f, 1), owner);
         //trash.setMass(fragCount*trash.getMass()*5*2f); // намного больше изначальной массы ракеты
@@ -158,7 +173,7 @@ public class PlasmaFragMissile extends AbstractMissile{
         for (int i = 0; i < fragCount; i++) {
 
             Projectile frag = new PlasmaFragment(2f, 0.8f, new Color(1f, 0.8f, 0.2f, 1), owner);
-            frag.setMass(frag.getMass()*5);
+            frag.setMass(frag.getMass()*4);
 
 
 
@@ -231,10 +246,71 @@ public class PlasmaFragMissile extends AbstractMissile{
             GameScreen.addObject(frag);
         }
 
+        warnReticle = null;
         super.dispose();
     }
 
 
+    @Override
+    public void draw(Renderer renderer) {
 
+        super.draw(renderer);
+
+        // Рисуем перекрестье на цели
+
+        warnReticle.draw(renderer);
+
+    }
+
+
+
+    protected static class WarnReticle extends ParticleObject {
+
+        WarnReticle(float height, GameObject owner) {
+            super(height, owner);
+        }
+
+
+        @Override
+        public void update(float dt) {
+
+            pos = owner.pos;
+
+        }
+
+        @Override
+        public void draw(Renderer renderer) {
+            super.draw(renderer);
+
+
+            if (renderer.rendererType!= RendererType.SHAPE) {
+                return;
+            }
+
+            ShapeRenderer shape = renderer.shape;
+
+            float drawRadius = owner.getRadius() * 3f;
+
+            Gdx.gl.glLineWidth(1);
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+            shape.set(ShapeRenderer.ShapeType.Line);
+
+            shape.setColor(1f, 1f, 1f, 0.5f);
+            shape.circle(pos.x, pos.y, drawRadius);
+
+            tmp0.set(pos).sub(drawRadius, drawRadius);
+            tmp1.set(tmp0).set(pos).add(drawRadius, drawRadius);
+            shape.line(tmp0, tmp1);
+
+            tmp0.set(pos).sub(-drawRadius, drawRadius);
+            tmp1.set(tmp0).set(pos).add(-drawRadius, drawRadius);
+            shape.line(tmp0, tmp1);
+            Gdx.gl.glLineWidth(3);
+              shape.flush();
+
+        }
+    }
 
 }

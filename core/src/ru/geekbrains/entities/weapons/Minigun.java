@@ -46,6 +46,7 @@ public class Minigun extends TurretGun {
 
     public float maxRange;
     public float maxTime;
+    public float plasmafragMissileTime;
 
     static {
         minigunFire = Gdx.audio.newSound(Gdx.files.internal("vulcan.mp3"));
@@ -73,6 +74,7 @@ public class Minigun extends TurretGun {
 
         maxRange = 600;  // 500
         maxTime = 2f;   // 1.5f
+        plasmafragMissileTime = 5f;
 
         displayTargetingVector = true;
 
@@ -106,7 +108,7 @@ public class Minigun extends TurretGun {
 
 
             // leave only ships and missiles
-            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose || o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) ||
+            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose /*|| o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)*/ ||
                 !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
 
 
@@ -137,6 +139,14 @@ public class Minigun extends TurretGun {
 
                         impactTimes.put(impactTime, gr);
                     }
+
+                    if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= plasmafragMissileTime && o.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
+                        impactTimes.put(impactTime, gr);
+                    }
+
+
+
+
                 }
             }
 
@@ -151,6 +161,7 @@ public class Minigun extends TurretGun {
             int iterationCount = 400;
 
             for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
+
 
                 ship.setRadius(owner.getRadius());
                 ship.setMass(owner.getMass());
@@ -191,13 +202,21 @@ public class Minigun extends TurretGun {
                         break;
                     }
 
+                    float radiusCoeff = 2.1f;
+                    if (entry.getValue().target.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
+                        radiusCoeff = 10;
+
+                    }
+
                     // check collision missile to ship  (-50%)
                     tmp0.set(ship.pos).sub(missile.pos);
-                    if (tmp0.len() <= (ship.getRadius() + missile.getRadius()) * 2.1f) {  // include ship force shield radius
+                    if (tmp0.len() <= (ship.getRadius() + missile.getRadius()) * radiusCoeff) {  // include ship force shield radius
 
                         impactTimesCalculated.put(i * dt, tgt);
                         break;
                     }
+
+
 
 
                 }

@@ -31,14 +31,14 @@ public class PlasmaFlakShell extends FlakShell {
         penetration = 1f;
         fragCount = 6;
         fragTTL = 400;
-        explosionPower = 5*5;
+        explosionPower = 5*4;
         color = Color.GOLD;
     }
 
     protected Projectile createFragment() {
 
         PlasmaFragment result = new PlasmaFragment(2, 0.3f, owner);
-        result.setMass(result.getMass()*5);
+        result.setMass(result.getMass()*4);
 
         return result;
     }

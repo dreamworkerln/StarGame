@@ -855,7 +855,8 @@ public class GameScreen extends BaseScreen {
                             elasticCollision = 0.5f;
                         }
                         tmp3.set(tgt.vel).sub(prj.vel);
-                        prj.applyForce(tmp3.scl(tgt.getMass() / dt * elasticCollision + expCoef));
+                        tmp5.set(prj.pos).sub(tgt.pos).nor().setLength(tmp3.len());
+                        prj.applyForce(tmp5.scl(tgt.getMass() / dt * elasticCollision + expCoef));
 
 
 
@@ -872,11 +873,12 @@ public class GameScreen extends BaseScreen {
                             elasticCollision = 0.5f;
                         }
                         tmp3.set(prj.vel).sub(tgt.vel);
-                        tgt.applyForce(tmp3.scl(prj.getMass() / dt * elasticCollision + expCoef));
+                        tmp5.set(tgt.pos).sub(prj.pos).nor().setLength(tmp3.len());
+                        tgt.applyForce(tmp5.scl(prj.getMass() / dt * elasticCollision + expCoef));
 
 
                         tmp3.set(tgt.vel).sub(prj.vel);
-                        if(prj.type.contains(ObjectType.BULLET) && (tgt.type.contains(ObjectType.SHIP) || tgt.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
+                        if((prj.type.contains(ObjectType.BULLET)||prj.type.contains(ObjectType.FRAG)) && (tgt.type.contains(ObjectType.SHIP) || tgt.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
                             tmp5.set(prj.pos).sub(tgt.pos).nor().setLength(tmp3.len()).scl(0.5f);
                             prj.vel.set(tmp5);
                         }
@@ -885,7 +887,7 @@ public class GameScreen extends BaseScreen {
                         }
 
                         tmp3.set(prj.vel).sub(tgt.vel);
-                        if(tgt.type.contains(ObjectType.BULLET) && (prj.type.contains(ObjectType.SHIP)|| prj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
+                        if((tgt.type.contains(ObjectType.BULLET)|| prj.type.contains(ObjectType.FRAG)) && (prj.type.contains(ObjectType.SHIP)|| prj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
                             tmp5.set(tgt.pos).sub(prj.pos).nor().setLength(tmp3.len()).scl(0.5f);
                             tgt.vel.set(tmp5);
                         }
