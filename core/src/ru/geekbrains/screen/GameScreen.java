@@ -97,7 +97,7 @@ public class GameScreen extends BaseScreen {
 
     private int enemyShipsToSpawn = 0;
 
-    private PlayerShip playerShip;
+    public PlayerShip playerShip;
     private static Texture mainEnemyShipTexture = new Texture("ship_enemy_main.png");
     private static Texture smallEnemyShipTexture = new Texture("ship_enemy_small.png");
 
@@ -1386,6 +1386,8 @@ public class GameScreen extends BaseScreen {
 
         return INSTANCE.planet;
     }
+
+
 
 
     public static List<GameObject> getCloseObjects(GameObject target, float radius) {

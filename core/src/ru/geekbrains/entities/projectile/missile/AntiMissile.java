@@ -26,7 +26,7 @@ public class AntiMissile extends AbstractMissile {
         damage = 0.5f;
         boost = 100f;
 
-        maxRotationSpeed = 0.03f;
+        maxRotationSpeed = 0.02f;
         currentMaxRotationSpeed = maxRotationSpeed;
 
 
@@ -67,7 +67,7 @@ public class AntiMissile extends AbstractMissile {
 
 
                 maxRotationSpeed = (float) (2 * Math.PI);
-                acquireThrottle(maxThrottle/6);
+                acquireThrottle(maxThrottle/4);
 
             }
             else {

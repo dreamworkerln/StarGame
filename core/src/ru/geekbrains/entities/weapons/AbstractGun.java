@@ -123,7 +123,7 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
 
         long tick = GameScreen.INSTANCE.getTick();
 
-        nozzlePos.set(dir).setLength(owner.getRadius() + firingAmmoType.getRadius() + 5).add(pos);
+        nozzlePos.set(dir).setLength(owner.getRadius() + firingAmmoType.getRadius() + 10).add(pos);
 
         if (firing && !overHeated && lastFired <= (long)(tick - 1/fireRate)) {
 

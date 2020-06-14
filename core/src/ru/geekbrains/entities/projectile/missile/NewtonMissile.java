@@ -8,6 +8,7 @@ import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.shell.BlackHoleBlastShell;
 import ru.geekbrains.entities.projectile.shell.BlackHoleShell;
 import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.screen.Renderer;
 
 public class NewtonMissile extends AbstractMissile {
 
@@ -56,6 +57,19 @@ public class NewtonMissile extends AbstractMissile {
 
         super.update(dt);
 
+        warnReticle.update(dt);
+
+
+    }
+
+    @Override
+    public void draw(Renderer renderer) {
+
+        super.draw(renderer);
+
+        // Рисуем перекрестье на цели
+
+        warnReticle.draw(renderer);
 
     }
 

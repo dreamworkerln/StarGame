@@ -27,13 +27,9 @@ public class PlasmaFragMissile extends AbstractMissile{
 
     protected float defaultproximityMinDistance;
 
-    protected WarnReticle warnReticle;
-
 
     public PlasmaFragMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
-
-        warnReticle = new WarnReticle(height, this);
 
         type.add(ObjectType.BASIC_MISSILE);
         type.add(ObjectType.ANTIMISSILE);
@@ -73,6 +69,8 @@ public class PlasmaFragMissile extends AbstractMissile{
 
         engineTrail.color = new Color(1f, 0.8f, 0.2f, 1);
         engineTrail.setRadius(0.8f);
+
+        warnReticleWidth = 3;
     }
 
     @Override
@@ -264,53 +262,6 @@ public class PlasmaFragMissile extends AbstractMissile{
 
 
 
-    protected static class WarnReticle extends ParticleObject {
 
-        WarnReticle(float height, GameObject owner) {
-            super(height, owner);
-        }
-
-
-        @Override
-        public void update(float dt) {
-
-            pos = owner.pos;
-
-        }
-
-        @Override
-        public void draw(Renderer renderer) {
-            super.draw(renderer);
-
-
-            if (renderer.rendererType!= RendererType.SHAPE) {
-                return;
-            }
-
-            ShapeRenderer shape = renderer.shape;
-
-            float drawRadius = owner.getRadius() * 3f;
-
-            Gdx.gl.glLineWidth(1);
-            Gdx.gl.glEnable(GL20.GL_BLEND);
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-
-            shape.set(ShapeRenderer.ShapeType.Line);
-
-            shape.setColor(1f, 1f, 1f, 0.5f);
-            shape.circle(pos.x, pos.y, drawRadius);
-
-            tmp0.set(pos).sub(drawRadius, drawRadius);
-            tmp1.set(tmp0).set(pos).add(drawRadius, drawRadius);
-            shape.line(tmp0, tmp1);
-
-            tmp0.set(pos).sub(-drawRadius, drawRadius);
-            tmp1.set(tmp0).set(pos).add(-drawRadius, drawRadius);
-            shape.line(tmp0, tmp1);
-            Gdx.gl.glLineWidth(3);
-              shape.flush();
-
-        }
-    }
 
 }

@@ -361,7 +361,7 @@ public class MissileLauncher extends Gun {
                     //shape.begin();
                     shape.set(ShapeRenderer.ShapeType.Line);
 
-                    shape.setColor(0.5f, 0.9f, 0.9f, 0.5f);
+                    shape.setColor(0.5f, 0.9f, 0.9f, 0.7f);
                     shape.circle(o.pos.x, o.pos.y, o.getRadius() * 2);
 
                     tmp0.set(o.pos).sub(o.getRadius() * 2, 0);

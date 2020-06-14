@@ -1,6 +1,9 @@
 package ru.geekbrains.entities.projectile.missile;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.List;
 import java.util.NavigableMap;
@@ -10,7 +13,12 @@ import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
+
+import static ru.geekbrains.screen.GameScreen.INSTANCE;
 
 public class AbstractMissile extends DrivenObject {
 
@@ -25,6 +33,9 @@ public class AbstractMissile extends DrivenObject {
     protected boolean selfdOnProximityMiss;
 
     protected boolean avoidPlanet;
+
+    protected WarnReticle warnReticle;
+    public float warnReticleWidth;
 
 
 
@@ -64,6 +75,8 @@ public class AbstractMissile extends DrivenObject {
 
     protected int retargetCount = 0;
 
+
+
     // rocket launching boost thrust
     public float boost;
 
@@ -74,6 +87,7 @@ public class AbstractMissile extends DrivenObject {
     BPU.GuideResult guideResult;
 
 
+
     public AbstractMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
@@ -82,6 +96,9 @@ public class AbstractMissile extends DrivenObject {
         setRadius(radius * 5); // fix issued by image aspect ratio
         aspectRatio = 1;
         throttleStep = 5;
+
+        warnReticle = new WarnReticle(height, this);
+        warnReticleWidth = 1;
 
 
         //mass = 0.04f;
@@ -307,6 +324,60 @@ public class AbstractMissile extends DrivenObject {
 
         if(avoidPlanet) {
             avoidPlanet(dt);
+        }
+    }
+
+
+    protected static class WarnReticle extends ParticleObject {
+
+        WarnReticle(float height, GameObject owner) {
+            super(height, owner);
+        }
+
+
+        @Override
+        public void update(float dt) {
+
+            pos = owner.pos;
+
+        }
+
+        @Override
+        public void draw(Renderer renderer) {
+            super.draw(renderer);
+
+
+            if (renderer.rendererType!= RendererType.SHAPE) {
+                return;
+            }
+
+            if (owner.owner == INSTANCE.playerShip) {
+                return;
+            }
+
+            ShapeRenderer shape = renderer.shape;
+
+            float drawRadius = owner.getRadius() * 3f;
+
+            Gdx.gl.glLineWidth(1);
+            Gdx.gl.glEnable(GL20.GL_BLEND);
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+            shape.set(ShapeRenderer.ShapeType.Line);
+
+            shape.setColor(1f, 1f, 1f, 0.5f);
+            shape.circle(pos.x, pos.y, drawRadius);
+
+            tmp0.set(pos).sub(drawRadius, drawRadius);
+            tmp1.set(tmp0).set(pos).add(drawRadius, drawRadius);
+            shape.line(tmp0, tmp1);
+
+            tmp0.set(pos).sub(-drawRadius, drawRadius);
+            tmp1.set(tmp0).set(pos).add(-drawRadius, drawRadius);
+            shape.line(tmp0, tmp1);
+            Gdx.gl.glLineWidth(((AbstractMissile)owner).warnReticleWidth);
+            shape.flush();
+
         }
     }
 
