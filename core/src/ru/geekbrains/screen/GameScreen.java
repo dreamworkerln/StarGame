@@ -599,7 +599,7 @@ public class GameScreen extends BaseScreen {
 
         // data processing (root finding) real-time violation
         if ( milli > (1/60d)*1000) {
-            System.out.println("TIME ERR >> " + milli);
+            //System.out.println("TIME ERR >> " + milli);
         }
     }
 
@@ -1068,7 +1068,7 @@ public class GameScreen extends BaseScreen {
                 break;
             }
         }
-        while (tmp2.len() < 500 || nearCount > 0); // 500  - расстояние до корабля игрока
+        while (tmp2.len() < 600 || nearCount > 0); // 500  - расстояние до корабля игрока
 
 
 

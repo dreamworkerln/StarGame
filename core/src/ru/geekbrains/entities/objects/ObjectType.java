@@ -17,6 +17,7 @@ public enum ObjectType {
     MISSILE,       // base type
     BASIC_MISSILE, // base type for medium size missiles
     HE_MISSILE,
+    FAST_MISSILE,
     EMP_MISSILE,
     GRAVITY_REPULSE_MISSILE,
     ANTIMISSILE,

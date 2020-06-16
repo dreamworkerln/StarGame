@@ -15,8 +15,10 @@ import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.PlayerShip;
+import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.entities.projectile.missile.AbstractMissile;
 import ru.geekbrains.entities.projectile.missile.EmpMissile;
+import ru.geekbrains.entities.projectile.missile.FastMissile;
 import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
 import ru.geekbrains.entities.projectile.missile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -198,8 +200,8 @@ public class MissileLauncher extends Gun {
                 lounchCnt = 0;
             }
 
-            // if first target is NewtonMissile - remove other targets
-            if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            // if first target is NewtonMissile/MissileEnemyShip - remove other targets
+            if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) /*|| targetList.get(0).type.contains(ObjectType.MISSILE_ENEMY_SHIP)*/) {
 
                 GameObject tmp = targetList.get(0);
                 targetList.clear();
@@ -416,7 +418,18 @@ public class MissileLauncher extends Gun {
 
         if (owner.type.contains(ObjectType.PLAYER_SHIP)) {
 
-            result = new Missile(new TextureRegion(missileTexture), 2, owner);
+
+
+
+            if(targetList!= null && targetList.size() >= lounchCnt && targetList.get(lounchCnt).type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
+
+                result = new FastMissile(new TextureRegion(missileTexture), 1.5f, owner);
+            }
+            else {
+                result = new Missile(new TextureRegion(missileTexture), 2, owner);
+            }
+
+
 
             //result =  new NewtonMissile(new TextureRegion(missileTexture), 5, owner);
 

@@ -62,11 +62,16 @@ public abstract class AbstractEnemyShip extends Ship {
         // Никуда не стреляем
         gun.stopFire();
 
-        // Уклонение от столкновения
-        avoidCollision(dt);
 
         // Уклонение от падения на планету
         avoidPlanet(dt);
+
+        // Уклонение от столкновения
+        avoidCollision(dt);
+
+
+
+
 
 
 
@@ -141,11 +146,11 @@ public abstract class AbstractEnemyShip extends Ship {
             }
 
             float distance = tmp2.set(o.pos).sub(pos).len() - o.radius - this.radius;
-            float minSafeDistance = (o.radius + this.radius)*3;
+            float minSafeDistance = (o.radius + this.radius)*4;
             if (distance < minSafeDistance) {
 
                 // normalize to 1
-                tmp1.add(tmp2.nor().scl(-(minSafeDistance - distance)/minSafeDistance));
+                tmp1.add(tmp2.nor().scl(-(minSafeDistance - distance * 2)/minSafeDistance));
 
             }
 
@@ -172,24 +177,50 @@ public abstract class AbstractEnemyShip extends Ship {
             tmp1.add(tmp4.set(0, 1).scl(1));
         }
 
-
         if (!tmp1.isZero()) {
-            guideVector.set(tmp1).nor();
+            //guideVector.set(tmp1).nor();
 
 
             // слева или справа
             //tmp1.set(vel).nor();
             //tmp2.set(tmp1).sub(guideVector);
 
-            float angle = vel.angle(guideVector);
+            float angle = vel.angle(tmp1);
             if (angle > 0) {
-                guideVector.rotate(-avoidCollisionAngle);
+                tmp1.rotate(-avoidCollisionAngle);
             } else {
                 // планета справа от вектора скорости
-                guideVector.rotate(avoidCollisionAngle);
+                tmp1.rotate(avoidCollisionAngle);
             }
             acquireThrottle(maxThrottle);
+
+            if (guideVector.isZero()) {
+                guideVector.set(tmp1).nor();
+            }
+            else {
+                guideVector.add(tmp1.scl(0.5f)).nor();
+            }
+
         }
+
+
+//        if (!tmp1.isZero()) {
+//            guideVector.set(tmp1).nor();
+//
+//
+//            // слева или справа
+//            //tmp1.set(vel).nor();
+//            //tmp2.set(tmp1).sub(guideVector);
+//
+//            float angle = vel.angle(guideVector);
+//            if (angle > 0) {
+//                guideVector.rotate(-avoidCollisionAngle);
+//            } else {
+//                // планета справа от вектора скорости
+//                guideVector.rotate(avoidCollisionAngle);
+//            }
+//            acquireThrottle(maxThrottle);
+//        }
 
 
     }

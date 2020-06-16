@@ -43,7 +43,7 @@ public class MissileEnemyShip extends AbstractEnemyShip {
 //            avoidCollisionObjectTypes = o -> o == this || o.readyToDispose || o.owner == this || !o.type.contains(ObjectType.SHELL) &&
 //                    !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.MISSILE);
             avoidCollisionObjectTypes = o -> o == this || o.readyToDispose || o.owner == this ||
-                !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE);
+                !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHELL) && !o.type.contains(ObjectType.BASIC_MISSILE);
         }
 
     }
@@ -66,11 +66,12 @@ public class MissileEnemyShip extends AbstractEnemyShip {
         // Останавливаем движок
         acquireThrottle(0);
 
-        // Уклонение от столкновения
-        avoidCollision(dt);
 
         // Уклонение от падения на планету
         avoidPlanet(dt);
+
+        // Уклонение от столкновения
+        avoidCollision(dt);
 
 
 
@@ -97,6 +98,12 @@ public class MissileEnemyShip extends AbstractEnemyShip {
 
 
             tmp0.set(target.vel).scl(aimingShift);
+
+            if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+                tmp0.scl(5);
+            }
+
+
             guideVector.set(target.pos).sub(pos).sub(tmp0).nor();
 
 

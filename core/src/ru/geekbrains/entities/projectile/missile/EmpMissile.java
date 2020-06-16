@@ -15,7 +15,7 @@ public class EmpMissile extends AbstractMissile {
         type.add(ObjectType.EMP_MISSILE);
 
 
-        engineTrail.color = new Color(0.65f, 0.87f, 1, 0.7f);
+        engineTrail.color = new Color(0.65f, 0.87f, 1, 0.8f);
         explosionColor = new Color(0.65f, 0.87f, 1, 0.5f);//new Color(0.25f, 0.57f, 1, 0.5f);
 
         mass = 0.04f;
