@@ -24,7 +24,7 @@ public class AntiMissile extends AbstractMissile {
 
         setMaxHealth(0.01f);
         damage = 0.5f;
-        boost = 100f;
+        boost = 150f;
 
         maxRotationSpeed = 0.02f;
         currentMaxRotationSpeed = maxRotationSpeed;

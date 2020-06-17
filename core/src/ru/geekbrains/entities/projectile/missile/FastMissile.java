@@ -15,23 +15,25 @@ public class FastMissile extends AbstractMissile {
         type.add(ObjectType.BASIC_MISSILE);
         type.add(ObjectType.FAST_MISSILE);
 
-        mass = 0.025f;
+        mass = 0.02f;
         fuel = 15;
         boost = 200f;
         explosionRadius = radius * 2;
         setMaxThrottle(4f);
         setMaxHealth(0.01f);
         maxRotationSpeed =  0.09f;
-        damage = 2.2f;
+        damage = 2.1f;
         penetration = 1;
 
-        engineTrail.color = new Color(0.75f, 0.47f, 0.3f, 1f);
+        engineTrail.color = new Color(0.95f, 0.47f, 0.3f, 1f);
 
         selfdOnTargetDestroyed = true;
         canRetarget = false;
         selfdOnNoFuel = true;
         selfdOnProximityMiss = true;
         avoidPlanet = false;
+        proximityMissMinGateDistance = 200;
+        proximityMissMaxSelfdDistance = 10;
     }
 
 

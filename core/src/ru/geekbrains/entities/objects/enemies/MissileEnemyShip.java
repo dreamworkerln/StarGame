@@ -22,7 +22,7 @@ public class MissileEnemyShip extends AbstractEnemyShip {
         type.add(ObjectType.MISSILE_ENEMY_SHIP);
 
         fuelConsumption = 0.1f;
-        setMaxThrottle(40f);
+        setMaxThrottle(50f);
         setMaxFuel(1000f);
 
         healthRegenerationCoefficient = 0.003f;
@@ -107,7 +107,7 @@ public class MissileEnemyShip extends AbstractEnemyShip {
             guideVector.set(target.pos).sub(pos).sub(tmp0).nor();
 
 
-            acquireThrottle(maxThrottle/2);
+            acquireThrottle(maxThrottle/3);
 
 
 //            tmp0.set(dir).scl(-1);

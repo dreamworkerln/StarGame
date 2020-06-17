@@ -92,6 +92,9 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
 
         float maxAcc = ((AbstractMissile)firingAmmoType).maxThrottle / firingAmmoType.getMass();
         BPU.GuideResult gr = pbu.guideMissile(owner, target, maxAcc, dt);
+
+        //float maxPrjVel = 200;
+        //BPU.GuideResult gr = pbu.guideGun(owner, target, maxPrjVel, dt);
         if (!gr.guideVector.isZero()) {
             guideVector.set(gr.guideVector.nor());
         }
@@ -186,9 +189,12 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
 
         missile.target = target;
 
+        float currBoost = (float) (missile.boost * gr.impactTime/2);
+        currBoost = currBoost > missile.boost ? missile.boost : currBoost;
+        currBoost = currBoost < missile.boost/2 ? missile.boost/2 : currBoost;
 
         // apply force applied to missile
-        tmp0.set(dir).setLength(missile.boost); //.add(tmp1); // force      // power * 0.3f
+        tmp0.set(dir).setLength((float) (currBoost)); //.add(tmp1); // force      // power * 0.3f
         missile.applyForce(tmp0);
 
         GameScreen.addObject(missile);
@@ -282,7 +288,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
 
             float localMaxImpactTime = maxImpactTime;
             if(isPlasmaFragMissile) {
-                localMaxImpactTime *=2f;
+                localMaxImpactTime *=3f;
             }
 
             if (!impactTime.isNaN() && impactTime >= 0 && impactTime < localMaxImpactTime) {

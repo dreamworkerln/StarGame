@@ -15,13 +15,14 @@ import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.PlayerShip;
-import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.entities.projectile.missile.AbstractMissile;
 import ru.geekbrains.entities.projectile.missile.EmpMissile;
 import ru.geekbrains.entities.projectile.missile.FastMissile;
 import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
 import ru.geekbrains.entities.projectile.missile.Missile;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.shell.FlakShell;
+import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -46,6 +47,11 @@ public class MissileLauncher extends Gun {
 
     public int sideLaunchCount = 2;
 
+    protected int repeatCount = 0;
+    protected int maxRepeatCount = 1;
+
+
+
     private DummyObject dummy;
 
     public GameObject target = null;
@@ -54,13 +60,15 @@ public class MissileLauncher extends Gun {
     private List<GameObject> visualTargets = new ArrayList<>();
 
 
-    private int lounchCnt = 0;
+    private int launchCnt = 0;
 
     protected int TTL = 10;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
 
     protected long start = -1;
 
     private boolean reverseLaunch;
+
+    MissileType missileType;
 
     static {
         missileFire01 = Gdx.audio.newSound(Gdx.files.internal("launch04.mp3"));
@@ -103,8 +111,14 @@ public class MissileLauncher extends Gun {
             if (start > 0 && GameScreen.INSTANCE.getTick() - start > TTL) {
 
                 repeatFire();
-                start = -1;
-                reverseLaunch = false;
+
+                if (repeatCount >= maxRepeatCount) {
+
+                    repeatCount = 0;
+                    start = -1;
+                    reverseLaunch = false;
+                    launchCnt = 0;
+                }
             }
 
         }
@@ -120,12 +134,6 @@ public class MissileLauncher extends Gun {
     protected void fire(float dt) {
 
         repeatFire();
-
-        // запуск двух ракет с задержкой
-        // (чтобы одна в другую не влетела при подлете к цели)
-        if (sideLaunchCount > 1) {
-            start = GameScreen.INSTANCE.getTick();
-        }
     }
 
     private List<GameObject> getTarget() {
@@ -163,6 +171,15 @@ public class MissileLauncher extends Gun {
     protected void repeatFire() {
 
 
+
+        // запуск двух ракет с задержкой
+        // (чтобы одна в другую не влетела при подлете к цели)
+        if (sideLaunchCount > 1) {
+            start = GameScreen.INSTANCE.getTick();
+        }
+        repeatCount++;
+
+
         // ???
         tmp6.set(dir);
         if (reverseLaunch) {
@@ -174,7 +191,7 @@ public class MissileLauncher extends Gun {
         if (owner.type.contains(ObjectType.PLAYER_SHIP) &&
             this.getClass() ==  MissileLauncher.class) {
 
-            if(lounchCnt == 0) {
+            if(launchCnt == 0) {
                 targetList = getTarget();
 
 //                for (GameObject o : targetList) {
@@ -184,20 +201,20 @@ public class MissileLauncher extends Gun {
                 visualTargets.clear();
             }
 
-            if (lounchCnt == 1) {
+            if (launchCnt == 1) {
                 targetList.removeIf(o-> o.readyToDispose);
             }
 
 
             if (targetList.size() == 0) {
-                lounchCnt = 0;
+                launchCnt = 0;
                 return;
 
             }
 
-            lounchCnt++;
-            if (lounchCnt >= sideLaunchCount) {
-                lounchCnt = 0;
+            launchCnt++;
+            if (launchCnt >= sideLaunchCount) {
+                launchCnt = 0;
             }
 
             // if first target is NewtonMissile/MissileEnemyShip - remove other targets
@@ -209,7 +226,21 @@ public class MissileLauncher extends Gun {
             }
 
 
-            if (lounchCnt == 1) {
+
+            if (targetList.get(0).type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
+                maxRepeatCount = 4;
+                missileType = MissileType.Fast;
+            }
+            else {
+                maxRepeatCount = 1;
+                missileType = MissileType.HE;
+            }
+
+
+
+
+
+            if (launchCnt == 1) {
                 visualTargets.addAll(targetList);
             }
 
@@ -312,6 +343,7 @@ public class MissileLauncher extends Gun {
         if (reverseLaunch) {
             tmp0.scl(0.75f);
         }
+
 
         if (missile.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
             tmp0.scl(3);
@@ -421,11 +453,11 @@ public class MissileLauncher extends Gun {
 
 
 
-            if(targetList!= null && targetList.size() >= lounchCnt && targetList.get(lounchCnt).type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
+            if (missileType== MissileType.Fast) {
 
                 result = new FastMissile(new TextureRegion(missileTexture), 1.5f, owner);
             }
-            else {
+            else  if (missileType== MissileType.HE){
                 result = new Missile(new TextureRegion(missileTexture), 2, owner);
             }
 
@@ -474,6 +506,18 @@ public class MissileLauncher extends Gun {
 
         stopFire();
         super.dispose();
+    }
+
+
+
+    private enum MissileType {
+
+        HE(Missile.class),
+        Fast(FastMissile.class);
+        Class type;
+        MissileType(Class type) {
+            this.type = type;
+        }
     }
 
 }
