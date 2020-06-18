@@ -192,6 +192,10 @@ public class MissileLauncher extends Gun {
             this.getClass() ==  MissileLauncher.class) {
 
             if(launchCnt == 0) {
+
+                maxRepeatCount = 1;
+                missileType = MissileType.HE;
+
                 targetList = getTarget();
 
 //                for (GameObject o : targetList) {
@@ -212,13 +216,14 @@ public class MissileLauncher extends Gun {
 
             }
 
-            launchCnt++;
-            if (launchCnt >= sideLaunchCount) {
-                launchCnt = 0;
+
+            if (launchCnt == 0 && targetList.get(0).type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
+                maxRepeatCount = 4;
+                missileType = MissileType.Fast;
             }
 
             // if first target is NewtonMissile/MissileEnemyShip - remove other targets
-            if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) /*|| targetList.get(0).type.contains(ObjectType.MISSILE_ENEMY_SHIP)*/) {
+            if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
 
                 GameObject tmp = targetList.get(0);
                 targetList.clear();
@@ -227,14 +232,15 @@ public class MissileLauncher extends Gun {
 
 
 
-            if (targetList.get(0).type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
-                maxRepeatCount = 4;
-                missileType = MissileType.Fast;
+            launchCnt++;
+            if (launchCnt >= sideLaunchCount) {
+                launchCnt = 0;
             }
-            else {
-                maxRepeatCount = 1;
-                missileType = MissileType.HE;
-            }
+
+
+
+
+
 
 
 
