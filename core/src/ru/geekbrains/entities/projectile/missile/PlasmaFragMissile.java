@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.equipment.BPU;
+import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.particles.ParticleObject;
@@ -70,15 +71,9 @@ public class PlasmaFragMissile extends AbstractMissile{
         engineTrail.color = new Color(1f, 0.8f, 0.2f, 1);
         engineTrail.setRadius(0.8f);
 
-        warnReticleWidth = 3;
+        warnReticle = new DrivenObject.WarnReticle(height, this);
     }
 
-    @Override
-    public void update(float dt) {
-        super.update(dt);
-
-        warnReticle.update(dt);
-    }
 
     @Override
     protected void guide(float dt) {
@@ -247,19 +242,6 @@ public class PlasmaFragMissile extends AbstractMissile{
         warnReticle = null;
         super.dispose();
     }
-
-
-    @Override
-    public void draw(Renderer renderer) {
-
-        super.draw(renderer);
-
-        // Рисуем перекрестье на цели
-
-        warnReticle.draw(renderer);
-
-    }
-
 
 
 

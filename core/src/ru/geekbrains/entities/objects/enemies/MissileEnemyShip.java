@@ -46,6 +46,8 @@ public class MissileEnemyShip extends AbstractEnemyShip {
                 !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHELL) && !o.type.contains(ObjectType.BASIC_MISSILE);
         }
 
+        warnReticle = new WarnReticle(height, this);
+
     }
 
     @Override

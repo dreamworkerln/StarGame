@@ -11,11 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ru.geekbrains.entities.equipment.BPU;
+import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.entities.particles.SmokeTrailList;
+import ru.geekbrains.entities.projectile.missile.AbstractMissile;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.entities.particles.SmokeTrail;
 import ru.geekbrains.screen.RendererType;
+
+import static ru.geekbrains.screen.GameScreen.INSTANCE;
 
 /**
  * Object with thruster and gyrodine
@@ -50,6 +54,8 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
     protected long avoidPlanetTick = 0;
 
+    protected WarnReticle warnReticle;
+
     //protected boolean doAvoidPlanet = false;
 
     public DrivenObject(TextureRegion textureRegion, float height, GameObject owner) {
@@ -72,6 +78,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         rendererType.add(RendererType.TEXTURE);
         rendererType.add(RendererType.SHAPE);
 
+        warnReticle = new WarnReticle(height, null);
     }
 
 
@@ -160,6 +167,8 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         if (health < getMaxHealth()) {
             damageBurnTrail.add((getMaxHealth() - health) / maxHealth);
         }
+
+        warnReticle.update(dt);
     }
 
 
@@ -210,7 +219,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         else {// set trigger off
             avoidPlanetTick = 0;
         }
-        
+
 
         if (doAvoidPlanet) {
 
@@ -345,6 +354,11 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         // render damage burn after ship
         damageBurnTrail.draw(renderer);
 
+
+
+        // Рисуем перекрестье на цели
+        warnReticle.draw(renderer);
+
     }
 
 
@@ -366,7 +380,120 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 //        acc = null;
 //        mass = 0;
 
+        warnReticle = null;
         super.dispose();
+    }
+
+
+
+    protected static class WarnReticle extends ParticleObject {
+
+        private float thickness;
+
+        public WarnReticle(float height, GameObject owner) {
+            super(height, owner);
+
+            if(owner == null) {
+                return;
+            }
+
+            thickness = 0;
+            if(owner.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
+                thickness = 3;
+            }
+            else if(owner.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) || owner.type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
+                thickness = 1;
+            }
+        }
+
+
+        @Override
+        public void update(float dt) {
+
+            if(owner == null) {
+                return;
+            }
+
+            pos = owner.pos;
+        }
+
+        @Override
+        public void draw(Renderer renderer) {
+
+            if(owner == null) {
+                return;
+            }
+
+            super.draw(renderer);
+
+
+            if (renderer.rendererType != RendererType.SHAPE) {
+                return;
+            }
+
+            if (owner.owner == INSTANCE.playerShip) {
+                return;
+            }
+
+            ShapeRenderer shape = renderer.shape;
+
+            if (owner.type.contains(ObjectType.MISSILE)) {
+
+
+                float drawRadius = owner.getRadius() * 3f;
+
+                Gdx.gl.glLineWidth(1);
+                Gdx.gl.glEnable(GL20.GL_BLEND);
+                Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+                shape.set(ShapeRenderer.ShapeType.Line);
+
+                shape.setColor(1f, 1f, 1f, 0.5f);
+                shape.circle(pos.x, pos.y, drawRadius);
+
+                tmp0.set(pos).sub(drawRadius, drawRadius);
+                tmp1.set(tmp0).set(pos).add(drawRadius, drawRadius);
+                shape.line(tmp0, tmp1);
+
+                tmp0.set(pos).sub(-drawRadius, drawRadius);
+                tmp1.set(tmp0).set(pos).add(-drawRadius, drawRadius);
+                shape.line(tmp0, tmp1);
+                Gdx.gl.glLineWidth(thickness);
+                shape.flush();
+            }
+            else {
+
+                float drawRadius = owner.getRadius() * 3f;
+
+                Gdx.gl.glLineWidth(1);
+                Gdx.gl.glEnable(GL20.GL_BLEND);
+                Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+                shape.set(ShapeRenderer.ShapeType.Line);
+                shape.set(ShapeRenderer.ShapeType.Line);
+
+                shape.setColor(1f, 1f, 1f, 0.5f);
+
+                tmp0.set(pos).sub(0, drawRadius);
+                tmp1.set(pos).add(drawRadius, 0);
+                shape.line(tmp0, tmp1);
+
+                tmp0.set(pos).add(drawRadius, 0);
+                tmp1.set(pos).add(0, drawRadius);
+                shape.line(tmp0, tmp1);
+
+                tmp0.set(pos).add(0, drawRadius);
+                tmp1.set(pos).sub(drawRadius, 0);
+                shape.line(tmp0, tmp1);
+
+                tmp0.set(pos).sub(drawRadius, 0);
+                tmp1.set(pos).sub(0, drawRadius);
+                shape.line(tmp0, tmp1);
+                Gdx.gl.glLineWidth(thickness);
+                shape.flush();
+            }
+
+        }
     }
 
 

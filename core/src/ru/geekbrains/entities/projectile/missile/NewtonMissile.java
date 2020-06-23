@@ -3,6 +3,7 @@ package ru.geekbrains.entities.projectile.missile;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.shell.BlackHoleBlastShell;
@@ -40,6 +41,8 @@ public class NewtonMissile extends AbstractMissile {
         damage = 10f;
         fragCount = 100;
         penetration = 1f;
+
+        warnReticle = new DrivenObject.WarnReticle(height, this);
     }
 
 
@@ -56,20 +59,6 @@ public class NewtonMissile extends AbstractMissile {
         }
 
         super.update(dt);
-
-        warnReticle.update(dt);
-
-
-    }
-
-    @Override
-    public void draw(Renderer renderer) {
-
-        super.draw(renderer);
-
-        // Рисуем перекрестье на цели
-
-        warnReticle.draw(renderer);
 
     }
 
