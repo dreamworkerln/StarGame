@@ -145,6 +145,7 @@ public abstract class AbstractEnemyShip extends Ship {
                 tmp1.add(tmp2);
             }
 
+            /*
             float distance = tmp2.set(o.pos).sub(pos).len() - o.radius - this.radius;
             float minSafeDistance = (o.radius + this.radius)*4;
             if (distance < minSafeDistance) {
@@ -153,6 +154,7 @@ public abstract class AbstractEnemyShip extends Ship {
                 tmp1.add(tmp2.nor().scl(-(minSafeDistance - distance * 2)/minSafeDistance));
 
             }
+            */
 
         }
 
