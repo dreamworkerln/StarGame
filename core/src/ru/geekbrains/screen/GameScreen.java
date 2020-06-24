@@ -104,8 +104,6 @@ public class GameScreen extends BaseScreen {
 
     private Map<String, Integer>  missileHitType = new HashMap<>();
 
-
-
     private Background background;
     private Reticle reticle;
     public  Planet planet;
@@ -1550,7 +1548,6 @@ public class GameScreen extends BaseScreen {
 
                 System.out.println("COMMITTED SUICIDE");
             }
-
         }
 
         // AA system targets down statistic
@@ -1572,7 +1569,7 @@ public class GameScreen extends BaseScreen {
         if (obj.type.contains(ObjectType.SHIP)) {
 
              if(obj.type.contains(ObjectType.PLAYER_SHIP)) {
-                quack.play(1f);
+                 quack.play(1f);
             }
             else{
                 expl01.play(1f);

@@ -288,7 +288,8 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
 
         if (displayTargetingVector) {
 
-            tmp0.set(pos).add(guideVector);
+            tmp1.set(guideVector).scl(300);
+            tmp0.set(pos).add(tmp1);
 
             //Gdx.gl.glLineWidth(1);
 

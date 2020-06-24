@@ -47,6 +47,7 @@ public class Minigun extends TurretGun {
     public float maxRange;
     public float maxTime;
     public float plasmafragMissileTime;
+    protected int iterationCount;
 
     static {
         minigunFire = Gdx.audio.newSound(Gdx.files.internal("vulcan.mp3"));
@@ -75,6 +76,8 @@ public class Minigun extends TurretGun {
         maxRange = 600;  // 500
         maxTime = 2f;   // 1.5f
         plasmafragMissileTime = 5f;
+        iterationCount = 400;
+
 
         displayTargetingVector = true;
 
@@ -158,7 +161,7 @@ public class Minigun extends TurretGun {
             Planet planet = GameScreen.INSTANCE.planet;
 
 
-            int iterationCount = 400;
+
 
             for (Map.Entry<Float, BPU.GuideResult> entry : impactTimes.entrySet()) {
 
