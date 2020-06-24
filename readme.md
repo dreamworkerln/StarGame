@@ -49,6 +49,8 @@ Also it can repulse missiles (~1) but ineffective on counter course inbound.
   
 Green curve - you trajectory in planet gravity force.  
 Blue curve - you shell trajectory in planet gravity force.  
+  
+Dangerous objects are marked with special signs.
 
 // -------------------------------------------------------------------------------------------------
 
