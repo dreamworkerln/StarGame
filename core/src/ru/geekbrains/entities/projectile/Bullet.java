@@ -24,6 +24,7 @@ public class Bullet extends Projectile {
         damage = 0.015f;
 
         penetration = 1f;
+        explosionRadius = 1.5f *radius;
     }
 
 

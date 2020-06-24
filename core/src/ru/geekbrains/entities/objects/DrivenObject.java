@@ -401,8 +401,11 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             if(owner.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
                 thickness = 3;
             }
-            else if(owner.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) || owner.type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
+            else if(owner.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
                 thickness = 1;
+            }
+            else if( owner.type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
+                thickness = 2.0f;
             }
         }
 

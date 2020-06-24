@@ -141,6 +141,7 @@ public class GameScreen extends BaseScreen {
     private Sound flak_exp;
     private Sound metalHit;
     private Sound forTheEmperor;
+    private Sound quack;
 
     private Message msgEST;
     private Message msgFuel;
@@ -263,6 +264,7 @@ public class GameScreen extends BaseScreen {
 
         bigExpl = Gdx.audio.newSound(Gdx.files.internal("big_expl2.mp3"));
         metalHit = Gdx.audio.newSound(Gdx.files.internal("IMPACT CAN METAL HIT RING 01.mp3"));
+        quack = Gdx.audio.newSound(Gdx.files.internal("quack2.mp3"));
 
         // DIFFICULTY LEVEL ------------------------------------------------------------------------
         getDifficultyLevel();
@@ -1569,7 +1571,12 @@ public class GameScreen extends BaseScreen {
 
         if (obj.type.contains(ObjectType.SHIP)) {
 
-            expl01.play(1f);
+             if(obj.type.contains(ObjectType.PLAYER_SHIP)) {
+                quack.play(1f);
+            }
+            else{
+                expl01.play(1f);
+            }
         }
         else if (obj.type.contains(ObjectType.MISSILE) &&
             !obj.type.contains(ObjectType.ANTIMISSILE)&&

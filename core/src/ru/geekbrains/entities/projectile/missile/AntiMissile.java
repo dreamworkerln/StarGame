@@ -61,17 +61,12 @@ public class AntiMissile extends AbstractMissile {
 
             // включаем режим маневрирования маневровыми движками
             if (guideResult.impactTime < 0.8f) {
-//                // angle between direction and guideVector
-//                float guideAngle = dir.angleRad(guideVector);
-//                float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
 
-
-                //currentMaxRotationSpeed = (float) (2 * Math.PI);
+                currentMaxRotationSpeed = (float) (2 * Math.PI);
                 acquireThrottle(maxThrottle/6);
 
             }
             else {
-
                 currentMaxRotationSpeed = maxRotationSpeed;
                 acquireThrottle(maxThrottle);
             }
