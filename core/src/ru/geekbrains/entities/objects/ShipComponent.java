@@ -5,6 +5,14 @@ import com.badlogic.gdx.math.Vector2;
 import ru.geekbrains.entities.particles.ParticleObject;
 
 public abstract class ShipComponent extends ParticleObject {
+
+    protected boolean enabled = true;
+
+
+    public void enable(boolean enable) {
+        enabled = enable;
+    }
+
     public ShipComponent(float height, GameObject owner) {
         super(height, owner);
     }

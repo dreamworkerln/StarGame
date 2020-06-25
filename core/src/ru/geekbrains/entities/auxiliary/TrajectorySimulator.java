@@ -62,7 +62,7 @@ public class TrajectorySimulator extends ShipComponent {
     public void update(float dt) {
 
         // if target is dead exit
-        if (target == null ||  target.readyToDispose) {
+        if (target == null ||  target.readyToDispose || !enabled) {
 
             target = null;
             return;
@@ -125,6 +125,10 @@ public class TrajectorySimulator extends ShipComponent {
         }
 
         ShapeRenderer shape = renderer.shape;
+
+        if(!enabled) {
+            return;
+        }
 
 
 

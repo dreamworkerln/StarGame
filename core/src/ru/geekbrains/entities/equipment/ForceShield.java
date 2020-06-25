@@ -35,6 +35,7 @@ public class ForceShield extends ShipComponent {
     public float maxPower = 1700f;
 
     public float powerIncrementDelta =  maxPower * 0.0000005f;
+    public float factoryPowerIncrementDelta = powerIncrementDelta;
 
     public ForceShield(GameObject owner, Color color) {
         super(owner);
@@ -103,5 +104,14 @@ public class ForceShield extends ShipComponent {
         Gdx.gl.glLineWidth(1);
         shape.flush();
         //shape.end();
+    }
+
+
+
+    @Override
+    public void enable(boolean enable) {
+
+        power = 0;
+        powerIncrementDelta = enable ? factoryPowerIncrementDelta : 0;
     }
 }

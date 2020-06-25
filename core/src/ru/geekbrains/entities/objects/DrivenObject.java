@@ -34,6 +34,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     public float maxThrottle = 50f;        // maximum thruster engine force
     public float throttleStep = 10;
     public float requiredThrottle;
+    public  boolean engineOnline = true;
 
     //public Guidance guidance = Guidance.AUTO;
 
@@ -119,6 +120,11 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
         // гасим движок
         if (requiredThrottle == 0 && throttle <= throttleStep*1.5f) {
+            throttle = 0;
+        }
+
+        // отключаем движок
+        if (!engineOnline) {
             throttle = 0;
         }
 
@@ -328,7 +334,6 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             return;
         }
 
-
         // render smoke before ship
         engineTrail.draw(renderer);
 
@@ -344,8 +349,10 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         renderer.shape.set(ShapeRenderer.ShapeType.Filled);
 
         renderer.shape.setColor(1f, 0.8f, 0.2f, 1);
+
         renderer.shape.circle(enginePos.x, enginePos.y,
             radius * aspectRatio * 0.3f * (throttle/maxThrottle));
+
 
         Gdx.gl.glLineWidth(1);
         //renderer.shape.end();

@@ -89,8 +89,6 @@ public class SmokeTrail extends GameObject{
             return;
         }
 
-
-
         ShapeRenderer shape = renderer.shape;
 
 
@@ -117,7 +115,9 @@ public class SmokeTrail extends GameObject{
 
             shape.setColor(bufColor);
 
+
             shape.circle(el.pos.x, el.pos.y, el.getRadius());
+
 
             //shape.setColor(0.5f, 0.5f, 0.5f, 1f*((el.expired - tick)/(float)SmokeTrail.TTL));
 

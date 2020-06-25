@@ -443,6 +443,10 @@ public class Minigun extends TurretGun {
     @Override
     public void startFire() {
 
+        if(!enabled) {
+            return;
+        }
+
         super.startFire();
 
 

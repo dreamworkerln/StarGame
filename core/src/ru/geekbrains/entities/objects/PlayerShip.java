@@ -1,11 +1,15 @@
 package ru.geekbrains.entities.objects;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.TreeMap;
 
 import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
@@ -19,14 +23,35 @@ import ru.geekbrains.entities.weapons.FlakCannon;
 import ru.geekbrains.entities.weapons.Gun;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.MissileLauncher;
+import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.KeyDown;
 import ru.geekbrains.screen.KeyToggle;
+import ru.geekbrains.utils.PlayList;
+import ru.geekbrains.utils.SoundPlay;
 
 public class PlayerShip extends Ship {
 
     public float maxAimRange = 1000;
     private NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
     private List<GameObject> targetList = new ArrayList<>();
+
+
+
+    //boolean isPlayListPlaying = false;
+
+
+
+
+    static SoundPlay hic;
+    static SoundPlay hib25, hib50;
+    static SoundPlay decin321;
+
+
+    PlayList playList = new PlayList();
+
+    boolean shouldBlowup = false;
+    long blowupTick = -1;
+
 
 
 
@@ -76,6 +101,13 @@ public class PlayerShip extends Ship {
 
         //setMaxHealth(1000);
 
+
+        // sounds
+        hic = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_compromised_2.mp3")), 2664);
+        hib25 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_below_25_2.mp3")), 3541);
+        hib50 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_below_50_2.mp3")), 3265);
+        decin321 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("decompression_is_imminent_in_321_2.mp3")), 4748);
+
     }
 
 
@@ -88,7 +120,6 @@ public class PlayerShip extends Ship {
     protected void guide(float dt) {
 
         WeaponSystem gun = weaponList.get(CompNames.GUN);
-        //WeaponSystem minigun = weaponList.get(CompNames.MINIGUN);
         FlakCannon flakCannon = (FlakCannon)componentList.get(CompNames.FLACK_CANNON);
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
 
@@ -175,9 +206,72 @@ public class PlayerShip extends Ship {
 
     }
 
+    @Override
+    public void update(float dt) {
+
+        long tick = GameScreen.INSTANCE.getTick();
+        if(shouldBlowup && tick > blowupTick) {
+            readyToDispose = true;
+        }
+
+        super.update(dt);
+
+        playList.update(dt);
+
+    }
+
+    @Override
+    public void doDamage(float amount) {
+
+        float newHealth = health - amount;
+
+        
+        if (!shouldBlowup) {
+
+            SoundPlay soundPlay = hic;
+            if (newHealth < maxHealth * 0.5 && newHealth >= maxHealth * 0.25) {
+                playList.add(soundPlay);
+            }
 
 
-//    @Override
+            soundPlay = hib25;
+            if (newHealth < maxHealth * 0.25) {
+                playList.add(soundPlay);
+            }
+
+            soundPlay = decin321;
+            if (newHealth < 0) {
+
+                playList.clear();
+                playList.add(soundPlay);
+
+                shouldBlowup = true;
+                blowupTick = GameScreen.INSTANCE.getTick() + soundPlay.durationTick;
+
+
+                health = 0.01f;
+                maxRotationSpeed = 0;
+                healthRegenerationCoefficient = 0;
+                engineOnline = false;
+
+                for (ShipComponent component : componentList.values()) {
+                    component.enable(false);
+                }
+
+
+                //hib25.sound.stop();
+                //hic.sound.stop();
+            }
+
+        }
+
+        if (!shouldBlowup || newHealth < -maxHealth*1.5) {
+            super.doDamage(amount);
+        }
+
+    }
+
+    //    @Override
 //    public void update(float dt) {
 //        super.update(dt);
 //        aimHelp(dt);
@@ -299,20 +393,11 @@ public class PlayerShip extends Ship {
 //    }
 
 
-//    @Override
-//    public void dispose() {
-//
-//        trajectorySim.dispose();
-//        gunSim.dispose();
-//
-//        launcher.dispose();
-//        antiLauncher.dispose();
-//        flakCannon.dispose();
-//        shield.dispose();
-//
-//        minigun.dispose();
-//        gun.dispose();
-//
-//        super.dispose();
-//    }
+    @Override
+    public void dispose() {
+
+        playList.clear();
+
+        super.dispose();
+    }
 }

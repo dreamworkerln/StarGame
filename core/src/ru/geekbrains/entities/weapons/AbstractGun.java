@@ -33,6 +33,8 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
     public float coolingGunDelta = 2;
     public int maxGunHeat = 200;
 
+    public int factoryMaxGunHeat = maxGunHeat;
+
     protected long lastFired;
     //public long lastFiredBurst;
 
@@ -117,9 +119,11 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
 
         super.update(dt);
 
-        if (owner == null || owner.readyToDispose) {
+        if (owner == null || owner.readyToDispose || !enabled) {
             return;
         }
+
+
 
         long tick = GameScreen.INSTANCE.getTick();
 
@@ -175,7 +179,9 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
 
     protected void fire(float dt) {
 
-        //System.out.println(owner.name);
+        if(!enabled) {
+            return;
+        }
 
 
         if (burst == 1) {
@@ -261,6 +267,10 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
         super.draw(renderer);
 
         if (renderer.rendererType!= RendererType.SHAPE) {
+            return;
+        }
+
+        if(!enabled) {
             return;
         }
 

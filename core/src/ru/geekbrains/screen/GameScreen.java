@@ -1523,8 +1523,8 @@ public class GameScreen extends BaseScreen {
 
             case 99:
                 // DEBUG
-                ENEMY_RESPAWN_TIME = 700;
-                ENEMIES_COUNT_IN_WAVE = 20;
+                ENEMY_RESPAWN_TIME = 2000;
+                ENEMIES_COUNT_IN_WAVE = 14;
                 break;
         }
 
@@ -1568,12 +1568,13 @@ public class GameScreen extends BaseScreen {
 
         if (obj.type.contains(ObjectType.SHIP)) {
 
-             if(obj.type.contains(ObjectType.PLAYER_SHIP)) {
-                 quack.play(1f);
-            }
-            else{
-                expl01.play(1f);
-            }
+//             if(obj.type.contains(ObjectType.PLAYER_SHIP)) {
+//                 quack.play(1f);
+//            }
+//            else{
+//                expl01.play(1f);
+//            }
+            expl01.play(1f);
         }
         else if (obj.type.contains(ObjectType.MISSILE) &&
             !obj.type.contains(ObjectType.ANTIMISSILE)&&

@@ -143,10 +143,10 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
         age = GameScreen.INSTANCE.getTick() - birth;
 
-        // auto removing destroyed targets
-        if (owner == null ||  owner.readyToDispose) {
-            owner = null;
-        }
+//        // auto removing destroyed targets
+//        if (owner == null ||  owner.readyToDispose) {
+//            owner = null;
+//        }
 
         // exploding if no health
         if (health < 0 ) {
