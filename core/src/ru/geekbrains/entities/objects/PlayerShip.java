@@ -253,6 +253,7 @@ public class PlayerShip extends Ship {
                 maxRotationSpeed = 0;
                 healthRegenerationCoefficient = 0;
                 engineOnline = false;
+                damageBurnTrail.color = Color.ORANGE;
 
                 for (ShipComponent component : componentList.values()) {
                     component.enable(false);
