@@ -253,7 +253,6 @@ public class PlayerShip extends Ship {
                 maxRotationSpeed = 0;
                 healthRegenerationCoefficient = 0;
                 engineOnline = false;
-                damageBurnTrail.color = Color.ORANGE;
 
                 for (ShipComponent component : componentList.values()) {
                     component.enable(false);
@@ -266,7 +265,7 @@ public class PlayerShip extends Ship {
 
         }
 
-        if (!shouldBlowup || newHealth < -maxHealth*1.5) {
+        if (!shouldBlowup || newHealth < -maxHealth*2.2) {
             super.doDamage(amount);
         }
 
