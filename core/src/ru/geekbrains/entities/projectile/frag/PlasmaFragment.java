@@ -15,8 +15,8 @@ public class PlasmaFragment extends Fragment {
         super(height, trailRadius, Color.GOLD, owner);
     }
 
-    public PlasmaFragment(float height, float trailRadius, Color color, GameObject owner) {
-        super(height, trailRadius, color, owner);
+    public PlasmaFragment(float height, float trailRadius, Color traceColor, GameObject owner) {
+        super(height, trailRadius, traceColor, owner);
     }
 
     @Override

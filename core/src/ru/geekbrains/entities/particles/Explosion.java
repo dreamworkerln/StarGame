@@ -10,6 +10,8 @@ import java.util.Set;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.projectile.shell.ExplosionShell;
+import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -67,6 +69,16 @@ public class Explosion extends ParticleObject {
             SmokeTrailList slist = (SmokeTrailList)owner;
 
             this.smokeTrailList = slist.removeSmokeTrailList();
+        }
+
+        if(owner.type.contains(ObjectType.SHIP)) {
+
+            ExplosionShell shell = new ExplosionShell(2, owner);
+            shell.pos = owner.pos.cpy();
+            shell.vel = owner.vel.cpy();
+            shell.acc = owner.vel.cpy();
+            shell.setTTL(0);
+            GameScreen.addObject(shell);
         }
     }
 

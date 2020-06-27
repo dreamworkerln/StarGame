@@ -165,7 +165,7 @@ public class PlasmaFragMissile extends AbstractMissile{
         // create fragments
         for (int i = 0; i < fragCount; i++) {
 
-            Projectile frag = new PlasmaFragment(2f, 0.8f, new Color(1f, 0.8f, 0.2f, 1), owner);
+            Projectile frag = new PlasmaFragment(2.1f, 0.5f, new Color(1f, 0.8f, 0.2f, 1), owner);
             frag.setMass(frag.getMass()*4);
 
 

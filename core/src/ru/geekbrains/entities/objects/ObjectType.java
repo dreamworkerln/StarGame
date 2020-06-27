@@ -9,6 +9,7 @@ public enum ObjectType {
     BLACKHOLE_SHELL,
     FLAK_SHELL,
     PLASMA_FLAK_SHELL,
+    EXPLOSION_FLAK_SHELL,
     FRAG,
     PLASMA_FRAG,
     EMP_FRAG,

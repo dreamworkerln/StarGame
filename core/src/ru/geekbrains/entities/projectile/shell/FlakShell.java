@@ -19,6 +19,10 @@ public class FlakShell extends Shell {
     public boolean shapedExplosion;
     public boolean isReadyElements = false;
 
+    public float fragSize;
+    public float fragTrailSize;
+
+
     public FlakShell(float height, GameObject owner) {
         super(height, owner);
     }
@@ -29,7 +33,7 @@ public class FlakShell extends Shell {
 
     protected Projectile createFragment() {
 
-        return  new Fragment(2,  owner);
+        return new Fragment(fragSize,  owner);
 
     }
 
@@ -41,13 +45,14 @@ public class FlakShell extends Shell {
 
         type.add(ObjectType.FLAK_SHELL);
 
+        fragSize = 2;
         mass = 0.01f;
         //mass = 1;
         explosionRadius = radius * 6;
         fragCount = 200;
         fragTTL = 100;
         fuseMultiplier = 0.5f;
-        explosionPower = 5;//4;
+        explosionPower = 5;
         shapedExplosion = true;
 
         damage = 0.5f;

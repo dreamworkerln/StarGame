@@ -13,8 +13,8 @@ public class Fragment extends Projectile {
         super(height, owner);
     }
 
-    public Fragment(float height, float trailRadius, Color color, GameObject owner) {
-        super(height, trailRadius, color, owner);
+    public Fragment(float height, float trailRadius, Color traceColor, GameObject owner) {
+        super(height, trailRadius, traceColor, owner);
     }
 
 
