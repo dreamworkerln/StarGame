@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import ru.geekbrains.screen.GameScreen;
@@ -14,11 +15,11 @@ public class PlayList {
     List<SoundPlay> list = new ArrayList<>();
     Map<SoundPlay, Long> map = new HashMap<>();
 
-    SoundPlay current = null;
+    private Optional<SoundPlay> current = Optional.empty();
 
 
 
-    long playListFinishTick = -1;
+    private long playListFinishTick = -1;
 
     public void add(SoundPlay soundPlay) {
 
@@ -31,6 +32,10 @@ public class PlayList {
         }
     }
 
+    public boolean contains(SoundPlay soundPlay) {
+        return map.containsKey(soundPlay) || current.orElse(null) == soundPlay;
+    }
+
     public void update(float dt) {
 
         // sound messages queue handling
@@ -40,23 +45,15 @@ public class PlayList {
         
         if(list.size() > 0 && tick > playListFinishTick) {
 
-            current = list.remove(0);
-            current.sound.play();
-            playListFinishTick = tick + current.durationTick;
+            current = Optional.of(list.remove(0));
+            current.get().sound.play();
+            current.ifPresent(sp -> playListFinishTick = tick + sp.durationTick);
         }
-
-
     }
     
     public void clear() {
 
-        if(current != null) {
-            current.sound.stop();
-        }
-//        for (SoundPlay sp : list) {
-//            sp.sound.stop();
-//        }
-        
+        current.ifPresent(sp -> sp.sound.stop());
         list.clear();
         map.clear();
         playListFinishTick = -1;

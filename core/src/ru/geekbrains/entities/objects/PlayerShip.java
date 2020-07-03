@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.auxiliary.TrajectorySimulator;
 import ru.geekbrains.entities.equipment.BPU;
@@ -228,14 +229,21 @@ public class PlayerShip extends Ship {
         
         if (!shouldBlowup) {
 
-            SoundPlay soundPlay = hic;
-            if (newHealth < maxHealth * 0.5 && newHealth >= maxHealth * 0.25) {
+            SoundPlay soundPlay;
+            if (newHealth < maxHealth * 0.5 && newHealth >= maxHealth * 0.25 && !playList.contains(hic) && !playList.contains(hib50)) {
+
+                if(ThreadLocalRandom.current().nextBoolean()) {
+                    soundPlay = hic;
+                }
+                else {
+                    soundPlay = hib50;
+                }
                 playList.add(soundPlay);
             }
 
 
             soundPlay = hib25;
-            if (newHealth < maxHealth * 0.25) {
+            if (newHealth < maxHealth * 0.25 && !playList.contains(hic) && !playList.contains(hib50) ) {
                 playList.add(soundPlay);
             }
 
