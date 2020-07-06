@@ -13,9 +13,15 @@ public class Fragment extends Projectile {
         super(height, owner);
     }
 
+    public Fragment(float height, Color color, GameObject owner) {
+        super(height, color, owner);
+    }
+
     public Fragment(float height, float trailRadius, Color traceColor, GameObject owner) {
         super(height, trailRadius, traceColor, owner);
     }
+
+
 
 
     @Override
@@ -24,7 +30,7 @@ public class Fragment extends Projectile {
         type.add(ObjectType.FRAG);
         mass = 0.001f;
         setMaxHealth(0.002f);
-        explosionRadius = 1;
+        explosionRadius = radius;
 
         damage = 0.015f;
         penetration = 0.1f;

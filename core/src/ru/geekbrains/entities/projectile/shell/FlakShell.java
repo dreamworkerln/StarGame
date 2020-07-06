@@ -15,12 +15,14 @@ public class FlakShell extends Shell {
     public int fragCount;
     public float explosionPower;
     long fragTTL;
-    float fuseMultiplier;
+
     public boolean shapedExplosion;
+    public boolean sphereExplosion;
     public boolean isReadyElements = false;
 
     public float fragSize;
     public float fragTrailSize;
+    private float fuseMultiplier;
 
 
     public FlakShell(float height, GameObject owner) {
@@ -141,6 +143,10 @@ public class FlakShell extends Shell {
 
 
                     coefR = 0.2f;
+
+                    if(sphereExplosion) {
+                        coefR = 1;
+                    }
 
                 }
                 r = (float) ThreadLocalRandom.current().nextDouble(explosionPower - explosionPower * coefR, explosionPower);

@@ -13,6 +13,7 @@ public enum ObjectType {
     FRAG,
     PLASMA_FRAG,
     EMP_FRAG,
+    EXPLOSION_FRAG,
     BULLET,
     SHIP,
     MISSILE,       // base type

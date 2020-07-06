@@ -80,6 +80,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     protected float healthGeneration = 0;               // регенерация здоровья
     protected float healthRegenerationCoefficient = 0;  // коэффициент регенерации
 
+
     public float damage = 0;
     public float empDamage = 0;
 

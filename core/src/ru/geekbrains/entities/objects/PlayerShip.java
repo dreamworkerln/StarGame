@@ -32,7 +32,9 @@ import ru.geekbrains.utils.SoundPlay;
 
 public class PlayerShip extends Ship {
 
-    public float maxAimRange = 1000;
+    //public float maxAimRange = 1000;
+    protected float corpseHealth;                       // здоровье корпуса после смерти
+
     private NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
     private List<GameObject> targetList = new ArrayList<>();
 
@@ -101,6 +103,8 @@ public class PlayerShip extends Ship {
         guideVector.set(dir);
 
         //setMaxHealth(1000);
+
+        corpseHealth = maxHealth * 3f;
 
 
         // sounds
@@ -273,9 +277,16 @@ public class PlayerShip extends Ship {
 
         }
 
-        if (!shouldBlowup || newHealth < -maxHealth*2.2) {
+        if (!shouldBlowup) {
             super.doDamage(amount);
         }
+        else {
+            corpseHealth -= amount;
+            if (corpseHealth <= 0) {
+                readyToDispose = true;
+            }
+        }
+
 
     }
 

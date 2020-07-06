@@ -93,6 +93,8 @@ public class GameScreen extends BaseScreen {
     private Vector2 tmp3 = new Vector2();
     private Vector2 tmp4 = new Vector2();
     private Vector2 tmp5 = new Vector2();
+    private Vector2 tmp6 = new Vector2();
+    private Vector2 tmp7 = new Vector2();
     private GameObject dummy;
 
     private int enemyShipsToSpawn = 0;
@@ -167,7 +169,7 @@ public class GameScreen extends BaseScreen {
         }
 
 
-        quadTree = new QuadTree<>(-8000,-8000,8000,8000);
+        quadTree = new QuadTree<>(-15000,-15000,15000,15000);
 
         background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
         background.setHeightAndResize(BACKGROUND_SIZE);
@@ -810,17 +812,33 @@ public class GameScreen extends BaseScreen {
 
                     // fall on planet
                     if (tgt == planet) {
-                        // stop projectile - fallen on planet
-                        prj.vel.setZero();
 
-                        // stop proj smoke trail
-                        if (prj instanceof SmokeTrailList) {
-                            ((SmokeTrailList)prj).stop();
+                        tmp6.set(prj.pos).sub(tgt.pos).nor().rotate90(0);
+                        float angle = tmp6.angle(prj.vel);
+
+                        angle = Math.abs(angle);
+                        int clockwise = -1;
+                        if (angle > 90) {
+                            angle =  180 - angle;
+                            clockwise = 1;
                         }
+                        // check reflection on planet atmosphere
+                        if (angle < 45 && tmp1.len() > tgt.getRadius()) {
+                            prj.vel.rotate(angle * clockwise).scl(1f);
+                        }
+                        else  {
+                            // stop projectile - fallen on planet
+                            prj.vel.setZero();
 
-                        planet.hit(prj);
-                        // destroy projectile (or driven object)
-                        prj.readyToDispose = true;
+                            // stop proj smoke trail
+                            if (prj instanceof SmokeTrailList) {
+                                ((SmokeTrailList) prj).stop();
+                            }
+
+                            planet.hit(prj);
+                            // destroy projectile (or driven object)
+                            prj.readyToDispose = true;
+                        }
                     }
                     else {
 
@@ -1103,7 +1121,7 @@ public class GameScreen extends BaseScreen {
                 else {
                     enemyShip = new MissileEnemyShip(new TextureRegion(smallEnemyShipTexture), 40, null);
                 }
-                
+
                 enemyShip.pos = tmp1.cpy();
                 enemyShip.name = "enemyship";
 

@@ -4,7 +4,10 @@ import com.badlogic.gdx.graphics.Color;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.objects.PlayerShip;
 import ru.geekbrains.entities.projectile.Projectile;
+import ru.geekbrains.entities.projectile.frag.ExplosionFragment;
+import ru.geekbrains.entities.projectile.frag.Fragment;
 import ru.geekbrains.entities.projectile.frag.PlasmaFragment;
 
 public class ExplosionShell extends FlakShell {
@@ -29,28 +32,44 @@ public class ExplosionShell extends FlakShell {
         fragTrailSize = 1f;
         damage = 0;
         penetration = 0f;
-        fragCount = 30;
-        fragTTL = 80;
+        fragCount = 50;
+        fragTTL = 50;
 
 
 
         explosionPower = 12;
         shapedExplosion = false;
+        sphereExplosion = true;
         color = Color.ORANGE;
 
-        if(owner.type.contains(ObjectType.PLAYER_SHIP)) {
-            fragTTL = 500;
+        if(owner.getClass() == PlayerShip.class) {
+
+            fragSize = 4;
+            fragCount = 10000;
+            explosionPower = 100;
+            fragTTL = 5000;
+            shapedExplosion = false;
+            sphereExplosion = false;
         }
+
     }
+
 
     protected Projectile createFragment() {
 
+        Fragment result;
+        if(owner.getClass() == PlayerShip.class) {
+            result = new Fragment(fragSize, new Color(0.9f, 0.5f, 0f, 0.8f), owner);
+            result.color = new Color(0.9f, 0.5f, 0f, 1f);
+            result.setMass(result.getMass()*50);
+            result.penetration = 1;
+            result.damage = 0.3f;
+        }
+        else {
+            result = new ExplosionFragment(fragSize, fragTrailSize, new Color(0.9f, 0.5f, 0f, 0.8f), owner);
+            result.color = new Color(0.9f, 0.5f, 0f, 0.8f);
 
-        PlasmaFragment result = new PlasmaFragment(fragSize, fragTrailSize, new Color(0.9f, 0.5f, 0f, 0.8f), owner);
-        result.type.remove(ObjectType.PLASMA_FRAG);
-        result.damage = 0.1f;
-        result.color = new Color(0.9f, 0.5f, 0f, 0.8f);
-        result.explosionRadius = 0f;
+        }
         return result;
 
     }

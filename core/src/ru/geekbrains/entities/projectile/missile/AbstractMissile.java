@@ -147,7 +147,8 @@ public class AbstractMissile extends DrivenObject {
 
             for (GameObject trg : targets) {
 
-                float maxPrjVel = proximityMinDistanceVel;  // Задаем начальную скорость "тестовой" пули
+                //float maxPrjVel = proximityMinDistanceVel;  // Задаем начальную скорость "тестовой" пули
+                float maxPrjVel = vel.len();
                 BPU.GuideResult gr = pbu.guideGun(this, trg, maxPrjVel, dt);
 
                 // get results
@@ -264,7 +265,8 @@ public class AbstractMissile extends DrivenObject {
             distToTarget < proximityMinDistance &&
             distToCarrier > proximitySafeDistance) {
 
-            float maxVel = proximityMinDistanceVel;
+            //float maxVel = proximityMinDistanceVel;
+            float maxVel = vel.len();
             BPU.GuideResult gr = pbu.guideGun(this, target, maxVel, dt);
 
             if (gr.impactTime < proximityMinDistanceTime)  {

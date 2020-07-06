@@ -29,6 +29,11 @@ public abstract class Projectile extends GameObject implements SmokeTrailList {
         postConstruct();
     }
 
+    public Projectile(float height, Color color, GameObject owner) {
+        this(height, owner);
+        this.color = color;
+    }
+
     public Projectile(float height, float trailRadius, GameObject owner) {
         this(height, owner);
 
@@ -41,6 +46,8 @@ public abstract class Projectile extends GameObject implements SmokeTrailList {
 
         addTrace(trailRadius, traceColor);
     }
+
+
 
     protected abstract void postConstruct();
 
