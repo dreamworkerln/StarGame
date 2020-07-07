@@ -108,10 +108,10 @@ public class PlayerShip extends Ship {
 
 
         // sounds
-        hic = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_compromised_2.mp3")), 2664);
-        hib25 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_below_25_2.mp3")), 3541);
-        hib50 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_below_50_2.mp3")), 3265);
-        decin321 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("decompression_is_imminent_in_321_2.mp3")), 4748);
+        hic = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_compromised_2.mp3")), 2664, SoundPlay.SoundType.HEALTH_HALF);
+        hib50 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_below_50_2.mp3")), 3265, SoundPlay.SoundType.HEALTH_HALF);
+        hib25 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_below_25_2.mp3")), 3541, SoundPlay.SoundType.HEALTH_LOW);
+        decin321 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("decompression_is_imminent_in_321_2.mp3")), 4748, SoundPlay.SoundType.HEALTH_DEAD);
 
     }
 
@@ -234,7 +234,7 @@ public class PlayerShip extends Ship {
         if (!shouldBlowup) {
 
             SoundPlay soundPlay;
-            if (newHealth < maxHealth * 0.5 && newHealth >= maxHealth * 0.25 && !playList.contains(hic) && !playList.contains(hib50)) {
+            if (newHealth < maxHealth * 0.5 && newHealth >= maxHealth * 0.25) {
 
                 if(ThreadLocalRandom.current().nextBoolean()) {
                     soundPlay = hic;
@@ -247,7 +247,7 @@ public class PlayerShip extends Ship {
 
 
             soundPlay = hib25;
-            if (newHealth < maxHealth * 0.25 && !playList.contains(hic) && !playList.contains(hib50) ) {
+            if (newHealth < maxHealth * 0.25) {
                 playList.add(soundPlay);
             }
 

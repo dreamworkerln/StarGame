@@ -8,11 +8,12 @@ public class SoundPlay {
     public Sound sound;
     public float durationMilli;
     public long durationTick;
+    public SoundType type;
 
-    public SoundPlay(Sound sound, float durationMilli) {
+    public SoundPlay(Sound sound, float durationMilli, SoundType type) {
         this.sound = sound;
         this.durationMilli = durationMilli;
-
+        this.type = type;
         durationTick = (long) (durationMilli /16.666666667);
     }
 
@@ -27,5 +28,18 @@ public class SoundPlay {
     @Override
     public int hashCode() {
         return Objects.hash(sound);
+    }
+
+    public enum SoundType {
+
+        HEALTH_HALF(1),
+        HEALTH_LOW(2),
+        HEALTH_DEAD(3);
+
+        private int status;
+
+        SoundType(int status) {
+            this.status = status;
+        }
     }
 }

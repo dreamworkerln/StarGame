@@ -64,7 +64,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
         coolingGunDelta = 1.3f; //1.4
         //coolingGunDelta = 90;
         maxGunHeat = 300;
-        power = 200;
+        power = 2000;
 
 
         maxRange = 1700;
@@ -90,7 +90,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
             return;
         }
 
-        float maxAcc = ((AbstractMissile)firingAmmoType).maxThrottle / firingAmmoType.getMass();
+        float maxAcc = ((AbstractMissile)firingAmmoType).maxThrottle / firingAmmoType.getMass() * 2f;
         BPU.GuideResult gr = pbu.guideMissile(owner, target, maxAcc, dt);
 
         //float maxPrjVel = 200;

@@ -54,13 +54,21 @@ public class AntiMissile extends AbstractMissile {
     protected void guide(float dt) {
         super.guide(dt);
 
+        if (target == null) {
+            return;
+        }
+
 
 
         if (guideResult != null) {
 
 
+            tmp0.set(target.vel);
+            float relVel = tmp1.set(vel).sub(tmp0).len();
+
             // включаем режим маневрирования маневровыми движками
-            if (guideResult.impactTime < 0.8f) {
+            // Если скоро столкновение и скоросить сближения велика
+            if (guideResult.impactTime < 0.8f && relVel > tmp0.len() * 2) {
 
                 currentMaxRotationSpeed = (float) (2 * Math.PI);
                 acquireThrottle(maxThrottle/6);
