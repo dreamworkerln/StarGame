@@ -97,6 +97,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
         //BPU.GuideResult gr = pbu.guideGun(owner, target, maxPrjVel, dt);
         if (!gr.guideVector.isZero()) {
             guideVector.set(gr.guideVector.nor());
+
         }
         else {
             return;
@@ -189,12 +190,14 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
 
         missile.target = target;
 
+        System.out.println(gr.impactTime);
+
         float currBoost = (float) (missile.boost * gr.impactTime/2);
         currBoost = currBoost > missile.boost ? missile.boost : currBoost;
-        currBoost = currBoost < missile.boost/2 ? missile.boost/2 : currBoost;
+        currBoost = currBoost < missile.boost/3 ? missile.boost/3 : currBoost;
 
         // apply force applied to missile
-        tmp0.set(dir).setLength((float) (currBoost)); //.add(tmp1); // force      // power * 0.3f
+        tmp0.set(dir).setLength((currBoost)); //.add(tmp1); // force      // power * 0.3f
         missile.applyForce(tmp0);
 
         GameScreen.addObject(missile);
