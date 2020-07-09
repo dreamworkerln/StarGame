@@ -42,15 +42,15 @@ public class ExplosionShell extends FlakShell {
         sphereExplosion = true;
         color = Color.ORANGE;
 
-        if(owner.getClass() == PlayerShip.class) {
-
-            fragSize = 4;
-            fragCount = 10000;
-            explosionPower = 100;
-            fragTTL = 5000;
-            shapedExplosion = false;
-            sphereExplosion = false;
-        }
+//        if(owner.getClass() == PlayerShip.class) {
+//
+//            fragSize = 4;
+//            fragCount = 10000;
+//            explosionPower = 100;
+//            fragTTL = 5000;
+//            shapedExplosion = false;
+//            sphereExplosion = false;
+//        }
 
     }
 
@@ -58,18 +58,18 @@ public class ExplosionShell extends FlakShell {
     protected Projectile createFragment() {
 
         Fragment result;
-        if(owner.getClass() == PlayerShip.class) {
-            result = new Fragment(fragSize, new Color(0.9f, 0.5f, 0f, 0.8f), owner);
-            result.color = new Color(0.9f, 0.5f, 0f, 1f);
-            result.setMass(result.getMass()*50);
-            result.penetration = 1;
-            result.damage = 0.3f;
-        }
-        else {
+//        if(owner.getClass() == PlayerShip.class) {
+//            result = new Fragment(fragSize, new Color(0.9f, 0.5f, 0f, 0.8f), owner);
+//            result.color = new Color(0.9f, 0.5f, 0f, 1f);
+//            result.setMass(result.getMass()*50);
+//            result.penetration = 1;
+//            result.damage = 0.3f;
+//        }
+        //else {
             result = new ExplosionFragment(fragSize, fragTrailSize, new Color(0.9f, 0.5f, 0f, 0.8f), owner);
             result.color = new Color(0.9f, 0.5f, 0f, 0.8f);
 
-        }
+        //}
         return result;
 
     }

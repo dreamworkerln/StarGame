@@ -174,7 +174,7 @@ public class GameScreen extends BaseScreen {
         background = new Background(new TextureRegion(new Texture("A_Deep_Look_into_a_Dark_Sky.jpg")));
         background.setHeightAndResize(BACKGROUND_SIZE);
 
-        planet = new Planet(new TextureRegion(new Texture("dune.png")),100f, null);
+        planet = new Planet(new TextureRegion(new Texture("dune3.png")),100f, null);
         planet.pos = new Vector2(0, 0);
 
 
