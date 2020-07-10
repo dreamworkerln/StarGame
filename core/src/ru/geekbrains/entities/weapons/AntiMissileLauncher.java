@@ -190,7 +190,7 @@ public class AntiMissileLauncher extends MissileLauncher implements AntiLauncher
 
         missile.target = target;
 
-        System.out.println(gr.impactTime);
+        //System.out.println(gr.impactTime);
 
         float currBoost = (float) (missile.boost * gr.impactTime/2);
         currBoost = currBoost > missile.boost ? missile.boost : currBoost;

@@ -432,7 +432,7 @@ public class FlakCannon extends TurretGun {
             if (target == null) {
                 System.out.println("target == null");
                 System.out.println(gRes);
-                System.exit(-1);
+                //System.exit(-1);
             }
 
 

@@ -45,7 +45,7 @@ public class PlasmaFragMissile extends AbstractMissile{
         setMaxThrottle(8f);
         boost = 700f;
 
-        fragCount = 12;
+        fragCount = 10;
 
         selfdOnTargetDestroyed = false;
         canRetarget = true;
@@ -182,8 +182,8 @@ public class PlasmaFragMissile extends AbstractMissile{
 
 
             if (shapedExplosion) {
-                fromAn = Math.PI / 4;
-                toAn = Math.PI / 4;
+                fromAn = Math.PI / 5;
+                toAn = Math.PI / 5;
             } else {
                 fromAn = 0;
                 toAn = 2 * Math.PI;

@@ -208,8 +208,8 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
 
         float minImpactTime = 2f;
-        if(this.type.contains(ObjectType.BASIC_MISSILE)) {
-            minImpactTime = 1.5f;
+        if(this.type.contains(ObjectType.MISSILE)) {
+            minImpactTime = 1.0f;
         }
 
         boolean doAvoidPlanet = !impactTime.isNaN() && impactTime >= 0 && impactTime < minImpactTime;
