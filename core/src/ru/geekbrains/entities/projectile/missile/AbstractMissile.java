@@ -141,7 +141,8 @@ public class AbstractMissile extends DrivenObject {
             targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) ||
                 t.readyToDispose ||
                 t == this ||
-                owner!=null && (t == owner || t.owner == owner));
+                t.side == side ||
+                owner!=null && (t == owner || t.owner == owner || t.side == owner.side));
 
 
 

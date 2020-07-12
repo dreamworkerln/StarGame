@@ -24,7 +24,7 @@ import ru.geekbrains.screen.GameScreen;
 public class Minigun extends TurretGun {
 
     private static Sound minigunFire;
-    private static boolean minigunPlaying = false;
+    private boolean minigunPlaying = false;
 
 
     // Скопировано из DrivenObject, EnemyShip
@@ -111,7 +111,9 @@ public class Minigun extends TurretGun {
 
 
             // leave only ships and missiles
-            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose /*|| o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)*/ ||
+            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose || o.side == owner.side
+
+                /*|| o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)*/ ||
                 !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
 
 

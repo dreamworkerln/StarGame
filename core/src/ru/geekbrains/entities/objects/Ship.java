@@ -14,8 +14,7 @@ import ru.geekbrains.screen.Renderer;
 
 public abstract class Ship extends DrivenObject {
 
-    protected Map<CompNames,ShipComponent> componentList = new HashMap<>();
-    protected Map<CompNames, WeaponSystem> weaponList = new HashMap<>();
+
 
 
     public Ship(TextureRegion textureRegion, float height, GameObject owner) {
@@ -30,7 +29,7 @@ public abstract class Ship extends DrivenObject {
         healthRegenerationCoefficient = 0.0003f;
         setMaxHealth(3f);
         
-        damage = 4f;
+        damage = getMaxHealth();
         armour = 1;
         penetration = 1;
 
@@ -43,9 +42,6 @@ public abstract class Ship extends DrivenObject {
 
         super.update(dt);
 
-        for (ShipComponent component : componentList.values()) {
-            component.update(dt);
-        }
 
         // regenerating fuel
         if (fuel < maxFuel) {
@@ -59,25 +55,10 @@ public abstract class Ship extends DrivenObject {
 
     }
 
-    @Override
-    public void rotate() {
-        super.rotate();
-
-        //rotate weapons(turrets, cannons in towers) with ship
-        for (WeaponSystem ws : weaponList.values()) {
-            ws.rotate();
-        }
-    }
-
 
     @Override
     public void draw(Renderer renderer) {
         super.draw(renderer);
-
-        for (ShipComponent component : componentList.values()) {
-            component.draw(renderer);
-        }
-
     }
 
 
@@ -95,27 +76,6 @@ public abstract class Ship extends DrivenObject {
 
 
 
-
-    protected void addComponent(CompNames name, ShipComponent component) {
-
-        componentList.put(name, component);
-
-        if (component instanceof WeaponSystem) {
-            weaponList.put(name, (WeaponSystem)component);
-        }
-    }
-
-    public GunSystem getGun() {
-        return (GunSystem) weaponList.get(CompNames.GUN);
-    }
-
-    public WeaponSystem getLauncher() {
-        return weaponList.get(CompNames.LAUNCHER);
-    }
-
-    public AntiLauncherSystem getAntiLauncher() {
-        return (AntiLauncherSystem)weaponList.get(CompNames.ANTI_LAUNCHER);
-    }
 
 
 

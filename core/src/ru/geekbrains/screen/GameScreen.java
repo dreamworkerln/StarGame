@@ -31,8 +31,11 @@ import java.util.stream.Collectors;
 
 import ru.geekbrains.entities.equipment.ForceShield;
 import ru.geekbrains.entities.objects.DummyObject;
+import ru.geekbrains.entities.objects.JebediahKerman;
+import ru.geekbrains.entities.objects.ObjectSide;
 import ru.geekbrains.entities.objects.enemies.AbstractEnemyShip;
 import ru.geekbrains.entities.objects.ObjectType;
+import ru.geekbrains.entities.objects.enemies.BattleEnemyShip;
 import ru.geekbrains.entities.objects.enemies.MainEnemyShip;
 import ru.geekbrains.entities.objects.enemies.MissileEnemyShip;
 import ru.geekbrains.entities.particles.Explosion;
@@ -100,8 +103,13 @@ public class GameScreen extends BaseScreen {
     private int enemyShipsToSpawn = 0;
 
     public PlayerShip playerShip;
+    public JebediahKerman kerman;
+    public BattleEnemyShip bossShip = null;
+    private boolean spawnBossShip = false;
+
     private static Texture mainEnemyShipTexture = new Texture("ship_enemy_main.png");
     private static Texture smallEnemyShipTexture = new Texture("ship_enemy_small.png");
+    private static Texture bigEnemyShipTexture = new Texture("ship_enemy_big.png");
 
 
     private Map<String, Integer>  missileHitType = new HashMap<>();
@@ -114,7 +122,7 @@ public class GameScreen extends BaseScreen {
 
     private LinkedList<GameObject> gameObjects = new LinkedList<>();
 
-    private Set<GameObject> particleObjects = new HashSet<>();
+    public Set<GameObject> particleObjects = new HashSet<>();
 
     private Set<GameObject> explosionObjects = new HashSet<>();
 
@@ -196,9 +204,7 @@ public class GameScreen extends BaseScreen {
 
         addObject(playerShip);
 
-
-
-        Message msg = new Message("New objectives: survive till warp engine have been repaired.", 0);
+        Message msg = new Message("New objectives: survive till warp jump would be possible.", 0);
         particleObjects.add(msg);
 
         msgEST = new Message("EST: ", 1);
@@ -230,24 +236,23 @@ public class GameScreen extends BaseScreen {
 
 
 
-
+        String musicFile;
         //String musicFile = "Lullaby.ogg";
 
-        String musicFile = "Valves (remix) - Tiberian Sun soundtrack.ogg";
+        musicFile = "Valves (remix) - Tiberian Sun soundtrack.ogg";
 
-        //String musicFile = "304665_SOUNDDOGS__ca.mp3";
-        //String musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
+        //musicFile = "304665_SOUNDDOGS__ca.mp3";
+        //musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
 
-        //String musicFile = "FOR THE EMPEROR.mp3";
+        musicFile = "test_music.mp3";
 
 
 
         music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
 
-        //musicLength = 60*3 + 31;
-        musicLength = 60*5 + 1;
+        //musicLength = 60*5;
+        musicLength = 60;
 
-        //musicLength = 68;
 
         forTheEmperor = Gdx.audio.newSound(Gdx.files.internal("FOR THE EMPEROR.mp3"));
 
@@ -304,7 +309,15 @@ public class GameScreen extends BaseScreen {
 
         //Duration current =   musicDuration.minus( music.getPosition(), ChronoUnit.SECONDS);
         msgEST.text = "EST: " + DurationFormatUtils.formatDuration(remaining.toMillis(), "mm:ss", true);
-        msgFuel.text = "FUEL: " + (long)playerShip.fuel;
+
+        if (playerShip!= null && !playerShip.readyToDispose) {
+            msgFuel.text = "FUEL: " + (long)playerShip.fuel;
+        }
+        else if (kerman!= null && !kerman.readyToDispose) {
+            msgFuel.text = "FUEL: " + (long)kerman.fuel;
+        }
+
+
 
         if (remaining.getSeconds() <= ENEMY_RESPAWN_TIME/60 * 3 && ENEMIES_COUNT_IN_WAVE_PREVOIUS == ENEMIES_COUNT_IN_WAVE) {
             ENEMIES_COUNT_IN_WAVE++;
@@ -434,16 +447,16 @@ public class GameScreen extends BaseScreen {
                 // removing from gameObjects
                 it.remove();
 
-                playExplosionSound(obj, null);
+                if (obj.shouldExplode) {
 
-                // do not explode fragments
-                if (!obj.type.contains(ObjectType.PLANET)) {
-                    Explosion expl = new Explosion(obj);
-                    //particleObjects.add(expl);
-                    explosionObjects.add(expl);
+                    playExplosionSound(obj, null);
+
+                    // do not explode planet
+                    if (!obj.type.contains(ObjectType.PLANET)) {
+                        Explosion expl = new Explosion(obj);
+                        explosionObjects.add(expl);
+                    }
                 }
-
-
 
                 // call object destructor
                 obj.dispose();
@@ -491,13 +504,20 @@ public class GameScreen extends BaseScreen {
 
         // -----------------------------------------------------------------------------------------
 
-        // increment game tick
-        updateTick();
 
+        // spawn boss
+
+        if  (!music.isPlaying() && bossShip == null) {
+            spawnBossShip = true;
+            spawnEnemyShip();
+            spawnBossShip = false;
+        }
 
         checkWin();
-    }
 
+        // increment game tick
+        updateTick();
+    }
 
 
     @Override
@@ -582,14 +602,6 @@ public class GameScreen extends BaseScreen {
         }
 
         renderer.batch.end();
-
-
-
-
-
-
-
-        ;
 
         // ---------------------------------------------------------------------------------------
 
@@ -822,9 +834,21 @@ public class GameScreen extends BaseScreen {
                             angle =  180 - angle;
                             clockwise = 1;
                         }
+
+
+                        float coeff = 3;
+                        if(prj.type.contains(ObjectType.PLAYER_KERMAN)) {
+                            coeff = tgt.getRadius();
+
+                            if(tmp1.len() < tgt.getRadius()/2f) {
+                                prj.shouldExplode = false;
+                            }
+                        }
+
                         // check reflection on planet atmosphere
-                        if (angle < 45 && tmp1.len() > tgt.getRadius()) {
+                        if (angle < 45 && tmp1.len() > tgt.getRadius() + prj.radius  - coeff) {
                             prj.vel.rotate(angle * clockwise).scl(1f);
+                            prj.vel.scl(0.99f);
                         }
                         else  {
                             // stop projectile - fallen on planet
@@ -1017,7 +1041,9 @@ public class GameScreen extends BaseScreen {
 
     private void spawnEnemyShip() {
 
-
+        if(bossShip!= null && !bossShip.readyToDispose) {
+            return;
+        }
 
         if (playerShip.readyToDispose) {
             tmp0.set(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
@@ -1098,7 +1124,17 @@ public class GameScreen extends BaseScreen {
 
             enemyShipsToSpawn--;
 
-            if (ThreadLocalRandom.current().nextFloat() > 0.87) {
+            AbstractEnemyShip enemyShip;
+            Duration remaining = Duration.ofSeconds(musicLength - (long)music.getPosition());
+
+            if(spawnBossShip && bossShip == null) {
+
+                bossShip = new BattleEnemyShip(new TextureRegion(bigEnemyShipTexture), 120, null);
+                bossShip.pos = tmp1.cpy();
+                bossShip.name = "boss_enemy_ship";
+                addObject(bossShip);
+            }
+            else if (ThreadLocalRandom.current().nextFloat() > 0.87) {
 
                 //new NewtonMissile(new TextureRegion(missileTexture), 5, null);
 
@@ -1107,13 +1143,11 @@ public class GameScreen extends BaseScreen {
                 missile.pos = tmp1.cpy();
                 missile.target = playerShip;
                 missile.maxRotationSpeed *= 1.5f;
+                missile.side = ObjectSide.ENEMIES;
                 addObject(missile);
 
             }
             else {
-
-
-                AbstractEnemyShip enemyShip;
 
                 if (ThreadLocalRandom.current().nextFloat() > 0.4) {
                     enemyShip = new MainEnemyShip(new TextureRegion(mainEnemyShipTexture), 50, null);
@@ -1128,6 +1162,7 @@ public class GameScreen extends BaseScreen {
                 addObject(enemyShip);
             }
 
+
         }
 
     }
@@ -1136,7 +1171,7 @@ public class GameScreen extends BaseScreen {
 
     private void spawnAllyShip() {
         if (getTick() > 0 &&
-            getTick() % 3700 == 0) {
+            getTick() % 3600 == 0) {
 
             AbstractMissile missile = new NewtonMissile(new TextureRegion(missileTexture), 7, playerShip);
             missile.pos.set(worldBounds.getHalfWidth() * aspect, worldBounds.getHalfHeight());
@@ -1144,6 +1179,7 @@ public class GameScreen extends BaseScreen {
             missile.setMaxHealth(missile.getMaxHealth()*3);
             missile.setMaxThrottle(missile.throttle*1.5f);
             missile.maxRotationSpeed *= 2;
+            missile.side = ObjectSide.ALLIES;
 
             addObject(missile);
 
@@ -1168,7 +1204,9 @@ public class GameScreen extends BaseScreen {
 
                     List<GameObject> targets = GameScreen.getCloseObjects(ship, 2000);
 
-                    targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) ||
+                    targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) &&
+                        !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) &&
+                        !t.type.contains(ObjectType.PLAYER_KERMAN)) ||
                         t.readyToDispose ||
                         t == ship ||
                         t.owner !=null && t.owner == ship);
@@ -1234,6 +1272,7 @@ public class GameScreen extends BaseScreen {
     private void borderBounce(GameObject obj) {
 
         if (obj.type.contains(ObjectType.SHIP) ||
+            obj.type.contains(ObjectType.PLAYER_KERMAN) ||
             obj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
 
 
@@ -1330,14 +1369,15 @@ public class GameScreen extends BaseScreen {
     private void checkWin() {
 
 
+
+
+
         // -----------------------------------------------------------------------------------------
         // game objective completed
         // -----------------------------------------------------------------------------------------
-        if (!playerShip.readyToDispose && !win && !music.isPlaying()) {
+        if (!playerShip.readyToDispose && !win && !music.isPlaying() && bossShip!= null && bossShip.readyToDispose) {
 
             ForceShield shield = playerShip.getShield();
-
-
 
             Message msg = new Message("You win", 0);
             particleObjects.add(msg);
@@ -1505,31 +1545,31 @@ public class GameScreen extends BaseScreen {
 
             case 4:
                 // SPECIALIST
-                ENEMY_RESPAWN_TIME = 1200;
+                ENEMY_RESPAWN_TIME = 1400;
                 ENEMIES_COUNT_IN_WAVE = 4;
                 break;
 
             case 5:
                 // IMPERIAL NAVY ENSIGN
-                ENEMY_RESPAWN_TIME = 1400;
+                ENEMY_RESPAWN_TIME = 1600;
                 ENEMIES_COUNT_IN_WAVE = 5;
                 break;
 
             case 6:
                 // IMPERIAL NAVY LIEUTENANT
-                ENEMY_RESPAWN_TIME = 1800;
+                ENEMY_RESPAWN_TIME = 2000;
                 ENEMIES_COUNT_IN_WAVE = 6;
                 break;
 
             case 7:
                 // IMPERIAL NAVY LORD-LIEUTENANT
-                ENEMY_RESPAWN_TIME = 2000;
+                ENEMY_RESPAWN_TIME = 2200;
                 ENEMIES_COUNT_IN_WAVE = 7;
                 break;
 
             case 8:
                 // IMPERIAL NAVY COMMANDER
-                ENEMY_RESPAWN_TIME = 2200;
+                ENEMY_RESPAWN_TIME = 2300;
                 ENEMIES_COUNT_IN_WAVE = 8;
                 break;
 
@@ -1617,6 +1657,9 @@ public class GameScreen extends BaseScreen {
         else if (obj.type.contains(ObjectType.FLAK_SHELL)) {
             flak_exp.play(0.5f);
 
+        }
+        else if (obj.type.contains(ObjectType.PLAYER_KERMAN)) {
+            quack.play();
         }
 
         if (obj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {

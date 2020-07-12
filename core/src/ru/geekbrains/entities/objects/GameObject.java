@@ -84,6 +84,10 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     public float damage = 0;
     public float empDamage = 0;
 
+    public ObjectSide side = ObjectSide.NEUTRAL;
+
+    public boolean shouldExplode = true;
+
 
 
 

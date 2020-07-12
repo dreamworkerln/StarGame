@@ -173,6 +173,10 @@ public abstract class BaseScreen implements Screen, InputProcessor {
                 KeyDown.SHIFT = true;
                 break;
 
+            case 44:
+                KeyDown.P = true;
+                break;
+
             case 129:
                 KeyDown.CTRL = true;
                 break;
@@ -254,6 +258,10 @@ public abstract class BaseScreen implements Screen, InputProcessor {
 
             case 50:
                 KeyDown.V = false;
+                break;
+
+            case 44:
+                KeyDown.P = false;
                 break;
 
         }

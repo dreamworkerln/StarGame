@@ -23,10 +23,10 @@ public class MissileEnemyShip extends AbstractEnemyShip {
 
         fuelConsumption = 0.1f;
         setMaxThrottle(50f);
-        setMaxFuel(1000f);
 
         healthRegenerationCoefficient = 0.003f;
         setMaxHealth(2f);
+        damage = getMaxHealth();
         mass = 0.5f;
 
         // tuning gun
@@ -40,9 +40,9 @@ public class MissileEnemyShip extends AbstractEnemyShip {
 
 
         if(true/*ThreadLocalRandom.current().nextFloat() > 0.7*/) {
-//            avoidCollisionObjectTypes = o -> o == this || o.readyToDispose || o.owner == this || !o.type.contains(ObjectType.SHELL) &&
+//            avoidCollisionTypesFilter = o -> o == this || o.readyToDispose || o.owner == this || !o.type.contains(ObjectType.SHELL) &&
 //                    !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.MISSILE);
-            avoidCollisionObjectTypes = o -> o == this || o.readyToDispose || o.owner == this ||
+            avoidCollisionTypesFilter = o -> o == this || o.readyToDispose || o.owner == this ||
                 !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHELL) && !o.type.contains(ObjectType.BASIC_MISSILE);
         }
 

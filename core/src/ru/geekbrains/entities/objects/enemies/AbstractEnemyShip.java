@@ -4,13 +4,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectSide;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
@@ -22,13 +21,19 @@ public abstract class AbstractEnemyShip extends Ship {
 
     float avoidCollisionImpactTime = 1f;
     float avoidCollisionAngle = (float) ThreadLocalRandom.current().nextDouble(25, 60);
-    Predicate<GameObject> avoidCollisionObjectTypes;
+    Predicate<GameObject> avoidCollisionTypesFilter;
+
+
 
 
     protected WeaponSystem launcher;
 
     public AbstractEnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
+
+        side = ObjectSide.ENEMIES;
+
+        setMaxFuel(300);
 
         type.add(ObjectType.ENEMY_SHIP);
 
@@ -39,7 +44,7 @@ public abstract class AbstractEnemyShip extends Ship {
 
         launcher = weaponList.get(CompNames.LAUNCHER);
 
-        avoidCollisionObjectTypes = o -> o == this || o.readyToDispose || o.type.contains(ObjectType.PLAYER_SHIP) ||
+        avoidCollisionTypesFilter = o -> o == this || o.readyToDispose || o.type.contains(ObjectType.PLAYER_SHIP) ||
                 !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHIP);
     }
 
@@ -125,7 +130,7 @@ public abstract class AbstractEnemyShip extends Ship {
         List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 25);
 
         // leave only ships and missiles
-        targetList.removeIf(avoidCollisionObjectTypes);
+        targetList.removeIf(avoidCollisionTypesFilter);
 
 //        if(targetList.size() == 0) {
 //            return;

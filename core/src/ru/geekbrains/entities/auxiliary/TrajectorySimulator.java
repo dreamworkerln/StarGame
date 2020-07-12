@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Disposable;
 import java.util.ArrayList;
 
 import ru.geekbrains.StarGame;
+import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
@@ -45,7 +46,7 @@ public class TrajectorySimulator extends ShipComponent {
     public int mode = 0;
 
 
-    public TrajectorySimulator(Ship owner, GameObject simType) {
+    public TrajectorySimulator(DrivenObject owner, GameObject simType) {
 
         super(owner);
 

@@ -8,9 +8,15 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.geekbrains.entities.equipment.BPU;
+import ru.geekbrains.entities.equipment.CompNames;
+import ru.geekbrains.entities.equipment.interfaces.AntiLauncherSystem;
+import ru.geekbrains.entities.equipment.interfaces.GunSystem;
+import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
 import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.entities.particles.SmokeTrailList;
 import ru.geekbrains.entities.projectile.missile.AbstractMissile;
@@ -25,6 +31,10 @@ import static ru.geekbrains.screen.GameScreen.INSTANCE;
  * Object with thruster and gyrodine
  */
 public abstract class DrivenObject extends GameObject implements SmokeTrailList {
+
+    protected Map<CompNames,ShipComponent> componentList = new HashMap<>();
+    protected Map<CompNames, WeaponSystem> weaponList = new HashMap<>();
+
 
     protected BPU pbu = new BPU();
 
@@ -95,6 +105,13 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         super.update(dt);
         // ~~~~~~~~~~~~~~
 
+
+        for (ShipComponent component : componentList.values()) {
+            component.update(dt);
+        }
+
+
+
         // auto removing destroyed targets
         if (target == null || target.readyToDispose) {
             target = null;
@@ -144,8 +161,15 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         tailVec.set(dir);
         tailVec.scl(-radius * aspectRatio);
 
+        if(type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
+            tailVec.scl(0.9f);
+        }
+
+
         // tail position
-        tailPos.set(pos).add(tailVec);
+        //tailPos.set(pos).add(tailVec);
+
+
 
 
         // engine burst pos
@@ -175,6 +199,17 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         }
 
         warnReticle.update(dt);
+    }
+
+
+    @Override
+    public void rotate() {
+        super.rotate();
+
+        //rotate weapons(turrets, cannons in towers) with ship
+        for (WeaponSystem ws : weaponList.values()) {
+            ws.rotate();
+        }
     }
 
 
@@ -210,6 +245,12 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         float minImpactTime = 2f;
         if(this.type.contains(ObjectType.MISSILE)) {
             minImpactTime = 1.0f;
+        }
+        if(this.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            minImpactTime = 1.6f;
+        }
+        if(this.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
+            minImpactTime = 2.25f;
         }
 
         boolean doAvoidPlanet = !impactTime.isNaN() && impactTime >= 0 && impactTime < minImpactTime;
@@ -334,6 +375,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             return;
         }
 
+
         // render smoke before ship
         engineTrail.draw(renderer);
 
@@ -361,11 +403,38 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         // render damage burn after ship
         damageBurnTrail.draw(renderer);
 
-
-
         // Рисуем перекрестье на цели
         warnReticle.draw(renderer);
 
+
+        for (ShipComponent component : componentList.values()) {
+            component.draw(renderer);
+        }
+
+    }
+
+
+
+
+    protected void addComponent(CompNames name, ShipComponent component) {
+
+        componentList.put(name, component);
+
+        if (component instanceof WeaponSystem) {
+            weaponList.put(name, (WeaponSystem)component);
+        }
+    }
+
+    public GunSystem getGun() {
+        return (GunSystem) weaponList.get(CompNames.GUN);
+    }
+
+    public WeaponSystem getLauncher() {
+        return weaponList.get(CompNames.LAUNCHER);
+    }
+
+    public AntiLauncherSystem getAntiLauncher() {
+        return (AntiLauncherSystem)weaponList.get(CompNames.ANTI_LAUNCHER);
     }
 
 
@@ -411,7 +480,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             else if(owner.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
                 thickness = 1;
             }
-            else if( owner.type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
+            else if(owner.type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
                 thickness = 2.0f;
             }
         }
@@ -442,6 +511,10 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             }
 
             if (owner.owner == INSTANCE.playerShip) {
+                return;
+            }
+
+            if (side == ObjectSide.ALLIES) {
                 return;
             }
 
@@ -480,7 +553,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
                 Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
                 shape.set(ShapeRenderer.ShapeType.Line);
-                shape.set(ShapeRenderer.ShapeType.Line);
+                //shape.set(ShapeRenderer.ShapeType.Line);
 
                 shape.setColor(1f, 1f, 1f, 0.5f);
 
@@ -505,9 +578,4 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
         }
     }
-
-
-
-
-
 }

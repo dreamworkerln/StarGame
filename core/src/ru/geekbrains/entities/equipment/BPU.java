@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.apache.commons.math3.analysis.solvers.BrentSolver;
 import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
+import org.apache.commons.math3.exception.NoBracketingException;
 
 import ru.geekbrains.entities.objects.GameObject;
 
@@ -122,21 +123,27 @@ public class BPU {
         result.impactVector.setZero();
 
 
-        // Гидра доминатус !!!!
+        float delta = 0.05f;
+        int i = 1;
+        float min_t;
+        float max_t = 0;
 
-        //double tbd = 0;
-        // Цикл - отделить корни
-        for (int i = 0; i< 100; i++) {
+        while(max_t < 20)  {
+
+            min_t = (float) (Math.pow(1.3, (i - 1)) * delta) - delta;
+            max_t = (float) (Math.pow(1.3, i) * delta);
+            i++;
+
             try {
 
                 // Корней нет - функция не пересекает ось Ox
-                if (gf.value(0) > 0 && gf.value(dt * i*10) > 0 ||
-                        gf.value(0) < 0 && gf.value(dt * i*10) < 0) {
+                if (gf.value(min_t) > 0 && gf.value(max_t) > 0 ||
+                        gf.value(min_t) < 0 && gf.value(max_t) < 0) {
 
                     continue;
                 }
 
-                double t = nonBracketing.solve(100, gf,  0, dt * i*10);
+                double t = nonBracketing.solve(100, gf,  min_t, max_t);
 
 
                 if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {
@@ -154,7 +161,12 @@ public class BPU {
 
                     break;
                 }
-            }catch (Exception ignore) {}
+
+            }
+            catch (NoBracketingException e) {
+                System.out.println("SOLVER ERROR: " + e.toString());
+            }
+            catch (Exception ignore) {}
 
         }
 
@@ -211,19 +223,36 @@ public class BPU {
         result.guideVector.setZero();
         result.impactVector.setZero();
 
+
         // i = 100 -> max_t =16
-        for (int i = 0; i< 70; i++) {
+        //for (int i = 0; i< 70; i++) {
+
+        // dt * i*10
+
+
+        float delta = 0.05f;
+        int i = 1;
+        float min_t;
+        float max_t = 0;
+
+        while(max_t < 20)  {
+
+            min_t = (float) (Math.pow(1.3, (i - 1)) * delta) - delta;
+            max_t = (float) (Math.pow(1.3, i) * delta);
+            i++;
+
+
             try {
 
                 // Корней нет - функция не пересекает ось Ox
-                if (mf.value(0) > 0 && mf.value(dt * i*10) > 0 ||
-                        mf.value(0) < 0 && mf.value(dt * i*10) < 0) {
+                if (mf.value(min_t) > 0 && mf.value(max_t) > 0 ||
+                        mf.value(min_t) < 0 && mf.value(max_t) < 0) {
 
                     continue;
                 }
 
-                // Для ракет сделаем погрешность в вычислениях побольше
-                double t = nonBracketing.solve(100, mf,  0, dt * i*10);
+
+                double t = nonBracketing.solve(100, mf,  min_t, max_t);
 
                 if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {
 
@@ -243,6 +272,9 @@ public class BPU {
 
                     break;
                 }
+            }
+            catch (NoBracketingException e) {
+                System.out.println("SOLVER ERROR: " + e.toString());
             }
             catch (Exception ignore) {}
 

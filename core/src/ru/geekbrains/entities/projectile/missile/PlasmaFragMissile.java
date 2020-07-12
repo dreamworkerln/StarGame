@@ -39,7 +39,7 @@ public class PlasmaFragMissile extends AbstractMissile{
 
         fuel = 24;
 
-        damage = 4f;
+        damage = 5f;
 
         setMaxHealth(0.02f);
         setMaxThrottle(8f);

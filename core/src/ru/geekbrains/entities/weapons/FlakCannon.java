@@ -126,7 +126,7 @@ public class FlakCannon extends TurretGun {
             targetList = GameScreen.getCloseObjects(owner, maxRange);
 
             // leave only ships and missiles
-            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose ||
+            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose || o.side == owner.side ||
                 !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
 
 

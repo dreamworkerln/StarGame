@@ -149,6 +149,7 @@ public class MissileLauncher extends Gun {
         targets.removeIf(t -> t == this.owner);
         targets.removeIf(t -> t.owner == this.owner);
         targets.removeIf(t -> t.readyToDispose);
+        targets.removeIf(t -> t.side == owner.side);
 
         if (targets.size() == 1) {
             result.add(targets.get(0));
@@ -342,7 +343,7 @@ public class MissileLauncher extends Gun {
 
         tmp0.set(tmp6).setLength(missile.boost);
         if (sideLaunchCount > 1) {
-            tmp0.rotate(30 * sideLaunch);
+            tmp0.rotate(15 * sideLaunch);
         }
 
 

@@ -3,6 +3,7 @@ package ru.geekbrains.entities.objects;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.equipment.ForceShield;
 import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
+import ru.geekbrains.entities.particles.Message;
 import ru.geekbrains.entities.projectile.shell.Shell;
 import ru.geekbrains.entities.weapons.AntiMissileLauncher;
 import ru.geekbrains.entities.weapons.FlakCannon;
@@ -55,6 +57,8 @@ public class PlayerShip extends Ship {
     boolean shouldBlowup = false;
     long blowupTick = -1;
 
+    boolean kermanSaved = false;
+
 
 
 
@@ -62,6 +66,9 @@ public class PlayerShip extends Ship {
         super(textureRegion, height, owner);
 
         this.type.add(ObjectType.PLAYER_SHIP);
+        side = ObjectSide.ALLIES;
+
+        damage = getMaxHealth();
 
 
         TrajectorySimulator trajectorySim;
@@ -104,7 +111,7 @@ public class PlayerShip extends Ship {
 
         //setMaxHealth(1000);
 
-        corpseHealth = maxHealth * 3f;
+        corpseHealth = maxHealth * 5f;
 
 
         // sounds
@@ -207,6 +214,12 @@ public class PlayerShip extends Ship {
             flakCannon.setFiringMode(FlakCannon.FiringMode.PLASMA_ONLY);
         }
 
+        if(KeyDown.P) {
+            if(!shouldBlowup) {
+                evacuateShip();
+            }
+        }
+
         //System.out.println(flakCannon.getFiringMode());
 
     }
@@ -217,6 +230,7 @@ public class PlayerShip extends Ship {
         long tick = GameScreen.INSTANCE.getTick();
         if(shouldBlowup && tick > blowupTick) {
             readyToDispose = true;
+            kermanSaved = true;
         }
 
         super.update(dt);
@@ -225,12 +239,34 @@ public class PlayerShip extends Ship {
 
     }
 
+    private void spawnKerman() {
+
+        float fi = (float) ThreadLocalRandom.current().nextDouble(0, 2*Math.PI);
+        float x = (float) (10 * Math.cos(fi));
+        float y = (float) (10 * Math.sin(fi));
+
+        JebediahKerman kerman = new JebediahKerman(new TextureRegion(new Texture("jebediah2.png")), 15, null);
+
+        GameScreen.INSTANCE.kerman = kerman;
+
+        kerman.pos.set(pos).add(x,y);
+        kerman.vel.set(vel);
+        kerman.dir.set(dir);
+
+        GameScreen.addObject(kerman);
+    }
+
     @Override
     public void doDamage(float amount) {
 
         float newHealth = health - amount;
 
-        
+        float healthDamage = Math.min(amount, health - 0.01f);
+        float corpseDamage = newHealth >=0 ? 0 : amount - health;
+
+
+
+
         if (!shouldBlowup) {
 
             SoundPlay soundPlay;
@@ -251,43 +287,38 @@ public class PlayerShip extends Ship {
                 playList.add(soundPlay);
             }
 
-            soundPlay = decin321;
-            if (newHealth < 0) {
-
-                playList.clear();
-                playList.add(soundPlay);
-
-                shouldBlowup = true;
-                blowupTick = GameScreen.INSTANCE.getTick() + soundPlay.durationTick;
-
-
-                health = 0.01f;
-                maxRotationSpeed = 0;
-                healthRegenerationCoefficient = 0;
-                engineOnline = false;
-
-                for (ShipComponent component : componentList.values()) {
-                    component.enable(false);
-                }
-
-
-                //hib25.sound.stop();
-                //hic.sound.stop();
-            }
-
-        }
-
-        if (!shouldBlowup) {
-            super.doDamage(amount);
-        }
-        else {
-            corpseHealth -= amount;
-            if (corpseHealth <= 0) {
-                readyToDispose = true;
+            if (newHealth <= 0) {
+                evacuateShip();
             }
         }
 
+        super.doDamage(healthDamage);
+        corpseHealth -= corpseDamage;
 
+
+        if (corpseHealth <= 0) {
+            readyToDispose = true;
+        }
+    }
+
+
+
+    private void evacuateShip() {
+
+        SoundPlay soundPlay = decin321;
+        playList.clear();
+        playList.add(soundPlay);
+
+        shouldBlowup = true;
+        blowupTick = GameScreen.INSTANCE.getTick() + soundPlay.durationTick;
+
+        maxRotationSpeed = 0;
+        healthRegenerationCoefficient = 0;
+        engineOnline = false;
+
+        for (ShipComponent component : componentList.values()) {
+            component.enable(false);
+        }
     }
 
     //    @Override
@@ -416,6 +447,13 @@ public class PlayerShip extends Ship {
     public void dispose() {
 
         playList.clear();
+
+        if(kermanSaved) {
+            Message msg = new Message("Safely land Kerman to planet to construct new ship", 0);
+            GameScreen.INSTANCE.particleObjects.add(msg);
+            spawnKerman();
+        }
+
 
         super.dispose();
     }

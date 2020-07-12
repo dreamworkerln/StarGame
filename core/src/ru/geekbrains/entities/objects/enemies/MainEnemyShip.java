@@ -19,7 +19,10 @@ public class MainEnemyShip extends AbstractEnemyShip {
         super(textureRegion, height, owner);
 
         setMaxFuel(300f);
+        fuelConsumption /=2;
+
         setMaxHealth(4.5f);
+        damage = getMaxHealth();
 
         type.add(ObjectType.MAIN_ENEMY_SHIP);
 
@@ -31,7 +34,8 @@ public class MainEnemyShip extends AbstractEnemyShip {
         // tuning gun
         Gun gun = (Gun)componentList.get(CompNames.GUN);
         gun.setFireRate(0.01f);
-        maxRotationSpeed *= 2f;
+
+
 
         //gun.fireRate = 0.1f;
         //gun.fireRate = 0.02f;

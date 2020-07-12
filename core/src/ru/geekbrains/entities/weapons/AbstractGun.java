@@ -58,6 +58,9 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
     public float drift = 0;
     public int burst = 1;
 
+    public Float shellDamage = null;
+    public Float shellMass = null;
+
 
 
     //ToDo: make abstract gun than fire abstract Projectile
@@ -171,7 +174,17 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
 
 
     protected GameObject createProjectile() {
-        return new Shell(calibre, calibre/8, owner);
+
+        Shell result = new Shell(calibre, calibre/8, owner);
+
+        if(shellDamage != null) {
+            result.damage = shellDamage;
+        }
+
+        if(shellMass != null) {
+            result.setMass(shellMass);
+        }
+        return result;
     }
 
 

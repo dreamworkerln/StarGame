@@ -33,12 +33,16 @@ public class NewtonMissile extends AbstractMissile {
         setMaxThrottle(18f);
         setMaxHealth(20f);
         maxRotationSpeed =  0.02f;
-        fuel = 1000;
+
+        setMaxFuel(500);
+        fuelConsumption = 1;
+
+
 
         engineTrail.setRadius(2);
         damageBurnTrail.setRadius(5);
 
-        damage = 10f;
+        damage = 5f;
         fragCount = 100;
         penetration = 1f;
 
