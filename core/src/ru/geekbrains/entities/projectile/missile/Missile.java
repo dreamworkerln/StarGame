@@ -27,7 +27,6 @@ public class Missile extends AbstractMissile {
 
         mass = 0.04f;
         fuel = 30;
-        boost = 300f;
         explosionRadius = radius * 3;
         setMaxThrottle(4f);
         setMaxHealth(0.02f);

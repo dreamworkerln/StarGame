@@ -28,8 +28,8 @@ public class JebediahKerman extends DrivenObject {
 
 
         setMass(0.01f);
-        setMaxFuel(10);
-        fuelConsumption = 0.5f;
+        setMaxFuel(15);
+        fuelConsumption = 1f;
 
         setMaxThrottle(2f);
         setMaxHealth(1f);
@@ -52,10 +52,11 @@ public class JebediahKerman extends DrivenObject {
 
 
         float rot = maxRotationSpeed;
+        float currentThrottle = maxThrottle;
 
         if (KeyDown.SHIFT) {
             rot = maxRotationSpeed/2;
-
+            currentThrottle = maxThrottle/2;
         }
 
         if (KeyDown.A) {
@@ -67,16 +68,16 @@ public class JebediahKerman extends DrivenObject {
         }
 
         if (KeyDown.W) {
-            requiredThrottle = throttle + maxThrottle * 0.05f;
+            requiredThrottle = throttle + currentThrottle * 0.05f;
         }
 
         if (KeyDown.S) {
-            requiredThrottle = throttle - maxThrottle * 0.05f;
+            requiredThrottle = throttle - currentThrottle * 0.05f;
         }
 
         // full throttle ------------------------
         if (KeyDown.SPACE) {
-            requiredThrottle = maxThrottle;
+            requiredThrottle = currentThrottle;
             KeyDown.SPACE_TRIGGER_ON = true;
         }
 

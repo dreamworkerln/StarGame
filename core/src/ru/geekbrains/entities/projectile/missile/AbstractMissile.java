@@ -8,21 +8,25 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.particles.ParticleObject;
+import ru.geekbrains.entities.projectile.Ammo;
+import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 
 import static ru.geekbrains.screen.GameScreen.INSTANCE;
 
-public class AbstractMissile extends DrivenObject {
+public class AbstractMissile extends DrivenObject implements Ammo {
 
-    //protected BPU pbu = new BPU();
+    // rocket launching boost thrust
+    public float firePower;
 
 
     //AimFunction af;
@@ -70,10 +74,6 @@ public class AbstractMissile extends DrivenObject {
     protected int retargetCount = 0;
 
 
-
-    // rocket launching boost thrust
-    public float boost;
-
     // список целей для перенацеливания
     NavigableMap<Float, BPU.GuideResult> impactTimes = new TreeMap<>();
 
@@ -90,6 +90,8 @@ public class AbstractMissile extends DrivenObject {
         setRadius(radius * 5); // fix issued by image aspect ratio
         aspectRatio = 1;
         throttleStep = 5;
+
+        firePower = 300;
 
         //mass = 0.04f;
         //maxRotationSpeed = 0.02f;
@@ -132,17 +134,26 @@ public class AbstractMissile extends DrivenObject {
             retargetCount ++;
 
             // search new target
-            List<GameObject> targets = GameScreen.getCloseObjects(this, 2000);
+
+
+            Predicate<GameObject> filter = t-> (t.type.contains(ObjectType.SHIP) || t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) &&
+                !t.readyToDispose &&
+                t != this &&
+                t.side != side &&
+                (owner == null || (t != owner && t.owner != owner && t.side != owner.side));
+
+            List<GameObject> targets = GameScreen.getCloseObjects(this, 4000, filter);
             impactTimes.clear();
+
 
             // leave only BASIC_ENEMY_SHIP in targets;
             //ToDO: implement friend or foe radar recognition system
             // Or all will fire to enemy ships only
-            targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) ||
-                t.readyToDispose ||
-                t == this ||
-                t.side == side ||
-                owner!=null && (t == owner || t.owner == owner || t.side == owner.side));
+//            targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) ||
+//                t.readyToDispose ||
+//                t == this ||
+//                t.side == side ||
+//                owner!=null && (t == owner || t.owner == owner || t.side == owner.side));
 
 
 
@@ -318,6 +329,29 @@ public class AbstractMissile extends DrivenObject {
         if(avoidPlanet) {
             avoidPlanet(dt);
         }
+    }
+
+
+
+    public float getFirePower() {
+        return firePower;
+    }
+
+
+    public void setFirePower(float firePower) {
+        this.firePower = firePower;
+    }
+
+//    @Override
+//    public void copy(GameObject source, GameObject dest) {
+//        super.copy(source, dest);
+//
+//        ((AbstractMissile)dest).firePower= ((AbstractMissile)source).firePower;
+//    }
+
+    @Override
+    public float getMaxThrottle() {
+        return maxThrottle;
     }
 
 

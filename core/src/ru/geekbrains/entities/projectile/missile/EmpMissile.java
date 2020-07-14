@@ -20,7 +20,6 @@ public class EmpMissile extends AbstractMissile {
 
         mass = 0.04f;
         fuel = 30;
-        boost = 300f;
         setMaxThrottle(4f);
         setMaxHealth(0.02f);
         maxRotationSpeed =  0.05f;

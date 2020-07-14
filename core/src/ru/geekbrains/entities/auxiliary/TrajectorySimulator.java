@@ -2,14 +2,11 @@ package ru.geekbrains.entities.auxiliary;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Disposable;
 
 import java.util.ArrayList;
 
-import ru.geekbrains.StarGame;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
@@ -17,7 +14,8 @@ import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.Planet;
 import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.entities.objects.ShipComponent;
-import ru.geekbrains.entities.weapons.Gun;
+import ru.geekbrains.entities.projectile.Ammo;
+import ru.geekbrains.entities.weapons.gun.CourseGun;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -34,7 +32,9 @@ public class TrajectorySimulator extends ShipComponent {
 
     protected Color color;
 
-    protected int iterationCount = 1500;
+    public int baseIterationCount = 1500;
+
+    protected int iterationCount;
 
 
 
@@ -69,6 +69,8 @@ public class TrajectorySimulator extends ShipComponent {
             return;
         }
 
+        iterationCount = baseIterationCount;
+
 
         trajectory.clear();
         tracer.setMass(model.getMass());
@@ -81,18 +83,18 @@ public class TrajectorySimulator extends ShipComponent {
         if (model.type.contains(ObjectType.SHELL)) {
 
             Ship ship = (Ship)target;
-            Gun gun = (Gun)ship.getGun();
+            CourseGun gun = (CourseGun)ship.getCourseGun();
 
 
             tracer.pos.set(gun.nozzlePos);
             tracer.dir.set(gun.dir);
 
-            tmp0.set(target.dir).setLength(gun.power); // dummy shell speed
+            tmp0.set(target.dir).setLength(((Ammo)model).getFirePower()); // dummy shell speed
             tracer.applyForce(tmp0);                   // dummy force applied to shell
 
             color.set(0f,0.76f,0.9f,0.5f);
 
-            iterationCount = 150;
+            iterationCount = baseIterationCount / 10;
         }
 
 
@@ -108,7 +110,7 @@ public class TrajectorySimulator extends ShipComponent {
                break;
             }
 
-            // update aceleration, velocity, position
+            // update acceleration, velocity, position
             tracer.update(dt);
 
             // add new point to simulated trajectory
@@ -168,5 +170,10 @@ public class TrajectorySimulator extends ShipComponent {
         shape.flush();
         //shape.end();
     }
+    
 
+    @Override
+    public void init() {
+
+    }
 }

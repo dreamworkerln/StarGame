@@ -70,7 +70,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     //protected boolean doAvoidPlanet = false;
 
     public DrivenObject(TextureRegion textureRegion, float height, GameObject owner) {
-        super(textureRegion, height, owner);
+        super(owner, textureRegion, height);
 
         this.type.add(ObjectType.DRIVEN_OBJECT);
 
@@ -242,15 +242,16 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         long planetAvoidImpactTickTime = (long)(mass/maxThrottle * 2500);
 
 
-        float minImpactTime = 2f;
+        float minImpactTime = 1.5f;
+
         if(this.type.contains(ObjectType.MISSILE)) {
-            minImpactTime = 1.0f;
+            minImpactTime = 0.8f;
         }
         if(this.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
-            minImpactTime = 1.6f;
+            minImpactTime = 1.5f;
         }
         if(this.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
-            minImpactTime = 2.25f;
+            minImpactTime = 2.3f;
         }
 
         boolean doAvoidPlanet = !impactTime.isNaN() && impactTime >= 0 && impactTime < minImpactTime;
@@ -285,10 +286,10 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
             // планета слева от вектора скорости
             if (angle > 0) {
-                guideVector.set(vel).rotate(-90).nor();
+                guideVector.set(vel).rotate(-45).nor();
             } else {
                 // планета справа от вектора скорости
-                guideVector.set(vel).rotate(90).nor();
+                guideVector.set(vel).rotate(45).nor();
             }
 
             //throttle = maxThrottle;
@@ -423,10 +424,22 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         if (component instanceof WeaponSystem) {
             weaponList.put(name, (WeaponSystem)component);
         }
+        component.init();
     }
 
-    public GunSystem getGun() {
-        return (GunSystem) weaponList.get(CompNames.GUN);
+    /**
+     * Re-init components
+     */
+    protected void init() {
+
+        for (ShipComponent component : componentList.values()) {
+            component.init();
+        }
+    }
+
+
+    public GunSystem getCourseGun() {
+        return (GunSystem) weaponList.get(CompNames.COURSE_GUN);
     }
 
     public WeaponSystem getLauncher() {
@@ -440,6 +453,10 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
     @Override
     public void dispose() {
+
+        for (ShipComponent component : componentList.values()) {
+            component.dispose();
+        }
 
         // do not dispose engineTrail and damageBurnTrail
         // they will be owned by explosion
@@ -506,15 +523,20 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             super.draw(renderer);
 
 
-            if (renderer.rendererType != RendererType.SHAPE) {
+            // draw warn Marker
+             if (renderer.rendererType != RendererType.SHAPE) {
                 return;
             }
+
+//            if (owner.owner == INSTANCE.playerShip) {
+//                return;
+//            }
 
             if (owner.owner == INSTANCE.playerShip) {
                 return;
             }
 
-            if (side == ObjectSide.ALLIES) {
+            if (owner.side == ObjectSide.ALLIES) {
                 return;
             }
 
@@ -577,5 +599,14 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             }
 
         }
+    }
+
+
+    public GameObject getTarget() {
+        return target;
+    }
+
+    public void setTarget(GameObject target) {
+        this.target = target;
     }
 }

@@ -5,7 +5,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.weapons.Gun;
+import ru.geekbrains.entities.projectile.missile.AbstractMissile;
+import ru.geekbrains.entities.projectile.missile.EmpMissile;
+import ru.geekbrains.entities.projectile.missile.Missile;
+import ru.geekbrains.entities.weapons.launchers.MissileLauncher;
+import ru.geekbrains.entities.weapons.gun.CourseGun;
 
 public class MainEnemyShip extends AbstractEnemyShip {
 
@@ -32,9 +36,14 @@ public class MainEnemyShip extends AbstractEnemyShip {
         //gun.coolingGunDelta = 40;
 
         // tuning gun
-        Gun gun = (Gun)componentList.get(CompNames.GUN);
+        CourseGun gun = (CourseGun)componentList.get(CompNames.COURSE_GUN);
         gun.setFireRate(0.01f);
 
+
+        // tuning launcher
+        MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
+        launcher.addAmmoType(() -> new EmpMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2, owner));
+        launcher.init();
 
 
         //gun.fireRate = 0.1f;
@@ -47,9 +56,21 @@ public class MainEnemyShip extends AbstractEnemyShip {
 
     }
 
+    @Override
+    protected void guide(float dt) {
+        super.guide(dt);
 
 
+        // треш, оно должно переключаться после выстрела а не на каждый тик
+        MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
+        if(launcher.getCurrentAmmoType() == EmpMissile.class) {
+            launcher.setCurrentAmmoType(Missile.class);
+        }
+        else {
+            launcher.setCurrentAmmoType(EmpMissile.class);
+        }
 
+    }
 
     @Override
     public void dispose() {
@@ -58,70 +79,6 @@ public class MainEnemyShip extends AbstractEnemyShip {
     }
 
 
-
-/*
-
-    public void selfGuiding(float dt) {
-
-        // Система наведения для пушки
-        //https://gamedev.stackexchange.com/questions/149327/projectile-aim-prediction-with-acceleration
-
-
-        if (target == null || target.readyToDispose)
-            return;
-
-        // F = m*a
-        // a = f / m;
-        // dv = a*t
-        // a = dv/t;
-        // f/m = dv/t
-        // dv = f/m*t - Импульс силы, деленный на массу пули
-
-
-
-        gf.VCC = gun.power / gun.firingAmmoType.getMass() * dt;  // Начальная скорость снаряда пушки
-
-
-
-        // ORIGINAL
-        // r =  rt - rs
-        gf.rx = target.pos.x -  pos.x;
-        gf.ry = target.pos.y  - pos.y;
-
-        //  relative target velocity to object
-        gf.vx = target.vel.x - vel.x;
-        gf.vy = target.vel.y - vel.y;
-
-        gf.ax = target.acc.x - acc.x;
-        gf.ay = target.acc.y - acc.y;
-
-
-        //int i_tt = 0;
-        for (int i = 0; i< 100; i++) {
-            try {
-
-                // Корней нет - функция не пересекает ось Ox
-                if (gf.value(0) > 0 && gf.value(dt * i*10) > 0 ||
-                        gf.value(0) < 0 && gf.value(dt * i*10) < 0) {
-
-                    continue;
-                }
-
-                double t = nonBracketing.solve(100, gf,  0, dt * i*10);
-
-                if (!Double.isNaN(t) && !Double.isInfinite(t) && t > 0) {
-
-                    double vs_x = gf.rx / t + 0.5 * gf.ax * t + gf.vx;
-                    double vs_y = gf.ry / t + 0.5 * gf.ay * t + gf.vy;
-
-                    guideVector.set((float) vs_x, (float) vs_y).nor();
-                    break;
-                }
-            }catch (Exception ignore) {}
-
-        }
-
-    }*/
 
 
 

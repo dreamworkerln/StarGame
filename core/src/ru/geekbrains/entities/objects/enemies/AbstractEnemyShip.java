@@ -13,7 +13,7 @@ import ru.geekbrains.entities.objects.ObjectSide;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
-import ru.geekbrains.entities.weapons.MissileLauncher;
+import ru.geekbrains.entities.weapons.launchers.MissileLauncher;
 import ru.geekbrains.screen.GameScreen;
 
 
@@ -21,7 +21,9 @@ public abstract class AbstractEnemyShip extends Ship {
 
     float avoidCollisionImpactTime = 1f;
     float avoidCollisionAngle = (float) ThreadLocalRandom.current().nextDouble(25, 60);
-    Predicate<GameObject> avoidCollisionTypesFilter;
+
+    // какие типы объектов игнорировать при при угрозе столкновения (соответственно не обращать на них внимание)
+    Predicate<GameObject> collisionAvoidFilter;
 
 
 
@@ -44,8 +46,9 @@ public abstract class AbstractEnemyShip extends Ship {
 
         launcher = weaponList.get(CompNames.LAUNCHER);
 
-        avoidCollisionTypesFilter = o -> o == this || o.readyToDispose || o.type.contains(ObjectType.PLAYER_SHIP) ||
-                !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHIP);
+
+        collisionAvoidFilter = o -> o != this && !o.readyToDispose && !o.type.contains(ObjectType.PLAYER_SHIP) &&
+            (o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) || o.type.contains(ObjectType.SHIP));
     }
 
     @Override
@@ -56,7 +59,7 @@ public abstract class AbstractEnemyShip extends Ship {
         }
 
 
-        WeaponSystem gun = weaponList.get(CompNames.GUN);
+        WeaponSystem gun = weaponList.get(CompNames.COURSE_GUN);
 
         // Никуда не целимся
         guideVector.setZero();
@@ -88,7 +91,7 @@ public abstract class AbstractEnemyShip extends Ship {
             // гидродоминируем с самонаведением пушки
 
             // скорость снаряда
-            float maxVel = gun.getPower() / gun.getFiringAmmoType().getMass() * dt;
+            float maxVel = gun.getFiringAmmo().getFirePower() / gun.getFiringAmmo().getMass() * dt;
             BPU.GuideResult gr = pbu.guideGun(this, target, maxVel, dt);
 
             if (!gr.guideVector.isZero()) {
@@ -104,7 +107,7 @@ public abstract class AbstractEnemyShip extends Ship {
 
             acquireThrottle(maxThrottle);
 
-            // Gun control
+            // Gun & launcher control
 
             if (target != null &&
                     Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed*1.5f) {
@@ -127,10 +130,11 @@ public abstract class AbstractEnemyShip extends Ship {
             return;
         }
 
-        List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 25);
+
+        List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 25, collisionAvoidFilter);
 
         // leave only ships and missiles
-        targetList.removeIf(avoidCollisionTypesFilter);
+        //targetList.removeIf(collisionAvoidFilter);
 
 //        if(targetList.size() == 0) {
 //            return;

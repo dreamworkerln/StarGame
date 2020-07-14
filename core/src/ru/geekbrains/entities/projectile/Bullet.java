@@ -19,6 +19,7 @@ public class Bullet extends Projectile {
 
         type.add(ObjectType.BULLET);
         mass = 0.001f;
+        firePower = 20;
 
         setMaxHealth(0.01f);
         damage = 0.015f;
@@ -26,6 +27,5 @@ public class Bullet extends Projectile {
         penetration = 1f;
         explosionRadius = 1.5f *radius;
     }
-
 
 }

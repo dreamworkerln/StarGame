@@ -1,16 +1,13 @@
 package ru.geekbrains.entities.objects;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableMap;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -20,17 +17,21 @@ import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.equipment.ForceShield;
 import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
 import ru.geekbrains.entities.particles.Message;
+import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
+import ru.geekbrains.entities.projectile.shell.FlakShell;
 import ru.geekbrains.entities.projectile.shell.Shell;
-import ru.geekbrains.entities.weapons.AntiMissileLauncher;
+import ru.geekbrains.entities.weapons.launchers.AntiMissileLauncher;
 import ru.geekbrains.entities.weapons.FlakCannon;
-import ru.geekbrains.entities.weapons.Gun;
 import ru.geekbrains.entities.weapons.Minigun;
-import ru.geekbrains.entities.weapons.MissileLauncher;
+import ru.geekbrains.entities.weapons.launchers.MissileLauncher;
+import ru.geekbrains.entities.weapons.launchers.PlayerMissileLauncher;
+import ru.geekbrains.entities.weapons.gun.CourseGun;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.KeyDown;
 import ru.geekbrains.screen.KeyToggle;
 import ru.geekbrains.utils.PlayList;
 import ru.geekbrains.utils.SoundPlay;
+
 
 public class PlayerShip extends Ship {
 
@@ -81,7 +82,7 @@ public class PlayerShip extends Ship {
         FlakCannon flakCannon;
 
         // tuning gun
-        Gun gun = (Gun)componentList.get(CompNames.GUN);
+        CourseGun gun = (CourseGun)componentList.get(CompNames.COURSE_GUN);
         gun.maxGunHeat = 300;
         gun.drift = 0.03f;
         gun.burst= 6;
@@ -91,9 +92,20 @@ public class PlayerShip extends Ship {
         gunSim = new TrajectorySimulator(this, new Shell(gun.getCalibre(), owner));
         shield = new ForceShield(this, new Color(0.1f , 0.5f, 1f, 1f));
         minigun = new Minigun(4, this);
-        launcher = new MissileLauncher(10, this);
+        launcher = new PlayerMissileLauncher(10, this);
+        launcher.addAmmoType(() -> new PlasmaFragMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2.5f, owner));
         antiLauncher = new AntiMissileLauncher(10, this);
         flakCannon = new FlakCannon(10, this);
+
+        flakCannon.ammoTypeList.remove(FlakShell.class);
+        flakCannon.addAmmoType(() -> {
+            FlakShell shell = new FlakShell(flakCannon.getCalibre(), 1, Color.RED, owner);
+            shell.isReadyElements = true;
+            return shell;
+        });
+
+
+        //flakCannon = new FlakCannon(10, this);
 
         addComponent(CompNames.SIM_TRAJECTORY, trajectorySim);
         addComponent(CompNames.SIM_GUN, gunSim);
@@ -111,7 +123,7 @@ public class PlayerShip extends Ship {
 
         //setMaxHealth(1000);
 
-        corpseHealth = maxHealth * 5f;
+        corpseHealth = maxHealth * 6f;
 
 
         // sounds
@@ -131,16 +143,18 @@ public class PlayerShip extends Ship {
     @Override
     protected void guide(float dt) {
 
-        WeaponSystem gun = weaponList.get(CompNames.GUN);
+        WeaponSystem gun = weaponList.get(CompNames.COURSE_GUN);
         FlakCannon flakCannon = (FlakCannon)componentList.get(CompNames.FLACK_CANNON);
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
 
 
         float rot = maxRotationSpeed;
+        float currentThrottle = maxThrottle;
+
 
         if (KeyDown.SHIFT) {
             rot = maxRotationSpeed/2;
-
+            currentThrottle = maxThrottle/2;
         }
 
         if (KeyDown.A) {
@@ -152,16 +166,16 @@ public class PlayerShip extends Ship {
         }
 
         if (KeyDown.W) {
-            requiredThrottle = throttle + maxThrottle * 0.05f;
+            requiredThrottle = throttle + currentThrottle * 0.05f;
         }
 
         if (KeyDown.S) {
-            requiredThrottle = throttle - maxThrottle * 0.05f;
+            requiredThrottle = throttle - currentThrottle * 0.05f;
         }
 
         // full throttle ------------------------
         if (KeyDown.SPACE) {
-            requiredThrottle = maxThrottle;
+            requiredThrottle = currentThrottle;
             KeyDown.SPACE_TRIGGER_ON = true;
         }
 
@@ -237,6 +251,11 @@ public class PlayerShip extends Ship {
 
         playList.update(dt);
 
+        if (GameScreen.INSTANCE.bossShip != null && !GameScreen.INSTANCE.bossShip.readyToDispose) {
+
+            ((TrajectorySimulator)componentList.get(CompNames.SIM_GUN)).baseIterationCount = 3000;
+        }
+
     }
 
     private void spawnKerman() {
@@ -292,7 +311,7 @@ public class PlayerShip extends Ship {
             }
         }
 
-        super.doDamage(healthDamage);
+          super.doDamage(healthDamage);
         corpseHealth -= corpseDamage;
 
 

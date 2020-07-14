@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import ru.geekbrains.entities.equipment.BPU;
@@ -17,21 +18,22 @@ import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.Ship;
-import ru.geekbrains.entities.projectile.Projectile;
+import ru.geekbrains.entities.projectile.Ammo;
 import ru.geekbrains.entities.projectile.missile.AntiMissile;
 import ru.geekbrains.entities.projectile.shell.FlakShell;
 import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
+import ru.geekbrains.entities.weapons.gun.RotatableGun;
 import ru.geekbrains.screen.GameScreen;
 
-public class FlakCannon extends TurretGun {
+public class FlakCannon extends RotatableGun {
 
-    private static Sound cannonFireStatic;
+    private final static Sound CANNON_FIRE_STATIC = Gdx.audio.newSound(Gdx.files.internal("flak_fire.ogg"));
 
     float maxRange;
     float maxImpactTime;
     float maxImpactTimeCurrent;
 
-    ShellType shellType;
+    //ShellType shellType;
 
     FiringMode firingMode;
     FiringMode firingModeOld;
@@ -49,13 +51,18 @@ public class FlakCannon extends TurretGun {
 
     private long currentFuse = 1;
 
-    static {
-        cannonFireStatic = Gdx.audio.newSound(Gdx.files.internal("flak_fire.ogg"));
-    }
+
 
     public FlakCannon(float height, GameObject owner) {
         super(height, owner);
-        cannonFire = cannonFireStatic;
+        gunFire = CANNON_FIRE_STATIC;
+
+
+
+
+        addAmmoType(() -> new FlakShell(calibre, 1, Color.RED, owner));
+        addAmmoType(() -> new PlasmaFlakShell(calibre, 1, Color.GOLD, owner));
+
 
 
         setCalibre(6);
@@ -68,7 +75,7 @@ public class FlakCannon extends TurretGun {
         //maxGunHeat = 999999999;
         //fireRate = 0.2f;
 
-        power = 150;
+        //power = 150;
         maxBlastRadius = 5;
 
         maxRange = 1500f;
@@ -123,11 +130,16 @@ public class FlakCannon extends TurretGun {
         // getting target
         if (owner != null && !owner.readyToDispose) {
 
-            targetList = GameScreen.getCloseObjects(owner, maxRange);
-
             // leave only ships and missiles
-            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose || o.side == owner.side ||
-                !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
+            Predicate<GameObject> filter  = o -> o != owner && o.owner != owner && !o.readyToDispose && o.side != owner.side &&
+                (o.type.contains(ObjectType.MISSILE) || o.type.contains(ObjectType.SHIP));
+
+            targetList = GameScreen.getCloseObjects(owner, maxRange, filter);
+
+
+
+//            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose || o.side == owner.side ||
+//                !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
 
 
 //            // Определение скопление целей (ракет) в одной точке - если есть - стрелять только туда
@@ -171,10 +183,11 @@ public class FlakCannon extends TurretGun {
                 o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))
                 .collect(Collectors.toList());
 
+            Ammo currentAmmo = ammoCache.get(currentAmmoType);
 
             for (GameObject o : targetList) {
 
-                float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+                float maxPrjVel = currentAmmo.getFirePower() / currentAmmo.getMass() * dt;  // Задаем начальную скорость пули
                 BPU.GuideResult gr = pbu.guideGun(owner, o, maxPrjVel, dt);
 
                 // get results
@@ -282,6 +295,10 @@ public class FlakCannon extends TurretGun {
                         impactTimes.entrySet().removeIf(e -> e.getValue().target.type.contains(ObjectType.BASIC_MISSILE));
                         break;
 
+                    case ANTI_KINETIC:
+                        impactTimes.entrySet().removeIf(e -> e.getValue().target.type.contains(ObjectType.BASIC_MISSILE));
+                        break;
+
 
                 }
 
@@ -301,12 +318,19 @@ public class FlakCannon extends TurretGun {
 
                     if (o.type.contains(ObjectType.BASIC_MISSILE)) {
 
-                        missilesList = GameScreen.getCloseObjects(o, 150);
 
                         // collect only missiles nearby my missile
-                        missilesList.removeIf(g -> g == owner || g.owner == owner || g.readyToDispose);
+                        Predicate<GameObject> filter = g -> g != owner && g.owner != owner && !g.readyToDispose &&
+                            g.type.contains(ObjectType.BASIC_MISSILE);
 
-                        missilesList.removeIf(m -> !m.type.contains(ObjectType.BASIC_MISSILE));
+                        missilesList = GameScreen.getCloseObjects(o, 150, filter);
+
+
+
+
+//                        missilesList.removeIf(g -> g == owner || g.owner == owner || g.readyToDispose);
+//
+//                        missilesList.removeIf(m -> !m.type.contains(ObjectType.BASIC_MISSILE));
 
 
                         // Inbound PLASMA_FRAG_MISSILE
@@ -324,7 +348,9 @@ public class FlakCannon extends TurretGun {
                                     continue;
                                 }
 
-                                float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+                                Ammo currentAmmo = ammoCache.get(currentAmmoType);
+
+                                float maxPrjVel = currentAmmo.getFirePower() / currentAmmo.getMass() * dt;  // Задаем начальную скорость пули
                                 BPU.GuideResult gr = pbu.guideGun(owner, m, maxPrjVel, dt);
                                 Float impactTime = (float) gr.impactTime;
 
@@ -335,14 +361,14 @@ public class FlakCannon extends TurretGun {
                                 }
 
 
-                                boolean targetedByAntimissiles = false;
+                                boolean targetedByAntiMissiles = false;
                                 if (antiLauncherSystem != null) {
                                     Map<GameObject, List<AntiMissile>> antiList = antiLauncherSystem.getTargetMissile();
 
                                     // По m (PlasmaFragMissile) ведется огонь противоракетами
                                     // и противоракеты не сбиты
                                     if (antiList.containsKey(m) && antiList.get(m).size() > 0) {
-                                        targetedByAntimissiles = true;
+                                        targetedByAntiMissiles = true;
                                     }
                                 }
 
@@ -350,7 +376,7 @@ public class FlakCannon extends TurretGun {
                                 // или включен режим FLAK_ONLY
                                 // или передоз входящих PlasmaFragMissile
                                 if (incomingPlasmaFragMissiles.size() > 0 &&
-                                    (!targetedByAntimissiles || firingMode == FiringMode.FLAK_ONLY) ||
+                                    (!targetedByAntiMissiles || firingMode == FiringMode.FLAK_ONLY) ||
                                     incomingPlasmaFragMissiles.size() >= 1) {
 
                                     groupMissilesFound = true;
@@ -389,7 +415,9 @@ public class FlakCannon extends TurretGun {
                             dummy.acc.set(tmp6);
                             dummy.type.addAll(o.type);
 
-                            float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+                            Ammo currentAmmo = ammoCache.get(currentAmmoType);
+
+                            float maxPrjVel = currentAmmo.getFirePower() / currentAmmo.getMass() * dt;  // Задаем начальную скорость пули
                             BPU.GuideResult gr = pbu.guideGun(owner, dummy, maxPrjVel, dt);
                             Float impactTime = (float) gr.impactTime;
 
@@ -443,23 +471,21 @@ public class FlakCannon extends TurretGun {
 
             float fuseMultiplier = 0.9f;
             if (target.type.contains(ObjectType.SHIP)) {
-                shellType = ShellType.PLASMA;
-            } else if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
-                shellType = ShellType.PLASMA;
+                currentAmmoType = PlasmaFlakShell.class;
+
+            } else if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && firingMode != FiringMode.ANTI_KINETIC) {
+                currentAmmoType = PlasmaFlakShell.class;
                 fuseMultiplier = 0.8f; // 0.8
             }
+            else if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && firingMode == FiringMode.ANTI_KINETIC) {
+                currentAmmoType = FlakShell.class;
+                fuseMultiplier = 100f;
+            }
+
 
             if (target.type.contains(ObjectType.BASIC_MISSILE)) {
-                shellType = ShellType.FRAG;
-
+                currentAmmoType = FlakShell.class;
                 fuseMultiplier = (float) (gRes.impactTime / 7f);
-
-                //fuseMultiplier = 0.3f;
-
-                // DEBUG
-                //fuseMultiplier = 2;
-
-
             }
 
             currentFuse = (long) (gRes.impactTime * 1 / dt * fuseMultiplier);
@@ -503,6 +529,24 @@ public class FlakCannon extends TurretGun {
 
 
     @Override
+    protected Ammo createAmmo() {
+
+        Ammo result =  super.createAmmo();
+
+        //  предохранитель от самоподрыва
+        if (currentFuse > 10) {
+            result.setTTL(currentFuse);
+        }
+        else {
+            result.setTTL(10);
+        }
+
+        return result;
+    }
+
+
+    /*
+    @Override
     protected Projectile createProjectile() {
 
         Projectile result;
@@ -511,11 +555,23 @@ public class FlakCannon extends TurretGun {
 
         if (shellType== ShellType.FRAG) {
 
-            result = new FlakShell(calibre, 1, Color.RED, owner);
-            ((FlakShell) result).isReadyElements = true;
 
-            //fireRate = oldFireRate*1.5f;
-            //gunHeat = 0;
+
+            if(owner.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
+
+                result = new FlakShell(calibre, 2, Color.RED, owner);
+                result.power =
+                result.setMass(result.getMass()*10);
+                ((FlakShell) result).isReadyElements = false;
+
+            }
+            else {
+
+                result = new FlakShell(calibre, 1, Color.RED, owner);
+                ((FlakShell) result).isReadyElements = true;
+            }
+
+
 
         }
         else {
@@ -534,25 +590,26 @@ public class FlakCannon extends TurretGun {
         return result;
 
     }
+    */
 
 
 //    protected void playFireSound() {
-//        cannonFire.play(0.4f);
+//        gunFire.play(0.4f);
 //    }
 
 
 
-    private enum ShellType {
-
-        FRAG(FlakShell.class),
-        PLASMA(PlasmaFlakShell.class);
-
-        Class type;
-
-        ShellType(Class type) {
-            this.type = type;
-        }
-    }
+//    private enum ShellType {
+//
+//        FRAG(FlakShell.class),
+//        PLASMA(PlasmaFlakShell.class);
+//
+//        Class type;
+//
+//        ShellType(Class type) {
+//            this.type = type;
+//        }
+//    }
 
 
 
@@ -563,7 +620,8 @@ public class FlakCannon extends TurretGun {
 
         FLAK_ONLY,
         PLASMA_ONLY,
-        AUTOMATIC
+        AUTOMATIC,
+        ANTI_KINETIC
     }
 
 

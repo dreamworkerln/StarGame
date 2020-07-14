@@ -24,7 +24,7 @@ public class PlasmaFragMissile extends AbstractMissile{
     private final int fragCount;
     protected boolean shapedExplosion = true;
 
-    //static Texture missileTexture = new Texture("M-45_missile2.png");
+    //static Texture MISSILE_TEXTURE = new Texture("M-45_missile2.png");
 
     protected float defaultproximityMinDistance;
 
@@ -32,8 +32,7 @@ public class PlasmaFragMissile extends AbstractMissile{
     public PlasmaFragMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
-        type.add(ObjectType.BASIC_MISSILE);
-        type.add(ObjectType.ANTIMISSILE);
+        type.add(ObjectType.PLASMA_FRAG_MISSILE);
 
         mass = 0.08f;
 
@@ -43,7 +42,7 @@ public class PlasmaFragMissile extends AbstractMissile{
 
         setMaxHealth(0.02f);
         setMaxThrottle(8f);
-        boost = 700f;
+        firePower = 700f;
 
         fragCount = 10;
 
@@ -95,7 +94,8 @@ public class PlasmaFragMissile extends AbstractMissile{
         }
 
 
-        if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+        if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) ||
+            target.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
             proximityMinDistance = 0;
         }
         else {

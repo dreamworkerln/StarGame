@@ -2,14 +2,8 @@ package ru.geekbrains.entities.objects;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ru.geekbrains.entities.equipment.CompNames;
-import ru.geekbrains.entities.equipment.interfaces.AntiLauncherSystem;
-import ru.geekbrains.entities.equipment.interfaces.GunSystem;
-import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
-import ru.geekbrains.entities.weapons.Gun;
+import ru.geekbrains.entities.weapons.gun.CourseGun;
 import ru.geekbrains.screen.Renderer;
 
 public abstract class Ship extends DrivenObject {
@@ -34,7 +28,7 @@ public abstract class Ship extends DrivenObject {
         penetration = 1;
 
 
-        addComponent(CompNames.GUN, new Gun(radius * 0.3f, this));
+        addComponent(CompNames.COURSE_GUN, new CourseGun(this, radius * 0.3f));
     }
 
     @Override
@@ -65,9 +59,6 @@ public abstract class Ship extends DrivenObject {
     @Override
     public void dispose() {
 
-        for (ShipComponent component : componentList.values()) {
-            component.dispose();
-        }
         super.dispose();
     }
 

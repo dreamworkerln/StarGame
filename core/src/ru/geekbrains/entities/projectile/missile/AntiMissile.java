@@ -20,11 +20,11 @@ public class AntiMissile extends AbstractMissile {
         fuel = 5f;
         throttleStep = 1;
 
-        setMaxThrottle(5f);
+        setMaxThrottle(4f);
 
         setMaxHealth(0.01f);
         damage = 0.5f;
-        boost = 150f;
+        firePower = 200f;
 
         maxRotationSpeed = 0.03f;
         currentMaxRotationSpeed = maxRotationSpeed;
@@ -68,10 +68,12 @@ public class AntiMissile extends AbstractMissile {
 
             // включаем режим маневрирования маневровыми движками
             // Если скоро столкновение и скоросить сближения велика
-            if (guideResult.impactTime < 0.8f && relVel > tmp0.len() * 2) {
+            if (guideResult.impactTime < 0.7f && relVel > tmp0.len() * 2) {
 
                 currentMaxRotationSpeed = (float) (2 * Math.PI);
-                acquireThrottle(maxThrottle/4);
+
+                currentMaxRotationSpeed = 0.05f;
+                acquireThrottle(maxThrottle/5);
 
             }
             else {

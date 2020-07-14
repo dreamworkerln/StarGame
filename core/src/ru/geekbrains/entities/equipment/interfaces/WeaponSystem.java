@@ -1,14 +1,16 @@
 package ru.geekbrains.entities.equipment.interfaces;
 
-import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.projectile.Ammo;
 
 public interface WeaponSystem {
 
     void startFire();
     void stopFire();
 
-    float getPower();
-    GameObject getFiringAmmoType();
+    Ammo getFiringAmmo();
+
+    Class<? extends Ammo> getCurrentAmmoType();
+    void setCurrentAmmoType(Class<? extends Ammo> ammo);
 
     float getFireRate();
     void setFireRate(float rate);

@@ -20,7 +20,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     protected Set<RendererType> rendererType = new HashSet<>();
 
-    protected long TTL;
+    public long TTL;
     protected long birth;  // object birth date in ticks
     protected long age;    // object ages in game ticks
 
@@ -52,7 +52,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     //protected Vector2 tmpForce = new Vector2();     // tmp force
     protected Vector2 force = new Vector2();          // resulting force (sum of all forces)
     public float radius;                         // object radius (== halfHeight)
-    protected float mass = 1;                          // mass
+    public float mass = 1;                          // mass
     //public float momentInertia = 1;               // moment of inertia
 
     protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
@@ -77,8 +77,8 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     protected float health;                       // текущий запас прочности корпуса(health)
     protected float maxHealth = 0;               // максимальный запас прочности корпуса(health)
-    protected float healthGeneration = 0;               // регенерация здоровья
-    protected float healthRegenerationCoefficient = 0;  // коэффициент регенерации
+    public float healthGeneration = 0;               // регенерация здоровья
+    public float healthRegenerationCoefficient = 0;  // коэффициент регенерации
 
 
     public float damage = 0;
@@ -87,6 +87,8 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     public ObjectSide side = ObjectSide.NEUTRAL;
 
     public boolean shouldExplode = true;
+
+    public float angVel = 0;
 
 
 
@@ -107,10 +109,10 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     /**
      * Constructor with sprite
-     * @param textureRegion texture
      * @param height resize texture to specified height
+     * @param textureRegion texture
      */
-    public GameObject(TextureRegion textureRegion, float height, GameObject owner) {
+    public GameObject(GameObject owner, TextureRegion textureRegion, float height) {
 
         this(owner, height/2f, RendererType.TEXTURE);
 
@@ -250,6 +252,10 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
             }
             dir.rotateRad(doAngle);
         }
+
+        if(Math.abs(angVel) > 1E-5) {
+            dir.rotate(angVel);
+        }
     }
 
 
@@ -286,6 +292,17 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     }
 
 
+    public void doDamage(float amount) {
+
+        health -= amount;
+
+        // exploding if no health
+        if (health <= 0 ) {
+            readyToDispose = true;
+        }
+    }
+
+
 
 
     @Override
@@ -298,6 +315,30 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     }
 
     // ---------------------------------------------------------------------------------------------
+
+
+
+    public float getHealth() {
+        return  health;
+    }
+
+
+    public void setMaxHealth(float maxHealth) {
+
+        this.maxHealth = maxHealth;
+        health = maxHealth;
+        healthGeneration = maxHealth * healthRegenerationCoefficient;
+    }
+
+
+
+    // ---------------------------------------------------------------------------------------------
+
+
+
+
+
+
 
     public float getRadius() {
         return radius;
@@ -316,37 +357,11 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     }
 
 
-    //    public void explode() {
-//
-//        if (exploded)
-//            return;
-//
-//        exploded = true;
-//
-//        // stop object
-//        vel.setZero();
-//
-//        explosion = new Explosion(pos, radius * 3);
-//        deathCounter = 300;
-//    }
-
-
     public float getMaxHealth() {
         return maxHealth;
     }
 
-    public float getHealth() {
-        return  health;
-    }
 
-
-
-    public void setMaxHealth(float maxHealth) {
-
-        this.maxHealth = maxHealth;
-        health = maxHealth;
-        healthGeneration = maxHealth * healthRegenerationCoefficient;
-    }
 
     public long getTTL() {
         return TTL;
@@ -356,15 +371,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         this.TTL = TTL;
     }
 
-    public void doDamage(float amount) {
 
-        health -= amount;
-
-        // exploding if no health
-        if (health <= 0 ) {
-            readyToDispose = true;
-        }
-    }
 
     public long getAge() {
         return age;
@@ -378,4 +385,131 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         this.explosionRadius = explosionRadius;
     }
 
+    public float getArmour() {
+        return armour;
+    }
+
+    public void setArmour(float armour) {
+        this.armour = armour;
+    }
+
+    public float getPenetration() {
+        return penetration;
+    }
+
+    public void setPenetration(float penetration) {
+        this.penetration = penetration;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public void setHealth(float health) {
+        this.health = health;
+    }
+
+    public float getHealthGeneration() {
+        return healthGeneration;
+    }
+
+    public void setHealthGeneration(float healthGeneration) {
+        this.healthGeneration = healthGeneration;
+    }
+
+    public float getHealthRegenerationCoefficient() {
+        return healthRegenerationCoefficient;
+    }
+
+    public void setHealthRegenerationCoefficient(float healthRegenerationCoefficient) {
+        this.healthRegenerationCoefficient = healthRegenerationCoefficient;
+    }
+
+    public float getDamage() {
+        return damage;
+    }
+
+    public void setDamage(float damage) {
+        this.damage = damage;
+    }
+
+    public float getEmpDamage() {
+        return empDamage;
+    }
+
+    public void setEmpDamage(float empDamage) {
+        this.empDamage = empDamage;
+    }
+
+    public boolean isEmpArmament() {
+        return isEmpArmament;
+    }
+
+    public void setEmpArmament(boolean empArmament) {
+        isEmpArmament = empArmament;
+    }
+
+    public float getMaxRotationSpeed() {
+        return maxRotationSpeed;
+    }
+
+    public void setMaxRotationSpeed(float maxRotationSpeed) {
+        this.maxRotationSpeed = maxRotationSpeed;
+    }
+
+    public Color getExplosionColor() {
+        return explosionColor;
+    }
+
+    public void setExplosionColor(Color explosionColor) {
+        this.explosionColor = explosionColor;
+    }
+
+    public GameObject getOwner() {
+        return owner;
+    }
+
+    public void setOwner(GameObject owner) {
+        this.owner = owner;
+    }
+
+    public Vector2 getDir() {
+        return dir;
+    }
+
+    public void setDir(Vector2 dir) {
+        this.dir = dir;
+    }
+
+    public Vector2 getPos() {
+        return pos;
+    }
+
+    public void setPos(Vector2 pos) {
+        this.pos = pos;
+    }
+
+    public Vector2 getVel() {
+        return vel;
+    }
+
+    public void setVel(Vector2 vel) {
+        this.vel = vel;
+    }
+
+    public Vector2 getAcc() {
+        return acc;
+    }
+
+    public void setAcc(Vector2 acc) {
+        this.acc = acc;
+    }
+
+    public Set<ObjectType> getType() {
+        return type;
+    }
 }

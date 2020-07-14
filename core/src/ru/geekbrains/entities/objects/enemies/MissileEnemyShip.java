@@ -4,12 +4,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.weapons.Gun;
-import ru.geekbrains.entities.weapons.MissileLauncher;
+import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
+import ru.geekbrains.entities.weapons.launchers.MissileLauncher;
+import ru.geekbrains.entities.weapons.gun.CourseGun;
 
 public class MissileEnemyShip extends AbstractEnemyShip {
 
@@ -30,7 +30,7 @@ public class MissileEnemyShip extends AbstractEnemyShip {
         mass = 0.5f;
 
         // tuning gun
-        Gun gun = (Gun)componentList.get(CompNames.GUN);
+        CourseGun gun = (CourseGun)componentList.get(CompNames.COURSE_GUN);
         gun.maxGunHeat = 0;
         maxRotationSpeed = 0.07f;
 
@@ -38,13 +38,14 @@ public class MissileEnemyShip extends AbstractEnemyShip {
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
         launcher.sideLaunchCount = 1;
 
+        launcher.ammoTypeList.clear();
+        launcher.addAmmoType(() -> new PlasmaFragMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2.5f, owner));
+        launcher.init();
 
-        if(true/*ThreadLocalRandom.current().nextFloat() > 0.7*/) {
-//            avoidCollisionTypesFilter = o -> o == this || o.readyToDispose || o.owner == this || !o.type.contains(ObjectType.SHELL) &&
-//                    !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.MISSILE);
-            avoidCollisionTypesFilter = o -> o == this || o.readyToDispose || o.owner == this ||
-                !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && !o.type.contains(ObjectType.SHELL) && !o.type.contains(ObjectType.BASIC_MISSILE);
-        }
+
+        collisionAvoidFilter = o-> o != this && !o.readyToDispose && o.owner != this &&
+            (o.type.contains(ObjectType.SHIP) || o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) || o.type.contains(ObjectType.SHELL) || o.type.contains(ObjectType.BASIC_MISSILE));
+
 
         warnReticle = new WarnReticle(height, this);
 
@@ -59,7 +60,7 @@ public class MissileEnemyShip extends AbstractEnemyShip {
 
 
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
-        Gun gun = (Gun)componentList.get(CompNames.GUN);
+        CourseGun gun = (CourseGun)componentList.get(CompNames.COURSE_GUN);
 
         // Никуда не целимся
         guideVector.setZero();
@@ -83,22 +84,23 @@ public class MissileEnemyShip extends AbstractEnemyShip {
         // Если есть цель и мы не уклоняемся от планеты (если уклоняемся, то guideVector не Zero)
         if (target != null && guideVector.isZero()) {
 
-            // гидродоминируем с самонаведением пушки
+//            // гидродоминируем с самонаведением пушки
+//
+//            // скорость снаряда
+//            float maxVel = gun.getPower() / gun.getFiringAmmoType().getMass() * dt;
+//            BPU.GuideResult gr = pbu.guideGun(this, target, maxVel, dt);
+//
+//            if (!gr.guideVector.isZero()) {
+//                guideVector.set(gr.guideVector.nor());
+//            }
+//
+//            // Самонаведение не сгидродоминировало
+//            if (guideVector.isZero()) {
+//                guideVector.set(target.pos).sub(pos).nor();
+//            }
 
-            // скорость снаряда
-            float maxVel = gun.getPower() / gun.getFiringAmmoType().getMass() * dt;
-            BPU.GuideResult gr = pbu.guideGun(this, target, maxVel, dt);
 
-            if (!gr.guideVector.isZero()) {
-                guideVector.set(gr.guideVector.nor());
-            }
-
-            // Самонаведение не сгидродоминировало
-            if (guideVector.isZero()) {
-                guideVector.set(target.pos).sub(pos).nor();
-            }
-
-
+            // целимся позади жопы цели
             tmp0.set(target.vel).scl(aimingShift);
 
             if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {

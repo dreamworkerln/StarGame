@@ -27,6 +27,8 @@ public class PlasmaFlakShell extends FlakShell {
 
         type.add(ObjectType.PLASMA_FLAK_SHELL);
 
+        firePower = 150;
+
         fragSize = 2.1f;
         fragTrailSize = 0.5f;
         damage = 1f;

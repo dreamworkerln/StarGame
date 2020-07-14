@@ -14,11 +14,12 @@ import ru.geekbrains.entities.particles.SmokeTrailList;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
 
-public abstract class Projectile extends GameObject implements SmokeTrailList {
+public abstract class Projectile extends GameObject implements SmokeTrailList, Ammo {
+
+    // firing thrust
+    public float firePower;
 
     protected List<SmokeTrail> smokeTrailList = new ArrayList<>();
-
-    //protected boolean trail = false;
 
     public Projectile(float height, GameObject owner) {
         super(owner, height);
@@ -114,8 +115,10 @@ public abstract class Projectile extends GameObject implements SmokeTrailList {
 
             shape.set(ShapeRenderer.ShapeType.Line);
             if (radius > 1) {
-                tmp0.set(dir).setLength(radius * 2).add(pos);
-                shape.line(pos, tmp0);
+
+                tmp0.set(dir).setLength(radius).scl(1f).add(pos);
+                tmp1.set(dir).setLength(radius).scl(-1f).add(pos);
+                shape.line(tmp0, tmp1);
             }
             else {
                 shape.point(pos.x, pos.y, 0);
@@ -156,4 +159,26 @@ public abstract class Projectile extends GameObject implements SmokeTrailList {
     public void setColor(Color color) {
         this.color = color;
     }
+
+    @Override
+    public float getFirePower() {
+        return firePower;
+    }
+
+    @Override
+    public void setFirePower(float firePower) {
+        this.firePower = firePower;
+    }
+
+    @Override
+    public void setTarget(GameObject target) {
+        throw new IllegalArgumentException("Not a smart ammo");
+    }
+
+    @Override
+    public float getMaxThrottle() {
+        return 0;
+    }
+
+
 }

@@ -9,19 +9,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.objects.Planet;
+import ru.geekbrains.entities.projectile.Ammo;
 import ru.geekbrains.entities.projectile.Bullet;
-import ru.geekbrains.entities.projectile.Projectile;
+import ru.geekbrains.entities.weapons.gun.RotatableGun;
 import ru.geekbrains.screen.GameScreen;
 
 
-public class Minigun extends TurretGun {
+public class Minigun extends RotatableGun {
 
     private static Sound minigunFire;
     private boolean minigunPlaying = false;
@@ -46,7 +47,7 @@ public class Minigun extends TurretGun {
 
     public float maxRange;
     public float maxTime;
-    public float plasmafragMissileTime;
+    public float plasmaFragMissileTime;
     protected int iterationCount;
 
     static {
@@ -58,8 +59,10 @@ public class Minigun extends TurretGun {
         super(height, owner);
 
         type.add(ObjectType.MINIGUN);
-
         isModule = true;
+
+        addAmmoType(() -> new Bullet(calibre, owner));
+        //ammoTypeList.put(Bullet.class, bullet);
 
         //maxRotationSpeed = 0.1f;
         maxRotationSpeed = 1f;
@@ -70,12 +73,12 @@ public class Minigun extends TurretGun {
         gunHeatingDelta = 2; // non-stop firing
         coolingGunDelta = 2;
         maxGunHeat = 200;
-        power = 20;
+        //power = 20;
         maxBlastRadius = 2;
 
         maxRange = 600;  // 500
         maxTime = 2f;   // 1.5f
-        plasmafragMissileTime = 5f;
+        plasmaFragMissileTime = 5f;
         iterationCount = 400;
 
 
@@ -107,14 +110,20 @@ public class Minigun extends TurretGun {
 
         // getting target
         if (owner != null && !owner.readyToDispose) {
-            targetList = GameScreen.getCloseObjects(owner, maxRange);
+
+            Predicate<GameObject> filter = o -> o != owner && o.owner != owner && !o.readyToDispose && o.side != owner.side &&
+                (o.type.contains(ObjectType.MISSILE) || o.type.contains(ObjectType.SHIP))
+                && !o.type.contains(ObjectType.ANTIMISSILE);
+
+
+            targetList = GameScreen.getCloseObjects(owner, maxRange, filter);
+
+
 
 
             // leave only ships and missiles
-            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose || o.side == owner.side
-
-                /*|| o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)*/ ||
-                !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
+//            targetList.removeIf(o -> o == owner || o.owner == owner || o.readyToDispose || o.side == owner.side ||
+//                !o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.SHIP));
 
 
 
@@ -133,8 +142,10 @@ public class Minigun extends TurretGun {
 
                 //tmp1.set(o.pos).sub(owner.pos);
 
+                Ammo currentAmmo = ammoCache.get(currentAmmoType);
+
                 if (owner != null && !owner.readyToDispose) {
-                    float maxPrjVel = power / firingAmmoType.getMass() * dt;  // Задаем начальную скорость пули
+                    float maxPrjVel = currentAmmo.getFirePower() / currentAmmo.getMass() * dt;  // Задаем начальную скорость пули
 
                     BPU.GuideResult gr = pbu.guideGun(owner, o, maxPrjVel, dt);
 
@@ -145,7 +156,7 @@ public class Minigun extends TurretGun {
                         impactTimes.put(impactTime, gr);
                     }
 
-                    if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= plasmafragMissileTime && o.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
+                    if (!impactTime.isNaN() && impactTime >= 0 && impactTime <= plasmaFragMissileTime && o.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
                         impactTimes.put(impactTime, gr);
                     }
 
@@ -251,11 +262,12 @@ public class Minigun extends TurretGun {
 
         if (target != null && !target.readyToDispose) {
 
-            float maxPrjVel = power / firingAmmoType.getMass() * dt;
+            Ammo currentAmmo = ammoCache.get(currentAmmoType);
+            float maxPrjVel = currentAmmo.getFirePower() / currentAmmo.getMass() * dt;
             BPU.GuideResult gr = pbu.guideGun(owner, target, maxPrjVel, dt);
             guideVector.set(gr.guideVector);
 
-            // Делаем разбросd a
+            // Делаем разброс a
             // -----------------------------------------------------------
 
             // вектор пушка(корабль) - цель
@@ -476,14 +488,6 @@ public class Minigun extends TurretGun {
             minigunPlaying = false;
             minigunFire.stop();
         }
-    }
-
-    @Override
-    protected Projectile createProjectile() {
-
-        Bullet result = new Bullet(calibre,   owner);
-        //result.setTTL(ThreadLocalRandom.current().nextInt(90, 95));
-        return result;
     }
 
     @Override

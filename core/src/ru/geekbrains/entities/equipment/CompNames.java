@@ -1,7 +1,7 @@
 package ru.geekbrains.entities.equipment;
 
 public enum CompNames {
-    GUN,
+    COURSE_GUN,
     LAUNCHER,
     SIM_TRAJECTORY,
     SIM_GUN,

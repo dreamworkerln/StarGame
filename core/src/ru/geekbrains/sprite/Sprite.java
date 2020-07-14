@@ -42,14 +42,30 @@ public class Sprite extends Rect {
 
         SpriteBatch sprite = renderer.batch;
 
-        sprite.draw(
+        try {
+
+            sprite.draw(
                 textureList[frame],
                 getLeft(), getBottom(),
                 halfWidth, halfHeight,
                 getWidth(), getHeight(),
                 scale, scale,
                 angle
-        );
+            );
+        }catch (Exception e) {
+
+            System.out.println(textureList[frame]);
+            System.out.println(getLeft());
+            System.out.println(getBottom());
+
+            System.out.println(halfWidth);
+            System.out.println(halfHeight);
+            System.out.println(getWidth());
+            System.out.println(getHeight());
+            System.out.println(scale);
+            System.out.println(angle);
+
+        }
     }
 
 

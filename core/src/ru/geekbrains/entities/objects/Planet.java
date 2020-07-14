@@ -9,7 +9,7 @@ public class Planet extends GameObject {
 
 
     public Planet(TextureRegion textureRegion, float height, GameObject owner) {
-        super(textureRegion, height, owner);
+        super(owner, textureRegion, height);
 
         name = "planet";
 

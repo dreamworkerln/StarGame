@@ -29,4 +29,5 @@ public abstract class ShipComponent extends ParticleObject {
         this.dir.set(dir);
     }
 
+    public abstract void init();
 }

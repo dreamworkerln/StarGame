@@ -27,12 +27,12 @@ public class Shell extends Projectile {
 
         type.add(ObjectType.SHELL);
         mass = 0.016f;
-        //mass = 1;
+
+        firePower = 230;
 
         setMaxHealth(0.1f);
         damage = 1f;
-
-        penetration = 1;
+        penetration = 1f;
     }
 
 

@@ -50,8 +50,9 @@ public class BlackHoleShell extends Shell {
         super.update(dt);
 
 
-        List<GameObject> targets = GameScreen.getCloseObjects(this, 350);
+        List<GameObject> targets = GameScreen.getCloseObjects(this, 350, o -> !o.type.contains(ObjectType.BATTLE_ENEMY_SHIP));
 
+        //targets.removeIf(o -> o.type.contains(ObjectType.BATTLE_ENEMY_SHIP));
 
 //        if(age < 10) {
 //            targets.forEach(o -> {

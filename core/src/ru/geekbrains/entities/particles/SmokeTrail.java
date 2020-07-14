@@ -119,10 +119,10 @@ public class SmokeTrail extends GameObject{
             shape.circle(el.pos.x, el.pos.y, el.getRadius());
 
 
-            //shape.setColor(0.5f, 0.5f, 0.5f, 1f*((el.expired - tick)/(float)SmokeTrail.TTL));
+            //shape.setColor(0.5f, 0.5f, 0.5f, 1f*((el.expired - tick)/(float)SmokeTrail.launchDelay));
 
 //            shape.circle(el.pos.x, el.pos.y, 2 *radius +
-//                    radius * 2 * el.throttlePercent *(1-(el.getAge()/(float)TTL)));
+//                    radius * 2 * el.throttlePercent *(1-(el.getAge()/(float)launchDelay)));
 
             //shape.circle(el.pos.x, el.pos.y, 10);
         }

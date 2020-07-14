@@ -47,6 +47,8 @@ public class FlakShell extends Shell {
 
         type.add(ObjectType.FLAK_SHELL);
 
+        firePower = 150;
+
         fragSize = 2;
         mass = 0.01f;
         //mass = 1;
@@ -58,7 +60,7 @@ public class FlakShell extends Shell {
         shapedExplosion = true;
 
         damage = 0.5f;
-        penetration = 1f;
+        penetration = 0.1f;
         color = Color.RED;
 
 
