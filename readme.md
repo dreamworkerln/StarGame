@@ -53,7 +53,7 @@ Blue curve - you shell trajectory in planet gravity force.
 Dangerous objects are marked with special signs.  
   
 If your ship was shot down you may try safely (in spiral trajectory)
-to land your pilot to Duna and acquire new ship.  
+to land your pilot to Duna and acquire new ship.  d
 
 // -------------------------------------------------------------------------------------------------
 

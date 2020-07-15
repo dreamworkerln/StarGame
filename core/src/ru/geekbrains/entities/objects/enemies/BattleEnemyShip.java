@@ -40,7 +40,7 @@ public class BattleEnemyShip extends AbstractEnemyShip {
         setMaxFuel(10000f);
         fuelConsumption =10;
 
-        maxThrottle = 400f;
+        maxThrottle = 500f;
 
         damage = 30f;
         penetration = 1;

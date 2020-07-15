@@ -286,22 +286,22 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
             // планета слева от вектора скорости
             if (angle > 0) {
-                guideVector.set(vel).rotate(-45).nor();
+                guideVector.set(vel).rotate(-75).nor();   // -
             } else {
                 // планета справа от вектора скорости
-                guideVector.set(vel).rotate(45).nor();
+                guideVector.set(vel).rotate(75).nor();
             }
 
             //throttle = maxThrottle;
 
-            acquireThrottle(maxThrottle);
+            //acquireThrottle(maxThrottle);
 
-//            if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed*1.5f) {
-//                acquireThrottle(maxThrottle);
-//            }
-//            else {
-//                acquireThrottle(0);
-//            }
+            if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed*1.5f) {
+                acquireThrottle(maxThrottle);
+            }
+            else {
+                acquireThrottle(0);
+            }
             //result = true;
             //}
         }
