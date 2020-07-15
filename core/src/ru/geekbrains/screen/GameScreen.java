@@ -251,14 +251,14 @@ public class GameScreen extends BaseScreen {
         //musicFile = "304665_SOUNDDOGS__ca.mp3";
         //musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
 
-        musicFile = "test_music2.mp3";
+        //musicFile = "test_music2.mp3";
 
 
 
         music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
 
-        //musicLength = 60*5;
-        musicLength = 30;
+        musicLength = 60*5;
+        //musicLength = 30;
 
 
         forTheEmperor = Gdx.audio.newSound(Gdx.files.internal("FOR THE EMPEROR.mp3"));
@@ -442,7 +442,7 @@ public class GameScreen extends BaseScreen {
                 // update velocity, position, self-guiding, prepare animation, etc
                 obj.update(dt);
 
-                obj.rotate();
+                obj.rotate(dt);
 
                 // check wall bouncing
                 borderBounce(obj);
@@ -827,7 +827,7 @@ public class GameScreen extends BaseScreen {
 
                         if(prj.type.contains(ObjectType.BULLET)) {
 
-                            prj.angVel = prj.dir.dot(playerShip.dir) > 0 ? 5 : -5;
+                            prj.angVel += prj.dir.dot(playerShip.dir) > 0 ? 5 : -5;
                         }
 
 

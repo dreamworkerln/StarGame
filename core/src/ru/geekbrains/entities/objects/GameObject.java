@@ -237,7 +237,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
 
     // rotation dynamics --------------------------------
-    public void rotate() {
+    public void rotate(float dt) {
 
 
         if(!guideVector.isZero()){
@@ -254,7 +254,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
         }
 
         if(Math.abs(angVel) > 1E-5) {
-            dir.rotate(angVel);
+            dir.rotateRad(angVel* dt);
         }
     }
 

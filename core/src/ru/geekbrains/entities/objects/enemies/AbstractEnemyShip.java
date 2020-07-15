@@ -19,8 +19,8 @@ import ru.geekbrains.screen.GameScreen;
 
 public abstract class AbstractEnemyShip extends Ship {
 
-    float avoidCollisionImpactTime = 1f;
-    float avoidCollisionAngle = (float) ThreadLocalRandom.current().nextDouble(25, 60);
+    protected float avoidCollisionImpactTime = 1f;
+    protected float avoidCollisionAngle = (float) ThreadLocalRandom.current().nextDouble(25, 60);
 
     // какие типы объектов игнорировать при при угрозе столкновения (соответственно не обращать на них внимание)
     Predicate<GameObject> collisionAvoidFilter;
@@ -29,6 +29,7 @@ public abstract class AbstractEnemyShip extends Ship {
 
 
     protected WeaponSystem launcher;
+    protected float avoidWallCoeff = 2;
 
     public AbstractEnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
@@ -175,16 +176,16 @@ public abstract class AbstractEnemyShip extends Ship {
         float upBound = GameScreen.getInstance().worldBounds.getTop();
         float downBound = GameScreen.getInstance().worldBounds.getBottom();
 
-        if (pos.x <= leftBound + 2*radius) {
+        if (pos.x <= leftBound + avoidWallCoeff *radius) {
             tmp1.add(tmp4.set(1, 0).scl(1));
         }
-        if (pos.x >= rightBound - 2*radius) {
+        if (pos.x >= rightBound - avoidWallCoeff *radius) {
             tmp1.add(tmp4.set(-1, 0).scl(1));
         }
-        if (pos.y >= upBound - 2*radius) {
+        if (pos.y >= upBound - avoidWallCoeff *radius) {
             tmp1.add(tmp4.set(0, -1).scl(1));
         }
-        if (pos.y <= downBound + 2*radius) {
+        if (pos.y <= downBound + avoidWallCoeff *radius) {
             tmp1.add(tmp4.set(0, 1).scl(1));
         }
 

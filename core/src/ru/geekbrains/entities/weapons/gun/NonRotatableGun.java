@@ -20,7 +20,7 @@ public abstract class NonRotatableGun extends AbstractGun {
     }
 
     @Override
-    public void rotate() {
+    public void rotate(float dt) {
 
         // Nozzle-mounted gun
         if (owner!= null && !owner.readyToDispose) {

@@ -15,6 +15,7 @@ import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.Bullet;
 import ru.geekbrains.entities.projectile.shell.FlakShell;
 import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
+import ru.geekbrains.entities.projectile.shell.Shell;
 import ru.geekbrains.entities.weapons.FlakCannon;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.gun.CourseGun;
@@ -30,15 +31,16 @@ public class BattleEnemyShip extends AbstractEnemyShip {
         super(textureRegion, height, owner);
 
         type.add(ObjectType.BATTLE_ENEMY_SHIP);
+        avoidWallCoeff = 2;
 
         setMass(10f);
         setMaxHealth(100);
-        healthGeneration /= 3;
+        healthGeneration /= 2;
 
         setMaxFuel(10000f);
         fuelConsumption =10;
 
-        maxThrottle = 600f;
+        maxThrottle = 400f;
 
         damage = 30f;
         penetration = 1;
@@ -58,6 +60,15 @@ public class BattleEnemyShip extends AbstractEnemyShip {
         gun.gunHeatingDelta = 30;
         gun.maxGunHeat = 200;
         gun.coolingGunDelta = 2f;
+        gun.ammoTypeList.clear();
+        gun.addAmmoType(() -> {
+            Shell shell = new Shell(gun.getCalibre(), gun.getCalibre()/8, owner);
+            //shell.setDamage(bullet.getDamage()*4);
+            //shell.setMass(bullet.getMass()*2.5f);
+            shell.setFirePower(shell.getFirePower()*1.2f);
+            //shell.setExplosionRadius(bullet.getExplosionRadius()/3f);
+            return shell;
+        });
         gun.init();
 
         Minigun minigun = new Minigun(4, this);
@@ -83,10 +94,12 @@ public class BattleEnemyShip extends AbstractEnemyShip {
 
         flakCannon.addAmmoType(() -> {
             FlakShell shell = new FlakShell(flakCannon.getCalibre() * 1.5f, 2, Color.RED, owner);
-            shell.setMass(shell.getMass()*6);
-            shell.setFirePower(shell.getFirePower()*7);
+            shell.setMass(shell.getMass()*10);
+            shell.setFirePower(shell.getFirePower()*10);
             shell.shapedExplosion = false;
-            shell.fragCount = 10;
+            shell.fragCount = 15;
+            shell.setDamage(5);
+            shell.setPenetration(0.5f);
             return shell;
         });
         addComponent(CompNames.FLACK_CANNON,flakCannon);
@@ -135,12 +148,13 @@ public class BattleEnemyShip extends AbstractEnemyShip {
         // Никуда не стреляем
         gun.stopFire();
 
+        // Уклонение от столкновения
+        avoidCollision(dt);
 
         // Уклонение от падения на планету
         avoidPlanet(dt);
 
-        // Уклонение от столкновения
-        avoidCollision(dt);
+
 
 
         // ЛИБО Наведение на цель ------------------------------------------------------------------------
@@ -158,9 +172,11 @@ public class BattleEnemyShip extends AbstractEnemyShip {
                 guideVector.set(gr.guideVector.nor());
             }
 
+            boolean stopFireCourseGun = false;
             // Самонаведение не сгидродоминировало
             if (guideVector.isZero()) {
                 guideVector.set(target.pos).sub(pos).nor();
+                stopFireCourseGun = true;
             }
 
             // Acceleration
@@ -173,7 +189,7 @@ public class BattleEnemyShip extends AbstractEnemyShip {
 
             launcher.startFire();
 
-            if (target != null &&
+            if (target != null && !stopFireCourseGun &&
                 Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed*1.0f) {
 
                 gun.startFire();

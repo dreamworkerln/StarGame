@@ -203,12 +203,12 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
 
     @Override
-    public void rotate() {
-        super.rotate();
+    public void rotate(float dt) {
+        super.rotate(dt);
 
         //rotate weapons(turrets, cannons in towers) with ship
         for (WeaponSystem ws : weaponList.values()) {
-            ws.rotate();
+            ws.rotate(dt);
         }
     }
 
@@ -251,7 +251,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             minImpactTime = 1.5f;
         }
         if(this.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
-            minImpactTime = 2.3f;
+            minImpactTime = 2.5f;
         }
 
         boolean doAvoidPlanet = !impactTime.isNaN() && impactTime >= 0 && impactTime < minImpactTime;

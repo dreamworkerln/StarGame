@@ -71,6 +71,9 @@ public class Explosion extends ParticleObject {
             this.smokeTrailList = slist.removeSmokeTrailList();
         }
 
+
+
+
         if(owner.type.contains(ObjectType.SHIP)) {
 
             ExplosionShell shell = new ExplosionShell(2, owner);
@@ -78,6 +81,14 @@ public class Explosion extends ParticleObject {
             shell.vel = owner.vel.cpy();
             shell.acc = owner.vel.cpy();
             shell.setTTL(0);
+
+            if(owner.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
+                shell.fragCount = 500;
+                shell.fragTTL = 100;
+                shell.explosionPower = 15;
+            }
+
+
             GameScreen.addObject(shell);
         }
     }

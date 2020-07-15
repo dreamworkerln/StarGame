@@ -50,7 +50,10 @@ Also it can repulse missiles (~1) but ineffective on counter course inbound.
 Green curve - you trajectory in planet gravity force.  
 Blue curve - you shell trajectory in planet gravity force.  
   
-Dangerous objects are marked with special signs.
+Dangerous objects are marked with special signs.  
+  
+If your ship was shot down you may try safely (in spiral trajectory)
+to land your pilot to Duna and acquire new ship.  
 
 // -------------------------------------------------------------------------------------------------
 

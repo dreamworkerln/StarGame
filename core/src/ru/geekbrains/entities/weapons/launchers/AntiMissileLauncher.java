@@ -251,7 +251,8 @@ public class AntiMissileLauncher extends AbstractMissileLauncher implements Anti
 
 
         Predicate<GameObject> filter =  o -> !o.readyToDispose && o != owner && o.owner != owner &&
-            o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE);
+            o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)
+            && !o.type.contains(ObjectType.ANTIMISSILE);
 
         targets = GameScreen.getCloseObjects(owner, maxRange, filter);
 

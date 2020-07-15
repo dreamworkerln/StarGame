@@ -14,7 +14,7 @@ public class FlakShell extends Shell {
 
     public int fragCount;
     public float explosionPower;
-    long fragTTL;
+    public long fragTTL;
 
     public boolean shapedExplosion;
     public boolean sphereExplosion;

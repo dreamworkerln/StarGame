@@ -21,5 +21,5 @@ public interface WeaponSystem {
     //Vector2 getDir();
     //void setDir(Vector2 dir);
 
-    void rotate();
+    void rotate(float dt);
 }
