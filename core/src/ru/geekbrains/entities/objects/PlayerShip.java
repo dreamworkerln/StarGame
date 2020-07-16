@@ -16,6 +16,7 @@ import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.equipment.ForceShield;
 import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
+import ru.geekbrains.entities.objects.enemies.BattleEnemyShip;
 import ru.geekbrains.entities.particles.Message;
 import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
 import ru.geekbrains.entities.projectile.shell.FlakShell;
@@ -31,6 +32,8 @@ import ru.geekbrains.screen.KeyDown;
 import ru.geekbrains.screen.KeyToggle;
 import ru.geekbrains.utils.PlayList;
 import ru.geekbrains.utils.SoundPlay;
+
+import static ru.geekbrains.screen.GameScreen.addObject;
 
 
 public class PlayerShip extends Ship {
@@ -233,9 +236,6 @@ public class PlayerShip extends Ship {
                 evacuateShip();
             }
         }
-
-        //System.out.println(flakCannon.getFiringMode());
-
     }
 
     @Override
@@ -272,7 +272,7 @@ public class PlayerShip extends Ship {
         kerman.vel.set(vel);
         kerman.dir.set(dir);
 
-        GameScreen.addObject(kerman);
+        addObject(kerman);
     }
 
     @Override

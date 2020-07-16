@@ -19,7 +19,6 @@ import ru.geekbrains.entities.equipment.interfaces.GunSystem;
 import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
 import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.entities.particles.SmokeTrailList;
-import ru.geekbrains.entities.projectile.missile.AbstractMissile;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.entities.particles.SmokeTrail;
@@ -67,6 +66,8 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
     protected WarnReticle warnReticle;
 
+    protected DummyObject dummy;
+
     //protected boolean doAvoidPlanet = false;
 
     public DrivenObject(TextureRegion textureRegion, float height, GameObject owner) {
@@ -90,6 +91,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         rendererType.add(RendererType.SHAPE);
 
         warnReticle = new WarnReticle(height, null);
+        dummy = new DummyObject(this);
     }
 
 
@@ -232,7 +234,15 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         GameObject planet = GameScreen.INSTANCE.planet;
 
         float maxPrjVel = vel.len();  // Задаем начальную скорость "тестовой" пули
-        BPU.GuideResult gr =  pbu.guideGun(this, planet, maxPrjVel, dt);
+
+
+        tmp1.set(planet.pos).sub(pos);
+        float scl = (tmp1.len() - (planet.radius + radius))/tmp1.len();
+        tmp1.scl(scl);
+        tmp2.set(tmp1).add(pos);
+        dummy.pos.set(tmp2);
+
+        BPU.GuideResult gr =  pbu.guideGun(this, dummy, maxPrjVel, dt);
         Float impactTime = (float)gr.impactTime;
 
         //float maxTime = doAvoidPlanet ? planetAvoidImpactTime * 2f : planetAvoidImpactTime;

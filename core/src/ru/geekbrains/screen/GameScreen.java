@@ -112,7 +112,7 @@ public class GameScreen extends BaseScreen {
 
     private static Texture mainEnemyShipTexture = new Texture("ship_enemy_main.png");
     private static Texture smallEnemyShipTexture = new Texture("ship_enemy_small.png");
-    private static Texture bigEnemyShipTexture = new Texture("ship_enemy_big.png");
+    public static Texture bigEnemyShipTexture = new Texture("ship_enemy_big.png");
 
 
     private Map<String, Integer>  missileHitType = new HashMap<>();
@@ -245,20 +245,27 @@ public class GameScreen extends BaseScreen {
         String musicFile;
         //String musicFile = "Lullaby.ogg";
 
-        musicFile = "Valves (remix) - Tiberian Sun soundtrack.ogg";
+
         musicLastStand = Gdx.audio.newMusic(Gdx.files.internal("Last Stand.mp3"));
+
+        musicFile = "Valves (remix) - Tiberian Sun soundtrack.ogg";
+        musicLength = 60*5;
+
+
+        //musicFile = "test_music2.mp3";
+        //musicLength = 30;
 
         //musicFile = "304665_SOUNDDOGS__ca.mp3";
         //musicFile = "Quake_Champions_OST_Corrupted_Keep.mp3";
 
-        //musicFile = "test_music2.mp3";
+
 
 
 
         music = Gdx.audio.newMusic(Gdx.files.internal(musicFile));
 
-        musicLength = 60*5;
-        //musicLength = 30;
+
+
 
 
         forTheEmperor = Gdx.audio.newSound(Gdx.files.internal("FOR THE EMPEROR.mp3"));
@@ -904,66 +911,61 @@ public class GameScreen extends BaseScreen {
                         prj.doDamage(amount);
 
 
-                        // отталкиваем цель при попадании в нее ракет/снарядов
+                        if(!prj.type.contains(ObjectType.BLACKHOLE_SHELL) &&
+                            !tgt.type.contains(ObjectType.BLACKHOLE_SHELL)) {
 
-                        float expCoef;
-                        float elasticCollision;
-                        expCoef = 0;
-                        elasticCollision = 1;
 
-                        //if (!prj.readyToDispose) {
-                        if (tgt.type.contains(ObjectType.BASIC_MISSILE) && !prj.isEmpArmament) {
-                            expCoef = tgt.damage > 1 ? tgt.damage : 1;
+                            // отталкиваем цель при попадании в нее ракет/снарядов
+
+                            float expCoef;
+                            float elasticCollision;
+                            expCoef = 0;
+                            elasticCollision = 1;
+
+                            //if (!prj.readyToDispose) {
+                            if (tgt.type.contains(ObjectType.BASIC_MISSILE) && !prj.isEmpArmament) {
+                                expCoef = tgt.damage > 1 ? tgt.damage : 1;
+                            }
+                            if (tgt.type.contains(ObjectType.SHIP)) {
+                                elasticCollision = 0.5f;
+                            }
+                            tmp3.set(tgt.vel).sub(prj.vel);
+                            tmp5.set(prj.pos).sub(tgt.pos).nor().setLength(tmp3.len());
+                            prj.applyForce(tmp5.scl(tgt.getMass() / dt * elasticCollision + expCoef));
+
+
+                            expCoef = 0;
+                            elasticCollision = 1;
+                            //if (!tgt.readyToDispose) {
+                            if (prj.type.contains(ObjectType.BASIC_MISSILE) && !prj.isEmpArmament) {
+                                expCoef = prj.damage > 1 ? prj.damage : 1;
+                            }
+                            if (prj.type.contains(ObjectType.SHIP)) {
+                                elasticCollision = 0.5f;
+                            }
+                            tmp3.set(prj.vel).sub(tgt.vel);
+                            tmp5.set(tgt.pos).sub(prj.pos).nor().setLength(tmp3.len());
+                            tgt.applyForce(tmp5.scl(prj.getMass() / dt * elasticCollision + expCoef));
+
+
+                            tmp3.set(tgt.vel).sub(prj.vel);
+                            if ((prj.type.contains(ObjectType.BULLET) || prj.type.contains(ObjectType.FRAG)) && (tgt.type.contains(ObjectType.SHIP) || tgt.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
+                                tmp5.set(prj.pos).sub(tgt.pos).nor().setLength(tmp3.len()).scl(0.5f);
+                                prj.vel.set(tmp5);
+                            }
+                            if (prj.type.contains(ObjectType.SHELL) && (tgt.type.contains(ObjectType.SHIP) || tgt.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
+                                prj.vel.set(tgt.vel);
+                            }
+
+                            tmp3.set(prj.vel).sub(tgt.vel);
+                            if ((tgt.type.contains(ObjectType.BULLET) || prj.type.contains(ObjectType.FRAG)) && (prj.type.contains(ObjectType.SHIP) || prj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
+                                tmp5.set(tgt.pos).sub(prj.pos).nor().setLength(tmp3.len()).scl(0.5f);
+                                tgt.vel.set(tmp5);
+                            }
+                            if (tgt.type.contains(ObjectType.SHELL) && (prj.type.contains(ObjectType.SHIP) || prj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
+                                tgt.vel.set(prj.vel);
+                            }
                         }
-                        if (tgt.type.contains(ObjectType.SHIP)) {
-                            elasticCollision = 0.5f;
-                        }
-                        tmp3.set(tgt.vel).sub(prj.vel);
-                        tmp5.set(prj.pos).sub(tgt.pos).nor().setLength(tmp3.len());
-                        prj.applyForce(tmp5.scl(tgt.getMass() / dt * elasticCollision + expCoef));
-
-
-
-
-
-
-                        expCoef = 0;
-                        elasticCollision = 1;
-                        //if (!tgt.readyToDispose) {
-                        if (prj.type.contains(ObjectType.BASIC_MISSILE) && !prj.isEmpArmament) {
-                            expCoef = prj.damage > 1 ? prj.damage : 1;
-                        }
-                        if (prj.type.contains(ObjectType.SHIP)) {
-                            elasticCollision = 0.5f;
-                        }
-                        tmp3.set(prj.vel).sub(tgt.vel);
-                        tmp5.set(tgt.pos).sub(prj.pos).nor().setLength(tmp3.len());
-                        tgt.applyForce(tmp5.scl(prj.getMass() / dt * elasticCollision + expCoef));
-
-
-                        tmp3.set(tgt.vel).sub(prj.vel);
-                        if((prj.type.contains(ObjectType.BULLET)||prj.type.contains(ObjectType.FRAG)) && (tgt.type.contains(ObjectType.SHIP) || tgt.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
-                            tmp5.set(prj.pos).sub(tgt.pos).nor().setLength(tmp3.len()).scl(0.5f);
-                            prj.vel.set(tmp5);
-                        }
-                        if(prj.type.contains(ObjectType.SHELL) && (tgt.type.contains(ObjectType.SHIP) || tgt.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
-                            prj.vel.set(tgt.vel);
-                        }
-
-                        tmp3.set(prj.vel).sub(tgt.vel);
-                        if((tgt.type.contains(ObjectType.BULLET)|| prj.type.contains(ObjectType.FRAG)) && (prj.type.contains(ObjectType.SHIP)|| prj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
-                            tmp5.set(tgt.pos).sub(prj.pos).nor().setLength(tmp3.len()).scl(0.5f);
-                            tgt.vel.set(tmp5);
-                        }
-                        if( tgt.type.contains(ObjectType.SHELL) && (prj.type.contains(ObjectType.SHIP) || prj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))) {
-                            tgt.vel.set(prj.vel);
-                        }
-
-
-
-
-
-
 
                         playExplosionSound(prj, tgt);
 
@@ -1153,11 +1155,13 @@ public class GameScreen extends BaseScreen {
             AbstractEnemyShip enemyShip;
             Duration remaining = Duration.ofSeconds(musicLength - (long)music.getPosition());
 
+
             if(spawnBossShip && bossShip == null) {
 
                 bossShip = new BattleEnemyShip(new TextureRegion(bigEnemyShipTexture), 120, null);
                 bossShip.pos = tmp1.cpy();
                 bossShip.name = "boss_enemy_ship";
+                bossShip.side = ObjectSide.ENEMIES;
                 addObject(bossShip);
             }
             else if (ThreadLocalRandom.current().nextFloat() > 0.87) {
@@ -1235,6 +1239,7 @@ public class GameScreen extends BaseScreen {
                     if (playerShip != null && !playerShip.readyToDispose) {
                         drv.target = playerShip;
                     }
+
                     else {
 
                         Predicate<GameObject> filter = t -> (!t.readyToDispose && t != drv &&

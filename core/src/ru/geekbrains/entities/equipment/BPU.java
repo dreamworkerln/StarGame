@@ -130,8 +130,11 @@ public class BPU {
 
         while(max_t < 20)  {
 
-            min_t = (float) (Math.pow(1.3, (i - 1)) * delta) - delta;
-            max_t = (float) (Math.pow(1.3, i) * delta);
+            //min_t = (float) (Math.pow(1.3, (i - 1)) * delta) - delta;
+            //max_t = (float) (Math.pow(1.3, i) * delta);
+
+            min_t = (i-1) * 0.1f - delta;
+            max_t = i * 0.1f + delta;
             i++;
 
             try {
@@ -237,8 +240,12 @@ public class BPU {
 
         while(max_t < 20)  {
 
-            min_t = (float) (Math.pow(1.3, (i - 1)) * delta) - delta;
-            max_t = (float) (Math.pow(1.3, i) * delta);
+            //min_t = (float) (Math.pow(1.3, (i - 1)) * delta) - delta;
+            //max_t = (float) (Math.pow(1.3, i) * delta);
+
+            min_t = (i-1) * 0.1f - delta;
+            max_t = i * 0.1f + delta;
+
             i++;
 
 

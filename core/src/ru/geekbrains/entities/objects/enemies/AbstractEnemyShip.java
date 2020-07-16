@@ -1,5 +1,6 @@
 package ru.geekbrains.entities.objects.enemies;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.List;
@@ -15,6 +16,8 @@ import ru.geekbrains.entities.objects.Ship;
 import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
 import ru.geekbrains.entities.weapons.launchers.MissileLauncher;
 import ru.geekbrains.screen.GameScreen;
+import ru.geekbrains.screen.Renderer;
+import ru.geekbrains.screen.RendererType;
 
 
 public abstract class AbstractEnemyShip extends Ship {
@@ -132,7 +135,7 @@ public abstract class AbstractEnemyShip extends Ship {
         }
 
 
-        List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 25, collisionAvoidFilter);
+        List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 20, collisionAvoidFilter);
 
         // leave only ships and missiles
         //targetList.removeIf(collisionAvoidFilter);
@@ -144,7 +147,17 @@ public abstract class AbstractEnemyShip extends Ship {
         tmp1.setZero();
 
         for (GameObject o : targetList) {
-            BPU.GuideResult gr = pbu.guideGun(this, o, this.vel.len(), dt);
+
+            tmp5.set(o.pos).sub(pos);
+            float scl = (tmp5.len() - (o.radius + radius))/tmp5.len();
+            tmp5.scl(scl);
+            tmp6.set(tmp5).add(pos);
+            dummy.pos.set(tmp6);
+
+
+            
+
+            BPU.GuideResult gr = pbu.guideGun(this, dummy, this.vel.len() * 4, dt);
 
             Float impactTime = (float)gr.impactTime;
 
@@ -204,7 +217,6 @@ public abstract class AbstractEnemyShip extends Ship {
                 // планета справа от вектора скорости
                 tmp1.rotate(avoidCollisionAngle);
             }
-            acquireThrottle(maxThrottle);
 
             if (guideVector.isZero()) {
                 guideVector.set(tmp1).nor();
@@ -212,6 +224,16 @@ public abstract class AbstractEnemyShip extends Ship {
             else {
                 guideVector.add(tmp1.scl(0.5f)).nor();
             }
+
+            acquireThrottle(maxThrottle);
+
+//            if (Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed*10.5f) {
+//                acquireThrottle(maxThrottle);
+//            }
+//            else {
+//
+//            }
+
 
         }
 
@@ -238,4 +260,22 @@ public abstract class AbstractEnemyShip extends Ship {
     }
 
 
+    @Override
+    public void draw(Renderer renderer) {
+        super.draw(renderer);
+
+//
+//        if (renderer.rendererType!= RendererType.SHAPE) {
+//            return;
+//        }
+//
+//
+//
+//
+//        renderer.shape.setColor(1f, 0f, 0f, 1);
+//
+//        renderer.shape.circle(dummy.pos.x, dummy.pos.y, 8);
+//        Gdx.gl.glLineWidth(1);
+
+    }
 }

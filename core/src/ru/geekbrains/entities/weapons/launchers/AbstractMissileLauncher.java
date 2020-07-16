@@ -42,8 +42,8 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
     protected int launchCnt = 0;
 
 
-    protected final int LAUNCH_DELAY_INITIAL = 15;
-    protected int launchDelay = 15;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
+    protected final int LAUNCH_DELAY_INITIAL = 20;
+    protected int launchDelay = LAUNCH_DELAY_INITIAL;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
 
 
 

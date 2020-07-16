@@ -35,14 +35,14 @@ public class BattleEnemyShip extends AbstractEnemyShip {
 
         setMass(10f);
         setMaxHealth(100);
-        healthGeneration /= 2;
+        healthGeneration *= 0.7;
 
         setMaxFuel(10000f);
         fuelConsumption =10;
 
         maxThrottle = 500f;
 
-        damage = 30f;
+        damage = 5f;
         penetration = 1;
         armour = 1;
         maxRotationSpeed = 0.03f;

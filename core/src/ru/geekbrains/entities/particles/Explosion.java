@@ -83,7 +83,7 @@ public class Explosion extends ParticleObject {
             shell.setTTL(0);
 
             if(owner.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
-                shell.fragCount = 500;
+                shell.fragCount = 200;
                 shell.fragTTL = 100;
                 shell.explosionPower = 15;
             }
