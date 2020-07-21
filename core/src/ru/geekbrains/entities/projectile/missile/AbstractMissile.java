@@ -307,7 +307,7 @@ public class AbstractMissile extends DrivenObject implements Ammo {
             acquireThrottle(maxThrottle);
 
             // Максимальное возможное ускорение ракеты своим движком
-            float maxAcc = maxThrottle / mass;
+            float maxAcc = throttle / mass;
 
             guideResult = pbu.guideMissile(this, target, maxAcc, dt);
 

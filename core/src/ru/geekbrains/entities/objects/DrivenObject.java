@@ -258,7 +258,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             minImpactTime = 0.8f;
         }
         if(this.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
-            minImpactTime = 1.5f;
+            minImpactTime = 1.8f;
         }
         if(this.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
             minImpactTime = 2.5f;

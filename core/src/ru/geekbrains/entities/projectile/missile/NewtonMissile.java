@@ -53,16 +53,15 @@ public class NewtonMissile extends AbstractMissile {
     @Override
     public void update(float dt) {
 
+        super.update(dt);
 
         if (health < maxHealth/4) {
 
             damageBurnTrail.color = Color.RED;
-            acquireThrottle(maxThrottle / 2);
+            acquireThrottle(throttle / 2);
             health -= maxHealth/10000f;
 
         }
-
-        super.update(dt);
 
     }
 
