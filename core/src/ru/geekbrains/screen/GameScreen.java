@@ -213,10 +213,7 @@ public class GameScreen extends BaseScreen {
         Message msg = new Message("New objectives: survive till warp jump would be possible.", 0);
         particleObjects.add(msg);
 
-        msgEST = new Message("EST: ", 1);
-        msgFuel = new Message("FUEL: ", 2);
-        particleObjects.add(msgEST);
-        particleObjects.add(msgFuel);
+
 
 //        Тесты для CIWS minigun
 
@@ -645,6 +642,17 @@ public class GameScreen extends BaseScreen {
     @Override
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
+
+
+        // kludje
+        if(msgEST == null && msgFuel == null) {
+
+            msgEST = new Message("EST: ", 1);
+            msgFuel = new Message("FUEL: ", 2);
+            particleObjects.add(msgEST);
+            particleObjects.add(msgFuel);
+        }
+
     }
 
     @Override

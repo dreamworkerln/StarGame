@@ -30,13 +30,15 @@ public class Message extends GameObject {
         this.expired = GameScreen.INSTANCE.getTick() + TTL;
         this.text = text;
 
+        float rightBound = GameScreen.INSTANCE.worldBounds.getRight() * GameScreen.INSTANCE.aspect;
+
         if (ps ==1) {
             this.expired = Long.MAX_VALUE;
-            pos.set(GameScreen.INSTANCE.BACKGROUND_SIZE - 100 , 0);
+            pos.set(rightBound *2 - 150 , 0);
         }
         else if (ps ==2) {
             this.expired = Long.MAX_VALUE;
-            pos.set(GameScreen.INSTANCE.BACKGROUND_SIZE - 300 , 0);
+            pos.set(rightBound  * 2- 300 , 0);
         }
 
         rendererType.add(RendererType.FONT);
