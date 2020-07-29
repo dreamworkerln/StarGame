@@ -525,7 +525,7 @@ public class GameScreen extends BaseScreen {
             spawnBossShip = false;
             musicLastStand.play();
 
-            Message msg = new Message("Increasing Gun trajectory simulator range.", 0);
+            Message msg = new Message("Weapon systems has been restored to full functionality.", 0);
             particleObjects.add(msg);
 
 
