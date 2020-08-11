@@ -77,5 +77,8 @@ Code need refactoring, etc., but better if it was written in C++ to avoid using 
 GC related things, so i give up to do this.   
 
 Demo:   
-https://www.youtube.com/watch?v=n_bIxi6Nuec  
+https://www.youtube.com/watch?v=n_bIxi6Nuec
+
+Cruiser battle test:
+https://www.youtube.com/watch?v=rCzIY_ThLV0
  
