@@ -1265,7 +1265,7 @@ public class GameScreen extends BaseScreen {
 
         Ship ship;
 
-        for (int i = 0; i < ENEMIES_COUNT_IN_WAVE / 3.2f ; i++) {
+        for (int i = 0; i < Math.floor(ENEMIES_COUNT_IN_WAVE / 3f) ; i++) {
             if (ThreadLocalRandom.current().nextFloat() > 0.4) {
                 ship = new MainShip(new TextureRegion(mainAllyShipTexture), 50, null);
             } else {
