@@ -12,11 +12,10 @@ import java.util.function.Predicate;
 import ru.geekbrains.entities.objects.DummyObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.objects.PlayerShip;
-import ru.geekbrains.entities.projectile.missile.AbstractMissile;
+import ru.geekbrains.entities.projectile.missile.EmpMissile;
 import ru.geekbrains.entities.projectile.missile.FastMissile;
 import ru.geekbrains.entities.projectile.missile.Missile;
-import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
+import ru.geekbrains.entities.projectile.missile.NewtonMissile;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -33,7 +32,6 @@ public class PlayerMissileLauncher extends MissileLauncher {
     }
 
 
-
     private List<GameObject> getTarget() {
 
         List<GameObject> result = new ArrayList<>();
@@ -42,13 +40,13 @@ public class PlayerMissileLauncher extends MissileLauncher {
         dummy.pos.set(GameScreen.INSTANCE.target);
 
 
-        Predicate<GameObject> filter = t-> (t.type.contains(ObjectType.SHIP) || t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) &&
+        Predicate<GameObject> filter = t-> (t.type.contains(ObjectType.SHIP) || t.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) &&
             t != this.owner && t.owner != this.owner && !t.readyToDispose && t.side != owner.side;
 
         targets = GameScreen.getCloseObjects(dummy, 4000, filter);
 
 
-//        targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)));
+//        targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)));
 //        targets.removeIf(t -> t == this.owner);
 //        targets.removeIf(t -> t.owner == this.owner);
 //        targets.removeIf(t -> t.readyToDispose);
@@ -73,51 +71,71 @@ public class PlayerMissileLauncher extends MissileLauncher {
 
 
 
-
+    // Select target to fire and load appropriate ammo
     @Override
-    protected boolean selectTarget() {
+    protected void selectTarget() {
 
-        if(launchCnt == 0) {
 
-            maxRepeatCount = 1;
+        visualTargets.clear();
+        launchDelay = LAUNCH_DELAY_INITIAL;
+        burstMax = pylonCount;
 
-            launchDelay = LAUNCH_DELAY_INITIAL;
-            currentAmmoType = Missile.class;
-            targetList = getTarget();
+        targetList = getTarget();
 
-            visualTargets.clear();
-        }
 
-        if (launchCnt == 1) {
-            targetList.removeIf(o-> o.readyToDispose);
-        }
+        //default ammo 
+        currentAmmoType = Missile.class;
 
+
+//        if(launchPylonNo == 0) {
+//
+//            burstMax = 1;
+//
+//            launchDelay = LAUNCH_DELAY_INITIAL;
+//            currentAmmoType = Missile.class;
+//            targetList = getTarget();
+//
+//            visualTargets.clear();
+//        }
+//
+//        if (launchPylonNo == 1) {
+//            targetList.removeIf(o-> o.readyToDispose);
+//        }
+//
+//
+//        if (targetList.size() == 0) {
+//            launchPylonNo = 0;
+//            return false;
+//        }
 
         if (targetList.size() == 0) {
-            launchCnt = 0;
-            return false;
-
+            return;
         }
 
 
-        if (launchCnt == 0 && targetList.get(0).type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
-            maxRepeatCount = 4;
-
+        if (targetList.get(0).type.contains(ObjectType.MISSILE_SHIP)) {
             launchDelay = 10;
+            burstMax = 4;
             currentAmmoType = FastMissile.class;
         }
 
-        // if first target is NewtonMissile/MissileEnemyShip - remove other targets
-        if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+        // if first target is NewtonTorpedo/MissileShip - remove other targets
+        if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
+            burstMax = 4;
+            currentAmmoType = Missile.class;
+            if(burstNo == 0 ) {
+                currentAmmoType = EmpMissile.class;
+            }
 
             GameObject tmp = targetList.get(0);
             targetList.clear();
             targetList.add(tmp);
         }
 
-        if (targetList.get(0).type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
+        if (targetList.get(0).type.contains(ObjectType.BATTLE_SHIP)) {
 
-            currentAmmoType = PlasmaFragMissile.class;
+            burstMax = 1;
+            currentAmmoType = NewtonMissile.class;
 
             GameObject tmp = targetList.get(0);
             targetList.clear();
@@ -125,15 +143,19 @@ public class PlayerMissileLauncher extends MissileLauncher {
         }
 
 
-        launchCnt++;
-        if (launchCnt >= sideLaunchCount) {
-            launchCnt = 0;
-        }
+        visualTargets.addAll(targetList);
 
-        if (launchCnt == 1) {
-            visualTargets.addAll(targetList);
-        }
-        return true;
+
+//        launchPylonNo++;
+//        if (launchPylonNo >= pylonCount) {
+//            launchPylonNo = 0;
+//        }
+//
+//        if (launchPylonNo == 1) {
+//            visualTargets.addAll(targetList);
+//        }
+
+
     }
 
 

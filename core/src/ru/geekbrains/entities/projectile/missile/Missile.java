@@ -30,7 +30,7 @@ public class Missile extends AbstractMissile {
         explosionRadius = radius * 3;
         setMaxThrottle(4f);
         setMaxHealth(0.02f);
-        maxRotationSpeed =  0.05f;
+        setMaxRotationSpeed(0.05f);
         damage = 5f;
         penetration = 1;
     }

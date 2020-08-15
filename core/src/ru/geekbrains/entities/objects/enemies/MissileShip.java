@@ -11,20 +11,20 @@ import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
 import ru.geekbrains.entities.weapons.launchers.MissileLauncher;
 import ru.geekbrains.entities.weapons.gun.CourseGun;
 
-public class MissileEnemyShip extends AbstractEnemyShip {
+public class MissileShip extends AbstractAIShip {
 
     float aimingShift = (float) ThreadLocalRandom.current().nextDouble(1, 2);
 
 
-    public MissileEnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
+    public MissileShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
-        type.add(ObjectType.MISSILE_ENEMY_SHIP);
+        type.add(ObjectType.MISSILE_SHIP);
 
         fuelConsumption = 0.1f;
         setMaxThrottle(50f);
 
-        healthRegenerationCoefficient = 0.003f;
+        setHealthRegenerationCoefficient(0.003f);
         setMaxHealth(2f);
         damage = getMaxHealth();
         mass = 0.5f;
@@ -32,19 +32,21 @@ public class MissileEnemyShip extends AbstractEnemyShip {
         // tuning gun
         CourseGun gun = (CourseGun)componentList.get(CompNames.COURSE_GUN);
         gun.maxGunHeat = 0;
-        maxRotationSpeed = 0.07f;
+        setMaxRotationSpeed(0.07f);
 
         // tuning launcher
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
-        launcher.sideLaunchCount = 1;
+        launcher.setPylonCount(1);
 
-        launcher.ammoTypeList.clear();
+        launcher.ammoProducer.clear();
         launcher.addAmmoType(() -> new PlasmaFragMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2.5f, owner));
-        launcher.init();
+
+        // re-init all weapons
+        init();
 
 
         collisionAvoidFilter = o-> o != this && !o.readyToDispose && o.owner != this &&
-            (o.type.contains(ObjectType.SHIP) || o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) || o.type.contains(ObjectType.SHELL) || o.type.contains(ObjectType.BASIC_MISSILE));
+            (o.type.contains(ObjectType.SHIP) || o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO) || o.type.contains(ObjectType.SHELL) || o.type.contains(ObjectType.BASIC_MISSILE));
 
 
         warnReticle = new WarnReticle(height, this);
@@ -57,6 +59,9 @@ public class MissileEnemyShip extends AbstractEnemyShip {
         if (this.readyToDispose) {
             return;
         }
+
+        // выбираем цель
+        selectTarget();
 
 
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
@@ -103,7 +108,7 @@ public class MissileEnemyShip extends AbstractEnemyShip {
             // целимся позади жопы цели
             tmp0.set(target.vel).scl(aimingShift);
 
-            if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            if (target.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
                 tmp0.scl(5);
             }
 

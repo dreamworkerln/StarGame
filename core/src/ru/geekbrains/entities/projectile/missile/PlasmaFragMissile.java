@@ -1,10 +1,7 @@
 package ru.geekbrains.entities.projectile.missile;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -12,12 +9,9 @@ import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.entities.projectile.frag.PlasmaFragment;
 import ru.geekbrains.screen.GameScreen;
-import ru.geekbrains.screen.Renderer;
-import ru.geekbrains.screen.RendererType;
 
 public class PlasmaFragMissile extends AbstractMissile{
 
@@ -32,6 +26,7 @@ public class PlasmaFragMissile extends AbstractMissile{
     public PlasmaFragMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
+        type.add(ObjectType.BASIC_MISSILE);
         type.add(ObjectType.PLASMA_FRAG_MISSILE);
 
         mass = 0.08f;
@@ -54,22 +49,20 @@ public class PlasmaFragMissile extends AbstractMissile{
 
 
 
-        proximityMinDistance = 200;
+        proximityMinGateDistance = 200;
         proximitySafeDistance = 150;
         //proximityMissMinGateDistance = 200;
         //proximityMissMaxSelfdDistance = 100;
 
-        defaultproximityMinDistance = proximityMinDistance;
+        defaultproximityMinDistance = proximityMinGateDistance;
 
-        type.add(ObjectType.PLASMA_FRAG_MISSILE);
-
-        maxRotationSpeed =  0.05f;
+        setMaxRotationSpeed(0.05f);
 
         proximityMinDistanceTime = 0.3f;
 
 
         engineTrail.color = new Color(1f, 0.8f, 0.2f, 1);
-        engineTrail.setRadius(0.8f);
+        //engineTrail.setRadius(0.8f);
 
         warnReticle = new DrivenObject.WarnReticle(height, this);
     }
@@ -95,20 +88,20 @@ public class PlasmaFragMissile extends AbstractMissile{
         }
 
 
-        if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) ||
-            target.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
-            proximityMinDistance = 0;
+        if (target.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO) ||
+            target.type.contains(ObjectType.BATTLE_SHIP)) {
+            proximityMinGateDistance = 0;
         }
         else {
-            proximityMinDistance = defaultproximityMinDistance;
+            proximityMinGateDistance = defaultproximityMinDistance;
         }
 
 
 
 
         // перед подрывом разворот в сторону цели
-        if (distToTarget <  proximityMinDistance*2.5  &&
-            distToTarget > proximityMinDistance) {
+        if (distToTarget <  proximityMinGateDistance *2.5  &&
+            distToTarget > proximityMinGateDistance) {
 
             float maxPrjVel = 500;  // Задаем начальную скорость "тестовой" пули
             BPU.GuideResult gr = pbu.guideMissile(this, target, maxPrjVel, dt);
@@ -134,7 +127,7 @@ public class PlasmaFragMissile extends AbstractMissile{
 //        // отключено
 //        // взвод направленного подрыва
 //        // находимся от носителя дальше безопасного расстояния
-//        else if (distToTarget < proximityMinDistance &&
+//        else if (distToTarget < proximityMinGateDistance &&
 //                 distToCarrier > proximitySafeDistance) {
 //
 //            //shapedExplosion = true;
@@ -167,6 +160,7 @@ public class PlasmaFragMissile extends AbstractMissile{
         for (int i = 0; i < fragCount; i++) {
 
             Projectile frag = new PlasmaFragment(2.1f, 0.5f, new Color(1f, 0.8f, 0.2f, 1), owner);
+            //Projectile frag = new EmpFragment(2.1f, 0.5f, new Color(1f, 0.8f, 0.2f, 1), owner);
             frag.setMass(frag.getMass()*4);
 
 

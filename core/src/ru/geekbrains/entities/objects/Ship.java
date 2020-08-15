@@ -20,10 +20,10 @@ public abstract class Ship extends DrivenObject {
         fuel = 100;
         mass = 1;
 
-        healthRegenerationCoefficient = 0.0003f;
+        setHealthRegenerationCoefficient(0.0003f);
         setMaxHealth(3f);
         
-        damage = getMaxHealth();
+        damage = getMaxHealth() / 2;
         armour = 1;
         penetration = 1;
 
@@ -36,7 +36,6 @@ public abstract class Ship extends DrivenObject {
 
         super.update(dt);
 
-
         // regenerating fuel
         if (fuel < maxFuel) {
             fuel += fuelGeneration;
@@ -46,6 +45,7 @@ public abstract class Ship extends DrivenObject {
         if (health < maxHealth) {
             health += healthGeneration;
         }
+
 
     }
 

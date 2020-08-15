@@ -5,13 +5,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.projectile.missile.AbstractMissile;
 import ru.geekbrains.entities.projectile.missile.EmpMissile;
 import ru.geekbrains.entities.projectile.missile.Missile;
 import ru.geekbrains.entities.weapons.launchers.MissileLauncher;
 import ru.geekbrains.entities.weapons.gun.CourseGun;
 
-public class MainEnemyShip extends AbstractEnemyShip {
+public class MainShip extends AbstractAIShip {
 
 
 
@@ -19,7 +18,7 @@ public class MainEnemyShip extends AbstractEnemyShip {
 
 
 
-    public MainEnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
+    public MainShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
         setMaxFuel(300f);
@@ -28,22 +27,26 @@ public class MainEnemyShip extends AbstractEnemyShip {
         setMaxHealth(4.5f);
         damage = getMaxHealth();
 
-        type.add(ObjectType.MAIN_ENEMY_SHIP);
+        type.add(ObjectType.MAIN_SHIP);
 
         //guideSystem = new GuideSystem(this);
 
         //gun.fireRate = 1f;
-        //gun.coolingGunDelta = 40;
+
 
         // tuning gun
         CourseGun gun = (CourseGun)componentList.get(CompNames.COURSE_GUN);
-        gun.setFireRate(0.01f);
+        gun.setFireRate(0.1f);
+        gun.maxGunHeat = 110;
+        gun.coolingGunDelta = 1.8f;
 
 
         // tuning launcher
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
         launcher.addAmmoType(() -> new EmpMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2, owner));
-        launcher.init();
+
+        // re-init all weapons
+        init();
 
 
         //gun.fireRate = 0.1f;

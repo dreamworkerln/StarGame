@@ -3,10 +3,6 @@ package ru.geekbrains.entities.objects.enemies;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
@@ -20,22 +16,18 @@ import ru.geekbrains.entities.weapons.FlakCannon;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.gun.CourseGun;
 import ru.geekbrains.entities.weapons.launchers.AntiMissileLauncher;
-import ru.geekbrains.screen.GameScreen;
 
-public class BattleEnemyShip extends AbstractEnemyShip {
+public class BattleShip extends AbstractAIShip {
 
-    private List<GameObject> targetList = new ArrayList<>();
-
-
-    public BattleEnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
+    public BattleShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
-        type.add(ObjectType.BATTLE_ENEMY_SHIP);
+        type.add(ObjectType.BATTLE_SHIP);
         avoidWallCoeff = 2;
 
         setMass(10f);
-        setMaxHealth(100);
-        healthGeneration *= 0.7;
+        setMaxHealth(200);
+        healthGeneration *= 0.5;
 
         setMaxFuel(10000f);
         fuelConsumption =10;
@@ -45,7 +37,7 @@ public class BattleEnemyShip extends AbstractEnemyShip {
         damage = 5f;
         penetration = 1;
         armour = 1;
-        maxRotationSpeed = 0.03f;
+        setMaxRotationSpeed(0.03f);
 
         //guideSystem = new GuideSystem(this);
 
@@ -60,7 +52,7 @@ public class BattleEnemyShip extends AbstractEnemyShip {
         gun.gunHeatingDelta = 30;
         gun.maxGunHeat = 200;
         gun.coolingGunDelta = 2f;
-        gun.ammoTypeList.clear();
+        gun.ammoProducer.clear();
         gun.addAmmoType(() -> {
             Shell shell = new Shell(gun.getCalibre(), gun.getCalibre()/8, owner);
             //shell.setDamage(bullet.getDamage()*4);
@@ -69,10 +61,9 @@ public class BattleEnemyShip extends AbstractEnemyShip {
             //shell.setExplosionRadius(bullet.getExplosionRadius()/3f);
             return shell;
         });
-        gun.init();
 
         Minigun minigun = new Minigun(4, this);
-        minigun.ammoTypeList.clear();
+        minigun.ammoProducer.clear();
         minigun.addAmmoType(() -> {
             Bullet bullet = new Bullet(15, owner);
             bullet.setDamage(bullet.getDamage()*4);
@@ -88,18 +79,27 @@ public class BattleEnemyShip extends AbstractEnemyShip {
         flakCannon.fireRate = 0.015f;
         flakCannon.setCalibre(8);
         flakCannon.setFiringMode(FlakCannon.FiringMode.ANTI_KINETIC);
-        flakCannon.ammoTypeList.clear();
+        flakCannon.ammoProducer.clear();
 
-        flakCannon.addAmmoType(() -> new PlasmaFlakShell(flakCannon.getCalibre(), 2, Color.GOLD, owner));
+        flakCannon.addAmmoType(() -> {
+            PlasmaFlakShell shell = new PlasmaFlakShell(flakCannon.getCalibre(), 2, Color.GOLD, owner);
+
+            shell.setMass(shell.getMass()*3);
+            shell.setFirePower(shell.getFirePower()*4);
+            shell.fragCount = 12;
+
+            return shell;
+
+        });
 
         flakCannon.addAmmoType(() -> {
             FlakShell shell = new FlakShell(flakCannon.getCalibre() * 1.5f, 2, Color.RED, owner);
             shell.setMass(shell.getMass()*10);
             shell.setFirePower(shell.getFirePower()*10);
             shell.shapedExplosion = false;
-            shell.fragCount = 15;
+            shell.fragCount = 100;
             shell.setDamage(5);
-            shell.setPenetration(0.5f);
+            shell.setPenetration(0.1f);
             return shell;
         });
         addComponent(CompNames.FLACK_CANNON,flakCannon);
@@ -107,6 +107,9 @@ public class BattleEnemyShip extends AbstractEnemyShip {
 
         AntiMissileLauncher antiLauncher = new AntiMissileLauncher(10, this);
         addComponent(CompNames.ANTI_LAUNCHER,antiLauncher);
+
+        // re-init all weapons
+        init();
 
         // I'm unstoppable!
         collisionAvoidFilter = o -> false;
@@ -120,21 +123,7 @@ public class BattleEnemyShip extends AbstractEnemyShip {
             return;
         }
 
-
-        // leave only ships and missiles
-        Predicate<GameObject> filter = o -> o != this && o.owner != this && o.side != this.side &&
-            (o.type.contains(ObjectType.SHIP) || o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE));
-
-        targetList = GameScreen.getCloseObjects(this, 4000, filter);
-
-
-//        targetList.removeIf(o -> o == this || o.owner == this || o.readyToDispose || o.side == this.side ||
-//            !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE));
-
-        target = null;
-        if(targetList.size() > 0) {
-            target = targetList.get(0);
-        }
+        selectTarget();
 
 
         WeaponSystem gun = weaponList.get(CompNames.COURSE_GUN);
@@ -181,7 +170,7 @@ public class BattleEnemyShip extends AbstractEnemyShip {
 
             // Acceleration
 
-            if(target != null && !target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            if(target != null && !target.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
                 acquireThrottle(maxThrottle/3);
             }
 
@@ -201,4 +190,5 @@ public class BattleEnemyShip extends AbstractEnemyShip {
             }
         }
     }
+
 }

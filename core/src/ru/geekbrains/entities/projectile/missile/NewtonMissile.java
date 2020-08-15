@@ -3,94 +3,36 @@ package ru.geekbrains.entities.projectile.missile;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.projectile.shell.BlackHoleBlastShell;
-import ru.geekbrains.entities.projectile.shell.BlackHoleShell;
-import ru.geekbrains.screen.GameScreen;
-import ru.geekbrains.screen.Renderer;
 
-public class NewtonMissile extends AbstractMissile {
-
-
-
-    public int fragCount;
+// located on carrier
+public class NewtonMissile extends NewtonTorpedo {
 
     public NewtonMissile(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
         this.type.add(ObjectType.GRAVITY_REPULSE_MISSILE);
 
-        selfdOnNoTargetAvailable = false;
-
-        explosionColor = new Color(0.3f, 0.3f, 0.7f, 0.4f);
-        explosionRadius = radius * 10;
-        engineTrail.color = Color.GREEN;
-
         armour = 1;
-        mass = 0.3f;
-        setMaxThrottle(18f);
+        engineTrail.color = new Color(0.6f, 0.6f, 0.8f, 1);
+        plasmaEmpDistribution = 0f;
+        setMaxThrottle(40f);
         setMaxHealth(20f);
-        maxRotationSpeed =  0.02f;
+        setMaxRotationSpeed(0.04f);
 
-        setMaxFuel(500);
-        fuelConsumption = 1;
+        selfdOnProximityMiss = false;
+        proximityMinDistance = 100;
 
-
-
-        engineTrail.setRadius(2);
-        damageBurnTrail.setRadius(5);
-
-        damage = 5f;
-        fragCount = 100;
-        penetration = 1f;
-
-        warnReticle = new DrivenObject.WarnReticle(height, this);
+        reloadTime = 500;
     }
 
-
     @Override
-    public void update(float dt) {
+    public void doDamage(float amount) {
+        super.doDamage(amount);
 
-        super.update(dt);
-
-        if (health < maxHealth/4) {
-
-            damageBurnTrail.color = Color.RED;
-            acquireThrottle(throttle / 2);
-            health -= maxHealth/10000f;
-
+        if (amount >=5f) {
+            readyToDispose = true;
         }
-
     }
-
-
-    @Override
-    public void dispose() {
-
-
-        BlackHoleBlastShell flakShell =  new BlackHoleBlastShell(5, 1, Color.GOLD, null);
-        flakShell.pos.set(pos);
-        flakShell.vel.set(vel);
-        flakShell.fragCount = fragCount;
-        flakShell.shapedExplosion = false;
-        flakShell.isEmpArmament = true;
-        flakShell.explosionPower = 10;
-        flakShell.empDamage = 100;
-        flakShell.setTTL(1);
-        GameScreen.addObject(flakShell);
-
-
-
-        BlackHoleShell shell =  new BlackHoleShell(10,  null);
-        shell.pos.set(pos);
-        shell.vel.set(vel);
-        GameScreen.addObject(shell);
-
-
-        super.dispose();
-    }
-
-
 }

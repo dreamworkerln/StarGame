@@ -1,11 +1,6 @@
 package ru.geekbrains.entities.weapons.launchers;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,25 +8,26 @@ import java.util.List;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.objects.PlayerShip;
 import ru.geekbrains.entities.projectile.Ammo;
-import ru.geekbrains.entities.projectile.missile.AbstractMissile;
-import ru.geekbrains.entities.projectile.missile.Missile;
 import ru.geekbrains.entities.weapons.gun.NonRotatableGun;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
-import ru.geekbrains.screen.RendererType;
 
 public abstract class AbstractMissileLauncher extends NonRotatableGun {
 
     public final static Texture MISSILE_TEXTURE = new Texture("M-45_missile2.png");
 
-    protected int sideLaunch = -1;
+    // количество пилонов в наличии (1,2)
+    protected int pylonCount = 2;
 
-    public int sideLaunchCount = 2;
+    // с какого пилона стреляем в данный момент 0 - левый, 1 - правый
+    protected int launchPylonNo = 0;
 
-    protected int repeatCount = 0;
-    protected int maxRepeatCount = 1;
+    // current fired missile in burst
+    protected int burstNo = 0;
+
+    //  burstFire size
+    protected int burstMax = pylonCount;
 
     public GameObject target = null;
 
@@ -39,20 +35,20 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
     protected List<GameObject> visualTargets = new ArrayList<>();
 
 
-    protected int launchCnt = 0;
+
 
 
     protected final int LAUNCH_DELAY_INITIAL = 20;
-    protected int launchDelay = LAUNCH_DELAY_INITIAL;  // задержка между запусками ракет при залпе (чтоб не попали друг в друга)
+
+    // задержка между запусками ракет с обоих пилонов (чтоб не попали друг в друга)
+    protected int launchDelay = LAUNCH_DELAY_INITIAL;
 
 
 
     protected long start = -1;
 
+    // launch backward
     protected boolean reverseLaunch;
-
-    //public MissileType missileType;
-
 
 
     public AbstractMissileLauncher(float height, GameObject owner) {
@@ -69,52 +65,92 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
 
     @Override
     public void update(float dt) {
+
         super.update(dt);
 
-        if (owner == null || owner.readyToDispose) {
+        if (owner == null || owner.readyToDispose || !enabled) {
             return;
+        }
+
+        if (firing) {
+            fire(dt);
+        }
+
+        // ---------------------------------------------------------
+
+
+        // повторный запуск с другого пилона  /  стрельба очередями
+
+        long tick = GameScreen.INSTANCE.getTick();
+
+        if (start > 0 && tick - start > launchDelay) {
+
+            if (burstNo >= burstMax) {
+
+                burstNo = 0;
+                start = -1;
+                reverseLaunch = false;
+                launchPylonNo = 0;
+            }
+            else {
+                fireInternal(dt);
+            }
+        }
+    }
+
+
+    @Override
+    protected void fire(float dt) {
+
+        if(!enabled) {
+            return;
+        }
+
+        // select targets to fire
+        selectTarget();
+
+        long tick = GameScreen.INSTANCE.getTick();
+
+        Ammo currentAmmo = ammoTemplateList.get(currentAmmoType);
+
+        //nozzlePos.set(dir).setLength(owner.getRadius() + currentAmmo.getRadius() + 10).add(pos);
+
+        if (firing && !overHeated && currentAmmo.getLastFired() + currentAmmo.getReloadTime() <= (long)(tick - 1/fireRate)) {
+
+            fireInternal(dt);
+            gunLastFired = tick;
+            currentAmmo.setLastFired(tick);
         }
     }
 
 
 
+    protected void fireInternal(float dt) {
 
-
-
-
-//    @Override
-//    protected void fire(float dt) {
-//
-//        repeatFire();
-//    }
-
-    @Override
-    protected void fire(float dt) {
-
-
-
-        // запуск двух ракет с задержкой
-        // (чтобы одна в другую не влетела при подлете к цели)
-        if (sideLaunchCount > 1) {
-            start = GameScreen.INSTANCE.getTick();
-        }
-        repeatCount++;
-
-
-        // ???
+        // вектор, сонаправленный пилонам
         tmp6.set(dir);
         if (reverseLaunch) {
             tmp6.scl(-1);
         }
 
+        selectTarget();
 
-
-        if (!selectTarget()) {
+        if(targetList.size() == 0) {
             return;
         }
 
 
-        // Duplicate first target - will get 2 shot on it
+        burstNo++;
+
+        // если два пилона, то запуск следущей ракеты с задержкой
+        // (чтобы одна в другую не влетела при подлете к цели)
+        // либо если стрельба очередью
+        if (burstNo < burstMax) {
+            start = GameScreen.INSTANCE.getTick();
+        }
+
+
+        // Duplicate shots on same target (first target) - will get 2 shot on it
         if(targetList.size() == 1) {
             targetList.add(targetList.get(0));
         }
@@ -122,6 +158,11 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
         playFireSound(0.35f);
 
         Ammo missile = createAmmo();
+
+
+        // -1 fire from left pylon, +1 fire from right pylon
+        int sideLaunch = launchPylonNo == 0 ? -1 : 1;
+
 
         tmp0.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
             .rotate(90*sideLaunch).add(owner.pos);
@@ -191,7 +232,7 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
         //tmp0.set(tmp6).setLength((missile.boost)).rotate(30*sideLaunch)/*.add(tmp1)*/; // force
 
         tmp0.set(tmp6).setLength(missile.getFirePower());
-        if (sideLaunchCount > 1) {
+        if (pylonCount > 1) {
             tmp0.rotate(10 * sideLaunch);
         }
 
@@ -201,7 +242,7 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
         }
 
 
-        if (missile.getType().contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+        if (missile.getType().contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
             tmp0.scl(3);
         }
 
@@ -210,25 +251,23 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
 
         //tmp0.set(dir).setLength(power);
 
+        launchPylonNo++;
+        if (launchPylonNo >= 2) {
+            launchPylonNo = 0;
+        }
 
         GameScreen.addAmmo(missile);
-
-
-        // invert launch side ---------------------------------------------
-        sideLaunch = -sideLaunch;
     }
 
 
-    protected boolean selectTarget() {
 
+    protected void selectTarget() {
+
+        targetList.clear();
         GameObject tmp = ((DrivenObject)owner).target;
-
-        if (tmp == null || tmp.readyToDispose){
-            return false;
+        if (tmp != null && !tmp.readyToDispose){
+            targetList.add(tmp);
         }
-
-        targetList.add(tmp);
-        return true;
     }
 
 
@@ -243,8 +282,12 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
 
     }
 
+    public void setPylonCount(int pylonCount) {
+        this.pylonCount = pylonCount;
+        burstMax = pylonCount;
+    }
 
-//    @Override
+    //    @Override
 //    public void draw(Renderer renderer) {
 //
 //        super.draw(renderer);
@@ -341,11 +384,11 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
 
 
 
-            //result =  new NewtonMissile(new TextureRegion(MISSILE_TEXTURE), 5, owner);
+            //result =  new NewtonTorpedo(new TextureRegion(MISSILE_TEXTURE), 5, owner);
 
             //result =  new PlasmaFragMissile(new TextureRegion(MISSILE_TEXTURE), 2.5f, owner);
         }
-        else if(owner.type.contains(ObjectType.MAIN_ENEMY_SHIP)) {
+        else if(owner.type.contains(ObjectType.MAIN_SHIP)) {
 
             float rnd = ThreadLocalRandom.current().nextFloat();
 
@@ -355,7 +398,7 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
                 result = new Missile(new TextureRegion(MISSILE_TEXTURE), 2, owner);
             }
         }
-        else if (owner.type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
+        else if (owner.type.contains(ObjectType.MISSILE_SHIP)) {
             result = new PlasmaFragMissile(new TextureRegion(MISSILE_TEXTURE), 2.5f, owner);
         }
 

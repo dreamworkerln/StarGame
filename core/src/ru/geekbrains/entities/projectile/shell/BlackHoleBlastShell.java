@@ -12,6 +12,8 @@ import ru.geekbrains.entities.projectile.frag.PlasmaFragment;
 
 public class BlackHoleBlastShell extends PlasmaFlakShell {
 
+    public float plasmaEmpDistribution = 0.5f;
+
     public BlackHoleBlastShell(float height, GameObject owner) {
         super(height, owner);
     }
@@ -30,7 +32,7 @@ public class BlackHoleBlastShell extends PlasmaFlakShell {
 
         Fragment result;
 
-        if (isEmpArmament && ThreadLocalRandom.current().nextFloat() > 0.5) {
+        if (isEmpArmament && ThreadLocalRandom.current().nextFloat() > plasmaEmpDistribution) {
             result =  new EmpFragment(2, 0.3f,  owner);
         }
         else {

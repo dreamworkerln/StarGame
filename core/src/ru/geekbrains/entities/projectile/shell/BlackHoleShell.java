@@ -7,10 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.projectile.Projectile;
-import ru.geekbrains.entities.projectile.frag.EmpFragment;
 import ru.geekbrains.entities.projectile.frag.Fragment;
-import ru.geekbrains.entities.projectile.frag.PlasmaFragment;
 import ru.geekbrains.screen.GameScreen;
 
 public class BlackHoleShell extends Shell {
@@ -50,9 +47,9 @@ public class BlackHoleShell extends Shell {
         super.update(dt);
 
 
-        List<GameObject> targets = GameScreen.getCloseObjects(this, 350, o -> !o.type.contains(ObjectType.BATTLE_ENEMY_SHIP));
+        List<GameObject> targets = GameScreen.getCloseObjects(this, 350, o -> !o.type.contains(ObjectType.BATTLE_SHIP));
 
-        //targets.removeIf(o -> o.type.contains(ObjectType.BATTLE_ENEMY_SHIP));
+        //targets.removeIf(o -> o.type.contains(ObjectType.BATTLE_SHIP));
 
 //        if(age < 10) {
 //            targets.forEach(o -> {
@@ -60,7 +57,7 @@ public class BlackHoleShell extends Shell {
 //                if (o == this) return;
 //
 //
-//                if (o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+//                if (o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
 //
 //                    tmp1.set(o.pos).sub(pos);
 //                    if (tmp1.len() < 1) {

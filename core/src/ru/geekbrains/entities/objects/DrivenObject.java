@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
 
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
@@ -34,6 +36,11 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     protected Map<CompNames,ShipComponent> componentList = new HashMap<>();
     protected Map<CompNames, WeaponSystem> weaponList = new HashMap<>();
 
+    protected List<GameObject> targetList = new ArrayList<>();
+
+
+    protected Long stunEnd = null; // in ticks
+    boolean shouldBlowup = false; // no component recovery
 
     protected BPU pbu = new BPU();
 
@@ -68,6 +75,9 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
     protected DummyObject dummy;
 
+    // fragments fly away on explosion
+    //protected int fragmentCount = 50;
+
     //protected boolean doAvoidPlanet = false;
 
     public DrivenObject(TextureRegion textureRegion, float height, GameObject owner) {
@@ -85,7 +95,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         damageBurnTrail.isStatic = true;
         smokeTrailList.add(damageBurnTrail);
 
-        maxRotationSpeed = 0.05f;
+        setMaxRotationSpeed(0.05f);
 
         rendererType.add(RendererType.TEXTURE);
         rendererType.add(RendererType.SHAPE);
@@ -103,10 +113,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     public void update(float dt) {
 
 
-        // ~~~~~~~~~~~~~~
         super.update(dt);
-        // ~~~~~~~~~~~~~~
-
 
         for (ShipComponent component : componentList.values()) {
             component.update(dt);
@@ -163,7 +170,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         tailVec.set(dir);
         tailVec.scl(-radius * aspectRatio);
 
-        if(type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
+        if(type.contains(ObjectType.BATTLE_SHIP)) {
             tailVec.scl(0.9f);
         }
 
@@ -201,6 +208,14 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         }
 
         warnReticle.update(dt);
+
+
+        // врубаем обратно компоненты после EMP удара по истечении врмени на восстановление
+        if (stunEnd!= null && GameScreen.INSTANCE.getTick() > stunEnd) {
+            stunEnd = null;
+            enableComponents(true);
+        }
+
     }
 
 
@@ -215,6 +230,44 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     }
 
 
+    protected void selectTarget() {
+
+        if(target != null && target.readyToDispose) {
+            target = null;
+        }
+
+        if(target == null) {
+
+            // leave only ships and missiles
+            Predicate<GameObject> filter = o -> o != this && o.owner != this && o.side != this.side &&
+                (o.type.contains(ObjectType.SHIP) || o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO) ||
+                    o.type.contains(ObjectType.PLAYER_KERMAN));
+
+            targetList = GameScreen.getCloseObjects(this, 4000, filter);
+
+
+//        targetList.removeIf(o -> o == this || o.owner == this || o.readyToDispose || o.side == this.side ||
+//            !o.type.contains(ObjectType.SHIP) && !o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO));
+
+            //target = null;
+
+            if (targetList.size() > 0) {
+
+                if (targetList.get(0).type.contains(ObjectType.PLAYER_KERMAN)) {
+
+                    if (ThreadLocalRandom.current().nextFloat() >= 0.9992) {
+                        target = targetList.get(0);
+                    }
+                    else if(targetList.size() > 1) {
+                        target = targetList.get(1);
+                    }
+                }
+                else {
+                    target = targetList.get(0);
+                }
+            }
+        }
+    }
 
 
 
@@ -257,10 +310,13 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         if(this.type.contains(ObjectType.MISSILE)) {
             minImpactTime = 0.8f;
         }
-        if(this.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+        if(this.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
             minImpactTime = 1.8f;
         }
-        if(this.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
+        if(this.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            minImpactTime = 0.7f;
+        }
+        if(this.type.contains(ObjectType.BATTLE_SHIP)) {
             minImpactTime = 2.5f;
         }
 
@@ -337,10 +393,11 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             st.radius = radius * 0.4f;
 
             if (this.type.contains(ObjectType.MISSILE)) {
-                st.radius = 0.5f;
+                st.radius = radius * 0.1f;
             }
-
-
+            else if (this.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
+                st.radius = radius * 0.2f;
+            }
         }
     }
 
@@ -461,6 +518,40 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     }
 
 
+    // enable/disable components
+    public void enableComponents(boolean enable) {
+
+        if(shouldBlowup) {
+            return;
+        }
+
+        for (ShipComponent component : componentList.values()) {
+            component.enable(enable);
+        }
+
+        engineOnline = enable;
+
+        maxRotationSpeed = enable ? factoryMaxRotationSpeed : 0;
+        healthRegenerationCoefficient = enable ? factoryHealthRegenerationCoefficient : 0;
+    }
+
+
+    public void empStun(long tickCount) {
+
+        if(stunEnd != null) {
+            stunEnd += tickCount;
+        }
+        else {
+            stunEnd = GameScreen.INSTANCE.getTick() + tickCount;
+        }
+        
+        enableComponents(false);
+    }
+
+    public boolean isShouldBlowup() {
+        return shouldBlowup;
+    }
+
     @Override
     public void dispose() {
 
@@ -488,6 +579,9 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     }
 
 
+    // =======================================================================
+
+
 
     protected static class WarnReticle extends ParticleObject {
 
@@ -504,10 +598,10 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
             if(owner.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
                 thickness = 3;
             }
-            else if(owner.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+            else if(owner.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
                 thickness = 1;
             }
-            else if(owner.type.contains(ObjectType.MISSILE_ENEMY_SHIP)) {
+            else if(owner.type.contains(ObjectType.MISSILE_SHIP)) {
                 thickness = 2.0f;
             }
         }
@@ -534,7 +628,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
 
             // draw warn Marker
-             if (renderer.rendererType != RendererType.SHAPE) {
+            if (renderer.rendererType != RendererType.SHAPE) {
                 return;
             }
 
@@ -619,4 +713,11 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     public void setTarget(GameObject target) {
         this.target = target;
     }
+
+
+    public Map<CompNames, ShipComponent> getComponentList() {
+        return componentList;
+    }
+
+
 }

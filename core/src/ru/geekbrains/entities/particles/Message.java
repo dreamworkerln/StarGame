@@ -40,6 +40,9 @@ public class Message extends GameObject {
             this.expired = Long.MAX_VALUE;
             pos.set(rightBound  * 2- 300 , 0);
         }
+        else if (ps == -1) {
+            pos.set(0, 40);
+        }
 
         rendererType.add(RendererType.FONT);
     }

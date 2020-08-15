@@ -23,23 +23,4 @@ public class MissileLauncher extends AbstractMissileLauncher {
         addAmmoType(() -> new Missile(new TextureRegion(MISSILE_TEXTURE), 2, owner));
     }
 
-    @Override
-    public void update(float dt) {
-        super.update(dt);
-
-        if (start > 0 && GameScreen.INSTANCE.getTick() - start > launchDelay) {
-
-            fire(dt);
-
-            if (repeatCount >= maxRepeatCount) {
-
-                repeatCount = 0;
-                start = -1;
-                reverseLaunch = false;
-                launchCnt = 0;
-            }
-        }
-
-
-    }
 }

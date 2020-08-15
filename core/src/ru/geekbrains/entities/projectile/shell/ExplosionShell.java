@@ -32,7 +32,7 @@ public class ExplosionShell extends FlakShell {
         fragTrailSize = 1f;
         damage = 0;
         penetration = 0f;
-        fragCount = 50;
+        fragCount = 30;
         fragTTL = 50;
 
 

@@ -21,6 +21,12 @@ public abstract class Projectile extends GameObject implements SmokeTrailList, A
 
     protected List<SmokeTrail> smokeTrailList = new ArrayList<>();
 
+    // дополнительное время на перезараядку  данного боеприпаса
+    protected int reloadTime = 0;
+
+    // когда последний раз стреляли данным типом боеприпаса
+    protected long lastFired = Long.MIN_VALUE;
+
     public Projectile(float height, GameObject owner) {
         super(owner, height);
 
@@ -180,5 +186,23 @@ public abstract class Projectile extends GameObject implements SmokeTrailList, A
         return 0;
     }
 
+    @Override
+    public int getReloadTime() {
+        return reloadTime;
+    }
 
+    @Override
+    public void setReloadTime(int reloadTime) {
+        this.reloadTime = reloadTime;
+    }
+
+    @Override
+    public long getLastFired() {
+        return lastFired;
+    }
+
+    @Override
+    public void setLastFired(long lastFired) {
+        this.lastFired = lastFired;
+    }
 }

@@ -62,10 +62,10 @@ public class Minigun extends RotatableGun {
         isModule = true;
 
         addAmmoType(() -> new Bullet(calibre, owner));
-        //ammoTypeList.put(Bullet.class, bullet);
+        //ammoProducer.put(Bullet.class, bullet);
 
         //maxRotationSpeed = 0.1f;
-        maxRotationSpeed = 1f;
+        setMaxRotationSpeed(1f);
 
         radius = 50;
         setCalibre(2);
@@ -98,6 +98,7 @@ public class Minigun extends RotatableGun {
 
         super.update(dt);
 
+
         nozzlePos.set(dir).setLength(5).add(pos);
 
 //
@@ -111,12 +112,24 @@ public class Minigun extends RotatableGun {
         // getting target
         if (owner != null && !owner.readyToDispose) {
 
-            Predicate<GameObject> filter = o -> o != owner && o.owner != owner && !o.readyToDispose && o.side != owner.side &&
-                (o.type.contains(ObjectType.MISSILE) || o.type.contains(ObjectType.SHIP))
+
+
+            Predicate<GameObject> filter = o -> o != owner /*&& o.owner != owner*/ && !o.readyToDispose  &&
+                (o.type.contains(ObjectType.MISSILE) || o.type.contains(ObjectType.SHIP) && o.side != owner.side )
                 && !o.type.contains(ObjectType.ANTIMISSILE);
 
+                //&& o.side != owner.side
 
             targetList = GameScreen.getCloseObjects(owner, maxRange, filter);
+
+            targetList.removeIf(o -> {
+                tmp1.set(o.pos).sub(owner.pos);
+                tmp4.set(o.vel).sub(owner.vel);
+                return tmp1.dot(tmp4) > 0;
+            });
+
+
+
 
 
 
@@ -135,14 +148,14 @@ public class Minigun extends RotatableGun {
 //
 //                if (!o.type.contains(ObjectType.MISSILE) &&
 //                    !o.type.contains(ObjectType.SHIP) ||
-//                    o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+//                    o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
 //
 //                    continue;
 //                }
 
                 //tmp1.set(o.pos).sub(owner.pos);
 
-                Ammo currentAmmo = ammoCache.get(currentAmmoType);
+                Ammo currentAmmo = ammoTemplateList.get(currentAmmoType);
 
                 if (owner != null && !owner.readyToDispose) {
                     float maxPrjVel = currentAmmo.getFirePower() / currentAmmo.getMass() * dt;  // Задаем начальную скорость пули
@@ -219,10 +232,10 @@ public class Minigun extends RotatableGun {
                     }
 
                     float radiusCoeff = 2.1f;
-                    if (entry.getValue().target.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
-                        radiusCoeff = 10;
-
-                    }
+//                    if (entry.getValue().target.type.contains(ObjectType.PLASMA_FRAG_MISSILE)) {
+//                        radiusCoeff = 10;
+//
+//                    }
 
                     // check collision missile to ship  (-50%)
                     tmp0.set(ship.pos).sub(missile.pos);
@@ -262,7 +275,7 @@ public class Minigun extends RotatableGun {
 
         if (target != null && !target.readyToDispose) {
 
-            Ammo currentAmmo = ammoCache.get(currentAmmoType);
+            Ammo currentAmmo = ammoTemplateList.get(currentAmmoType);
             float maxPrjVel = currentAmmo.getFirePower() / currentAmmo.getMass() * dt;
             BPU.GuideResult gr = pbu.guideGun(owner, target, maxPrjVel, dt);
             guideVector.set(gr.guideVector);
@@ -429,29 +442,12 @@ public class Minigun extends RotatableGun {
         else {
             stopFire();
         }
+
+
+
     }
 
 
-
-//    @Override
-//    protected void rotate() {
-//
-//        // ToDo: перенести в GameObject.update()
-//        // rotation dynamics --------------------------------
-//        // Aiming
-//        if (!guideVector.isZero()) {
-//
-//            // angle between direction and guideVector
-//            float guideAngle = dir.angleRad(guideVector);
-//
-//            float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
-//
-//            if (guideAngle < 0) {
-//                doAngle = -doAngle;
-//            }
-//            dir.rotateRad(doAngle);
-//        }
-//    }
 
 
     @Override
@@ -599,3 +595,26 @@ public class Minigun extends RotatableGun {
 */
 
 }
+
+
+
+
+//    @Override
+//    protected void rotate() {
+//
+//        // ToDo: перенести в GameObject.update()
+//        // rotation dynamics --------------------------------
+//        // Aiming
+//        if (!guideVector.isZero()) {
+//
+//            // angle between direction and guideVector
+//            float guideAngle = dir.angleRad(guideVector);
+//
+//            float doAngle = Math.min(Math.abs(guideAngle), maxRotationSpeed);
+//
+//            if (guideAngle < 0) {
+//                doAngle = -doAngle;
+//            }
+//            dir.rotateRad(doAngle);
+//        }
+//    }

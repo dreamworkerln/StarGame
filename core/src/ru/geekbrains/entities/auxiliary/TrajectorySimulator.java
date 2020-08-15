@@ -60,6 +60,7 @@ public class TrajectorySimulator extends ShipComponent {
 
     }
 
+
     public void update(float dt) {
 
         // if target is dead exit
@@ -170,7 +171,16 @@ public class TrajectorySimulator extends ShipComponent {
         shape.flush();
         //shape.end();
     }
-    
+
+    @Override
+    public void enable(boolean enable) {
+        super.enable(enable);
+
+        if(enable) {
+            this.target = owner;
+        }
+
+    }
 
     @Override
     public void init() {

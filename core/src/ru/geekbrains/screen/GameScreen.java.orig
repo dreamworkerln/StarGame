@@ -40,7 +40,7 @@ import ru.geekbrains.entities.particles.Message;
 import ru.geekbrains.entities.particles.SmokeTrailList;
 import ru.geekbrains.entities.projectile.missile.EmpMissile;
 import ru.geekbrains.entities.projectile.missile.Missile;
-import ru.geekbrains.entities.projectile.missile.NewtonMissile;
+import ru.geekbrains.entities.projectile.missile.NewtonTorpedo;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Reticle;

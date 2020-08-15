@@ -16,12 +16,10 @@ import java.util.function.Predicate;
 import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.interfaces.AntiLauncherSystem;
 import ru.geekbrains.entities.projectile.Ammo;
-import ru.geekbrains.entities.projectile.missile.AbstractMissile;
 import ru.geekbrains.entities.projectile.missile.AntiMissile;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.screen.GameScreen;
-import ru.geekbrains.screen.Renderer;
 
 
 // система наведения и сопровождения целей - треш технологии, надо переписать
@@ -59,8 +57,35 @@ public class AntiMissileLauncher extends AbstractMissileLauncher implements Anti
     }
 
 
+
     @Override
     protected void fire(float dt) {
+
+        if(!enabled) {
+            return;
+        }
+
+        //selectTarget();
+
+
+        long tick = GameScreen.INSTANCE.getTick();
+
+        Ammo currentAmmo = ammoTemplateList.get(currentAmmoType);
+
+        //nozzlePos.set(dir).setLength(owner.getRadius() + currentAmmo.getRadius() + 10).add(pos);
+
+        if (firing && !overHeated && currentAmmo.getLastFired() + currentAmmo.getReloadTime() <= (long)(tick - 1/fireRate)) {
+
+            fireInternal(dt);
+            gunLastFired = tick;
+            currentAmmo.setLastFired(tick);
+        }
+    }
+
+
+
+    @Override
+    protected void fireInternal(float dt) {
 
         guideVector.setZero();
 
@@ -68,7 +93,7 @@ public class AntiMissileLauncher extends AbstractMissileLauncher implements Anti
             return;
         }
 
-        Ammo currentAmmo = ammoCache.get(currentAmmoType);
+        Ammo currentAmmo = ammoTemplateList.get(currentAmmoType);
 
 
         // 2f - some empiric fix
@@ -80,7 +105,6 @@ public class AntiMissileLauncher extends AbstractMissileLauncher implements Anti
         //BPU.GuideResult gr = pbu.guideGun(owner, target, maxPrjVel, dt);
         if (!gr.guideVector.isZero()) {
             guideVector.set(gr.guideVector.nor());
-
         }
         else {
             return;
@@ -194,6 +218,8 @@ public class AntiMissileLauncher extends AbstractMissileLauncher implements Anti
     @Override
     public void update(float dt) {
 
+        super.update(dt);
+
 //
 //        // clear current target
 //        if (target != null && target.readyToDispose) {
@@ -250,8 +276,8 @@ public class AntiMissileLauncher extends AbstractMissileLauncher implements Anti
         inboundMissiles.clear();
 
 
-        Predicate<GameObject> filter =  o -> !o.readyToDispose && o != owner && o.owner != owner &&
-            o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)
+        Predicate<GameObject> filter =  o -> !o.readyToDispose && o != owner && o.owner != owner  && o.side != owner.side &&
+            o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)
             && !o.type.contains(ObjectType.ANTIMISSILE);
 
         targets = GameScreen.getCloseObjects(owner, maxRange, filter);
@@ -270,7 +296,7 @@ public class AntiMissileLauncher extends AbstractMissileLauncher implements Anti
                 continue;
             }
 
-            Ammo currentAmmo = ammoCache.get(currentAmmoType);
+            Ammo currentAmmo = ammoTemplateList.get(currentAmmoType);
 
             float maxAcc = currentAmmo.getMaxThrottle() / currentAmmo.getMass();
             //BPU.GuideResult gr = pbu.guideGun(this, trg, maxPrjVel, dt);
@@ -386,8 +412,6 @@ public class AntiMissileLauncher extends AbstractMissileLauncher implements Anti
         else {
             stopFire();
         }
-
-        super.update(dt);
     }
 
 

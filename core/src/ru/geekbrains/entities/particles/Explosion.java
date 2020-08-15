@@ -8,10 +8,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import java.util.List;
 import java.util.Set;
 
+import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.shell.ExplosionShell;
-import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
 import ru.geekbrains.screen.RendererType;
@@ -82,10 +82,10 @@ public class Explosion extends ParticleObject {
             shell.acc = owner.vel.cpy();
             shell.setTTL(0);
 
-            if(owner.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
+            if(owner.type.contains(ObjectType.BATTLE_SHIP)) {
                 shell.fragCount = 200;
-                shell.fragTTL = 100;
-                shell.explosionPower = 15;
+                shell.fragTTL = 50;
+                shell.explosionPower = 20;
             }
 
 
@@ -187,7 +187,7 @@ public class Explosion extends ParticleObject {
             shape.setColor();
         }
 
-        if(objType.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+        if(objType.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
 
             float a = shape.getColor().a;
             shape.setColor();

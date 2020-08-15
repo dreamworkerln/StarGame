@@ -26,7 +26,7 @@ public class AntiMissile extends AbstractMissile {
         damage = 0.5f;
         firePower = 200f;
 
-        maxRotationSpeed = 0.03f;
+        setMaxRotationSpeed(0.03f);
         currentMaxRotationSpeed = maxRotationSpeed;
 
 

@@ -1,9 +1,6 @@
 package ru.geekbrains.entities.projectile.missile;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.List;
 import java.util.NavigableMap;
@@ -14,14 +11,8 @@ import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.objects.DrivenObject;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
-import ru.geekbrains.entities.particles.ParticleObject;
 import ru.geekbrains.entities.projectile.Ammo;
-import ru.geekbrains.entities.projectile.Projectile;
 import ru.geekbrains.screen.GameScreen;
-import ru.geekbrains.screen.Renderer;
-import ru.geekbrains.screen.RendererType;
-
-import static ru.geekbrains.screen.GameScreen.INSTANCE;
 
 public class AbstractMissile extends DrivenObject implements Ammo {
 
@@ -59,19 +50,29 @@ public class AbstractMissile extends DrivenObject implements Ammo {
 
 
     // Начинаются вычисления на дистанционный подрыв при сокращении дистанции до цели меньше этой величины
-    protected float proximityMinDistance = 0;
+    // при времени пробного снаряда, меньшего proximityMinDistanceTime производится подрыв
+    protected float proximityMinGateDistance = 0;
 
     // Скорость пробного снаряда для определения времени столкновения
-    protected float proximityMinDistanceVel = 100;
+    //protected float proximityMinDistanceVel = 100;
 
     // Производится дистанционный подрыв при сокращении времени столкновения с целью меньше этой величины
     protected float proximityMinDistanceTime = 1;
+
+    // Производится дистанционный подрыв при сокращении расстояния с целью меньше этой величины
+    protected float proximityMinDistance = 0;
 
 
     // наводится ли по прямой, если по pbu наведение невозможно
     protected boolean directGuiding = true;
 
     protected int retargetCount = 0;
+
+    // time needed to prepare missile to launch itself (extends missile launcher self reload time)
+    protected int reloadTime = 0;
+
+    // когда последний раз стреляли данным типом боеприпаса
+    protected long lastFired = Long.MIN_VALUE;
 
 
     // список целей для перенацеливания
@@ -136,7 +137,7 @@ public class AbstractMissile extends DrivenObject implements Ammo {
             // search new target
 
 
-            Predicate<GameObject> filter = t-> (t.type.contains(ObjectType.SHIP) || t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) &&
+            Predicate<GameObject> filter = t-> (t.type.contains(ObjectType.SHIP) || t.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) &&
                 !t.readyToDispose &&
                 t != this &&
                 t.side != side &&
@@ -149,7 +150,7 @@ public class AbstractMissile extends DrivenObject implements Ammo {
             // leave only BASIC_ENEMY_SHIP in targets;
             //ToDO: implement friend or foe radar recognition system
             // Or all will fire to enemy ships only
-//            targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) ||
+//            targets.removeIf(t -> (!t.type.contains(ObjectType.SHIP) && !t.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) ||
 //                t.readyToDispose ||
 //                t == this ||
 //                t.side == side ||
@@ -271,10 +272,10 @@ public class AbstractMissile extends DrivenObject implements Ammo {
 //        }
 
 
-        // explode on min distance to target
+        // explode on min impact time to target
         // находимся от носителя дальше безопасного расстояния
         if (target != null && !this.readyToDispose &&
-            distToTarget < proximityMinDistance &&
+            distToTarget < proximityMinGateDistance &&
             distToCarrier > proximitySafeDistance) {
 
             //float maxVel = proximityMinDistanceVel;
@@ -291,6 +292,15 @@ public class AbstractMissile extends DrivenObject implements Ammo {
 //            guideVector.set(tmp0);
 
 
+        }
+
+        // explode on min distance to target
+        // находимся от носителя дальше безопасного расстояния
+        if (target != null && !this.readyToDispose &&
+            distToTarget < proximityMinDistance &&
+            distToCarrier > proximitySafeDistance) {
+
+            this.readyToDispose = true;
         }
 
 
@@ -354,5 +364,22 @@ public class AbstractMissile extends DrivenObject implements Ammo {
         return maxThrottle;
     }
 
+    @Override
+    public int getReloadTime() {
+        return reloadTime;
+    }
 
+    public void setReloadTime(int reloadTime) {
+        this.reloadTime = reloadTime;
+    }
+
+    @Override
+    public long getLastFired() {
+        return lastFired;
+    }
+
+    @Override
+    public void setLastFired(long lastFired) {
+        this.lastFired = lastFired;
+    }
 }

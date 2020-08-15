@@ -111,7 +111,9 @@ public class ForceShield extends ShipComponent {
     @Override
     public void enable(boolean enable) {
 
-        power = 0;
+        if (!enable) {
+            power = 0;
+        }
         powerIncrementDelta = enable ? factoryPowerIncrementDelta : 0;
     }
 

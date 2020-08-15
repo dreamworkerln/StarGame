@@ -34,7 +34,7 @@ public class JebediahKerman extends DrivenObject {
         setMaxThrottle(2f);
         setMaxHealth(1f);
         guideVector.set(dir);
-        maxRotationSpeed = 0.08f;
+        setMaxRotationSpeed(0.08f);
 
         TrajectorySimulator trajectorySim = new TrajectorySimulator(this, this);
 
@@ -117,7 +117,7 @@ public class JebediahKerman extends DrivenObject {
         playerShip.guideVector.set(playerShip.dir);
         GameScreen.addObject(playerShip);
 
-        Message msg = new Message("You have got new ship, proceed", 0);
+        Message msg = new Message("You have got new ship, proceed", -1);
         GameScreen.INSTANCE.particleObjects.add(msg);
     }
 

@@ -55,8 +55,10 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     public float mass = 1;                          // mass
     //public float momentInertia = 1;               // moment of inertia
 
-    protected Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
-    public float maxRotationSpeed = 0; // maximum rotation speed
+    public Vector2 guideVector = new Vector2(); // вектор куда нужно целиться
+
+    protected float factoryMaxRotationSpeed = 0;
+    protected float maxRotationSpeed = 0; // maximum rotation speed
 
     public float explosionRadius;
 
@@ -77,8 +79,9 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     protected float health;                       // текущий запас прочности корпуса(health)
     protected float maxHealth = 0;               // максимальный запас прочности корпуса(health)
-    public float healthGeneration = 0;               // регенерация здоровья
-    public float healthRegenerationCoefficient = 0;  // коэффициент регенерации
+    protected float healthGeneration = 0;               // регенерация здоровья
+    protected float healthRegenerationCoefficient = 0;  // коэффициент регенерации
+    protected float factoryHealthRegenerationCoefficient = 0;
 
 
     public float damage = 0;
@@ -427,6 +430,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     public void setHealthRegenerationCoefficient(float healthRegenerationCoefficient) {
         this.healthRegenerationCoefficient = healthRegenerationCoefficient;
+        factoryHealthRegenerationCoefficient = healthRegenerationCoefficient;
     }
 
     public float getDamage() {
@@ -459,6 +463,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
 
     public void setMaxRotationSpeed(float maxRotationSpeed) {
         this.maxRotationSpeed = maxRotationSpeed;
+        this.factoryMaxRotationSpeed = maxRotationSpeed;
     }
 
     public Color getExplosionColor() {
@@ -512,4 +517,10 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     public Set<ObjectType> getType() {
         return type;
     }
+
+    public ObjectSide getSide() {return side;}
+
+    public void setSide(ObjectSide side) {this.side = side;}
+
+
 }

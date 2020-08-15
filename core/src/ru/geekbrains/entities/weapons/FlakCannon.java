@@ -80,7 +80,7 @@ public class FlakCannon extends RotatableGun {
 
         maxRange = 1500f;
         maxImpactTime = 5f;
-        maxRotationSpeed = 0.1f;
+        setMaxRotationSpeed(0.1f);
 
         firingMode = FiringMode.AUTOMATIC;
         firingModeOld = FiringMode.AUTOMATIC;
@@ -99,7 +99,6 @@ public class FlakCannon extends RotatableGun {
     public FiringMode getFiringMode() {
         return firingMode;
     }
-
 
 
 
@@ -146,7 +145,7 @@ public class FlakCannon extends RotatableGun {
 //
 //            for(GameObject o : targetList) {
 //
-//                if(o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+//                if(o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
 //
 //                    missilesList = GameScreen.getCloseObjects(o, 100);
 //
@@ -154,7 +153,7 @@ public class FlakCannon extends RotatableGun {
 //                    missilesList.removeIf( g -> g == owner || g.owner == owner || g.readyToDispose);
 //
 //                    missilesList = missilesList.stream().filter(g -> g.type.contains(ObjectType.MISSILE) &&
-//                        !g.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)).collect(Collectors.toList());
+//                        !g.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)).collect(Collectors.toList());
 //
 //                    if (missilesList.size() >=2) {
 //
@@ -173,17 +172,17 @@ public class FlakCannon extends RotatableGun {
 //                (o.type.contains(ObjectType.SHIP)  || o.type.contains(ObjectType.BASIC_MISSILE)) &&
 //                    (firingMode == FiringMode.AUTOMATIC || firingMode == FiringMode.FLAK_ONLY) ||
 //
-//                    (/*o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) ||*/ o.type.contains(ObjectType.SHIP))
+//                    (/*o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO) ||*/ o.type.contains(ObjectType.SHIP))
 //                        && (firingMode == FiringMode.AUTOMATIC || firingMode == FiringMode.PLASMA_ONLY)
 //
 //            ).collect(Collectors.toList());
 
             targetList = targetList.stream().filter(o ->  o.type.contains(ObjectType.SHIP)  ||
                 o.type.contains(ObjectType.BASIC_MISSILE) ||
-                o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE))
+                o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO))
                 .collect(Collectors.toList());
 
-            Ammo currentAmmo = ammoCache.get(currentAmmoType);
+            Ammo currentAmmo = ammoTemplateList.get(currentAmmoType);
 
             for (GameObject o : targetList) {
 
@@ -227,7 +226,7 @@ public class FlakCannon extends RotatableGun {
 //                tmp1.set(o.pos).sub(pos);
 //
 //                if (entry.getValue().impactTime < maxImpactTime/2f &&
-//                    o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+//                    o.type.contains(ObjectType.MISSILE) && !o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
 //
 //                    missileCount.incrementAndGet();
 //                }
@@ -288,7 +287,7 @@ public class FlakCannon extends RotatableGun {
 
                     case AUTOMATIC:
                         impactTimes.entrySet().removeIf(e ->
-                            e.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE));
+                            e.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO));
                         break;
 
                     case PLASMA_ONLY:
@@ -348,7 +347,7 @@ public class FlakCannon extends RotatableGun {
                                     continue;
                                 }
 
-                                Ammo currentAmmo = ammoCache.get(currentAmmoType);
+                                Ammo currentAmmo = ammoTemplateList.get(currentAmmoType);
 
                                 float maxPrjVel = currentAmmo.getFirePower() / currentAmmo.getMass() * dt;  // Задаем начальную скорость пули
                                 BPU.GuideResult gr = pbu.guideGun(owner, m, maxPrjVel, dt);
@@ -415,7 +414,7 @@ public class FlakCannon extends RotatableGun {
                             dummy.acc.set(tmp6);
                             dummy.type.addAll(o.type);
 
-                            Ammo currentAmmo = ammoCache.get(currentAmmoType);
+                            Ammo currentAmmo = ammoTemplateList.get(currentAmmoType);
 
                             float maxPrjVel = currentAmmo.getFirePower() / currentAmmo.getMass() * dt;  // Задаем начальную скорость пули
                             BPU.GuideResult gr = pbu.guideGun(owner, dummy, maxPrjVel, dt);
@@ -445,7 +444,7 @@ public class FlakCannon extends RotatableGun {
 
 //        impactTimes.entrySet().removeIf(fg ->
 //
-//            (fg.getValue().target.type.contains(ObjectType.SHIP) || fg.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) &&
+//            (fg.getValue().target.type.contains(ObjectType.SHIP) || fg.getValue().target.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) &&
 //                fg.getKey() > 5
 //        );
 
@@ -473,11 +472,11 @@ public class FlakCannon extends RotatableGun {
             if (target.type.contains(ObjectType.SHIP)) {
                 currentAmmoType = PlasmaFlakShell.class;
 
-            } else if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && firingMode != FiringMode.ANTI_KINETIC) {
+            } else if (target.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO) && firingMode != FiringMode.ANTI_KINETIC) {
                 currentAmmoType = PlasmaFlakShell.class;
                 fuseMultiplier = 0.8f; // 0.8
             }
-            else if (target.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && firingMode == FiringMode.ANTI_KINETIC) {
+            else if (target.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO) && firingMode == FiringMode.ANTI_KINETIC) {
                 currentAmmoType = FlakShell.class;
                 fuseMultiplier = 100f;
             }
@@ -507,7 +506,9 @@ public class FlakCannon extends RotatableGun {
     }
 
 
-//    @Override
+
+
+    //    @Override
 //    public void rotate() {
 //
 //        // ToDo: перенести в GameObject.update()
@@ -557,7 +558,7 @@ public class FlakCannon extends RotatableGun {
 
 
 
-            if(owner.type.contains(ObjectType.BATTLE_ENEMY_SHIP)) {
+            if(owner.type.contains(ObjectType.BATTLE_SHIP)) {
 
                 result = new FlakShell(calibre, 2, Color.RED, owner);
                 result.power =

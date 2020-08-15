@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.Set;
 
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectSide;
 import ru.geekbrains.entities.objects.ObjectType;
 
 public interface Ammo {
@@ -92,7 +93,17 @@ public interface Ammo {
 
     Set<ObjectType> getType();
 
+    ObjectSide getSide();
+
+    void setSide(ObjectSide side);
+
     float getMaxThrottle();
+
+    int getReloadTime();
+    void setReloadTime(int tick);
+
+    long getLastFired();
+    void setLastFired(long tick);
 
 
     default void copyTo(Ammo ammo) {
@@ -113,6 +124,7 @@ public interface Ammo {
         ammo.setHealthGeneration(getHealthGeneration());
         ammo.setHealthRegenerationCoefficient(getHealthRegenerationCoefficient());
         ammo.setOwner(getOwner());
+        ammo.setSide(getSide());
     }
 
 

@@ -16,8 +16,9 @@ import ru.geekbrains.entities.equipment.BPU;
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.equipment.ForceShield;
 import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
-import ru.geekbrains.entities.objects.enemies.BattleEnemyShip;
 import ru.geekbrains.entities.particles.Message;
+import ru.geekbrains.entities.projectile.missile.EmpMissile;
+import ru.geekbrains.entities.projectile.missile.NewtonMissile;
 import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
 import ru.geekbrains.entities.projectile.shell.FlakShell;
 import ru.geekbrains.entities.projectile.shell.Shell;
@@ -52,13 +53,12 @@ public class PlayerShip extends Ship {
 
 
     static SoundPlay hic;
-    static SoundPlay hib25, hib50;
+    static SoundPlay hib5, hib25, hib50;
     static SoundPlay decin321;
 
 
     PlayList playList = new PlayList();
 
-    boolean shouldBlowup = false;
     long blowupTick = -1;
 
     boolean kermanSaved = false;
@@ -86,9 +86,9 @@ public class PlayerShip extends Ship {
 
         // tuning gun
         CourseGun gun = (CourseGun)componentList.get(CompNames.COURSE_GUN);
-        gun.maxGunHeat = 300;
-        gun.drift = 0.03f;
-        gun.burst= 6;
+        gun.maxGunHeat = 400;
+        gun.drift = 0.05f;
+        gun.burst= 8;
 
 
         trajectorySim = new TrajectorySimulator(this, this);
@@ -97,18 +97,21 @@ public class PlayerShip extends Ship {
         minigun = new Minigun(4, this);
         launcher = new PlayerMissileLauncher(10, this);
         launcher.addAmmoType(() -> new PlasmaFragMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2.5f, owner));
+        launcher.addAmmoType(() -> new EmpMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2, owner));
+        launcher.addAmmoType(() -> new NewtonMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 5, owner));
+
+
         antiLauncher = new AntiMissileLauncher(10, this);
+
         flakCannon = new FlakCannon(10, this);
 
-        flakCannon.ammoTypeList.remove(FlakShell.class);
+        flakCannon.ammoProducer.remove(FlakShell.class);
         flakCannon.addAmmoType(() -> {
             FlakShell shell = new FlakShell(flakCannon.getCalibre(), 1, Color.RED, owner);
-            shell.isReadyElements = true;
+            shell.isReadyElements = true;  // replace default flack shell to that one with prepared elements
             return shell;
         });
 
-
-        //flakCannon = new FlakCannon(10, this);
 
         addComponent(CompNames.SIM_TRAJECTORY, trajectorySim);
         addComponent(CompNames.SIM_GUN, gunSim);
@@ -117,6 +120,9 @@ public class PlayerShip extends Ship {
         addComponent(CompNames.LAUNCHER,launcher);
         addComponent(CompNames.ANTI_LAUNCHER,antiLauncher);
         addComponent(CompNames.FLACK_CANNON,flakCannon);
+
+        // re-init all weapons
+        init();
 
         // -----------------------------------------------------------------------------------------
 
@@ -133,6 +139,8 @@ public class PlayerShip extends Ship {
         hic = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_compromised_2.mp3")), 2664, SoundPlay.SoundType.HEALTH_HALF);
         hib50 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_below_50_2.mp3")), 3265, SoundPlay.SoundType.HEALTH_HALF);
         hib25 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("hull_bridge_integrity_below_25_2.mp3")), 3541, SoundPlay.SoundType.HEALTH_LOW);
+        hib5 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("damn_capisy_piloting2.mp3")), 1741, SoundPlay.SoundType.HEALTH_VERY_LOW);
+
         decin321 = new SoundPlay(Gdx.audio.newSound(Gdx.files.internal("decompression_is_imminent_in_321_2.mp3")), 4748, SoundPlay.SoundType.HEALTH_DEAD);
 
     }
@@ -251,11 +259,6 @@ public class PlayerShip extends Ship {
 
         playList.update(dt);
 
-        if (GameScreen.INSTANCE.bossShip != null && !GameScreen.INSTANCE.bossShip.readyToDispose) {
-
-            ((TrajectorySimulator)componentList.get(CompNames.SIM_GUN)).baseIterationCount = 3000;
-        }
-
     }
 
     private void spawnKerman() {
@@ -306,6 +309,11 @@ public class PlayerShip extends Ship {
                 playList.add(soundPlay);
             }
 
+            soundPlay = hib5;
+            if (newHealth < maxHealth * 0.1) {
+                playList.add(soundPlay);
+            }
+
             if (newHealth <= 0) {
                 evacuateShip();
             }
@@ -328,16 +336,10 @@ public class PlayerShip extends Ship {
         playList.clear();
         playList.add(soundPlay);
 
+        enableComponents(false);
         shouldBlowup = true;
+
         blowupTick = GameScreen.INSTANCE.getTick() + soundPlay.durationTick;
-
-        maxRotationSpeed = 0;
-        healthRegenerationCoefficient = 0;
-        engineOnline = false;
-
-        for (ShipComponent component : componentList.values()) {
-            component.enable(false);
-        }
     }
 
     //    @Override
@@ -468,7 +470,7 @@ public class PlayerShip extends Ship {
         playList.clear();
 
         if(kermanSaved) {
-            Message msg = new Message("Safely land Kerman to planet to construct new ship", 0);
+            Message msg = new Message("Safely land Kerman to planet to construct new ship", -1);
             GameScreen.INSTANCE.particleObjects.add(msg);
             spawnKerman();
         }

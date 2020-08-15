@@ -22,13 +22,13 @@ public class EmpMissile extends AbstractMissile {
         fuel = 30;
         setMaxThrottle(4f);
         setMaxHealth(0.02f);
-        maxRotationSpeed =  0.05f;
+        setMaxRotationSpeed(0.05f);
         damage = 0.5f;
         penetration = 1;
         explosionRadius = radius * 4;
 
         isEmpArmament = true;
-        empDamage = 2000;
+        empDamage = 3000;
     }
 
 

@@ -1,6 +1,5 @@
 package ru.geekbrains.entities.objects.enemies;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.List;
@@ -17,10 +16,9 @@ import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
 import ru.geekbrains.entities.weapons.launchers.MissileLauncher;
 import ru.geekbrains.screen.GameScreen;
 import ru.geekbrains.screen.Renderer;
-import ru.geekbrains.screen.RendererType;
 
 
-public abstract class AbstractEnemyShip extends Ship {
+public abstract class AbstractAIShip extends Ship {
 
     protected float avoidCollisionImpactTime = 1f;
     protected float avoidCollisionAngle = (float) ThreadLocalRandom.current().nextDouble(25, 60);
@@ -34,26 +32,27 @@ public abstract class AbstractEnemyShip extends Ship {
     protected WeaponSystem launcher;
     protected float avoidWallCoeff = 2;
 
-    public AbstractEnemyShip(TextureRegion textureRegion, float height, GameObject owner) {
+    public AbstractAIShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
 
         side = ObjectSide.ENEMIES;
 
         setMaxFuel(300);
 
-        type.add(ObjectType.ENEMY_SHIP);
+        type.add(ObjectType.AI_SHIP);
 
         // -----------------------------------------------
         MissileLauncher missileLauncher = new MissileLauncher(10, this);
-        missileLauncher.sideLaunchCount = 2;
+        missileLauncher.setPylonCount(2);
         addComponent(CompNames.LAUNCHER, missileLauncher);
 
         launcher = weaponList.get(CompNames.LAUNCHER);
 
 
         collisionAvoidFilter = o -> o != this && !o.readyToDispose && !o.type.contains(ObjectType.PLAYER_SHIP) &&
-            (o.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) || o.type.contains(ObjectType.SHIP));
+            (o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO) || o.type.contains(ObjectType.SHIP));
     }
+
 
     @Override
     protected void guide(float dt) {
@@ -62,6 +61,8 @@ public abstract class AbstractEnemyShip extends Ship {
             return;
         }
 
+        // выбираем цель
+        selectTarget();
 
         WeaponSystem gun = weaponList.get(CompNames.COURSE_GUN);
 

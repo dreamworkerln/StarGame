@@ -28,10 +28,17 @@ import ru.geekbrains.screen.RendererType;
 public abstract class AbstractGun extends ShipComponent implements GunSystem {
 
 
-    public LinkedHashMap<Class<? extends Ammo>, Supplier<Ammo>> ammoTypeList = new LinkedHashMap<>();
+    // производитель боеприпасов через Supplier
+    // типы поддерживаемых боеприпасов настраиваются до использования оружия
+    // в конце инициализации нужно вызвать weapon.init();  (нет DI контейнера)
+    public LinkedHashMap<Class<? extends Ammo>, Supplier<Ammo>> ammoProducer = new LinkedHashMap<>();
 
-    public HashMap<Class<? extends Ammo>, Ammo> ammoCache = new HashMap<>();
 
+    // хранит поддерживаемые типы боеприпасов оружия, с их индивидуальными настройками
+    // кеш доступных боеприпасов, их параметры используются BPU для баллистических расчетов выстрела
+    protected HashMap<Class<? extends Ammo>, Ammo> ammoTemplateList = new HashMap<>();
+
+    // тип боеприпаса, которым стреляем в данный момент
     protected Class<? extends Ammo> currentAmmoType;
 
 
@@ -48,12 +55,20 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
     public float coolingGunDelta = 2;
     public int   maxGunHeat = 200;
 
+    // multibarrel / multipylon system, время перезарядки делится на число стволов
+    // соотв если два ствола, то перезарядка начнется когда выстрелят из обоих
+    // перегрев будет считаться с каждого выстрела (если нужно, задай maxGunHeat*=barrelCount)
+    //public int barrelUsed = 0;
+    //public int barrelCount = 1;
 
-    protected long lastFired;
+
+    //protected long lastFired;
     //public long lastFiredBurst;
 
     protected float blastRadius;
     public float maxBlastRadius;
+
+    protected long gunLastFired = -1;
 
 
     public Vector2 nozzlePos;
@@ -82,9 +97,6 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
         isModule = true;
 
         this.dir.set(owner.dir);
-
-        lastFired = -1000;
-        //lastFiredBurst = -1000;
         nozzlePos = new Vector2();
         setCalibre(this.calibre);
     }
@@ -106,7 +118,7 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
 
     @Override
     public Ammo getFiringAmmo() {
-        return ammoCache.get(currentAmmoType);
+        return ammoTemplateList.get(currentAmmoType);
     }
 
     @Override
@@ -138,17 +150,9 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
             return;
         }
 
+        nozzlePos.set(dir).setLength(owner.getRadius() + 10).add(pos);
 
-
-        long tick = GameScreen.INSTANCE.getTick();
-
-        Ammo currentAmmo = ammoCache.get(currentAmmoType);
-
-        nozzlePos.set(dir).setLength(owner.getRadius() + currentAmmo.getRadius() + 10).add(pos);
-
-        if (firing && !overHeated && lastFired <= (long)(tick - 1/fireRate)) {
-
-            lastFired = GameScreen.INSTANCE.getTick();
+        if (firing) {
             fire(dt);
         }
 
@@ -165,9 +169,11 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
 
 
         // animation
-        long frame = GameScreen.INSTANCE.getTick() - lastFired;
+        long frame = GameScreen.INSTANCE.getTick() - gunLastFired;
+        frame = frame > 5 ? frame : 0;
 
         blastRadius = maxBlastRadius - maxBlastRadius * ((frame - 5) / 5f);
+
 
 
 
@@ -183,15 +189,16 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
 //            blastRadius = 0;
 //        }
 
+
+
     }
 
 
     /**
      * Will produce new ammo of currentAmmoType type
      */
-    private Ammo selectAmmo() {
-        return ammoTypeList.get(currentAmmoType).get();
-
+    private Ammo produceAmmo() {
+        return ammoProducer.get(currentAmmoType).get();
     }
 
 
@@ -202,14 +209,19 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
     protected Ammo createAmmo() {
 
         Ammo result;
-        Ammo template = ammoCache.get(currentAmmoType);
-        result = selectAmmo();
+        Ammo template = ammoTemplateList.get(currentAmmoType);
+
+        if(template == null) {
+            throw new RuntimeException("Ammo " + currentAmmoType.getSimpleName() + " not equipped in " + this.getClass().getSimpleName());
+        }
+
+        //System.out.println(currentAmmoType);
+        result = produceAmmo();
         template.copyTo(result);
         result.setOwner(owner);
+        result.setSide(owner.side);
         return result;
     }
-
-
 
 
     protected void fire(float dt) {
@@ -217,6 +229,20 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
         if(!enabled) {
             return;
         }
+
+        long tick = GameScreen.INSTANCE.getTick();
+
+        Ammo currentAmmo = ammoTemplateList.get(currentAmmoType);
+
+        nozzlePos.set(dir).setLength(owner.getRadius() + currentAmmo.getRadius() + 10).add(pos);
+
+
+        if (overHeated || currentAmmo.getLastFired() + currentAmmo.getReloadTime() > (long)(tick - 1/fireRate)) {
+            return;
+        }
+
+        gunLastFired = tick;
+        currentAmmo.setLastFired(tick);
 
 
         if (burst == 1) {
@@ -279,6 +305,7 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
 
             GameScreen.addAmmo(ammo);
 
+
             gunHeat+= gunHeatingDelta;
 
             // trigger for gun overheating
@@ -321,6 +348,7 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
         shape.circle(nozzlePos.x, nozzlePos.y, blastRadius);
 
 
+
 //        shape.set(ShapeRenderer.ShapeType.Line);
 //        shape.setColor(1f, 1f, 1f, 1);
 //        shape.circle(nozzlePos.x, nozzlePos.y, 3);
@@ -359,32 +387,32 @@ public abstract class AbstractGun extends ShipComponent implements GunSystem {
 //        firingAmmoType = createProjectile();
 //    }
 
+    /**
+     * Добавить тип поддерживаемых боеприпасов в оружие
+     * @param supplier
+     */
     public void addAmmoType(Supplier<Ammo> supplier) {
 
         // йохо-хо ублюдки, чтобы узнать тип ракеты, мы ей стреляем в сборщик мусора
         Class<? extends Ammo> type = supplier.get().getClass();
 
-        ammoTypeList.put(type, supplier);
+        ammoProducer.put(type, supplier);
     }
-
-
-
-
-    // костыли, нарушение подстановки Лискова, выделить базовый функционал в класс abstract BaseMissileLauncher
-    // в абстрактный  метод playLaunchSound()
 
 
     protected void playFireSound(float vol) {
         gunFire.play(vol);
     }
 
+
+    // Call this после того как установил все типы поддерживаемых боеприпасов для оружия
     @Override
     public void init() {
-        currentAmmoType = ammoTypeList.entrySet().iterator().next().getKey();
+        currentAmmoType = ammoProducer.entrySet().iterator().next().getKey();
 
-        ammoCache.clear();
-        for (Map.Entry<Class<? extends Ammo>, Supplier<Ammo>> entry : ammoTypeList.entrySet()) {
-            ammoCache.put(entry.getKey(), entry.getValue().get());
+        ammoTemplateList.clear();
+        for (Map.Entry<Class<? extends Ammo>, Supplier<Ammo>> entry : ammoProducer.entrySet()) {
+            ammoTemplateList.put(entry.getKey(), entry.getValue().get());
         }
     }
 

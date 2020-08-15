@@ -34,7 +34,8 @@ public class SoundPlay {
 
         HEALTH_HALF(1),
         HEALTH_LOW(2),
-        HEALTH_DEAD(3);
+        HEALTH_VERY_LOW(3),
+        HEALTH_DEAD(4);
 
         private int status;
 
