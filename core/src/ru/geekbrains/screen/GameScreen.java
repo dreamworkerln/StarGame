@@ -148,6 +148,7 @@ public class GameScreen extends BaseScreen {
     private QuadTree<GameObject> quadTree;
 
     private boolean win = false;
+    private boolean doWarpJump = false;
     private boolean finalBattleBegin = false;
 
     //private Message msgRemains;
@@ -556,7 +557,7 @@ public class GameScreen extends BaseScreen {
     private void gameEvents() {
 
         // spawn boss
-        if  (!music.isPlaying() && !finalBattleBegin) {
+        if  (!music.isPlaying() && !finalBattleBegin && !win) {
             finalBattle();
         }
 
@@ -569,24 +570,14 @@ public class GameScreen extends BaseScreen {
 
                 musicLastStand.stop();
 
-                ForceShield shield = playerShip.getShield();
-
                 Message msg = new Message("You win", 0);
                 particleObjects.add(msg);
                 //music = null;
-
-                // haaaack - make player ship invincible while warp jumping
-                gameObjects.remove(playerShip);
-                hittableObjects.remove(playerShip);
-
-                gameObjects.remove(shield);
-                hittableObjects.remove(shield);
-
-                particleObjects.add(playerShip);
                 win = true;
+                doWarpJump = true;
             }
             else {
-                if (playerShip.isShouldBlowup() || kerman != null && !kerman.readyToDispose) {
+                if (playerShip.isShouldBlowup() && !playerShip.readyToDispose || kerman != null && !kerman.readyToDispose) {
 
                     musicLastStand.stop();
 
@@ -594,6 +585,7 @@ public class GameScreen extends BaseScreen {
                     particleObjects.add(msg);
 
                     win = true;
+                    doWarpJump = true;
                 }
             }
 
@@ -601,16 +593,28 @@ public class GameScreen extends BaseScreen {
 
 
         // override manual throttle level
-        if (win) {
+        if(doWarpJump && !playerShip.readyToDispose && !playerShip.isShouldBlowup()) {
+
+            ForceShield shield = playerShip.getShield();
+
+            // haaaack - make player ship invincible while warp jumping
+            gameObjects.remove(playerShip);
+            hittableObjects.remove(playerShip);
+            gameObjects.remove(shield);
+            hittableObjects.remove(shield);
+            particleObjects.add(playerShip);
+
+
+
             playerShip.maxThrottle = 500;
             playerShip.throttle = playerShip.maxThrottle;
 
-            // removing player ship
-            if (!playerShip.readyToDispose &&
-                playerShip.pos.len() > 2000) {
-
-                playerShip.readyToDispose = true;
-            }
+//            // removing player ship
+//            if (!playerShip.readyToDispose &&
+//                playerShip.pos.len() > 2000) {
+//
+//                playerShip.readyToDispose = true;
+//            }
         }
     }
 
@@ -1757,37 +1761,37 @@ public class GameScreen extends BaseScreen {
 
             case 4:
                 // SPECIALIST
-                ENEMY_RESPAWN_TIME = 1500;
+                ENEMY_RESPAWN_TIME = 1700;
                 ENEMIES_COUNT_IN_WAVE = 6;
                 break;
 
             case 5:
                 // IMPERIAL NAVY ENSIGN
-                ENEMY_RESPAWN_TIME = 1800;
+                ENEMY_RESPAWN_TIME = 1900;
                 ENEMIES_COUNT_IN_WAVE = 8;
                 break;
 
             case 6:
                 // IMPERIAL NAVY LIEUTENANT
-                ENEMY_RESPAWN_TIME = 2000;
+                ENEMY_RESPAWN_TIME = 2100;
                 ENEMIES_COUNT_IN_WAVE = 10;
                 break;
 
             case 7:
                 // IMPERIAL NAVY LORD-LIEUTENANT
-                ENEMY_RESPAWN_TIME = 2200;
+                ENEMY_RESPAWN_TIME = 2300;
                 ENEMIES_COUNT_IN_WAVE = 12;
                 break;
 
             case 8:
                 // IMPERIAL NAVY COMMANDER
-                ENEMY_RESPAWN_TIME = 2400;
+                ENEMY_RESPAWN_TIME = 2600;
                 ENEMIES_COUNT_IN_WAVE = 14;
                 break;
 
             case 9:
                 // IMPERIAL NAVY CAPITAN
-                ENEMY_RESPAWN_TIME = 2500;
+                ENEMY_RESPAWN_TIME = 2800;
                 ENEMIES_COUNT_IN_WAVE = 16;
                 break;
 
