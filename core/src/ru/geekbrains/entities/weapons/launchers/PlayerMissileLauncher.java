@@ -122,6 +122,7 @@ public class PlayerMissileLauncher extends MissileLauncher {
         // if first target is NewtonTorpedo/MissileShip - remove other targets
         if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
             burstMax = 4;
+            launchDelay = 15;
             currentAmmoType = Missile.class;
             if(burstNo == 0 ) {
                 currentAmmoType = EmpMissile.class;

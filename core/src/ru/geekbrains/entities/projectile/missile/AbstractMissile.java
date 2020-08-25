@@ -316,8 +316,16 @@ public class AbstractMissile extends DrivenObject implements Ammo {
 
             acquireThrottle(maxThrottle);
 
-            // Максимальное возможное ускорение ракеты своим движком
+            // Максимальное возможное ускорение ракеты своим движком с текущей тягой
             float maxAcc = throttle / mass;
+
+            
+            // trash code (перенести это все в класс предка?)
+            // противоракета может специально сбрасывать тягу при подлете для более точного наведения
+            // но в вычислениях PBU надо учитывать максимально возможную а не теущую тягу
+            if(this.getClass() == AntiMissile.class) {
+                maxAcc = maxThrottle / mass;
+            }
 
             guideResult = pbu.guideMissile(this, target, maxAcc, dt);
 

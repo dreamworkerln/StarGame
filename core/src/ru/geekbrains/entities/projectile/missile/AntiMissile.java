@@ -34,13 +34,12 @@ public class AntiMissile extends AbstractMissile {
         canRetarget = false;
         selfdOnNoFuel = true;
         selfdOnProximityMiss = true;
-        avoidPlanet = false;
+        avoidPlanet = false;        
 
         proximityMissMinGateDistance = 500;
         proximityMissMaxSelfdDistance = 10;
 
         penetration = 0.1f;
-
         directGuiding = false;
 
     }
@@ -59,21 +58,20 @@ public class AntiMissile extends AbstractMissile {
         }
 
 
-
         if (guideResult != null) {
-
 
             tmp0.set(target.vel);
             float relVel = tmp1.set(vel).sub(tmp0).len();
 
+
             // включаем режим маневрирования маневровыми движками
             // Если скоро столкновение и скоросить сближения велика
-            if (guideResult.impactTime < 0.7f && relVel > tmp0.len() * 2) {
+            // (или наведение отъехало)
+            if(Double.isNaN(guideResult.impactTime) || guideResult.impactTime < 0.7f && relVel > tmp0.len() * 2) {
 
-                currentMaxRotationSpeed = (float) (2 * Math.PI);
-
-                currentMaxRotationSpeed = 0.03f;
-                acquireThrottle(maxThrottle/3);
+                //currentMaxRotationSpeed = (float) (2 * Math.PI);
+                //currentMaxRotationSpeed = 0.03f;
+                acquireThrottle(maxThrottle/2);
 
             }
             else {
@@ -81,7 +79,28 @@ public class AntiMissile extends AbstractMissile {
                 acquireThrottle(maxThrottle);
             }
 
+
+
+
+//            // включаем режим маневрирования маневровыми движками
+//            // Если скоро столкновение и скоросить сближения велика
+//            //if (guideResult.impactTime < 0.7f && relVel > tmp0.len() * 2) {
+//
+//            if (guideResult.impactTime < 0.7f) {
+//                currentMaxRotationSpeed = (float) (2 * Math.PI);
+//
+//                //currentMaxRotationSpeed = 0.03f;
+//                acquireThrottle(maxThrottle/5);
+//
+//            }
+//            else {
+//                currentMaxRotationSpeed = maxRotationSpeed;
+//                acquireThrottle(maxThrottle);
+//            }
+
         }
+        
+
 
 
 

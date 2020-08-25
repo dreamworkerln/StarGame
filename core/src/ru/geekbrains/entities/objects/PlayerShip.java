@@ -61,7 +61,7 @@ public class PlayerShip extends Ship {
 
     long blowupTick = -1;
 
-    boolean kermanSaved = false;
+    public boolean kermanSaved = false;
 
 
 

@@ -8,6 +8,9 @@ import org.apache.commons.math3.analysis.solvers.UnivariateSolver;
 import org.apache.commons.math3.exception.NoBracketingException;
 
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.Planet;
+import ru.geekbrains.math.Vector2D;
+import ru.geekbrains.screen.GameScreen;
 
 /**
  * Ballistic processing unit
@@ -17,6 +20,10 @@ public class BPU {
     private AimFunctionGun gf;
     private AimFunctionMissile mf;
     private UnivariateSolver nonBracketing;
+
+
+    Vector2 tmp0 = new Vector2();
+    Vector2 tmp1 = new Vector2();
 
     public BPU() {
 
@@ -178,6 +185,8 @@ public class BPU {
 
     public GuideResult guideMissile(GameObject owner, GameObject target, float maxAcc, float dt) {
 
+
+
         if (owner == null || owner.readyToDispose ||
                 target == null || target.readyToDispose) {
 
@@ -220,6 +229,19 @@ public class BPU {
         // почему так лучше работает - я хз
         mf.ax = target.acc.x /*- owner.acc.x*/;
         mf.ay = target.acc.y /*- owner.acc.y*/;
+
+        GameScreen.getPlanetE(target, GameScreen.INSTANCE.planet, tmp0);
+        mf.ax += tmp0.x;
+        mf.ay += tmp0.y;
+
+
+        GameScreen.getPlanetE(owner, GameScreen.INSTANCE.planet, tmp0);
+        mf.ax -= tmp0.x;
+        mf.ay -= tmp0.y;
+
+
+
+
 
         result.impactTime = Double.NaN;
         result.target = null;

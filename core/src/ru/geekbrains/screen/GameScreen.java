@@ -62,6 +62,7 @@ public class GameScreen extends BaseScreen {
     public static final float BACKGROUND_SIZE = 2050f;
     private static Vector2 tmp0s = new Vector2();
     private static Vector2 tmp1s = new Vector2();
+    private static Vector2 tmp1a = new Vector2();
 
     public static GameScreen INSTANCE = null;
 
@@ -148,8 +149,10 @@ public class GameScreen extends BaseScreen {
     private QuadTree<GameObject> quadTree;
 
     private boolean win = false;
+    private boolean loose = false;
     private boolean doWarpJump = false;
-    private boolean finalBattleBegin = false;
+    private boolean finalBattleInProcess = false;
+    private boolean finalBattleHappened = false;
 
     //private Message msgRemains;
     private Music music;
@@ -309,20 +312,14 @@ public class GameScreen extends BaseScreen {
 
     private void update(float dt) {
 
+
 //        // debug
 //        if (getTick() == 0) {
 //            finalBattle();
 //        }
 
-        // debug
-        if (getTick() == 0) {
-
-            //finalBattle();
-
-        }
-
         // spawn enemy ship
-        if (getTick() % ENEMY_RESPAWN_TIME == 0 && !finalBattleBegin) {
+        if (getTick() % ENEMY_RESPAWN_TIME == 0 /*&& !finalBattleInProcess*/) {
 
             for (int i = 0; i < ENEMIES_COUNT_IN_WAVE; i++) {
                 spawnEnemyShip();
@@ -330,7 +327,7 @@ public class GameScreen extends BaseScreen {
         }
 
         // spawn ally ship
-        if (getTick() % ENEMY_RESPAWN_TIME == 0 && !finalBattleBegin) {
+        if (getTick() % ENEMY_RESPAWN_TIME == 0 /*&& !finalBattleInProcess*/) {
 
             spawnAllyShipList();
         }
@@ -409,6 +406,10 @@ public class GameScreen extends BaseScreen {
         hittableObjects.add(planet);
 
         for (GameObject obj : gameObjects) {
+
+            if(Math.abs(obj.pos.x) > 5000 || Math.abs(obj.pos.y) > 5000) {
+                continue;
+            }
 
             quadTree.set(obj.pos.x, obj.pos.y, obj);
 
@@ -557,13 +558,21 @@ public class GameScreen extends BaseScreen {
     private void gameEvents() {
 
         // spawn boss
-        if  (!music.isPlaying() && !finalBattleBegin && !win) {
+        if  (!music.isPlaying() && !finalBattleHappened) {
             finalBattle();
         }
 
+        if((playerShip != null && playerShip.readyToDispose && !playerShip.kermanSaved  ||
+           kerman!= null && kerman.readyToDispose && kerman.shouldExplode) && !loose) {
+
+            Message msg = new Message("You loose", 0);
+            particleObjects.add(msg);
+            loose = true;
+        }
+
         // check win
-        if (finalBattleBegin && enemyBossList.size() == 0) {
-            finalBattleBegin = false;
+        if (finalBattleInProcess && enemyBossList.size() == 0) {
+            finalBattleInProcess = false;
 
 
             if (!playerShip.readyToDispose && !playerShip.isShouldBlowup()) {
@@ -784,6 +793,40 @@ public class GameScreen extends BaseScreen {
         if (obj == planet)
             return;
 
+        getPlanetE(obj, planet, tmp1a);
+        tmp0s.set(tmp1a.scl(obj.getMass()));
+        obj.applyForce(tmp0s);
+
+
+
+//        // Newton's law of universal gravitation
+//        // F = G * m1*m2/r^2;
+//
+//        tmp1s.set(planet.pos).sub(obj.pos);
+//
+//        float G = 2f;
+//        //float G = 0f;
+//
+//        float divider = tmp1s.len2();
+//        // avoid division by zero
+//        if (divider < 1)
+//            divider = 1f;
+//
+//        tmp0s.set(tmp1s.setLength(G*planet.getMass() * obj.getMass()/divider));
+//        obj.applyForce(tmp0s);
+    }
+
+
+    /**
+     * Напряженность гравитационного поля
+     * @param obj GameObject
+     * @param planet Planet
+     */
+    public static void getPlanetE(GameObject obj, Planet planet, Vector2 a) {
+
+        if (obj == planet)
+            return;
+
         // Newton's law of universal gravitation
         // F = G * m1*m2/r^2;
 
@@ -793,12 +836,11 @@ public class GameScreen extends BaseScreen {
         //float G = 0f;
 
         float divider = tmp1s.len2();
-        // avoid division by zero 
+        // avoid division by zero
         if (divider < 1)
             divider = 1f;
 
-        tmp0s.set(tmp1s.setLength(G*planet.getMass() * obj.getMass()/divider));
-        obj.applyForce(tmp0s);
+        a.set(tmp1s.setLength(G*planet.getMass()/divider));
     }
 
 
@@ -1586,7 +1628,8 @@ public class GameScreen extends BaseScreen {
 
     private void finalBattle() {
 
-        finalBattleBegin = true;
+        finalBattleInProcess = true;
+        finalBattleHappened = true;
 
 
         for (int i = 0; i < 3; i++) {
