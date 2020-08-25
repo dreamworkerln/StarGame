@@ -319,7 +319,7 @@ public class GameScreen extends BaseScreen {
 //        }
 
         // spawn enemy ship
-        if (getTick() % ENEMY_RESPAWN_TIME == 0 /*&& !finalBattleInProcess*/) {
+        if (getTick() % ENEMY_RESPAWN_TIME == 0 && !finalBattleInProcess) {
 
             for (int i = 0; i < ENEMIES_COUNT_IN_WAVE; i++) {
                 spawnEnemyShip();
@@ -327,7 +327,7 @@ public class GameScreen extends BaseScreen {
         }
 
         // spawn ally ship
-        if (getTick() % ENEMY_RESPAWN_TIME == 0 /*&& !finalBattleInProcess*/) {
+        if (getTick() % ENEMY_RESPAWN_TIME == 0 && !finalBattleInProcess) {
 
             spawnAllyShipList();
         }
