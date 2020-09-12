@@ -139,9 +139,9 @@ public abstract class AbstractAIShip extends Ship {
 
         List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 20, collisionAvoidFilter);
 
-        for (GameObject o : targetList) {
-            System.out.println("Avoiding: " + o.getClass().getSimpleName());
-        }
+//        for (GameObject o : targetList) {
+//            System.out.println("Avoiding: " + o.getClass().getSimpleName());
+//        }
 
         // leave only ships and missiles
         //targetList.removeIf(collisionAvoidFilter);
