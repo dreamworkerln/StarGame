@@ -121,6 +121,16 @@ public class BPU {
         gf.ax = target.acc.x - owner.acc.x;
         gf.ay = target.acc.y - owner.acc.y;
 
+        GameScreen.getPlanetE(target, GameScreen.INSTANCE.planet, tmp0);
+        //gf.ax += tmp0.x;
+        //gf.ay += tmp0.y;
+
+        //GameScreen.getPlanetE(owner, GameScreen.INSTANCE.planet, tmp0);
+        //gf.ax -= tmp0.x;
+        //gf.ay -= tmp0.y;
+
+
+
 
 
 

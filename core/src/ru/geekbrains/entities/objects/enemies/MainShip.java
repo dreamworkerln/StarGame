@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import ru.geekbrains.entities.equipment.CompNames;
 import ru.geekbrains.entities.objects.GameObject;
+import ru.geekbrains.entities.objects.ObjectSide;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.missile.EmpMissile;
 import ru.geekbrains.entities.projectile.missile.Missile;
@@ -47,6 +48,12 @@ public class MainShip extends AbstractAIShip {
 
         // re-init all weapons
         init();
+
+        collisionAvoidFilter = o -> o != this && !o.readyToDispose && (o.type.contains(ObjectType.SHIP) && o.side == this.side
+                || o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO));
+
+//        collisionAvoidFilter = o-> o != this && !o.readyToDispose && o.owner != this &&
+//                (o.type.contains(ObjectType.SHIP) || o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO) || o.type.contains(ObjectType.SHELL) || o.type.contains(ObjectType.BASIC_MISSILE));
 
 
         //gun.fireRate = 0.1f;

@@ -49,8 +49,8 @@ public abstract class AbstractAIShip extends Ship {
         launcher = weaponList.get(CompNames.LAUNCHER);
 
 
-        collisionAvoidFilter = o -> o != this && !o.readyToDispose && !o.type.contains(ObjectType.PLAYER_SHIP) &&
-            (o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO) || o.type.contains(ObjectType.SHIP));
+        collisionAvoidFilter = o -> o != this && !o.readyToDispose && /*&& !o.type.contains(ObjectType.PLAYER_SHIP)*/
+                (o.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO) || o.type.contains(ObjectType.SHIP));
     }
 
 
@@ -136,7 +136,12 @@ public abstract class AbstractAIShip extends Ship {
         }
 
 
+
         List<GameObject> targetList = GameScreen.getCloseObjects(this, this.radius * 20, collisionAvoidFilter);
+
+        for (GameObject o : targetList) {
+            System.out.println("Avoiding: " + o.getClass().getSimpleName());
+        }
 
         // leave only ships and missiles
         //targetList.removeIf(collisionAvoidFilter);
