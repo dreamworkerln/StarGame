@@ -68,6 +68,7 @@ public class GameScreen extends BaseScreen {
 
     private static Texture missileTexture;
     private long tick = 0;
+    private float ALLY_SHIP_COUNT_DIVIDER = 3;
 
     /**
      * Get current value
@@ -677,9 +678,15 @@ public class GameScreen extends BaseScreen {
 
         renderer.rendererType = RendererType.TEXTURE;
 
+        renderer.batch.disableBlending();
         renderer.batch.begin();
 
         background.draw(renderer);
+        renderer.batch.end();
+
+
+        renderer.batch.enableBlending();
+        renderer.batch.begin();
 
         if (!planet.readyToDispose) {
             planet.draw(renderer);
@@ -1311,7 +1318,8 @@ public class GameScreen extends BaseScreen {
 
         Ship ship;
 
-        for (int i = 0; i < Math.floor(ENEMIES_COUNT_IN_WAVE / 3f) ; i++) {
+        ALLY_SHIP_COUNT_DIVIDER = 3f;
+        for (int i = 0; i < Math.floor(ENEMIES_COUNT_IN_WAVE / ALLY_SHIP_COUNT_DIVIDER) ; i++) {
             if (ThreadLocalRandom.current().nextFloat() > 0.4) {
                 ship = new MainShip(new TextureRegion(mainAllyShipTexture), 50, null);
             } else {
@@ -1841,7 +1849,8 @@ public class GameScreen extends BaseScreen {
             case 99:
                 // DEBUG
                 ENEMY_RESPAWN_TIME = 2000;
-                ENEMIES_COUNT_IN_WAVE = 16;
+                ENEMIES_COUNT_IN_WAVE = 50;
+                ALLY_SHIP_COUNT_DIVIDER = 1;
                 break;
         }
 
