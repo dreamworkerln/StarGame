@@ -37,6 +37,7 @@ public class BattleShip extends AbstractAIShip {
         damage = 5f;
         penetration = 1;
         armour = 1;
+        empArmour = 0.5f;
         setMaxRotationSpeed(0.03f);
 
         //guideSystem = new GuideSystem(this);

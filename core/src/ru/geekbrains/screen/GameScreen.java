@@ -1065,13 +1065,15 @@ public class GameScreen extends BaseScreen {
 
                         if (prj.isEmpArmament) {
                             if (tgt.type.contains(ObjectType.DRIVEN_OBJECT)) {
-                                ((DrivenObject)tgt).empStun((long) (prj.empDamage / 10));
+                                amount = prj.empDamage * (1 - tgt.empArmour)/10;
+                                ((DrivenObject)tgt).empStun((long) (amount));
                             }
                         }
 
                         if (tgt.isEmpArmament) {
                             if (prj.type.contains(ObjectType.DRIVEN_OBJECT)) {
-                                ((DrivenObject)prj).empStun((long) (prj.empDamage / 10));
+                                amount = tgt.empDamage * (1 - prj.empArmour) / 10;
+                                ((DrivenObject)prj).empStun((long) (amount));
                             }
                         }
 
@@ -1798,7 +1800,7 @@ public class GameScreen extends BaseScreen {
 
             case 3:
                 // EXPERIENCED
-                ENEMY_RESPAWN_TIME = 1000;
+                ENEMY_RESPAWN_TIME = 1500;
                 ENEMIES_COUNT_IN_WAVE = 4;
                 break;
 

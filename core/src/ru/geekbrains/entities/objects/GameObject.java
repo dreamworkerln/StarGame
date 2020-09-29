@@ -36,6 +36,7 @@ public abstract class GameObject implements Disposable, PhysicalInfo {
     public Set<ObjectType> type = new HashSet<>();
 
     public float armour = 0;
+    public float empArmour = 0;
     public float penetration = 0;
 
     protected Sprite sprite = null;                 // displaying sprite (if have one)

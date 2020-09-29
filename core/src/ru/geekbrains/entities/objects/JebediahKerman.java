@@ -22,6 +22,7 @@ public class JebediahKerman extends DrivenObject {
 
         damage = 0.1f;
         armour = 1;
+        empArmour = 0.5f;
         penetration = 0.1f;
         side = ObjectSide.ALLIES;
 
