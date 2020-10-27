@@ -25,22 +25,22 @@ RMB - launch self-guided missiles (position mouse cursor on top to fire at desir
 // ---------------------------------------------------------------------------------------
 
 
-Ship hull will be destroyed in 3 shell hit, but slowly auto-repairing so 4 hits are needed to be sure.  
+You ship hull will be destroyed in 3 shell hit, but slowly auto-repairing so 4 hits are needed to be sure.  
 
 Missile kills ship in one hit.  
-EMP missile bring you shield down.  
+EMP missile bring you shield down (or temporary disable all subsystems if shield is already down).  
 
 Mini-gun is auto-firing at closest target (act as close-in weapon system (CIWS, point-defence))  
 Most time it bringing targets down but may miss on simultaneous incoming missiles from different directions.  
 (Or when attacked by missile launched from close enemy ship)  
-Doesn’t shoot at your missiles, but can unintentionally shoot them down.  
+Will shoot at any incoming missiles, so can unintentionally shoot your missiles down.  
 (So launch missiles safely)  
   
-Anti-missile system also help against inbound missiles on long range.  
+Anti-missile system (anti-missiles) also help against inbound missiles on long range.  
 Doesn’t shoot at your missiles, but can unintentionally shoot them down.  
   
 AA cannon fire fragmentation shell on inbound missiles and fragmentation plasma shell on enemy ships.  
-(Experimental: F - firing only at incoming missiles(flak mode), G - auto mode (flak and anti-ship), V - anti-ship and anti kinetic kill vehicle mode)  
+(Experimental: F - firing only at incoming missiles(flak mode), G - auto mode (flak and anti-ship), V - anti-ship and anti-torpedos mode)  
   
 Force shield can repulse many (~7) tangent hit, very many chase hit or ~2-3 direct hit  
 (fired from enemy ship flying towards you) by shell.  
