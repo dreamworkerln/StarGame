@@ -77,7 +77,7 @@ public class BattleShip extends AbstractAIShip {
         addComponent(CompNames.MINIGUN,minigun);
 
         FlakCannon flakCannon = new FlakCannon(10, this);
-        flakCannon.fireRate = 0.015f;
+        flakCannon.fireRate = 0.01f;
         flakCannon.setCalibre(8);
         flakCannon.setFiringMode(FlakCannon.FiringMode.ANTI_KINETIC);
         flakCannon.ammoProducer.clear();
@@ -86,7 +86,7 @@ public class BattleShip extends AbstractAIShip {
             PlasmaFlakShell shell = new PlasmaFlakShell(flakCannon.getCalibre(), 2, Color.GOLD, owner);
 
             shell.setMass(shell.getMass()*3);
-            shell.setFirePower(shell.getFirePower()*4);
+            shell.setFirePower(shell.getFirePower()*3.4f);
             shell.fragCount = 12;
 
             return shell;
