@@ -558,10 +558,21 @@ public class GameScreen extends BaseScreen {
 
     private void gameEvents() {
 
+// DEBUG - START BOSS BATTLE ON GAME START
+//
+//        if  (music.isPlaying()) {
+//            music.stop();
+//            finalBattle();
+//        }
+
+
         // spawn boss
         if  (!music.isPlaying() && !finalBattleHappened) {
             finalBattle();
         }
+
+
+
 
         if((playerShip != null && playerShip.readyToDispose && !playerShip.kermanSaved  ||
            kerman!= null && kerman.readyToDispose && kerman.shouldExplode) && !loose) {
