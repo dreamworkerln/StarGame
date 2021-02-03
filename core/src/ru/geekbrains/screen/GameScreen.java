@@ -168,6 +168,7 @@ public class GameScreen extends BaseScreen {
     private Sound flak_exp;
     private Sound metalHit;
     private Sound forTheEmperor;
+    private Sound goodDayCommander;
     private Sound quack;
 
     private Message msgEST;
@@ -263,6 +264,8 @@ public class GameScreen extends BaseScreen {
 
         musicLastStand = Gdx.audio.newMusic(Gdx.files.internal("Last Stand.mp3"));
 
+        goodDayCommander = Gdx.audio.newSound(Gdx.files.internal("good_day_commnder.mp3"));
+
         musicFile = "Valves (remix) - Tiberian Sun soundtrack.ogg";
         musicLength = 60*5;
 
@@ -315,9 +318,9 @@ public class GameScreen extends BaseScreen {
 
 
 //        // debug
-//        if (getTick() == 0) {
-//            finalBattle();
-//        }
+        if (getTick() == 0) {
+            finalBattle();
+        }
 
         // spawn enemy ship
         if (getTick() % ENEMY_RESPAWN_TIME == 0 && !finalBattleInProcess) {
@@ -1152,6 +1155,25 @@ public class GameScreen extends BaseScreen {
                             if (tgt.type.contains(ObjectType.SHELL) && (prj.type.contains(ObjectType.SHIP) || prj.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO))) {
                                 tgt.vel.set(prj.vel);
                             }
+
+
+
+                            // crutches  - destroy GRAVITY_REPULSE_MISSILE on BATTLE_SHIP hit
+                            if (prj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && tgt.type.contains(ObjectType.BATTLE_SHIP) ||
+                                tgt.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE) && prj.type.contains(ObjectType.BATTLE_SHIP) ) {
+
+                                if(prj.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+                                    prj.readyToDispose = true;
+                                }
+                                else if(tgt.type.contains(ObjectType.GRAVITY_REPULSE_MISSILE)) {
+                                    tgt.readyToDispose = true;
+                                }
+                            }
+
+
+
+
+
                         }
 
                         playExplosionSound(prj, tgt);
@@ -1673,6 +1695,7 @@ public class GameScreen extends BaseScreen {
 
 
         musicLastStand.play();
+        goodDayCommander.play();
 
         Message msg = new Message("Targeting system have been upgraded.", -1);
         particleObjects.add(msg);

@@ -26,8 +26,6 @@ public class PlayerMissileLauncher extends MissileLauncher {
 
     public PlayerMissileLauncher(float height, GameObject owner) {
         super(height, owner);
-
-        addAmmoType(() -> new FastMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 1.5f, owner));
         dummy = new DummyObject(owner);
     }
 

@@ -283,6 +283,12 @@ public class AbstractMissile extends DrivenObject implements Ammo {
             BPU.GuideResult gr = pbu.guideGun(this, target, maxVel, dt);
 
             if (gr.impactTime < proximityMinDistanceTime)  {
+
+
+                if(this instanceof NewtonTorpedo) {
+                    System.out.println("explode on min impact time !!!!!");
+                }
+
                 this.readyToDispose = true;
             }
 
@@ -294,11 +300,23 @@ public class AbstractMissile extends DrivenObject implements Ammo {
 
         }
 
+
+
+//        if(this instanceof NewtonTorpedo) {
+//            System.out.println(proximityMinDistance);
+//        }
+
+
         // explode on min distance to target
         // находимся от носителя дальше безопасного расстояния
         if (target != null && !this.readyToDispose &&
             distToTarget < proximityMinDistance &&
             distToCarrier > proximitySafeDistance) {
+
+           // if(this instanceof NewtonTorpedo) {
+           //     System.out.println("explode on min distance to target !!!!!");
+           //     System.out.println(distToTarget);
+           // }
 
             this.readyToDispose = true;
         }

@@ -27,7 +27,7 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
     protected int burstNo = 0;
 
     //  burstFire size
-    protected int burstMax = pylonCount;
+    public int burstMax = pylonCount;
 
     public GameObject target = null;
 
@@ -41,7 +41,7 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
     protected final int LAUNCH_DELAY_INITIAL = 20;
 
     // задержка между запусками ракет с обоих пилонов (чтоб не попали друг в друга)
-    protected int launchDelay = LAUNCH_DELAY_INITIAL;
+    public int launchDelay = LAUNCH_DELAY_INITIAL;
 
 
 

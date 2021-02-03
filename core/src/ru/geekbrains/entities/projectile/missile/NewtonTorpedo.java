@@ -47,6 +47,9 @@ public class NewtonTorpedo extends AbstractMissile {
         penetration = 0.3f;
 
         warnReticle = new DrivenObject.WarnReticle(height, this);
+
+        //proximityMinDistance = 0.1f;
+        //proximityMinDistanceTime = 0.1f;
     }
 
     @Override

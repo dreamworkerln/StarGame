@@ -18,6 +18,7 @@ import ru.geekbrains.entities.equipment.ForceShield;
 import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
 import ru.geekbrains.entities.particles.Message;
 import ru.geekbrains.entities.projectile.missile.EmpMissile;
+import ru.geekbrains.entities.projectile.missile.FastMissile;
 import ru.geekbrains.entities.projectile.missile.NewtonMissile;
 import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
 import ru.geekbrains.entities.projectile.shell.FlakShell;
@@ -98,6 +99,7 @@ public class PlayerShip extends Ship {
         launcher = new PlayerMissileLauncher(10, this);
         launcher.addAmmoType(() -> new PlasmaFragMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2.5f, owner));
         launcher.addAmmoType(() -> new EmpMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2, owner));
+        launcher.addAmmoType(() -> new FastMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 1.5f, owner));
         launcher.addAmmoType(() -> new NewtonMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 5, owner));
 
 

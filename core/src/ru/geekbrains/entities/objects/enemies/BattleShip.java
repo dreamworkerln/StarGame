@@ -9,6 +9,9 @@ import ru.geekbrains.entities.equipment.interfaces.WeaponSystem;
 import ru.geekbrains.entities.objects.GameObject;
 import ru.geekbrains.entities.objects.ObjectType;
 import ru.geekbrains.entities.projectile.Bullet;
+import ru.geekbrains.entities.projectile.missile.EmpMissile;
+import ru.geekbrains.entities.projectile.missile.FastMissile;
+import ru.geekbrains.entities.projectile.missile.PlasmaFragMissile;
 import ru.geekbrains.entities.projectile.shell.FlakShell;
 import ru.geekbrains.entities.projectile.shell.PlasmaFlakShell;
 import ru.geekbrains.entities.projectile.shell.Shell;
@@ -16,6 +19,7 @@ import ru.geekbrains.entities.weapons.FlakCannon;
 import ru.geekbrains.entities.weapons.Minigun;
 import ru.geekbrains.entities.weapons.gun.CourseGun;
 import ru.geekbrains.entities.weapons.launchers.AntiMissileLauncher;
+import ru.geekbrains.entities.weapons.launchers.MissileLauncher;
 
 public class BattleShip extends AbstractAIShip {
 
@@ -63,6 +67,14 @@ public class BattleShip extends AbstractAIShip {
             return shell;
         });
 
+
+        MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
+        //launcher.ammoProducer.clear();
+        //launcher.addAmmoType(() -> new FastMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 1.5f, owner));
+        //launcher.addAmmoType(() -> new EmpMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2, owner));
+
+
+
         Minigun minigun = new Minigun(4, this);
         minigun.ammoProducer.clear();
         minigun.addAmmoType(() -> {
@@ -108,6 +120,7 @@ public class BattleShip extends AbstractAIShip {
 
         AntiMissileLauncher antiLauncher = new AntiMissileLauncher(10, this);
         addComponent(CompNames.ANTI_LAUNCHER,antiLauncher);
+
 
         // re-init all weapons
         init();
@@ -177,7 +190,7 @@ public class BattleShip extends AbstractAIShip {
 
             // Gun & launcher control
 
-            launcher.startFire();
+            //launcher.startFire();
 
             if (target != null && !stopFireCourseGun &&
                 Math.abs(dir.angleRad(guideVector)) < maxRotationSpeed*1.0f) {

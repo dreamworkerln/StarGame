@@ -18,22 +18,26 @@ public class NewtonMissile extends NewtonTorpedo {
         engineTrail.color = new Color(0.6f, 0.6f, 0.8f, 1);
         plasmaEmpDistribution = 0f;
         setMaxThrottle(40f);
-        setMaxHealth(20f);
+        //setMaxHealth(20f);
         setMaxRotationSpeed(0.04f);
 
         selfdOnProximityMiss = false;
-        proximityMinDistance = 100;
-        proximityMinDistanceTime = 0.3f;
+        proximityMinDistance = 25f;
+        proximityMinDistanceTime = 0.15f;
 
         reloadTime = 500;
     }
 
-    @Override
-    public void doDamage(float amount) {
-        super.doDamage(amount);
-
-        if (amount >=5f) {
-            readyToDispose = true;
-        }
-    }
+//    // instant death on collision
+//    @Override
+//    public void doDamage(float amount) {
+//        super.doDamage(amount);
+//
+////        if (amount >=10f) {
+////            readyToDispose = true;
+////        }
+//
+//        System.out.println("amount >=10f explode!!! !!!!!");
+//
+//    }
 }
