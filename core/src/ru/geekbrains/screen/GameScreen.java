@@ -317,10 +317,10 @@ public class GameScreen extends BaseScreen {
     private void update(float dt) {
 
 
-//        // debug
-        if (getTick() == 0) {
-            finalBattle();
-        }
+//        debug
+//        if (getTick() == 0) {
+//            finalBattle();
+//        }
 
         // spawn enemy ship
         if (getTick() % ENEMY_RESPAWN_TIME == 0 && !finalBattleInProcess) {

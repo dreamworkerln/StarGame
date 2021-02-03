@@ -22,8 +22,8 @@ public class NewtonMissile extends NewtonTorpedo {
         setMaxRotationSpeed(0.04f);
 
         selfdOnProximityMiss = false;
-        proximityMinDistance = 25f;
-        proximityMinDistanceTime = 0.15f;
+        proximityMinDistance = 20f;
+        proximityMinDistanceTime = 0.14f;
 
         reloadTime = 500;
     }
