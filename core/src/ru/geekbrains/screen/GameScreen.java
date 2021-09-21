@@ -317,7 +317,7 @@ public class GameScreen extends BaseScreen {
     private void update(float dt) {
 
 
-//        debug
+        //debug
 //        if (getTick() == 0) {
 //            finalBattle();
 //        }

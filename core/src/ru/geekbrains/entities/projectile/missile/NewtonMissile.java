@@ -18,7 +18,7 @@ public class NewtonMissile extends NewtonTorpedo {
         engineTrail.color = new Color(0.6f, 0.6f, 0.8f, 1);
         plasmaEmpDistribution = 0f;
         setMaxThrottle(40f);
-        //setMaxHealth(20f);
+        setMaxHealth(40f);
         setMaxRotationSpeed(0.04f);
 
         selfdOnProximityMiss = false;

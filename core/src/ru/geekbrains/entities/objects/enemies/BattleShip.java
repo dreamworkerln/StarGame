@@ -76,10 +76,12 @@ public class BattleShip extends AbstractAIShip {
 
 
         Minigun minigun = new Minigun(4, this);
+        minigun.maxRange = 1000;
+        minigun.maxTime = 4f;
         minigun.ammoProducer.clear();
         minigun.addAmmoType(() -> {
             Bullet bullet = new Bullet(15, owner);
-            bullet.setDamage(bullet.getDamage()*4);
+            bullet.setDamage(bullet.getDamage()*16);
             bullet.setMass(bullet.getMass()*2.5f);
             bullet.setFirePower(bullet.getFirePower()*4);
             bullet.setExplosionRadius(bullet.getExplosionRadius()/3f);
@@ -118,8 +120,8 @@ public class BattleShip extends AbstractAIShip {
         addComponent(CompNames.FLACK_CANNON,flakCannon);
 
 
-        AntiMissileLauncher antiLauncher = new AntiMissileLauncher(10, this);
-        addComponent(CompNames.ANTI_LAUNCHER,antiLauncher);
+        //AntiMissileLauncher antiLauncher = new AntiMissileLauncher(10, this);
+        //addComponent(CompNames.ANTI_LAUNCHER,antiLauncher);
 
 
         // re-init all weapons

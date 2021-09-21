@@ -24,7 +24,7 @@ public class Bullet extends Projectile {
         setMaxHealth(0.01f);
         damage = 0.015f;
 
-        penetration = 1f;
+        penetration = 0.5f;
         explosionRadius = 1.5f *radius;
     }
 
