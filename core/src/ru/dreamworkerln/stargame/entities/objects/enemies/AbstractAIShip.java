@@ -62,7 +62,7 @@ public abstract class AbstractAIShip extends Ship {
         }
 
         // выбираем цель
-        selectTarget();
+        selectTarget(dt);
 
         WeaponSystem gun = weaponList.get(CompNames.COURSE_GUN);
 
@@ -188,7 +188,7 @@ public abstract class AbstractAIShip extends Ship {
         }
 
         // стены
-
+        /*
         float leftBound = GameScreen.getInstance().worldBounds.getLeft() * GameScreen.getInstance().aspect;
         float rightBound = GameScreen.getInstance().worldBounds.getRight() * GameScreen.getInstance().aspect;
 
@@ -207,6 +207,7 @@ public abstract class AbstractAIShip extends Ship {
         if (pos.y <= downBound + avoidWallCoeff *radius) {
             tmp1.add(tmp4.set(0, 1).scl(1));
         }
+        */
 
         if (!tmp1.isZero() && !(this instanceof BattleShip)) {
             //guideVector.set(tmp1).nor();

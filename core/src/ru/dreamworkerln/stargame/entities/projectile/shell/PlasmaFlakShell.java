@@ -31,7 +31,7 @@ public class PlasmaFlakShell extends FlakShell {
 
         fragSize = 2.1f;
         fragTrailSize = 0.5f;
-        damage = 1f;
+        damage = 2f;
         penetration = 1f;
         fragCount = 6;
         fragTTL = 400;

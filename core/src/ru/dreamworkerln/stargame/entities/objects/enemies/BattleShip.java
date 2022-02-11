@@ -135,7 +135,7 @@ public class BattleShip extends AbstractAIShip {
             return;
         }
 
-        selectTarget();
+        selectTarget(dt);
 
 
         WeaponSystem gun = weaponList.get(CompNames.COURSE_GUN);

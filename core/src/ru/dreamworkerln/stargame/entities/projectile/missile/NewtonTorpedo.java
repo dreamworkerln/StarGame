@@ -56,7 +56,7 @@ public class NewtonTorpedo extends AbstractMissile {
     @Override
     protected void guide(float dt) {
 
-        selectTarget();
+        selectTarget(dt);
         super.guide(dt);
     }
 

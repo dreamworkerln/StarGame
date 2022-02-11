@@ -61,7 +61,7 @@ public class MissileShip extends AbstractAIShip {
         }
 
         // выбираем цель
-        selectTarget();
+        selectTarget(dt);
 
 
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
