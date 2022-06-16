@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 
 import ru.dreamworkerln.stargame.entities.auxiliary.TrajectorySimulator;
 import ru.dreamworkerln.stargame.entities.equipment.BPU;
@@ -17,6 +18,7 @@ import ru.dreamworkerln.stargame.entities.equipment.CompNames;
 import ru.dreamworkerln.stargame.entities.equipment.ForceShield;
 import ru.dreamworkerln.stargame.entities.equipment.interfaces.WeaponSystem;
 import ru.dreamworkerln.stargame.entities.particles.Message;
+import ru.dreamworkerln.stargame.entities.projectile.Ammo;
 import ru.dreamworkerln.stargame.entities.projectile.missile.EmpMissile;
 import ru.dreamworkerln.stargame.entities.projectile.missile.FastMissile;
 import ru.dreamworkerln.stargame.entities.projectile.missile.NewtonMissile;
@@ -86,19 +88,40 @@ public class PlayerShip extends Ship {
         // tuning gun
         CourseGun gun = (CourseGun)componentList.get(CompNames.COURSE_GUN);
         gun.maxGunHeat = 400;
-        gun.drift = 0.05f;
-        gun.burst= 8;
+        //gun.drift = 0.05f;
+        gun.burst= 1;
+
+        gun.drift = 0.01f;
+        //gun.setCalibre(3f);
+
+        gun.setCalibre(3f);
+        gun.fireRate = 0.5f;
+        gun.gunHeatingDelta = 30;
+        gun.coolingGunDelta = 3;
+//
+//
+        gun.ammoProducer.clear();
+
+        Supplier<Ammo> shellSupplier =
+        () -> {
+            Shell shell1 = new Shell(gun.getCalibre(), gun.getCalibre() / 8, this);
+            shell1.setMass(0.008f * 1.0f);
+            shell1.setMaxHealth(0.05f * 1.0f);
+            shell1.damage = 0.5f * 1.0f;
+            return shell1;
+        };
+        gun.addAmmoType(shellSupplier);
 
 
         trajectorySim = new TrajectorySimulator(this, this);
-        gunSim = new TrajectorySimulator(this, new Shell(gun.getCalibre(), owner));
+        gunSim = new TrajectorySimulator(this, (GameObject) shellSupplier.get());
         shield = new ForceShield(this, new Color(0.1f , 0.5f, 1f, 1f));
         minigun = new Minigun(4, this);
         launcher = new PlayerMissileLauncher(10, this);
-        launcher.addAmmoType(() -> new PlasmaFragMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2.5f, owner));
-        launcher.addAmmoType(() -> new EmpMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2, owner));
-        launcher.addAmmoType(() -> new FastMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 1.5f, owner));
-        launcher.addAmmoType(() -> new NewtonMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 5, owner));
+        launcher.addAmmoType(() -> new PlasmaFragMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2.5f, this));
+        launcher.addAmmoType(() -> new EmpMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2, this));
+        launcher.addAmmoType(() -> new FastMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 1.5f, this));
+        launcher.addAmmoType(() -> new NewtonMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 5, this));
 
 
         antiLauncher = new AntiMissileLauncher(10, this);
@@ -164,8 +187,8 @@ public class PlayerShip extends Ship {
 
 
         if (KeyDown.SHIFT) {
-            rot = maxRotationSpeed/2;
-            currentThrottle = maxThrottle/2;
+            rot = maxRotationSpeed/4;
+            //currentThrottle = maxThrottle/4;
         }
 
         if (KeyDown.A) {

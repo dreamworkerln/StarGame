@@ -6,11 +6,17 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 
+import ru.dreamworkerln.stargame.entities.equipment.BPU;
+import ru.dreamworkerln.stargame.entities.equipment.interfaces.GunSystem;
 import ru.dreamworkerln.stargame.entities.objects.DummyObject;
 import ru.dreamworkerln.stargame.entities.objects.GameObject;
 import ru.dreamworkerln.stargame.entities.objects.ObjectType;
+import ru.dreamworkerln.stargame.entities.objects.PlayerShip;
+import ru.dreamworkerln.stargame.entities.projectile.Ammo;
 import ru.dreamworkerln.stargame.entities.projectile.missile.EmpMissile;
 import ru.dreamworkerln.stargame.entities.projectile.missile.FastMissile;
 import ru.dreamworkerln.stargame.entities.projectile.missile.Missile;
@@ -22,6 +28,8 @@ import ru.dreamworkerln.stargame.screen.RendererType;
 public class PlayerMissileLauncher extends MissileLauncher {
 
     private DummyObject dummy;
+
+    private final NavigableMap<Float, BPU.GuideResult> reticleMap = new TreeMap<>();
 
     public PlayerMissileLauncher(float height, GameObject owner) {
         super(height, owner);
@@ -156,6 +164,50 @@ public class PlayerMissileLauncher extends MissileLauncher {
 
     }
 
+    
+    // делаем подсветку для курсовой пушки
+    @Override
+    public void update(float dt) {
+
+        super.update(dt);
+
+        reticleMap.clear();
+
+        visualTargets.removeIf(o -> o == null || o.readyToDispose);
+
+        if (visualTargets.size() != 1) {
+            return;
+        }
+
+        // getting target
+        if (owner != null && !owner.readyToDispose) {
+
+            GunSystem gun = ((PlayerShip)owner).getCourseGun();
+            Ammo ammo = gun.getFiringAmmo();
+
+
+
+            for (GameObject o : visualTargets) {
+
+                if(o == null || o.readyToDispose) {
+                    continue;
+                }
+
+                float maxPrjVel = ammo.getFirePower() / ammo.getMass() * dt;  // Задаем начальную скорость пули
+                BPU.GuideResult gr = pbu.guideGun(owner, o, maxPrjVel, dt);
+
+                // get results
+
+                float impactTime = (float) gr.impactTime;
+
+                if (!Float.isNaN(impactTime) && impactTime >= 0 && impactTime <= 5) {
+                    reticleMap.put(impactTime, gr);
+                }
+            }
+        }
+    }
+
+
 
 
     @Override
@@ -192,11 +244,28 @@ public class PlayerMissileLauncher extends MissileLauncher {
                 tmp0.set(o.pos).sub(0, o.getRadius() * 2);
                 tmp1.set(tmp0).set(o.pos).add(0, o.getRadius() * 2);
                 shape.line(tmp0, tmp1);
-                Gdx.gl.glLineWidth(1);
-                shape.flush();
-
 
                 //shape.end();
+
+
+
+
+                // Course gun reticles
+                reticleMap.forEach( (aFloat, gr) -> {
+
+                    //BPU.GuideResult gr = reticleMap.firstEntry().getValue();
+                    shape.setColor(0.9f, 0.9f, 0.9f, 0.5f);
+
+                    tmp0.set(owner.pos).add(gr.impactVector);
+                    shape.line(owner.pos, tmp0);
+
+                    shape.getColor().a = 1;
+                    shape.circle(tmp0.x, tmp0.y, 10);
+                });
+
+
+                Gdx.gl.glLineWidth(1);
+                shape.flush();
             }
 
         }

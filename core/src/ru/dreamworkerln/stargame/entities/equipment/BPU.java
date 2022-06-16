@@ -169,8 +169,11 @@ public class BPU {
                     double vs_x = gf.rx / t + 0.5 * gf.ax * t + gf.vx;
                     double vs_y = gf.ry / t + 0.5 * gf.ay * t + gf.vy;
 
-                    double rs_x = gf.rx + vs_x * t + 0.5 * gf.ax * t*t;
-                    double rs_y = gf.ry + vs_y * t + 0.5 * gf.ay * t*t;
+                    //double rs_x = gf.rx + vs_x * t + 0.5 * gf.ax * t*t;
+                    //double rs_y = gf.ry + vs_y * t + 0.5 * gf.ay * t*t;
+
+                    double rs_x = 0 + vs_x * t + 0.5 * gf.ax * t*t;
+                    double rs_y = 0 + vs_y * t + 0.5 * gf.ay * t*t;
 
                     result.guideVector.set((float) vs_x, (float) vs_y);
                     result.impactVector.set((float) rs_x, (float) rs_y);
