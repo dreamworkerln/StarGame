@@ -41,6 +41,11 @@ public class ForceShield extends ShipComponent {
         isModule = true;
     }
 
+    public void setMaxPower(float maxPower) {
+        this.maxPower = maxPower;
+        this.power = this.maxPower;
+    }
+
 
     @Override
     public void update(float dt) {

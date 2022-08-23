@@ -318,9 +318,9 @@ public class GameScreen extends BaseScreen {
 
 
         //debug
-//        if (getTick() == 0) {
-//            finalBattle();
-//        }
+        if (getTick() == 0) {
+            finalBattle();
+        }
 
         // spawn enemy ship
         if (getTick() % ENEMY_RESPAWN_TIME == 0 && !finalBattleInProcess) {
@@ -1001,7 +1001,7 @@ public class GameScreen extends BaseScreen {
                         // Вращательное движение снарядов вокруг своей оси
                         // под действием поля - чисто визуальный эффект
                         if(prj.type.contains(ObjectType.BULLET)) {
-                            prj.angVel += prj.dir.dot(tgt.dir) > 0 ? 5 : -5;
+                            prj.angVel += prj.dir.dot(tgt.dir) > 0 ? 1 : -1;
                         }
                     }
                 }
@@ -1314,7 +1314,7 @@ public class GameScreen extends BaseScreen {
 
     private void spawnAllyShipList() {
 
-        if(ENEMIES_COUNT_IN_WAVE < 6) {
+        if(ENEMIES_COUNT_IN_WAVE < 5) {
             return;
         }
 
@@ -1322,7 +1322,7 @@ public class GameScreen extends BaseScreen {
 
 
             AbstractMissile missile = new NewtonTorpedo(new TextureRegion(missileTexture), 6, null);
-            missile.setMaxRotationSpeed(missile.getMaxRotationSpeed() * 1.5f);
+            missile.setMaxRotationSpeed(missile.getMaxRotationSpeed() * 2f);
             missile.engineTrail.color = new Color(0.6f, 0.6f, 0.8f, 1);
             missile.side = ObjectSide.ALLIES;
             addObjectRndPos(missile);
@@ -1341,7 +1341,7 @@ public class GameScreen extends BaseScreen {
 
         Ship ship;
 
-        ALLY_SHIP_COUNT_DIVIDER = 3f;
+        ALLY_SHIP_COUNT_DIVIDER = 2f;
         for (int i = 0; i < Math.floor(ENEMIES_COUNT_IN_WAVE / ALLY_SHIP_COUNT_DIVIDER) ; i++) {
             if (ThreadLocalRandom.current().nextFloat() > 0.4) {
                 ship = new MainShip(new TextureRegion(mainAllyShipTexture), 50, null);

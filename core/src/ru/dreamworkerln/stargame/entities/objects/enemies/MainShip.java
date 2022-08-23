@@ -20,7 +20,7 @@ public class MainShip extends AbstractAIShip {
         setMaxFuel(300f);
         fuelConsumption /=2;
 
-        setMaxHealth(4.5f);
+        //setMaxHealth(4.5f);
         damage = getMaxHealth();
 
         type.add(ObjectType.MAIN_SHIP);
@@ -43,7 +43,7 @@ public class MainShip extends AbstractAIShip {
 
 
 
-        ForceShield shield = new ForceShield(this, new Color(0.6f , 0.2f, 0.1f, 1f));
+        ForceShield shield = new ForceShield(this, new Color(0.6f , 0.5f, 0.1f, 1f));
         addComponent(CompNames.FORCESHIELD,shield);
 
         // re-init all weapons

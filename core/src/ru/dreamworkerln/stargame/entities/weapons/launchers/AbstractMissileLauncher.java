@@ -165,10 +165,10 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
 
 
         tmp0.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
-            .rotate(90*sideLaunch).add(owner.pos);
+            .rotateDeg(90*sideLaunch).add(owner.pos);
 
         tmp1.set(tmp6).setLength(owner.getRadius() + missile.getRadius()*3)
-            .rotate(-90*sideLaunch).add(owner.pos);
+            .rotateDeg(-90*sideLaunch).add(owner.pos);
 
         try {
 
@@ -232,8 +232,13 @@ public abstract class AbstractMissileLauncher extends NonRotatableGun {
         //tmp0.set(tmp6).setLength((missile.boost)).rotate(30*sideLaunch)/*.add(tmp1)*/; // force
 
         tmp0.set(tmp6).setLength(missile.getFirePower());
+
         if (pylonCount > 1) {
-            tmp0.rotate(10 * sideLaunch);
+            int rotGrad = 10;
+            if(missile.getType().contains(ObjectType.FAST_MISSILE)) {
+                rotGrad = 1;
+            }
+            tmp0.rotateDeg(rotGrad * sideLaunch);
         }
 
 

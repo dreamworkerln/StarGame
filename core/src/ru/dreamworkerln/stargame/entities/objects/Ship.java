@@ -21,7 +21,7 @@ public abstract class Ship extends DrivenObject {
         mass = 1;
 
         setHealthRegenerationCoefficient(0.0003f);
-        setMaxHealth(3f);
+        setMaxHealth(5f);
         
         damage = getMaxHealth() / 2;
         armour = 1;

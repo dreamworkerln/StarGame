@@ -117,9 +117,8 @@ public class BattleShip extends AbstractAIShip {
         addComponent(CompNames.FLACK_CANNON,flakCannon);
 
 
-        ForceShield shield = new ForceShield(this, new Color(0.6f , 0.2f, 0.1f, 1f));
-        shield.maxPower *= 10;
-        shield.forceValue *=2;
+        ForceShield shield = new ForceShield(this, new Color(0.3f , 0.6f, 0.1f, 1f));
+        shield.setMaxPower(shield.maxPower*3);
         addComponent(CompNames.FORCESHIELD,shield);
 
 

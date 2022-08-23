@@ -8,6 +8,7 @@ import ru.dreamworkerln.stargame.entities.equipment.CompNames;
 import ru.dreamworkerln.stargame.entities.objects.GameObject;
 import ru.dreamworkerln.stargame.entities.objects.ObjectType;
 import ru.dreamworkerln.stargame.entities.projectile.missile.PlasmaFragMissile;
+import ru.dreamworkerln.stargame.entities.weapons.Minigun;
 import ru.dreamworkerln.stargame.entities.weapons.launchers.MissileLauncher;
 import ru.dreamworkerln.stargame.entities.weapons.gun.CourseGun;
 
@@ -24,8 +25,8 @@ public class MissileShip extends AbstractAIShip {
         fuelConsumption = 0.1f;
         setMaxThrottle(50f);
 
-        setHealthRegenerationCoefficient(0.003f);
-        setMaxHealth(2f);
+        setHealthRegenerationCoefficient(0.001f);
+        setMaxHealth(3f);
         damage = getMaxHealth();
         mass = 0.5f;
 
@@ -40,6 +41,12 @@ public class MissileShip extends AbstractAIShip {
 
         launcher.ammoProducer.clear();
         launcher.addAmmoType(() -> new PlasmaFragMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2.5f, owner));
+
+
+        Minigun minigun = new Minigun(4, this);
+        //minigun.maxRange = 300;
+        //minigun.fireRate = 0.4f;
+        addComponent(CompNames.MINIGUN,minigun);
 
         // re-init all weapons
         init();

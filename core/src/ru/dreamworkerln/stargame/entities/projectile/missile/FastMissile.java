@@ -18,10 +18,13 @@ public class FastMissile extends AbstractMissile {
         mass = 0.02f;
         fuel = 15;
         explosionRadius = radius * 2;
+        //setMaxThrottle(3.5f);
         setMaxThrottle(3.5f);
-        setMaxHealth(0.01f);
-        setMaxRotationSpeed(0.05f);
-        damage = 2.1f;
+        setFirePower(350);
+        //setMaxHealth(0.01f);
+        setMaxHealth(0.12f);
+        setMaxRotationSpeed(0.1f);
+        damage = 1f;
         penetration = 1;
 
         engineTrail.color = new Color(0.95f, 0.47f, 0.3f, 1f);

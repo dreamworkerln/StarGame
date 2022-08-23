@@ -57,6 +57,12 @@ public class PlayerMissileLauncher extends MissileLauncher {
 //        targets.removeIf(t -> t.readyToDispose);
 //        targets.removeIf(t -> t.side == owner.side);
 
+
+        if(targets.size() > 0) {
+            result.add(targets.get(0));
+        }
+
+        /*
         if (targets.size() == 1) {
             result.add(targets.get(0));
         }
@@ -70,6 +76,7 @@ public class PlayerMissileLauncher extends MissileLauncher {
                 }
             }
         }
+        */
 
         return result;
     }
@@ -90,6 +97,10 @@ public class PlayerMissileLauncher extends MissileLauncher {
 
         //default ammo 
         currentAmmoType = Missile.class;
+
+        // default burst count
+        burstMax = 4;
+        launchDelay = 12;
 
 
 //        if(launchPylonNo == 0) {
@@ -119,17 +130,17 @@ public class PlayerMissileLauncher extends MissileLauncher {
 
 
         if (targetList.get(0).type.contains(ObjectType.MISSILE_SHIP)) {
-            launchDelay = 10;
-            burstMax = 4;
+            launchDelay = 5;
+            burstMax = 6;
             currentAmmoType = FastMissile.class;
         }
 
         // if first target is NewtonTorpedo/MissileShip - remove other targets
         if (targetList.get(0).type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO)) {
-            burstMax = 4;
-            launchDelay = 15;
+            burstMax = 6;
+            launchDelay = 12;
             currentAmmoType = Missile.class;
-            if(burstNo == 0 ) {
+            if(burstNo <= 1) {
                 currentAmmoType = EmpMissile.class;
             }
 
@@ -235,14 +246,14 @@ public class PlayerMissileLauncher extends MissileLauncher {
                 shape.set(ShapeRenderer.ShapeType.Line);
 
                 shape.setColor(0.5f, 0.9f, 0.9f, 0.7f);
-                shape.circle(o.pos.x, o.pos.y, o.getRadius() * 2);
+                shape.circle(o.pos.x, o.pos.y, o.getRadius() * 2.3f);
 
-                tmp0.set(o.pos).sub(o.getRadius() * 2, 0);
-                tmp1.set(tmp0).set(o.pos).add(o.getRadius() * 2, 0);
+                tmp0.set(o.pos).sub(o.getRadius() * 2.3f, 0);
+                tmp1.set(tmp0).set(o.pos).add(o.getRadius() * 2.3f, 0);
                 shape.line(tmp0, tmp1);
 
-                tmp0.set(o.pos).sub(0, o.getRadius() * 2);
-                tmp1.set(tmp0).set(o.pos).add(0, o.getRadius() * 2);
+                tmp0.set(o.pos).sub(0, o.getRadius() * 2.3f);
+                tmp1.set(tmp0).set(o.pos).add(0, o.getRadius() * 2.3f);
                 shape.line(tmp0, tmp1);
 
                 //shape.end();

@@ -69,7 +69,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
     public SmokeTrail engineTrail;                      // trail from thruster burst
     public SmokeTrail damageBurnTrail;                  // trail from burning on damage
 
-    protected long avoidPlanetTick = 0;
+    //protected long avoidPlanetTick = 0;
 
     protected WarnReticle warnReticle;
 
@@ -327,9 +327,9 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         tmp0.set(planet.pos).sub(pos);
         angle = tmp1.set(vel).angleDeg(tmp0);
         if (angle > 0) {
-            tmp1.set(vel).rotate(-75).nor();   // tmp1 - targeted rotate angle
+            tmp1.set(vel).rotateDeg(-75).nor();   // tmp1 - targeted rotate angle
         } else {
-            tmp1.set(vel).rotate(75).nor();
+            tmp1.set(vel).rotateDeg(75).nor();
         }
 
         // Время, требуемое на поворот до положения избегания падения на планету
@@ -342,7 +342,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         }
 
 
-        long planetAvoidImpactTickTime = (long)(mass/maxThrottle * 1500);
+        //long planetAvoidImpactTickTime = (long)(mass/maxThrottle * 1500);
 
 
         float minImpactTime = 1.5f;
@@ -362,6 +362,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
 
         boolean doAvoidPlanet = !impactTime.isNaN() && impactTime >= 0 && impactTime < minImpactTime;
 
+        /*
         // set trigger on
         if (doAvoidPlanet && avoidPlanetTick == 0) {
             avoidPlanetTick = GameScreen.INSTANCE.getTick() + planetAvoidImpactTickTime;
@@ -373,7 +374,7 @@ public abstract class DrivenObject extends GameObject implements SmokeTrailList 
         else {// set trigger off
             avoidPlanetTick = 0;
         }
-
+        */
 
         if (doAvoidPlanet) {
 

@@ -30,7 +30,7 @@ public class NewtonTorpedo extends AbstractMissile {
         armour = 0.3f;
         mass = 0.3f;
         setMaxThrottle(18f);
-        setMaxHealth(20f);
+        setMaxHealth(25f);
         setMaxRotationSpeed(0.02f);
 
         setMaxFuel(500);
