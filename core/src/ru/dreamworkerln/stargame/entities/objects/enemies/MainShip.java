@@ -1,8 +1,10 @@
 package ru.dreamworkerln.stargame.entities.objects.enemies;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import ru.dreamworkerln.stargame.entities.equipment.CompNames;
+import ru.dreamworkerln.stargame.entities.equipment.ForceShield;
 import ru.dreamworkerln.stargame.entities.objects.GameObject;
 import ru.dreamworkerln.stargame.entities.objects.ObjectType;
 import ru.dreamworkerln.stargame.entities.projectile.missile.EmpMissile;
@@ -11,12 +13,6 @@ import ru.dreamworkerln.stargame.entities.weapons.launchers.MissileLauncher;
 import ru.dreamworkerln.stargame.entities.weapons.gun.CourseGun;
 
 public class MainShip extends AbstractAIShip {
-
-
-
-
-
-
 
     public MainShip(TextureRegion textureRegion, float height, GameObject owner) {
         super(textureRegion, height, owner);
@@ -44,6 +40,11 @@ public class MainShip extends AbstractAIShip {
         // tuning launcher
         MissileLauncher launcher = (MissileLauncher)componentList.get(CompNames.LAUNCHER);
         launcher.addAmmoType(() -> new EmpMissile(new TextureRegion(MissileLauncher.MISSILE_TEXTURE), 2, owner));
+
+
+
+        ForceShield shield = new ForceShield(this, new Color(0.6f , 0.2f, 0.1f, 1f));
+        addComponent(CompNames.FORCESHIELD,shield);
 
         // re-init all weapons
         init();

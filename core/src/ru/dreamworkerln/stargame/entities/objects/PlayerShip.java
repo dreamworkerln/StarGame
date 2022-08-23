@@ -169,11 +169,6 @@ public class PlayerShip extends Ship {
     }
 
 
-    public ForceShield getShield() {
-        return (ForceShield)componentList.get(CompNames.FORCESHIELD);
-    }
-
-
     @Override
     protected void guide(float dt) {
 

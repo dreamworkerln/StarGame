@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import ru.dreamworkerln.stargame.entities.equipment.BPU;
 import ru.dreamworkerln.stargame.entities.equipment.CompNames;
+import ru.dreamworkerln.stargame.entities.equipment.ForceShield;
 import ru.dreamworkerln.stargame.entities.equipment.interfaces.WeaponSystem;
 import ru.dreamworkerln.stargame.entities.objects.GameObject;
 import ru.dreamworkerln.stargame.entities.objects.ObjectType;
@@ -114,6 +115,12 @@ public class BattleShip extends AbstractAIShip {
             return shell;
         });
         addComponent(CompNames.FLACK_CANNON,flakCannon);
+
+
+        ForceShield shield = new ForceShield(this, new Color(0.6f , 0.2f, 0.1f, 1f));
+        shield.maxPower *= 10;
+        shield.forceValue *=2;
+        addComponent(CompNames.FORCESHIELD,shield);
 
 
         //AntiMissileLauncher antiLauncher = new AntiMissileLauncher(10, this);

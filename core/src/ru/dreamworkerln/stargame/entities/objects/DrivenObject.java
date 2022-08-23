@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import com.badlogic.gdx.utils.OrderedMap;
 import ru.dreamworkerln.stargame.entities.equipment.BPU;
 import ru.dreamworkerln.stargame.entities.equipment.CompNames;
+import ru.dreamworkerln.stargame.entities.equipment.ForceShield;
 import ru.dreamworkerln.stargame.entities.equipment.interfaces.AntiLauncherSystem;
 import ru.dreamworkerln.stargame.entities.equipment.interfaces.GunSystem;
 import ru.dreamworkerln.stargame.entities.equipment.interfaces.WeaponSystem;
@@ -756,6 +757,10 @@ protected static class WarnReticle extends ParticleObject {
 
     public Map<CompNames, ShipComponent> getComponentList() {
         return componentList;
+    }
+
+    public ForceShield getShield() {
+        return (ForceShield)componentList.get(CompNames.FORCESHIELD);
     }
 
 

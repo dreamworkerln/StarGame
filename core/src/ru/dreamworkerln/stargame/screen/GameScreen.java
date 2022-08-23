@@ -103,8 +103,8 @@ public class GameScreen extends BaseScreen {
     private Vector2 tmp6 = new Vector2();
     private Vector2 tmp7 = new Vector2();
     private GameObject dummy;
-
     //private int enemyShipsToSpawn = 0;
+
 
     public PlayerShip playerShip;
     public JebediahKerman kerman;
@@ -578,7 +578,7 @@ public class GameScreen extends BaseScreen {
 
 
         if((playerShip != null && playerShip.readyToDispose && !playerShip.kermanSaved  ||
-           kerman!= null && kerman.readyToDispose && kerman.shouldExplode) && !loose) {
+            kerman!= null && kerman.readyToDispose && kerman.shouldExplode) && !loose) {
 
             Message msg = new Message("You loose", 0);
             particleObjects.add(msg);
@@ -873,18 +873,19 @@ public class GameScreen extends BaseScreen {
 
     private void collisionDetection(float dt) {
 
-        ForceShield shield = playerShip.getShield();
+        // hittableObjects - objects with greater radius goes first
 
-
-        // objects with greater radius goes first
+        // tgt - subject of collision (target)
         for(GameObject tgt : hittableObjects) {
 
             if (tgt.readyToDispose)
                 continue;
 
 
-            // tgt - target
 
+
+
+            // area(box) around colliding object
             double x1,x2,y1,y2;
 
 
@@ -894,29 +895,26 @@ public class GameScreen extends BaseScreen {
             y2 = tgt.pos.y + 2.1*tgt.getRadius();
 
 
-            // HAAACK for shield
-            if (tgt == playerShip) {
-
-                x1 = tgt.pos.x - 2.2*shield.getRadius();
-                x2 = tgt.pos.x + 2.2*shield.getRadius();
-                y1 = tgt.pos.y - 2.2*shield.getRadius();
-                y2 = tgt.pos.y + 2.2*shield.getRadius();
+            // if object has shield - expand collision box  to shield size
+            ForceShield shield = null;
+            if (tgt instanceof DrivenObject) {
+                shield = ((DrivenObject)tgt).getShield();
+                if (shield != null) {
+                    x1 = tgt.pos.x - 2.2*shield.getRadius();
+                    x2 = tgt.pos.x + 2.2*shield.getRadius();
+                    y1 = tgt.pos.y - 2.2*shield.getRadius();
+                    y2 = tgt.pos.y + 2.2*shield.getRadius();
+                }
             }
 
-
-
-
+            // list of objects near subject of collision
             List<Point<GameObject>> points = quadTree.searchIntersect2(x1, y1, x2, y2);
-
-            if (points.size() <= 1) {
-                shield.targetSet.clear();
-            }
 
 
             for(int i = 0; i < points.size(); i++) {
 
 
-                GameObject prj = points.get(i).getValue(); // projectile (may be DRIVEN_OBJECT)
+                GameObject prj = points.get(i).getValue(); // projectile or DRIVEN_OBJECT
 
                 // уничтоженный объект не взаимодействует с другими, сам с собой тоже (в матрице по диагонали нули)
                 if (prj.readyToDispose || tgt.readyToDispose  || tgt == prj)
@@ -924,27 +922,23 @@ public class GameScreen extends BaseScreen {
 
                 // vector from target to projectile
                 tmp1.set(prj.pos).sub(tgt.pos);
-                tmp4.set(prj.vel).sub(playerShip.vel);
+                // speed from target to projectile
+                tmp4.set(prj.vel).sub(tgt.vel);
 
 
                 // FORCE SHIELD REPULSING ---------------------------------------------------
-                if (tgt == playerShip &&
-                    (prj.type.contains(ObjectType.PROJECTILE) || prj.type.contains(ObjectType.MISSILE) || prj.type.contains(ObjectType.SHIP)) &&
+                if (shield != null &&
 
+                    (prj.type.contains(ObjectType.PROJECTILE) ||
+                        prj.type.contains(ObjectType.MISSILE) ||
+                        prj.type.contains(ObjectType.SHIP)) &&
 
-                    (tmp1.dot(tmp4) < 0  /*|| playerShip.shield.targetSet.contains(prj)*/)
-                    //(prj.owner != tgt || prj.type.contains(ObjectType.FRAG))
-
-
+                    // projectile fly towards target
+                    (tmp1.dot(tmp4) < 0)
                 ) {
 
-                    //PlayerShip plsp = playerShip;
-
-
+                    // projectile inside shield radius
                     if (tmp1.len() <= shield.getRadius() + prj.getRadius()) {
-
-
-                        //plsp.shield.targetSet.add(prj);
 
                         Vector2 n = tmp3; // vector from target to projectile, normalized
                         n.set(prj.pos).sub(tgt.pos).nor();
@@ -953,24 +947,24 @@ public class GameScreen extends BaseScreen {
                         // Силовое поле щита имеет потенциал Const/r,
                         // Соответственно сила поля, действующая на prj равна -n*prj.mass*Const*/r^2
                         // Как гравитационное поле, но со знаком "-"
+
+                        // Power, acting on projectile
                         tmp0.set(n.scl(prj.getMass()*shield.forceValue * shield.getRadius()/tmp1.len2()));
-                        n = null;
 
                         // dA = m*E.dx // dx - ?
-
                         // dx = (x0=0) + (V0*t=0) + (a*t^2)/2
-
                         // a = tmp0/m = E
 
-                        tmp3.set(tmp0).scl(1/prj.getMass());  // = E  напряженность поля щита
+                        // напряженность поля щита E
+                        tmp3.set(tmp0).scl(1/prj.getMass());
 
                         // dA = m * (tmp3)^2 * t^2/2; // работа щита на перемещение prj за dt
-
                         float dA =  (float)(tmp3.len2() * prj.getMass() * dt*dt*0.5);
 
                         //System.out.println(dA);
 
-                        // EMP ordinance BLAST, shield protect only if shield.power > 10%
+                        // Повреждение щита с EMP
+                        // EMP ordinance BLAST, shield protect from EMP only if shield.power > 10%
                         if (prj.isEmpArmament && shield.power > shield.maxPower / 10) {
                             dA += prj.empDamage;
                             prj.readyToDispose = true;
@@ -989,8 +983,8 @@ public class GameScreen extends BaseScreen {
 
                         // отражаем снаряд
                         prj.applyForce(tmp0);
-                        // 3 закон Ньютона - отражаем корабль
-                        playerShip.applyForce(tmp0.scl(-1));
+                        // 3 закон Ньютона - отражаем носитель щита
+                        tgt.applyForce(tmp0.scl(-1));
 
                         // depleting power shield
                         shield.power -= Math.min(shield.power, dA);
@@ -1003,26 +997,22 @@ public class GameScreen extends BaseScreen {
                         // tmp2.set(prj.vel).scl(prj.getMass() / dt);
                         // plsp.applyForce(tmp2);
 
+
+                        // Вращательное движение снарядов вокруг своей оси
+                        // под действием поля - чисто визуальный эффект
                         if(prj.type.contains(ObjectType.BULLET)) {
-
-                            prj.angVel += prj.dir.dot(playerShip.dir) > 0 ? 5 : -5;
+                            prj.angVel += prj.dir.dot(tgt.dir) > 0 ? 5 : -5;
                         }
-
-
-
-                    }
-                    else {
-                        //plsp.shield.targetSet.remove(prj);
                     }
                 }
 
                 // END FORCE SHIELD ---------------------------------------------------------------
 
 
-
+                // Само столкновение
                 if (tmp1.len() <= tgt.getRadius() + prj.getRadius()) {
 
-                    // fall on planet
+                    // Fall on planet
                     if (tgt == planet) {
 
                         tmp6.set(prj.pos).sub(tgt.pos).nor().rotate90(0);
@@ -1066,7 +1056,7 @@ public class GameScreen extends BaseScreen {
                     }
                     else {
 
-                        // direct impact
+                        // direct impact between objects
 
                         float effectiveArmor;// armour effectiveness
                         float amount;// damage amount
@@ -1083,8 +1073,7 @@ public class GameScreen extends BaseScreen {
                         amount = tgt.damage * (1 - effectiveArmor);
                         prj.doDamage(amount);
 
-                        //EMP damage
-
+                        // EMP damage
                         if (prj.isEmpArmament) {
                             if (tgt.type.contains(ObjectType.DRIVEN_OBJECT)) {
                                 amount = prj.empDamage * (1 - tgt.empArmour)/10;
@@ -1106,14 +1095,17 @@ public class GameScreen extends BaseScreen {
                             !tgt.type.contains(ObjectType.BLACKHOLE_SHELL)) {
 
 
-                            // отталкиваем цель при попадании в нее ракет/снарядов
+
 
                             float expCoef;
                             float elasticCollision;
+
+
+                            // отталкиваем цель при попадании в нее ракет/снарядов
+                            // 3 закон Ньютона - действие равно противодействию
                             expCoef = 0;
                             elasticCollision = 1;
 
-                            //if (!prj.readyToDispose) {
                             if (tgt.type.contains(ObjectType.BASIC_MISSILE) && !prj.isEmpArmament) {
                                 expCoef = tgt.damage > 1 ? tgt.damage : 1;
                             }
@@ -1127,7 +1119,6 @@ public class GameScreen extends BaseScreen {
 
                             expCoef = 0;
                             elasticCollision = 1;
-                            //if (!tgt.readyToDispose) {
                             if (prj.type.contains(ObjectType.BASIC_MISSILE) && !prj.isEmpArmament) {
                                 expCoef = prj.damage > 1 ? prj.damage : 1;
                             }
@@ -1138,7 +1129,9 @@ public class GameScreen extends BaseScreen {
                             tmp5.set(tgt.pos).sub(prj.pos).nor().setLength(tmp3.len());
                             tgt.applyForce(tmp5.scl(prj.getMass() / dt * elasticCollision + expCoef));
 
+                            // ---------------------------------------------
 
+                            // Красивые рикошеты от пуль
                             tmp3.set(tgt.vel).sub(prj.vel);
                             if ((prj.type.contains(ObjectType.BULLET) || prj.type.contains(ObjectType.FRAG)) && (tgt.type.contains(ObjectType.SHIP) || tgt.type.contains(ObjectType.GRAVITY_REPULSE_TORPEDO))) {
                                 tmp5.set(prj.pos).sub(tgt.pos).nor().setLength(tmp3.len()).scl(0.5f);
@@ -1170,18 +1163,12 @@ public class GameScreen extends BaseScreen {
                                     tgt.readyToDispose = true;
                                 }
                             }
-
-
-
-
-
                         }
 
                         playExplosionSound(prj, tgt);
 
                         hitLogger(tgt, prj);
                         hitLogger(prj, tgt);
-
                     }
 
 

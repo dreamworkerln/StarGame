@@ -22,9 +22,6 @@ public class ForceShield extends ShipComponent {
 
     public Color chargingColor = new Color(1f, 1f, 0.5f, 1f);
 
-    public Set<GameObject> targetSet = new HashSet<>();
-
-
     public float forceValue = 10000f*20f;
 
     public float power;
