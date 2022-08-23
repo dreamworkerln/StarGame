@@ -29,7 +29,7 @@ public class PlayerMissileLauncher extends MissileLauncher {
 
     private DummyObject dummy;
 
-    private final NavigableMap<Float, BPU.GuideResult> reticleMap = new TreeMap<>();
+    //private final NavigableMap<Float, BPU.GuideResult> reticleMap = new TreeMap<>();
 
     public PlayerMissileLauncher(float height, GameObject owner) {
         super(height, owner);
@@ -164,7 +164,7 @@ public class PlayerMissileLauncher extends MissileLauncher {
 
     }
 
-    
+    /*
     // делаем подсветку для курсовой пушки
     @Override
     public void update(float dt) {
@@ -206,7 +206,7 @@ public class PlayerMissileLauncher extends MissileLauncher {
             }
         }
     }
-
+    */
 
 
 
@@ -249,7 +249,7 @@ public class PlayerMissileLauncher extends MissileLauncher {
 
 
 
-
+                /*
                 // Course gun reticles
                 reticleMap.forEach( (aFloat, gr) -> {
 
@@ -262,7 +262,7 @@ public class PlayerMissileLauncher extends MissileLauncher {
                     shape.getColor().a = 1;
                     shape.circle(tmp0.x, tmp0.y, 10);
                 });
-
+                */
 
                 Gdx.gl.glLineWidth(1);
                 shape.flush();

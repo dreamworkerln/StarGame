@@ -77,9 +77,9 @@ public class BattleShip extends AbstractAIShip {
         minigun.ammoProducer.clear();
         minigun.addAmmoType(() -> {
             Bullet bullet = new Bullet(15, owner);
-            bullet.setDamage(bullet.getDamage()*16);
-            bullet.setMass(bullet.getMass()*2.5f);
-            bullet.setFirePower(bullet.getFirePower()*4);
+            bullet.setDamage(bullet.getDamage()*8);
+            bullet.setMass(bullet.getMass()*1.5f);
+            bullet.setFirePower(bullet.getFirePower()*2.5f);
             bullet.setExplosionRadius(bullet.getExplosionRadius()/3f);
             return bullet;
         });
