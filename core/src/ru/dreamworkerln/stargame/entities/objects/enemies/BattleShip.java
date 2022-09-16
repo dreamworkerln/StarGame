@@ -57,7 +57,7 @@ public class BattleShip extends AbstractAIShip {
         gun.ammoProducer.clear();
         gun.addAmmoType(() -> {
             Shell shell = new Shell(gun.getCalibre(), gun.getCalibre()/8, owner);
-            //shell.setDamage(bullet.getDamage()*4);
+            //shell.setDamage(shell.getDamage()*2);
             //shell.setMass(bullet.getMass()*2.5f);
             shell.setFirePower(shell.getFirePower()*1.2f);
             //shell.setExplosionRadius(bullet.getExplosionRadius()/3f);
@@ -79,6 +79,7 @@ public class BattleShip extends AbstractAIShip {
         minigun.addAmmoType(() -> {
             Bullet bullet = new Bullet(15, owner);
             bullet.setDamage(bullet.getDamage()*8);
+            bullet.setPenetration(0.5f);
             bullet.setMass(bullet.getMass()*1.5f);
             bullet.setFirePower(bullet.getFirePower()*2.5f);
             bullet.setExplosionRadius(bullet.getExplosionRadius()/3f);
@@ -90,7 +91,7 @@ public class BattleShip extends AbstractAIShip {
         FlakCannon flakCannon = new FlakCannon(10, this);
         flakCannon.fireRate = 0.01f;
         flakCannon.setCalibre(8);
-        flakCannon.setFiringMode(FlakCannon.FiringMode.ANTI_KINETIC);
+        flakCannon.setFiringMode(FlakCannon.FiringMode.PLASMA_ONLY);
         flakCannon.ammoProducer.clear();
 
         flakCannon.addAmmoType(() -> {

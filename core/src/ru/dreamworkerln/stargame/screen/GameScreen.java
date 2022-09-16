@@ -318,9 +318,9 @@ public class GameScreen extends BaseScreen {
 
 
         //debug
-        if (getTick() == 0) {
-            finalBattle();
-        }
+//        if (getTick() == 0) {
+//            finalBattle();
+//        }
 
         // spawn enemy ship
         if (getTick() % ENEMY_RESPAWN_TIME == 0 && !finalBattleInProcess) {

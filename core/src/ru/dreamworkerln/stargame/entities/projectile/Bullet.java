@@ -22,9 +22,9 @@ public class Bullet extends Projectile {
         firePower = 20;
 
         setMaxHealth(0.01f);
-        damage = 0.015f;
+        damage = 0.011f;
 
-        penetration = 0.5f;
+        penetration = 0.3f;
         explosionRadius = 1.5f *radius;
     }
 

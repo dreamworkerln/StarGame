@@ -21,6 +21,7 @@ import ru.dreamworkerln.stargame.screen.Renderer;
 public abstract class AbstractAIShip extends Ship {
 
     protected float avoidCollisionImpactTime = 1f;
+    protected float avoidCollisionOnEnemyImpactTime = 1f;
     protected float avoidCollisionAngle = (float) ThreadLocalRandom.current().nextDouble(25, 60);
 
     // какие типы объектов игнорировать при при угрозе столкновения (соответственно не обращать на них внимание)
@@ -168,9 +169,18 @@ public abstract class AbstractAIShip extends Ship {
             Float impactTime = (float)gr.impactTime;
 
 
-            if (!impactTime.isNaN() && impactTime > 0 && impactTime < avoidCollisionImpactTime) {
+            // afraid of close objects
+            if (!impactTime.isNaN() && impactTime > 0 && impactTime < avoidCollisionImpactTime ) {
                 // normalize to 1
                 tmp2.set(gr.guideVector).nor().scl(-(avoidCollisionImpactTime-impactTime)/avoidCollisionImpactTime);
+                tmp1.add(tmp2);
+            }
+            // afraid of close enemies
+            else if (!o.getSide().equals(this.side) &&
+                !impactTime.isNaN() && impactTime > 0 &&
+                impactTime < avoidCollisionOnEnemyImpactTime) {
+                // normalize to 1
+                tmp2.set(gr.guideVector).nor().scl(-(avoidCollisionOnEnemyImpactTime-impactTime)/avoidCollisionOnEnemyImpactTime);
                 tmp1.add(tmp2);
             }
 

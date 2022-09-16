@@ -22,6 +22,8 @@ public class MissileShip extends AbstractAIShip {
 
         type.add(ObjectType.MISSILE_SHIP);
 
+        avoidCollisionOnEnemyImpactTime = 3f;
+
         fuelConsumption = 0.1f;
         setMaxThrottle(50f);
 
@@ -87,8 +89,6 @@ public class MissileShip extends AbstractAIShip {
 
         // Уклонение от столкновения
         avoidCollision(dt);
-
-
 
 
         // ЛИБО Наведение на цель ------------------------------------------------------------------------

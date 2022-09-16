@@ -27,7 +27,7 @@ public class NewtonTorpedo extends AbstractMissile {
         explosionRadius = radius * 10;
         engineTrail.color = Color.GREEN;
 
-        armour = 0.3f;
+        armour = 1.0f;
         mass = 0.3f;
         setMaxThrottle(18f);
         setMaxHealth(25f);
